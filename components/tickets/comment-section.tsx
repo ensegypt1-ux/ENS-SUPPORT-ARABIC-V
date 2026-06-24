@@ -28,6 +28,7 @@ import { NameWithRole } from "@/components/shared/name-with-role";
 import { cn } from "@/lib/utils";
 import { buildAcceptAttribute } from "@/lib/file-type-utils";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { FORM_UI, UI } from "@/lib/strings";
 
 type UserMap = Record<
   string,
@@ -147,7 +148,7 @@ function Composer({
   parentCommentId,
   currentUserRole,
   fileUploadsEnabled,
-  placeholder = "Type your message here...",
+  placeholder = "اكتب رسالتك هنا...",
   autoFocus = false,
   compact = false,
   onPosted,
@@ -191,11 +192,11 @@ function Composer({
     e.preventDefault();
     const trimmed = content.trim();
     if (!trimmed && files.length === 0) {
-      toast.error("Write a message or attach a file");
+      toast.error("اكتب رسالة أو ارفع ملف");
       return;
     }
     if (!trimmed) {
-      toast.error("Message cannot be empty");
+      toast.error("الرسالة مينفعش تكون فاضية");
       return;
     }
 
@@ -230,10 +231,10 @@ function Composer({
       });
 
       if (!result.success) {
-        throw new Error(result.error || "Failed to post comment");
+        throw new Error(result.error || "مقدرناش ننشر التعليق");
       }
 
-      toast.success(parentCommentId ? "Reply posted" : "Comment posted");
+      toast.success(parentCommentId ? "اتنشر الرد" : "اتنشر التعليق");
       setContent("");
       setIsInternal(false);
       setFiles([]);
@@ -241,7 +242,7 @@ function Composer({
       router.refresh();
     } catch (err) {
       console.error(err);
-      toast.error(err instanceof Error ? err.message : "Failed to post");
+      toast.error(err instanceof Error ? err.message : "النشر مش ناجح");
     } finally {
       setIsSubmitting(false);
     }
@@ -279,7 +280,7 @@ function Composer({
                 type="button"
                 onClick={() => removeFile(i)}
                 disabled={isSubmitting}
-                className="ml-0.5 rounded hover:bg-background p-0.5"
+                className="ms-0.5 rounded hover:bg-background p-0.5"
                 aria-label={`Remove ${f.name}`}
               >
                 <X className="h-3 w-3" />
@@ -309,8 +310,8 @@ function Composer({
                 onClick={handlePickFiles}
                 disabled={isSubmitting}
                 className="h-8 w-8"
-                aria-label="Attach file"
-                title="Attach file"
+                aria-label="إرفاق ملف"
+                title="إرفاق ملف"
               >
                 <Paperclip className="h-4 w-4" />
               </Button>
@@ -328,7 +329,7 @@ function Composer({
                   : "text-muted-foreground hover:bg-muted"
               )}
               aria-pressed={isInternal}
-              title="Internal note (staff only)"
+              title="ملاحظة داخلية (للفريق بس)"
             >
               <Lock className="h-3 w-3" />
               Internal
@@ -351,7 +352,7 @@ function Composer({
           <Button type="submit" size="sm" disabled={isSubmitting} className="h-8">
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
                 Posting
               </>
             ) : parentCommentId ? (
@@ -412,11 +413,11 @@ export function CommentSection({
   const saveEdit = async (comment: Comment) => {
     const trimmed = editContent?.trim() ?? "";
     if (trimmed.length < 1) {
-      toast.error("Comment cannot be empty");
+      toast.error("التعليق مينفعش يكون فاضي");
       return;
     }
     if (trimmed.length > 2000) {
-      toast.error("Comment must not exceed 2000 characters");
+      toast.error("التعليق لازم يكون أقل من 2000 حرف");
       return;
     }
 
@@ -431,16 +432,16 @@ export function CommentSection({
       });
 
       if (result.success) {
-        toast.success("Comment updated");
+        toast.success("التعليق اتحدّث");
         setEditingId(null);
         setEditContent("");
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update comment");
+        toast.error(result.error || "مقدرناش نحدّث التعليق");
       }
     } catch (e) {
       console.error(e);
-      toast.error("An unexpected error occurred");
+      toast.error(FORM_UI.unexpectedError);
     } finally {
       setIsSavingEdit(false);
     }
@@ -474,7 +475,7 @@ export function CommentSection({
               className={cn(
                 "rounded-md px-3 py-2 transition-colors",
                 isInternal
-                  ? "bg-yellow-50 dark:bg-yellow-950/20 border-l-2 border-yellow-400"
+                  ? "bg-yellow-50 dark:bg-yellow-950/20 border-s-2 border-yellow-400"
                   : "bg-muted/40 group-hover:bg-muted/60"
               )}
             >
@@ -506,7 +507,7 @@ export function CommentSection({
                     type="button"
                     onClick={() => startEdit(comment)}
                     className="ml-auto text-xs text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-foreground transition-opacity inline-flex items-center gap-1"
-                    aria-label="Edit comment"
+                    aria-label="تعديل التعليق"
                   >
                     <PencilLine className="h-3 w-3" />
                     Edit
@@ -535,7 +536,7 @@ export function CommentSection({
                         disabled={isSavingEdit}
                         className="h-7 text-xs"
                       >
-                        <Undo2 className="h-3 w-3 mr-1" />
+                        <Undo2 className="h-3 w-3 me-1" />
                         Cancel
                       </Button>
                       <Button
@@ -548,7 +549,7 @@ export function CommentSection({
                           <Loader2 className="h-3 w-3 animate-spin" />
                         ) : (
                           <>
-                            <Check className="h-3 w-3 mr-1" />
+                            <Check className="h-3 w-3 me-1" />
                             Save
                           </>
                         )}
@@ -571,7 +572,7 @@ export function CommentSection({
             </div>
 
             {!isEditing && (
-              <div className="mt-1 flex items-center gap-3 pl-3">
+              <div className="mt-1 flex items-center gap-3 ps-3">
                 <button
                   type="button"
                   onClick={() =>
@@ -586,7 +587,7 @@ export function CommentSection({
             )}
 
             {isReplying && (
-              <div className="mt-3 pl-3">
+              <div className="mt-3 ps-3">
                 <Composer
                   ticketId={ticketId}
                   parentCommentId={comment._id.toString()}
@@ -602,7 +603,7 @@ export function CommentSection({
             )}
 
             {replies.length > 0 && (
-              <div className="mt-4 space-y-4 border-l pl-4 ml-1">
+              <div className="mt-4 space-y-4 border-s ps-4 ms-1">
                 {replies.map((r) => renderThread(r, depth + 1))}
               </div>
             )}
@@ -658,7 +659,7 @@ export function CommentSection({
         <DialogContent className="max-w-4xl">
           {previewAttachment && (
             <div className="space-y-3">
-              <DialogTitle className="text-sm font-medium truncate pr-8">
+              <DialogTitle className="text-sm font-medium truncate pe-8">
                 {previewAttachment.originalFilename}
               </DialogTitle>
               {previewAttachment.mimeType?.startsWith("image/") ? (

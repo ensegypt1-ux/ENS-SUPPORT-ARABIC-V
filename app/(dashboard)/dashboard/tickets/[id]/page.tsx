@@ -31,6 +31,7 @@ import {
   CheckCircle2,
   Globe,
 } from "lucide-react";
+import { CATEGORY_LABELS, FALLBACKS, FORM_UI, TICKET_UI } from "@/lib/strings";
 import { formatDate } from "@/lib/settings-utils";
 import type { User as UserType } from "@/types";
 import type { SessionUser } from "@/lib/auth";
@@ -94,7 +95,7 @@ export default async function TicketDetailPage({
   > = {};
   usersData.forEach((user) => {
     users[user.id] = {
-      name: user.name || "Unknown User",
+      name: user.name || FALLBACKS.unknownUser,
       email: user.email || "",
       role: user.role || "customer",
       image: user.image,
@@ -110,7 +111,7 @@ export default async function TicketDetailPage({
     });
     if (byObjectId) {
       const entry = {
-        name: byObjectId.name || "Unknown User",
+        name: byObjectId.name || FALLBACKS.unknownUser,
         email: byObjectId.email || "",
         role: byObjectId.role || "customer",
         image: byObjectId.image,
@@ -135,15 +136,11 @@ export default async function TicketDetailPage({
 
       if (customerUser) {
         users[ticket.customerId] = {
-          name: customerUser.name || "Unknown User",
+          name: customerUser.name || FALLBACKS.unknownUser,
           email: customerUser.email || "",
           role: customerUser.role || "customer",
           image: customerUser.image,
         };
-      } else {
-        console.warn(
-          `Customer not found for ticket ${ticket.ticketNumber}. CustomerId: ${ticket.customerId}`
-        );
       }
     } catch (error) {
       console.error("Error fetching customer user:", error);
@@ -153,7 +150,7 @@ export default async function TicketDetailPage({
   const customer = users[ticket.customerId] || {
     // Guest tickets (AI chatbot widget) have no user record — fall back to the
     // name/email the visitor entered in the contact form.
-    name: ticket.guestName || "Unknown Customer",
+    name: ticket.guestName || "عميل غير معروف",
     email: ticket.guestEmail || "",
     role: "customer",
   };
@@ -176,7 +173,7 @@ export default async function TicketDetailPage({
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/tickets">
             <ArrowLeft className="h-4 w-4" />
-            Back
+            {TICKET_UI.backToTickets}
           </Link>
         </Button>
       </div>
@@ -187,7 +184,7 @@ export default async function TicketDetailPage({
           {/* Ticket Description */}
           <Card>
             <CardHeader>
-              <CardTitle>Description</CardTitle>
+              <CardTitle>{TICKET_UI.description}</CardTitle>
             </CardHeader>
             <CardContent>
               <TicketDescription description={ticket.description} />
@@ -198,18 +195,18 @@ export default async function TicketDetailPage({
           <Tabs defaultValue="comments" className="space-y-4">
             <TabsList>
               <TabsTrigger value="comments">
-                Comments ({comments.length})
+                {TICKET_UI.comments} ({comments.length})
               </TabsTrigger>
               <TabsTrigger value="meetings">
-                Meetings ({meetings.length})
+                {TICKET_UI.meetings} ({meetings.length})
               </TabsTrigger>
               {fileUploadsEnabled && (
                 <TabsTrigger value="attachments">
-                  Attachments ({attachments.length})
+                  {TICKET_UI.attachments} ({attachments.length})
                 </TabsTrigger>
               )}
               <TabsTrigger value="history">
-                History ({history.length})
+                {TICKET_UI.history} ({history.length})
               </TabsTrigger>
             </TabsList>
 
@@ -262,13 +259,13 @@ export default async function TicketDetailPage({
           {/* Ticket Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Ticket Information</CardTitle>
+              <CardTitle>{TICKET_UI.ticketInfo}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <User className="h-4 w-4" />
-                  <span className="font-medium">Customer</span>
+                  <span className="font-medium">{TICKET_UI.customer}</span>
                 </div>
                 <p className="text-sm">
                   <NameWithRole
@@ -285,7 +282,7 @@ export default async function TicketDetailPage({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span className="font-medium">Created</span>
+                  <span className="font-medium">{TICKET_UI.created}</span>
                 </div>
                 <p className="text-sm">
                   {ticket.createdAt &&
@@ -298,7 +295,7 @@ export default async function TicketDetailPage({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span className="font-medium">Last Updated</span>
+                  <span className="font-medium">{TICKET_UI.lastActivity}</span>
                 </div>
                 <p className="text-sm">
                   {ticket.updatedAt &&
@@ -312,10 +309,10 @@ export default async function TicketDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Tag className="h-4 w-4" />
-                      <span className="font-medium">Category</span>
+                      <span className="font-medium">{TICKET_UI.category}</span>
                     </div>
                     <p className="text-sm capitalize">
-                      {ticket.category.replace("_", " ")}
+                      {CATEGORY_LABELS[ticket.category] || ticket.category.replace("_", " ")}
                     </p>
                   </div>
                 </>
@@ -327,7 +324,7 @@ export default async function TicketDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <User className="h-4 w-4" />
-                      <span className="font-medium">Assigned To</span>
+                      <span className="font-medium">{TICKET_UI.assignedTo}</span>
                     </div>
                     <p className="text-sm">
                       <NameWithRole
@@ -347,7 +344,7 @@ export default async function TicketDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      <span className="font-medium">Resolved</span>
+                      <span className="font-medium">{TICKET_UI.resolved}</span>
                     </div>
                     <p className="text-sm">
                       {ticket.resolvedAt &&
@@ -363,7 +360,7 @@ export default async function TicketDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Globe className="h-4 w-4" />
-                      <span className="font-medium">Timezone</span>
+                      <span className="font-medium">{FORM_UI.timezone}</span>
                     </div>
                     <p className="text-sm">
                       {TIMEZONES.find((tz) => tz.value === ticket.timezone)
@@ -383,14 +380,14 @@ export default async function TicketDetailPage({
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Package className="h-5 w-5 text-muted-foreground" />
-                  <CardTitle>Product Information</CardTitle>
+                  <CardTitle>{FORM_UI.productInfo}</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {ticket.productName && (
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">
-                      Product Name
+                      {FORM_UI.productName}
                     </p>
                     <p className="text-sm font-medium">{ticket.productName}</p>
                   </div>
@@ -400,7 +397,7 @@ export default async function TicketDetailPage({
                   <>
                     <Separator />
                     <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Version</p>
+                      <p className="text-sm text-muted-foreground">{TICKET_UI.version}</p>
                       <p className="text-sm font-medium">
                         {ticket.productVersion}
                       </p>
@@ -413,7 +410,7 @@ export default async function TicketDetailPage({
                     <Separator />
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground">
-                        Purchase Code
+                        {TICKET_UI.purchaseCode}
                       </p>
                       <p className="text-xs font-mono break-all bg-muted p-2 rounded border">
                         {ticket.purchaseCode}
@@ -430,13 +427,13 @@ export default async function TicketDetailPage({
                       <div className="flex items-center gap-2 text-success">
                         <CheckCircle2 className="h-4 w-4" />
                         <span className="text-sm font-semibold">
-                          Purchase Verified
+                          {TICKET_UI.purchaseVerified}
                         </span>
                       </div>
 
                       {ticket.purchaseVerification.buyer && (
                         <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground">Buyer</p>
+                          <p className="text-xs text-muted-foreground">المشتري</p>
                           <p className="text-sm font-medium">
                             {ticket.purchaseVerification.buyer}
                           </p>
@@ -445,7 +442,7 @@ export default async function TicketDetailPage({
 
                       {ticket.purchaseVerification.itemName && (
                         <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground">Item</p>
+                          <p className="text-xs text-muted-foreground">المنتج</p>
                           <p className="text-sm font-medium">
                             {ticket.purchaseVerification.itemName}
                           </p>
@@ -455,7 +452,7 @@ export default async function TicketDetailPage({
                       {ticket.purchaseVerification.licenseType && (
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground">
-                            License
+                            {TICKET_UI.license}
                           </p>
                           <p className="text-sm font-medium">
                             {ticket.purchaseVerification.licenseType}
@@ -466,7 +463,7 @@ export default async function TicketDetailPage({
                       {ticket.purchaseVerification.purchaseDate && (
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground">
-                            Purchase Date
+                            تاريخ الشراء
                           </p>
                           <p className="text-sm">
                             {await formatDate(
@@ -479,7 +476,7 @@ export default async function TicketDetailPage({
                       {ticket.purchaseVerification.supportedUntil && (
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground">
-                            Support Valid Until
+                            الدعم ساري لحد
                           </p>
                           <p className="text-sm">
                             {await formatDate(
@@ -492,7 +489,7 @@ export default async function TicketDetailPage({
                             ticket.purchaseVerification.supportedUntil
                           ) < new Date() && (
                             <p className="text-xs text-destructive font-medium">
-                              ⚠️ Support has expired
+                              ⚠️ الدعم انتهى
                             </p>
                           )}
                         </div>

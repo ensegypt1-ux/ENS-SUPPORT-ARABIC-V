@@ -41,7 +41,7 @@ export function FileUpload({
     // Validate file size
     if (file.size > maxFileSize) {
       const maxSizeMB = (maxFileSize / 1024 / 1024).toFixed(2);
-      toast.error(`File size exceeds maximum allowed size of ${maxSizeMB}MB`);
+      toast.error(`حجم الملف يتجاوز الحد الأقصى المسموح به ${maxSizeMB} م.ب`);
       return;
     }
 
@@ -53,9 +53,9 @@ export function FileUpload({
     });
     if (!resolvedMimeType) {
       toast.error(
-        `File type ${
-          file.type || "unknown"
-        } is not allowed. Allowed types: ${allowedTypes.join(", ")}`
+        `نوع الملف ${
+          file.type || "غير معروف"
+        } غير مسموح. الأنواع المسموحة: ${allowedTypes.join(", ")}`
       );
       return;
     }
@@ -75,18 +75,18 @@ export function FileUpload({
       const result = await uploadAttachment(ticketId, formData);
 
       if (result.success) {
-        toast.success("File uploaded successfully!");
+        toast.success("تم رفع الملف!");
         setSelectedFile(null);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
         onUploadComplete?.();
       } else {
-        toast.error(result.error || "Failed to upload file");
+        toast.error(result.error || "تعذّر رفع الملف");
       }
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("Failed to upload file");
+      toast.error("تعذّر رفع الملف");
     } finally {
       setIsUploading(false);
     }
@@ -100,9 +100,9 @@ export function FileUpload({
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === 0) return "0 بايت";
     const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const sizes = ["بايت", "ك.ب", "م.ب", "غ.ب"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
@@ -126,10 +126,10 @@ export function FileUpload({
               <div className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-foreground/30 transition-colors">
                 <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">
-                  Click to select a file or drag and drop
+                  انقر لاختيار ملف أو اسحبه وأفلته هنا
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Max size: {(maxFileSize / 1024 / 1024).toFixed(2)}MB
+                  الحد الأقصى: {(maxFileSize / 1024 / 1024).toFixed(2)} م.ب
                 </p>
               </div>
             </label>
@@ -146,15 +146,15 @@ export function FileUpload({
                   {formatFileSize(selectedFile.size)}
                 </p>
               </div>
-              <div className="flex items-center gap-2 ml-4">
+              <div className="flex items-center gap-2 ms-4">
                 <Button onClick={handleUpload} disabled={isUploading} size="sm">
                   {isUploading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploading...
+                      <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                      جاري الرفع...
                     </>
                   ) : (
-                    "Upload"
+                    "رفع"
                   )}
                 </Button>
                 <Button
@@ -171,8 +171,8 @@ export function FileUpload({
 
           {/* Allowed File Types */}
           <div className="text-xs text-muted-foreground">
-            <p className="font-medium mb-1">Allowed file types:</p>
-            <p>Images (JPEG, PNG, GIF, WebP), PDF, Text, ZIP</p>
+            <p className="font-medium mb-1">أنواع الملفات المسموحة:</p>
+            <p>صور (JPEG, PNG, GIF, WebP)، PDF، نص، ZIP</p>
           </div>
         </div>
       </CardContent>

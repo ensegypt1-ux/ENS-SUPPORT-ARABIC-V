@@ -4,9 +4,9 @@ import type { Badge } from "@/components/ui/badge";
 export function formatRoleLabel(role?: string | null) {
   const r = (role || "").trim().toLowerCase();
   if (!r) return "";
-  if (r === "admin") return "Admin";
-  if (r === "support") return "Support";
-  if (r === "customer") return "Customer";
+  if (r === "admin") return "مدير";
+  if (r === "support") return "دعم";
+  if (r === "customer") return "عميل";
   return r
     .replace(/_/g, " ")
     .split(" ")
@@ -57,6 +57,6 @@ export function NameWithRole({
   className?: string;
   badgeClassName?: string;
 }) {
-  const displayName = (name || "").trim() || "Unknown";
+  const displayName = (name || "").trim() || "مستخدم";
   return <span className={className}>{displayName}</span>;
 }

@@ -26,36 +26,36 @@ export default async function DashboardPage() {
   // Key metrics - single row like admin dashboard
   const keyStats = [
     {
-      title: "Open Tickets",
+      title: "تذاكر مفتوحة",
       value: tickets.filter((t) => t.status === "open").length,
       icon: AlertCircle,
       iconColor: "text-warning",
       iconBgColor: "bg-warning/15",
-      description: "Awaiting response",
+      description: "مستنيين ردّ",
     },
     {
-      title: "In Progress",
+      title: "شغّالين عليها",
       value: tickets.filter((t) => t.status === "in_progress").length,
       icon: Clock,
       iconColor: "text-accent",
       iconBgColor: "bg-accent/15",
-      description: "Being worked on",
+      description: "قيد الشغل",
     },
     {
-      title: "Resolved",
+      title: "اتحلّت",
       value: tickets.filter((t) => t.status === "resolved").length,
       icon: CheckCircle2,
       iconColor: "text-success",
       iconBgColor: "bg-success/15",
-      description: "Completed tickets",
+      description: "تذاكر خلصت",
     },
     {
-      title: "Total Tickets",
+      title: "كل التذاكر",
       value: tickets.length,
       icon: Ticket,
       iconColor: "text-info",
       iconBgColor: "bg-info/15",
-      description: "All time",
+      description: "من الأول",
     },
   ];
 
@@ -65,10 +65,10 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Welcome back, {session?.user?.name}!
+            أهلاً بيك تاني، {session?.user?.name}!
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Here&apos;s an overview of your support activity
+            ده ملخص الدعم بتاعك
           </p>
         </div>
       </div>
@@ -83,12 +83,12 @@ export default async function DashboardPage() {
             <div className="p-2 rounded-lg bg-info/15">
               <Ticket className="h-4 w-4 text-info" />
             </div>
-            Recent Tickets
+            التذاكر الأخيرة
           </CardTitle>
           <Button asChild size="sm">
             <Link href="/dashboard/tickets/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Ticket
+              <Plus className="me-2 h-4 w-4" />
+              افتح تذكرة
             </Link>
           </Button>
         </CardHeader>
@@ -96,14 +96,14 @@ export default async function DashboardPage() {
           {recentTickets?.length === 0 ? (
             <div className="text-center py-12">
               <Ticket className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-semibold">No tickets yet</h3>
+              <h3 className="mt-4 text-lg font-semibold">مفيش تذاكر بعد</h3>
               <p className="text-muted-foreground mt-2">
-                Get started by creating your first support ticket
+                افتح أول تذكرة دعم ليك
               </p>
               <Button asChild className="mt-4">
                 <Link href="/dashboard/tickets/new">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Ticket
+                  <Plus className="me-2 h-4 w-4" />
+                  افتح تذكرة
                 </Link>
               </Button>
             </div>
@@ -117,7 +117,7 @@ export default async function DashboardPage() {
               {tickets?.length > 5 && (
                 <div className="text-center pt-4">
                   <Button asChild variant="outline">
-                    <Link href="/dashboard/tickets">View All Tickets</Link>
+                    <Link href="/dashboard/tickets">عرض كل التذاكر</Link>
                   </Button>
                 </div>
               )}

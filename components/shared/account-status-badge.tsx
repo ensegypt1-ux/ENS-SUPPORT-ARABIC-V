@@ -12,19 +12,19 @@ const APPEARANCE: Record<
     { label: string; dot: string; className: string }
 > = {
     active: {
-        label: "Active",
+        label: "نشط",
         dot: "bg-emerald-500",
         className:
             "border-emerald-200 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400 bg-transparent",
     },
     disabled: {
-        label: "Disabled",
+        label: "معطّل",
         dot: "bg-amber-500",
         className:
             "border-amber-200 text-amber-600 dark:border-amber-500/30 dark:text-amber-400 bg-transparent",
     },
     banned: {
-        label: "Banned",
+        label: "محظور",
         dot: "bg-rose-500",
         className:
             "border-rose-200 text-rose-600 dark:border-rose-500/30 dark:text-rose-400 bg-transparent",

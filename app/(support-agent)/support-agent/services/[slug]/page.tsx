@@ -70,66 +70,66 @@ export default async function SupportAgentServicePage({
 
   const stats = [
     {
-      title: "Total Assigned",
+      title: "إجمالي المعيّن",
       value: requests.length,
       icon: Icon,
       iconColor: "text-slate-600",
       iconBgColor: "bg-slate-50 dark:bg-slate-950",
-      description: `${service.name} requests assigned to you`,
+      description: `طلبات ${service.name} المعيّنة لك`,
     },
     {
-      title: "Open",
+      title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
       iconColor: "text-amber-600",
       iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "Awaiting your review",
+      description: "في انتظار مراجعتك",
     },
     {
-      title: "In Progress",
+      title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
       iconColor: "text-indigo-600",
       iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "You are working on",
+      description: "تعمل عليها حاليًا",
     },
     {
-      title: "Resolved / Closed",
+      title: "محلولة / مغلقة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
       iconColor: "text-emerald-600",
       iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "Completed requests",
+      description: "طلبات مكتملة",
     },
   ];
 
   const tabItems = [
-    { value: "all", label: "All", count: requests.length },
-    { value: "open", label: "Open", count: openRequests.length },
+    { value: "all", label: "الكل", count: requests.length },
+    { value: "open", label: "مفتوحة", count: openRequests.length },
     {
       value: "scheduled_meeting",
-      label: "Scheduled Meeting",
+      label: "اجتماع مجدول",
       count: scheduledMeetingRequests.length,
     },
-    { value: "waiting_on_customer", label: "Waiting", count: waitingRequests.length },
-    { value: "in_progress", label: "In Progress", count: inProgressRequests.length },
-    { value: "resolved", label: "Resolved", count: resolvedRequests.length },
-    { value: "closed", label: "Closed", count: closedRequests.length },
+    { value: "waiting_on_customer", label: "في الانتظار", count: waitingRequests.length },
+    { value: "in_progress", label: "قيد المعالجة", count: inProgressRequests.length },
+    { value: "resolved", label: "محلولة", count: resolvedRequests.length },
+    { value: "closed", label: "مغلقة", count: closedRequests.length },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold">{service.name} Requests</h1>
+          <h1 className="text-3xl font-bold">طلبات {service.name}</h1>
           <p className="text-muted-foreground mt-1">
-            Manage {service.name.toLowerCase()} service requests assigned to you
+            إدارة طلبات خدمة {service.name} المعيّنة لك
           </p>
         </div>
         <Button asChild>
           <Link href={`/support-agent/services/${slug}/new`}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Request
+            <Plus className="h-4 w-4 me-2" />
+            طلب جديد
           </Link>
         </Button>
       </div>
@@ -141,7 +141,7 @@ export default async function SupportAgentServicePage({
           <PageTabsHeader
             tabs={tabItems}
             showSearch
-            searchPlaceholder="Search requests..."
+            searchPlaceholder="بحث في الطلبات..."
             searchDefaultValue={filters.search}
             showPriorityFilter
             priorityDefaultValue={filters.priority}
@@ -150,7 +150,7 @@ export default async function SupportAgentServicePage({
 
           <TabsContent value="all" className={viewMode === "card" ? "space-y-3" : ""}>
             {requests.length === 0 ? (
-              <EmptySearchResults searchQuery={filters.search} entityName="requests" />
+              <EmptySearchResults searchQuery={filters.search} entityName="طلبات" />
             ) : viewMode === "table" ? (
               <TicketsTable tickets={requests} hrefBase={`/support-agent/services/${slug}`} />
             ) : (
@@ -166,7 +166,7 @@ export default async function SupportAgentServicePage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No open requests
+                  مفيش طلبات مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -187,7 +187,7 @@ export default async function SupportAgentServicePage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No scheduled meeting requests
+                  مفيش طلبات باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -211,7 +211,7 @@ export default async function SupportAgentServicePage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No waiting requests
+                  مفيش طلبات في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -232,7 +232,7 @@ export default async function SupportAgentServicePage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No in-progress requests
+                  مفيش طلبات قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -253,7 +253,7 @@ export default async function SupportAgentServicePage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No resolved requests
+                  مفيش طلبات محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -274,7 +274,7 @@ export default async function SupportAgentServicePage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No closed requests
+                  مفيش طلبات مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

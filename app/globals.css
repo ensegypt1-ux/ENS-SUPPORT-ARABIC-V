@@ -8,7 +8,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
 
   /* Core brand tokens */
@@ -129,6 +129,10 @@
   --warning-soft: color-mix(in oklab, var(--warning) 12%, transparent);
   --info-soft: color-mix(in oklab, var(--info) 10%, transparent);
   --destructive-soft: color-mix(in oklab, var(--destructive) 10%, transparent);
+
+  /* ENSMenu product accent (support homepage) */
+  --ensmenu-accent: oklch(0.52 0.19 295);
+  --ensmenu-accent-soft: color-mix(in oklab, var(--ensmenu-accent) 10%, transparent);
 }
 
 .dark {
@@ -192,6 +196,9 @@
   --warning-soft: color-mix(in oklab, var(--warning) 22%, transparent);
   --info-soft: color-mix(in oklab, var(--info) 18%, transparent);
   --destructive-soft: color-mix(in oklab, var(--destructive) 18%, transparent);
+
+  --ensmenu-accent: oklch(0.72 0.16 295);
+  --ensmenu-accent-soft: color-mix(in oklab, var(--ensmenu-accent) 16%, transparent);
 }
 
 @layer base {
@@ -199,7 +206,146 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground leading-relaxed;
+  }
+  html[dir="rtl"] {
+    text-align: right;
+  }
+  html[dir="rtl"] input,
+  html[dir="rtl"] textarea,
+  html[dir="rtl"] select {
+    text-align: start;
+  }
+
+  /* Admin panel — Arabic-first layout (explicit RTL, not translation-only) */
+  [data-admin-panel] {
+    direction: rtl;
+    text-align: right;
+  }
+
+  [data-admin-panel] input:not([dir="ltr"]),
+  [data-admin-panel] textarea:not([dir="ltr"]),
+  [data-admin-panel] [data-slot="input"]:not([dir="ltr"]),
+  [data-admin-panel] [data-slot="textarea"]:not([dir="ltr"]) {
+    direction: rtl;
+    text-align: right;
+  }
+
+  [data-admin-panel] input[type="email"],
+  [data-admin-panel] input.input-ltr {
+    direction: ltr;
+    text-align: left;
+  }
+
+  [data-admin-panel] label,
+  [data-admin-panel] [data-slot="label"] {
+    display: block;
+    width: 100%;
+    text-align: start;
+  }
+
+  [data-admin-panel] [data-slot="tabs-list"] {
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  [data-admin-panel] [data-slot="tabs-trigger"] {
+    flex-direction: row-reverse;
+  }
+
+  [data-admin-panel] [data-slot="table-head"],
+  [data-admin-panel] [data-slot="table-cell"] {
+    text-align: right;
+  }
+
+  [data-admin-panel] .admin-save-row {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+  }
+
+  html[dir="rtl"] main h1,
+  html[dir="rtl"] main h2,
+  html[dir="rtl"] main h3,
+  html[dir="rtl"] [data-admin-panel] h1,
+  html[dir="rtl"] [data-admin-panel] h2,
+  html[dir="rtl"] [data-admin-panel] h3 {
+    text-align: start;
+  }
+
+  html[dir="rtl"] main [data-slot="card-description"],
+  html[dir="rtl"] main [data-slot="form-description"],
+  html[dir="rtl"] main [data-slot="form-message"],
+  html[dir="rtl"] [data-admin-panel] [data-slot="card-description"],
+  html[dir="rtl"] [data-admin-panel] [data-slot="form-description"],
+  html[dir="rtl"] [data-admin-panel] [data-slot="form-message"] {
+    text-align: start;
+  }
+
+  html[dir="rtl"] main [data-slot="card-header"],
+  html[dir="rtl"] [data-admin-panel] [data-slot="card-header"] {
+    text-align: start;
+  }
+
+  html[dir="rtl"] main [data-slot="card-title"].flex,
+  html[dir="rtl"] [data-admin-panel] [data-slot="card-title"].flex {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: start;
+  }
+
+  html[dir="rtl"] main form .flex.items-center.justify-between.rounded-xl,
+  html[dir="rtl"] main form .flex.items-center.justify-between.rounded-lg,
+  html[dir="rtl"] main [data-slot="card-content"] .flex.items-center.justify-between.rounded-xl,
+  html[dir="rtl"] main [data-slot="card-content"] .flex.items-center.justify-between.rounded-lg,
+  html[dir="rtl"] [data-admin-panel] form .flex.items-center.justify-between.rounded-xl,
+  html[dir="rtl"] [data-admin-panel] form .flex.items-center.justify-between.rounded-lg,
+  html[dir="rtl"] [data-admin-panel] [data-slot="card-content"] .flex.items-center.justify-between.rounded-xl,
+  html[dir="rtl"] [data-admin-panel] [data-slot="card-content"] .flex.items-center.justify-between.rounded-lg {
+    flex-direction: row;
+    text-align: start;
+  }
+
+  html[dir="rtl"] main .flex.justify-end,
+  html[dir="rtl"] main form .flex.justify-end,
+  html[dir="rtl"] [data-admin-panel] .flex.justify-end,
+  html[dir="rtl"] [data-admin-panel] form .flex.justify-end,
+  html[dir="rtl"] main form .flex.justify-between:has(button[type="submit"]),
+  html[dir="rtl"] [data-admin-panel] form .flex.justify-between:has(button[type="submit"]) {
+    justify-content: flex-start;
+  }
+
+  html[dir="rtl"] main .panel-page-header,
+  html[dir="rtl"] [data-admin-panel] .panel-page-header {
+    text-align: start;
+  }
+
+  html[dir="rtl"] main .panel-page-title-row,
+  html[dir="rtl"] [data-admin-panel] .panel-page-title-row {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  html[dir="rtl"] main .panel-page-toolbar,
+  html[dir="rtl"] [data-admin-panel] .panel-page-toolbar {
+    flex-direction: row;
+  }
+
+  html[dir="rtl"] main [data-slot="tabs-list"],
+  html[dir="rtl"] [data-admin-panel] [data-slot="tabs-list"] {
+    justify-content: flex-start;
+  }
+
+  /* Remove English SaaS uppercase micro-label styling in RTL */
+  html[dir="rtl"] .uppercase.tracking-wider,
+  html[dir="rtl"] .uppercase.tracking-wide,
+  html[dir="rtl"] .uppercase.tracking-widest,
+  html[dir="rtl"] .uppercase.tracking-\[0\.15em\],
+  html[dir="rtl"] .uppercase.tracking-\[0\.14em\],
+  html[dir="rtl"] .uppercase.tracking-\[0\.08em\] {
+    text-transform: none;
+    letter-spacing: normal;
   }
 }
 
@@ -208,7 +354,119 @@
     transform: translateX(0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(50%);
+  }
+}
+
+@keyframes support-collapsible-down {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+}
+
+@keyframes support-collapsible-up {
+  from {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+@layer utilities {
+  .support-collapsible-content[data-state="open"] {
+    animation: support-collapsible-down 220ms ease-out;
+  }
+
+  .support-collapsible-content[data-state="closed"] {
+    animation: support-collapsible-up 180ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .support-collapsible-content[data-state="open"],
+    .support-collapsible-content[data-state="closed"] {
+      animation: none;
+    }
+  }
+
+  html.support-scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.support-scroll-smooth {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* ENS support homepage — brand atmosphere */
+  .support-home-shell {
+    background-color: var(--surface);
+    background-image: radial-gradient(
+      ellipse 90% 55% at 50% -12%,
+      color-mix(in oklab, var(--primary) 9%, transparent),
+      transparent 68%
+    );
+  }
+
+  .support-hero-glow {
+    background: radial-gradient(
+      ellipse 75% 65% at 50% 0%,
+      color-mix(in oklab, var(--primary) 14%, transparent),
+      transparent 72%
+    );
+  }
+
+  .ensmenu-surface {
+    border-radius: 1rem;
+    border: 1px solid color-mix(in oklab, var(--ensmenu-accent) 22%, var(--border));
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--ensmenu-accent) 5%, var(--card)) 0%,
+      var(--card) 55%
+    );
+    box-shadow:
+      0 1px 2px color-mix(in oklab, var(--ensmenu-accent) 8%, transparent),
+      0 6px 20px color-mix(in oklab, var(--ensmenu-accent) 10%, transparent);
+  }
+
+  .support-ensmenu-panel {
+    position: relative;
+  }
+
+  .support-ensmenu-panel::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 1.25rem;
+    bottom: 1.25rem;
+    width: 3px;
+    border-radius: 9999px;
+    background: linear-gradient(
+      to bottom,
+      var(--ensmenu-accent),
+      color-mix(in oklab, var(--ensmenu-accent) 35%, transparent)
+    );
+  }
+
+  .ensmenu-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in oklab, var(--ensmenu-accent) 28%, transparent);
+    background: color-mix(in oklab, var(--ensmenu-accent) 9%, transparent);
+    padding: 0.25rem 0.625rem;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ensmenu-accent);
   }
 }
 

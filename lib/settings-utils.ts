@@ -1,5 +1,11 @@
 import { getCollection } from "@/lib/db";
 import { SystemSettings, DEFAULT_SETTINGS } from "@/types/settings";
+import {
+  ENS_BRAND,
+  LEGACY_COMPANY_NAMES,
+  LEGACY_SITE_DESCRIPTIONS,
+  LEGACY_SITE_NAMES,
+} from "@/lib/ens-brand";
 
 /**
  * Get system settings (cached for performance)
@@ -18,6 +24,34 @@ export async function getSystemSettings(): Promise<SystemSettings> {
         updatedAt: new Date(),
         updatedBy: "system",
       } as SystemSettings;
+    }
+
+    const needsSiteNameMigration = (
+      LEGACY_SITE_NAMES as readonly string[]
+    ).includes(settings.general.siteName);
+    const needsDescriptionMigration = (
+      LEGACY_SITE_DESCRIPTIONS as readonly string[]
+    ).includes(settings.general.siteDescription);
+    const needsCompanyMigration = (
+      LEGACY_COMPANY_NAMES as readonly string[]
+    ).includes(settings.general.companyName);
+
+    if (
+      needsSiteNameMigration ||
+      needsDescriptionMigration ||
+      needsCompanyMigration
+    ) {
+      const general = { ...settings.general };
+      if (needsSiteNameMigration) general.siteName = ENS_BRAND.portalTitle;
+      if (needsDescriptionMigration)
+        general.siteDescription = ENS_BRAND.siteDescription;
+      if (needsCompanyMigration) general.companyName = ENS_BRAND.companyName;
+
+      await settingsCollection.updateOne(
+        { _id: settings._id },
+        { $set: { general, updatedAt: new Date(), updatedBy: "system" } }
+      );
+      return { ...settings, general };
     }
 
     return settings;
@@ -112,9 +146,9 @@ export async function getAppMetadata() {
     description: settings.general.siteDescription,
     applicationName: settings.general.siteName,
     keywords: [
-      "support",
-      "tickets",
-      "customer service",
+      "دعم",
+      "تذاكر",
+      "خدمة العملاء",
       settings.general.companyName,
     ],
     authors: [{ name: settings.general.companyName }],
@@ -170,7 +204,7 @@ export async function getFooterText(): Promise<string> {
     settings.appearance.footerText ||
     `© ${new Date().getFullYear()} ${
       settings.general.companyName
-    }. All rights reserved.`
+    }. جميع الحقوق محفوظة.`
   );
 }
 
@@ -181,7 +215,7 @@ export async function getCopyrightText(): Promise<string> {
   const settings = await getSystemSettings();
   return (
     settings.appearance.copyrightText ||
-    `Copyright © ${new Date().getFullYear()} ${settings.general.companyName}`
+    `حقوق النشر © ${new Date().getFullYear()} ${settings.general.companyName}`
   );
 }
 
@@ -203,7 +237,7 @@ export async function formatDate(
 
   const tz = timezone || "UTC";
 
-  const numericFormatter = new Intl.DateTimeFormat("en-US", {
+  const numericFormatter = new Intl.DateTimeFormat("ar-SA", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -213,7 +247,7 @@ export async function formatDate(
     timeZone: tz,
   });
 
-  const textMonthFormatter = new Intl.DateTimeFormat("en-US", {
+  const textMonthFormatter = new Intl.DateTimeFormat("ar-SA", {
     year: "numeric",
     month: "short",
     day: "2-digit",

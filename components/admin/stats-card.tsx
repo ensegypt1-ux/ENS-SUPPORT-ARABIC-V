@@ -34,7 +34,7 @@ export function StatsCard({
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-3" dir="rtl">
         <p className="truncate text-sm font-medium text-muted-foreground">
           {title}
         </p>

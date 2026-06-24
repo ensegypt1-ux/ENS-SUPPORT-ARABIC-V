@@ -97,7 +97,7 @@ export default async function CustomizationDetailPage({
   > = {};
   usersData.forEach((user) => {
     users[user.id] = {
-      name: user.name || "Unknown User",
+      name: user.name || "مستخدم غير معروف",
       email: user.email || "",
       role: user.role || "customer",
       image: user.image,
@@ -116,7 +116,7 @@ export default async function CustomizationDetailPage({
 
       if (customerUser) {
         users[customization.customerId] = {
-          name: customerUser.name || "Unknown User",
+          name: customerUser.name || "مستخدم غير معروف",
           email: customerUser.email || "",
           role: customerUser.role || "customer",
           image: customerUser.image,
@@ -128,7 +128,7 @@ export default async function CustomizationDetailPage({
   }
 
   const customer = users[customization.customerId] || {
-    name: "Unknown Customer",
+    name: "عميل غير معروف",
     email: "",
     role: "customer",
   };
@@ -155,14 +155,14 @@ export default async function CustomizationDetailPage({
         <div className="flex gap-2">
           <Button size="sm" asChild>
             <Link href={`/dashboard/customization/${id}/edit`}>
-              <Edit className="h-4 w-4 mr-1" />
-              Edit
+              <Edit className="h-4 w-4 me-1" />
+              تعديل
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/customization">
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Back to List
+              <ArrowLeft className="h-4 w-4 me-1" />
+              رجوع إلى القائمة
             </Link>
           </Button>
         </div>
@@ -174,7 +174,7 @@ export default async function CustomizationDetailPage({
           {/* Customization Description */}
           <Card>
             <CardHeader>
-              <CardTitle>Customization Details</CardTitle>
+              <CardTitle>تفاصيل التخصيص</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="whitespace-pre-wrap text-foreground">
@@ -233,7 +233,7 @@ export default async function CustomizationDetailPage({
                   />
                   <Card>
                     <CardHeader>
-                      <CardTitle>Upload New Attachments</CardTitle>
+                      <CardTitle>رفع مرفقات جديدة</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <FileUpload ticketId={id} />
@@ -243,7 +243,7 @@ export default async function CustomizationDetailPage({
               ) : (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    File uploads are currently disabled
+                    رفع الملفات معطّل حاليًا
                   </CardContent>
                 </Card>
               )}
@@ -260,15 +260,15 @@ export default async function CustomizationDetailPage({
           {/* Request Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Request Information</CardTitle>
+              <CardTitle>معلومات الطلب</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <User className="h-4 w-4" />
-                  <span className="font-medium">Customer</span>
+                  <span className="font-medium">العميل</span>
                 </div>
-                <p className="text-sm">{customer?.name || "Unknown"}</p>
+                <p className="text-sm">{customer?.name || "غير معروف"}</p>
               </div>
 
               <Separator />
@@ -276,7 +276,7 @@ export default async function CustomizationDetailPage({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span className="font-medium">Created</span>
+                  <span className="font-medium">تاريخ الإنشاء</span>
                 </div>
                 <p className="text-sm">
                   {customization.createdAt &&
@@ -289,7 +289,7 @@ export default async function CustomizationDetailPage({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span className="font-medium">Last Updated</span>
+                  <span className="font-medium">آخر تحديث</span>
                 </div>
                 <p className="text-sm">
                   {customization.lastActivityAt &&
@@ -303,7 +303,7 @@ export default async function CustomizationDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <User className="h-4 w-4" />
-                      <span className="font-medium">Assigned To</span>
+                      <span className="font-medium">مُعيَّن إلى</span>
                     </div>
                     <p className="text-sm">{assignedTo.name}</p>
                   </div>
@@ -316,7 +316,7 @@ export default async function CustomizationDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Tag className="h-4 w-4" />
-                      <span className="font-medium">Tags</span>
+                      <span className="font-medium">الوسوم</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {customization.tags.map((tag) => (
@@ -338,7 +338,7 @@ export default async function CustomizationDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Globe className="h-4 w-4" />
-                      <span className="font-medium">Timezone</span>
+                      <span className="font-medium">المنطقة الزمنية</span>
                     </div>
                     <p className="text-sm">
                       {TIMEZONES.find(
@@ -359,14 +359,14 @@ export default async function CustomizationDetailPage({
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Package className="h-5 w-5 text-muted-foreground" />
-                  <CardTitle>Product Information</CardTitle>
+                  <CardTitle>معلومات المنتج</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {customization.productName && (
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">
-                      Product Name
+                      اسم المنتج
                     </p>
                     <p className="text-sm font-medium">
                       {customization.productName}
@@ -378,7 +378,7 @@ export default async function CustomizationDetailPage({
                   <>
                     <Separator />
                     <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Version</p>
+                      <p className="text-sm text-muted-foreground">الإصدار</p>
                       <p className="text-sm font-medium">
                         {customization.productVersion}
                       </p>

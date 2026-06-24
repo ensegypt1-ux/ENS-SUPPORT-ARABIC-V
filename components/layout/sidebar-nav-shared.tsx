@@ -58,7 +58,7 @@ export function SubmenuChain({ count }: { count: number }) {
   return (
     <svg
       aria-hidden="true"
-      className="pointer-events-none absolute left-0 top-0 text-[#e6ebf2] dark:text-white/10"
+      className="pointer-events-none absolute start-0 top-0 text-[#e6ebf2] rtl:-scale-x-100 dark:text-white/10"
       fill="none"
       height={height}
       viewBox={`0 0 ${submenuBranchWidth} ${height}`}

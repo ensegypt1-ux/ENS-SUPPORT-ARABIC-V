@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Search, ChevronRight, Sparkles, BookOpen, Compass } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCompanyInfo } from "@/components/providers/settings-provider";
@@ -11,6 +11,7 @@ import { useAiChatConfig } from "@/components/ai-chat/use-ai-chat-config";
 import { requestOpenAiChat } from "@/lib/ai/open-ai-chat";
 import { DocsSidebar } from "./docs-sidebar";
 import { DocsMobileMenu } from "./docs-mobile-menu";
+import { ENS_BRAND } from "@/lib/ens-brand";
 
 interface DocsShellProps {
   categories: Array<KBCategory & { articleCount: number }>;
@@ -19,17 +20,23 @@ interface DocsShellProps {
 }
 
 const tabs: { label: string; href: string; match?: string }[] = [
-  { label: "Documentation", href: "/docs", match: "/docs" },
-  { label: "Features", href: "/#features" },
-  { label: "FAQ", href: "/#faq" },
-  { label: "Contact", href: "/#contact" },
+  { label: "مركز الدعم", href: "/", match: "/" },
+  { label: "قاعدة المعرفة", href: "/docs", match: "/docs" },
+  { label: "تذكرة جديدة", href: "/support/new" },
+  { label: "أسئلة شائعة", href: "/#faq" },
 ];
 
 const docsContainerClass = "container mx-auto max-w-6xl px-4 sm:px-6 lg:px-0";
 
 export function DocsShell({ categories, articles, children }: DocsShellProps) {
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q") ?? "";
+  const [query, setQuery] = useState(initialQuery);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setQuery(searchParams.get("q") ?? "");
+  }, [searchParams]);
   const { siteName } = useCompanyInfo();
   const aiConfig = useAiChatConfig();
   const showAskAi = aiConfig?.enabled === true;
@@ -45,25 +52,25 @@ export function DocsShell({ categories, articles, children }: DocsShellProps) {
               {/* Mobile docs-nav trigger (sidebar is hidden below lg) */}
               <DocsMobileMenu categories={categories} articles={articles} />
               <BookOpen className="hidden size-4 lg:block" />
-              <span>Docs</span>
+              <span>الوثائق</span>
               <ChevronRight className="size-3 text-muted-foreground/40" />
-              <span className="text-foreground">Documentation</span>
-              <span className="ml-2 hidden rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold text-muted-foreground md:inline-block">
+              <span className="text-foreground">التوثيق</span>
+              <span className="ms-2 hidden rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold text-muted-foreground md:inline-block">
                 v1.0
               </span>
             </div>
 
             {/* Search */}
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground/60" />
+              <Search className="pointer-events-none absolute top-1/2 start-3.5 size-4 -translate-y-1/2 text-muted-foreground/60" />
               <input
                 type="search"
-                placeholder="Search the docs — try 'tickets', 'agent', 'setup'..."
+                placeholder="ابحث في الوثائق — جرّب «التذاكر»، «الوكيل»، «الإعداد»..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="h-10 w-full rounded-full border border-border bg-muted/40 pr-16 pl-10 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-primary/40 focus:bg-background focus:ring-4 focus:ring-primary/10"
+                className="h-10 w-full rounded-full border border-border bg-muted/40 pe-16 ps-10 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-primary/40 focus:bg-background focus:ring-4 focus:ring-primary/10"
               />
-              <kbd className="absolute top-1/2 right-3 -translate-y-1/2 rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
+              <kbd className="absolute top-1/2 end-3 -translate-y-1/2 rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
                 ⌘ K
               </kbd>
             </div>
@@ -76,7 +83,7 @@ export function DocsShell({ categories, articles, children }: DocsShellProps) {
                 className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-foreground px-4 text-sm font-medium text-background transition-colors hover:bg-foreground/90"
               >
                 <Sparkles className="size-4" />
-                Ask AI
+                اسأل الذكاء الاصطناعي
               </button>
             )}
           </div>
@@ -98,7 +105,7 @@ export function DocsShell({ categories, articles, children }: DocsShellProps) {
                 >
                   {t.label}
                   {active && (
-                    <span className="absolute right-3 bottom-0 left-3 h-0.5 rounded-full bg-primary" />
+                    <span className="absolute end-3 bottom-0 start-3 h-0.5 rounded-full bg-primary" />
                   )}
                 </Link>
               );
@@ -115,7 +122,7 @@ export function DocsShell({ categories, articles, children }: DocsShellProps) {
         )}
       >
         {/* Left sidebar */}
-        <aside className="hidden border-r border-border lg:block">
+        <aside className="hidden border-e border-border lg:block">
           {/* Pins below the header (4rem) + sub-header (~8rem) = 12rem, which
               also matches the at-rest stack so the footer sits flush. */}
           <div className="sticky top-48 flex h-[calc(100dvh-12rem)] flex-col">
@@ -137,9 +144,9 @@ export function DocsShell({ categories, articles, children }: DocsShellProps) {
                   <Compass className="size-3.5" />
                 </span>
                 <span className="text-xs">
-                  <span className="block text-muted-foreground">Powered by</span>
+                  <span className="block text-muted-foreground">مدعوم من</span>
                   <span className="block font-semibold text-foreground">
-                    {siteName || "Solvio"}
+                    {siteName || ENS_BRAND.portalTitle}
                   </span>
                 </span>
               </Link>

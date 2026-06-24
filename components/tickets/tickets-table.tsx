@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import type { Ticket } from "@/types";
 import { StatusBadge } from "./status-badge";
 import { formatDistanceToNow } from "date-fns";
+import { arSA } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { PriorityBadge } from "./priority-badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -28,20 +29,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CATEGORY_LABELS, FORM_UI, TICKET_UI, UI } from "@/lib/strings";
+import { adminTableHeadClass } from "@/components/ui/arabic-ux";
 
 interface TicketsTableProps {
   tickets: Ticket[];
   hrefBase?: string;
   getHref?: (ticket: Ticket) => string;
 }
-
-const categoryLabels: Record<string, string> = {
-  bug: "Bug Report",
-  feature_request: "Feature Request",
-  technical_support: "Technical Support",
-  account: "Account Issue",
-  general: "General Inquiry",
-};
 
 export function TicketsTable({
   tickets,
@@ -70,7 +65,7 @@ export function TicketsTable({
   if (tickets.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        No tickets found
+        مفيش تذاكر
       </div>
     );
   }
@@ -80,7 +75,7 @@ export function TicketsTable({
       {enableBulkActions && (
         <DataTableBulkActions
           selectedCount={selection.selectedCount}
-          itemLabel="ticket"
+          itemLabel={FORM_UI.ticketsCount}
           onClear={selection.clear}
         >
           <TicketBulkActions
@@ -96,33 +91,33 @@ export function TicketsTable({
               {enableBulkActions && (
                 <TableHead className="h-12 px-4 w-[50px]">
                   <Checkbox
-                    aria-label="Select all"
+                    aria-label={UI.selectAll}
                     checked={selection.headerCheckedState}
                     onCheckedChange={() => selection.toggleAll()}
                     className="border-border/60"
                   />
                 </TableHead>
               )}
-              <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                Ticket
+              <TableHead className={adminTableHeadClass}>
+                {UI.tickets}
               </TableHead>
-              <TableHead className="hidden xl:table-cell h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                Product
+              <TableHead className={cn("hidden xl:table-cell", adminTableHeadClass)}>
+                {TICKET_UI.product}
               </TableHead>
-              <TableHead className="hidden lg:table-cell h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                Category
+              <TableHead className={cn("hidden lg:table-cell", adminTableHeadClass)}>
+                {TICKET_UI.category}
               </TableHead>
-              <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                Priority
+              <TableHead className={adminTableHeadClass}>
+                {UI.priority}
               </TableHead>
-              <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                Status
+              <TableHead className={adminTableHeadClass}>
+                {UI.status}
               </TableHead>
-              <TableHead className="hidden md:table-cell h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                Last Updated
+              <TableHead className={cn("hidden md:table-cell", adminTableHeadClass)}>
+                {TICKET_UI.lastActivity}
               </TableHead>
-              <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider w-[100px]">
-                Actions
+              <TableHead className={cn(adminTableHeadClass, "w-[100px]")}>
+                {UI.actions}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -146,7 +141,7 @@ export function TicketsTable({
                 {enableBulkActions && (
                   <TableCell className="py-3.5 px-4">
                     <Checkbox
-                      aria-label={`Select ticket ${ticket.ticketNumber}`}
+                      aria-label={`تحديد التذكرة ${ticket.ticketNumber}`}
                       checked={selection.isSelected(ticket._id.toString())}
                       onCheckedChange={() =>
                         selection.toggle(ticket._id.toString())
@@ -181,7 +176,7 @@ export function TicketsTable({
                 </TableCell>
                 <TableCell className="hidden lg:table-cell py-3.5 px-4">
                   <span className="text-sm text-foreground/90">
-                    {categoryLabels[ticket.category] || ticket.category}
+                    {CATEGORY_LABELS[ticket.category] || ticket.category}
                   </span>
                 </TableCell>
                 <TableCell className="py-3.5 px-4">
@@ -194,6 +189,7 @@ export function TicketsTable({
                   <span className="text-sm text-muted-foreground/70">
                     {formatDistanceToNow(new Date(ticket.lastActivityAt), {
                       addSuffix: true,
+                      locale: arSA,
                     })}
                   </span>
                 </TableCell>
@@ -207,7 +203,7 @@ export function TicketsTable({
                           className="h-8 w-8 hover:bg-muted/60 transition-colors"
                         >
                           <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                          <span className="sr-only">Open menu</span>
+                          <span className="sr-only">فتح القائمة</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-40">
@@ -220,8 +216,8 @@ export function TicketsTable({
                             }
                             className="cursor-pointer"
                           >
-                            <ExternalLink className="mr-2 h-4 w-4" />
-                            View Details
+                            <ExternalLink className="me-2 h-4 w-4" />
+                            {UI.view} التفاصيل
                           </Link>
                         </DropdownMenuItem>
                       </DropdownMenuContent>

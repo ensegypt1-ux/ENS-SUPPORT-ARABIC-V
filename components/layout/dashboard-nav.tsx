@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/collapsible";
 import { useSidebarCollapsed } from "@/components/layout/app-sidebar";
 import { CollapsedSidebarSubmenu } from "@/components/layout/collapsed-sidebar-submenu";
+import { getServiceDisplayName } from "@/lib/service-labels";
 import {
   SubmenuChain,
   expandedNavItemClasses,
@@ -85,17 +86,17 @@ export function DashboardNav({
   const pathname = usePathname();
   const collapsed = useSidebarCollapsed();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    Tickets: true,
+    التذاكر: true,
   });
   const [activeFlyout, setActiveFlyout] = useState<string | null>(null);
   const profileItem: NavItemWithHref = {
-    title: "Profile",
+    title: "حسابي",
     href: "/dashboard/profile",
     icon: User,
   };
 
   const serviceChildren: NavItemWithHref[] = services.map((s) => ({
-    title: s.name,
+    title: getServiceDisplayName(s.slug, s.name),
     href: `/dashboard/services/${s.slug}`,
     icon:
       s.slug === "customization"
@@ -107,31 +108,31 @@ export function DashboardNav({
 
   const navStructure: NavSection[] = [
     {
-      section: "OVERVIEW",
+      section: "نظرة عامة",
       items: [
         {
-          title: "Dashboard",
+          title: "لوحة التحكم",
           href: "/dashboard",
           icon: Home,
         },
       ],
     },
     {
-      section: "SUPPORT",
+      section: "الدعم",
       items: [
         {
-          title: "Tickets",
+          title: "التذاكر",
           icon: Ticket,
           children: [
             {
-              title: "All Tickets",
+              title: "جميع التذاكر",
               href: "/dashboard/tickets",
               icon: FileText,
-              collapsedLabel: "Tickets",
+              collapsedLabel: "التذاكر",
               excludeActivePrefixes: ["/dashboard/tickets/new"],
             },
             {
-              title: "New Ticket",
+              title: "تذكرة جديدة",
               href: "/dashboard/tickets/new",
               icon: Plus,
               activeMatch: "exact" as const,
@@ -139,7 +140,7 @@ export function DashboardNav({
           ],
         },
         {
-          title: "Messages",
+          title: "الرسائل",
           href: "/dashboard/messages",
           icon: MessageSquare,
         },
@@ -148,10 +149,10 @@ export function DashboardNav({
     ...(serviceChildren.length > 0
       ? [
           {
-            section: "SERVICES",
+            section: "الخدمات",
             items: [
               {
-                title: "Services",
+                title: "الخدمات",
                 icon: Briefcase,
                 children: serviceChildren,
               },
@@ -380,7 +381,7 @@ export function DashboardNav({
                       )}
                     </CollapsibleTrigger>
                     <CollapsibleContent className="pt-1">
-                      <div className="relative ml-5 space-y-1 py-0.5 pl-5">
+                      <div className="relative ms-5 space-y-1 py-0.5 ps-5">
                         <SubmenuChain count={item.children.length} />
                         {item.children.map((child) =>
                           renderNavItem(child, true)
@@ -400,7 +401,7 @@ export function DashboardNav({
       <div className={cn("space-y-1", collapsed && "space-y-1")}>
         {!collapsed && (
           <h3 className="px-3 text-[11px] leading-4 font-semibold text-muted-foreground/80 uppercase tracking-[0.08em]">
-            ACCOUNT
+            الحساب
           </h3>
         )}
         <div className={cn(collapsed ? "space-y-1" : "mt-2 space-y-1")}>

@@ -278,7 +278,7 @@ export async function createNotification(params: CreateNotificationParams) {
     console.error("Failed to create notification:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : "خطأ غير معروف",
     };
   }
 }
@@ -309,7 +309,7 @@ export async function createBulkNotifications(
     console.error("Failed to create bulk notifications:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : "خطأ غير معروف",
     };
   }
 }
@@ -672,7 +672,7 @@ export async function getNotificationById(
     });
 
     if (!notification) {
-      return { success: false, error: "Notification not found" };
+      return { success: false, error: "الإشعار غير موجود" };
     }
 
     return {
@@ -684,7 +684,7 @@ export async function getNotificationById(
     };
   } catch (error) {
     console.error("Failed to get notification:", error);
-    return { success: false, error: "Failed to get notification" };
+    return { success: false, error: "تعذّر جلب الإشعار" };
   }
 }
 
@@ -828,7 +828,7 @@ export async function getNotifications(params: GetNotificationsParams) {
     console.error("Failed to get notifications:", error);
     return {
       success: false,
-      error: "Failed to get notifications",
+      error: "تعذّر جلب الإشعارات",
     };
   }
 }

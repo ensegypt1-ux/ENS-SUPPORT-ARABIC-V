@@ -23,6 +23,9 @@ import { Loader2, ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { notFound } from "next/navigation";
+import { AdminPageHeader } from "@/components/layout/admin-page-header";
+import { PanelFormActions } from "@/components/ui/panel-form";
+import { EDIT_FORM_UI, PRIORITY_LABELS, UI } from "@/lib/strings";
 
 interface EditCustomizationPageProps {
   params: Promise<{ id: string }>;
@@ -88,7 +91,7 @@ export default function AdminEditCustomizationPage({
         setIsLoading(false);
       } catch (error: any) {
         console.error("Error loading ticket:", error);
-        setError("Failed to load customization request");
+        setError("تعذّر التحميل طلب التخصيص");
         setIsLoading(false);
       }
     }
@@ -104,18 +107,18 @@ export default function AdminEditCustomizationPage({
       const result = await updateCustomizationContent(ticketId, data);
 
       if (!result.success) {
-        setError(result.error || "Failed to update customization request");
-        toast.error(result.error || "Failed to update customization request");
+        setError(result.error || "تعذّر التحديث طلب التخصيص");
+        toast.error(result.error || "تعذّر التحديث طلب التخصيص");
         setIsSubmitting(false);
         return;
       }
 
-      toast.success("Customization request updated successfully!");
+      toast.success("اتحدّث طلب التخصيص!");
       router.push(`/admin/customization/${ticketId}`);
       router.refresh();
     } catch (error: any) {
-      setError(error.message || "An unexpected error occurred");
-      toast.error(error.message || "An unexpected error occurred");
+      setError(error.message || "حصل خطأ مش متوقع");
+      toast.error(error.message || "حصل خطأ مش متوقع");
       setIsSubmitting(false);
     }
   };
@@ -129,29 +132,24 @@ export default function AdminEditCustomizationPage({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="mb-2">
-            <h1 className="text-3xl font-bold">Edit Customization Request</h1>
-          </div>
-          <p className="text-muted-foreground">
-            Update the customization request details
-          </p>
-        </div>
-        <Button variant="outline" size="sm" asChild>
-          <Link href={`/admin/customization/${ticketId}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Link>
-        </Button>
-      </div>
+    <div className="space-y-6 text-start">
+      <AdminPageHeader
+        title={EDIT_FORM_UI.editCustomizationTitle}
+        description={EDIT_FORM_UI.editCustomizationDesc}
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/admin/customization/${ticketId}`}>
+              <ArrowLeft className="me-2 h-4 w-4 rtl:-scale-x-100" />
+              {UI.back}
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Request Details</CardTitle>
+          <CardTitle>{EDIT_FORM_UI.requestDetails}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -164,11 +162,11 @@ export default function AdminEditCustomizationPage({
             {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title">
-                Title <span className="text-destructive">*</span>
+                العنوان <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="title"
-                placeholder="Brief description of the customization"
+                placeholder="وصف موجز للتخصيص"
                 {...register("title")}
                 disabled={isSubmitting}
               />
@@ -182,11 +180,11 @@ export default function AdminEditCustomizationPage({
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">
-                Description <span className="text-destructive">*</span>
+                الوصف <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="description"
-                placeholder="Detailed description of what you need customized..."
+                placeholder="وصف تفصيلي لما تحتاج تخصيصه..."
                 rows={8}
                 {...register("description")}
                 disabled={isSubmitting}
@@ -201,7 +199,7 @@ export default function AdminEditCustomizationPage({
             {/* Priority */}
             <div className="space-y-2">
               <Label htmlFor="priority">
-                Priority <span className="text-destructive">*</span>
+                الأولوية <span className="text-destructive">*</span>
               </Label>
               <Select
                 value={priority}
@@ -211,13 +209,13 @@ export default function AdminEditCustomizationPage({
                 disabled={isSubmitting}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select priority" />
+                  <SelectValue placeholder="اختر الأولوية" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="low">{PRIORITY_LABELS.low}</SelectItem>
+                  <SelectItem value="medium">{PRIORITY_LABELS.medium}</SelectItem>
+                  <SelectItem value="high">{PRIORITY_LABELS.high}</SelectItem>
+                  <SelectItem value="urgent">{PRIORITY_LABELS.urgent}</SelectItem>
                 </SelectContent>
               </Select>
               {errors.priority && (
@@ -230,10 +228,10 @@ export default function AdminEditCustomizationPage({
             {/* Product Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="productName">Product Name</Label>
+                <Label htmlFor="productName">اسم المنتج</Label>
                 <Input
                   id="productName"
-                  placeholder="e.g., PropertyPro"
+                  placeholder="مثال: ENS"
                   {...register("productName")}
                   disabled={isSubmitting}
                 />
@@ -245,10 +243,10 @@ export default function AdminEditCustomizationPage({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="productVersion">Product Version</Label>
+                <Label htmlFor="productVersion">إصدار المنتج</Label>
                 <Input
                   id="productVersion"
-                  placeholder="e.g., 2.1.0"
+                  placeholder="مثال: 2.1.0"
                   {...register("productVersion")}
                   disabled={isSubmitting}
                 />
@@ -260,30 +258,29 @@ export default function AdminEditCustomizationPage({
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex justify-end gap-3">
+            <PanelFormActions className="pt-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.push(`/admin/customization/${ticketId}`)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {UI.cancel}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Updating...
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    {EDIT_FORM_UI.updating}
                   </>
                 ) : (
                   <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Update Request
+                    <Save className="me-2 h-4 w-4" />
+                    {EDIT_FORM_UI.updateRequest}
                   </>
                 )}
               </Button>
-            </div>
+            </PanelFormActions>
           </form>
         </CardContent>
       </Card>

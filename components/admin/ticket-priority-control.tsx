@@ -33,14 +33,14 @@ export function TicketPriorityControl({
       const result = await updateTicketPriority(ticketId, value);
 
       if (result.success) {
-        toast.success("Ticket priority updated successfully");
+        toast.success("اتحدّث أولوية التذكرة");
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update ticket priority");
+        toast.error(result.error || "تعذّر التحديث أولوية التذكرة");
       }
     } catch (error) {
       console.error("Priority update error:", error);
-      toast.error("Failed to update ticket priority");
+      toast.error("تعذّر التحديث أولوية التذكرة");
     } finally {
       setIsUpdating(false);
     }
@@ -53,15 +53,14 @@ export function TicketPriorityControl({
       disabled={isUpdating}
     >
       <SelectTrigger>
-        <SelectValue placeholder="Select priority" />
+        <SelectValue placeholder="اختر الأولوية" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="low">Low</SelectItem>
-        <SelectItem value="medium">Medium</SelectItem>
-        <SelectItem value="high">High</SelectItem>
-        <SelectItem value="urgent">Urgent</SelectItem>
+        <SelectItem value="low">منخفضة</SelectItem>
+        <SelectItem value="medium">متوسطة</SelectItem>
+        <SelectItem value="high">عالية</SelectItem>
+        <SelectItem value="urgent">عاجلة</SelectItem>
       </SelectContent>
     </Select>
   );
 }
-

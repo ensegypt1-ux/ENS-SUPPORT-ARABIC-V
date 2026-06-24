@@ -20,7 +20,7 @@ export async function uploadTicketAttachments(
     if (!isFileUploadsEnabled()) {
       return {
         success: false,
-        error: "File uploads are not enabled",
+        error: "رفع الملفات غير مفعّل",
       };
     }
 
@@ -39,7 +39,7 @@ export async function uploadTicketAttachments(
       return {
         success: true,
         data: [],
-        message: "No files to upload",
+        message: "مفيش ملفات للرفع",
       };
     }
 
@@ -49,7 +49,7 @@ export async function uploadTicketAttachments(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "Ticket not found",
+        error: "مفيش تذكرة",
       };
     }
 
@@ -60,7 +60,7 @@ export async function uploadTicketAttachments(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to upload files to this ticket",
+        error: "مش مسموح لك ترفع ملفات على التذكرة دي",
       };
     }
 
@@ -272,7 +272,7 @@ export async function uploadTicketAttachments(
     return {
       success: true,
       data: serializedAttachments as unknown as Attachment[],
-      message: `Successfully uploaded ${uploadedAttachments.length} file(s)`,
+      message: `اترفع ${uploadedAttachments.length} ملف`,
     };
   } catch (error) {
     console.error(
@@ -282,7 +282,7 @@ export async function uploadTicketAttachments(
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "Failed to upload attachments",
+        error instanceof Error ? error.message : "تعذّر رفع المرفقات",
     };
   }
 }
@@ -299,7 +299,7 @@ export async function uploadAttachment(
     if (!isFileUploadsEnabled()) {
       return {
         success: false,
-        error: "File uploads are not enabled",
+        error: "رفع الملفات غير مفعّل",
       };
     }
 
@@ -311,7 +311,7 @@ export async function uploadAttachment(
     if (!file) {
       return {
         success: false,
-        error: "No file provided",
+        error: "مفيش ملف مرفوع",
       };
     }
 
@@ -321,7 +321,7 @@ export async function uploadAttachment(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "Ticket not found",
+        error: "مفيش تذكرة",
       };
     }
 
@@ -332,7 +332,7 @@ export async function uploadAttachment(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to upload files to this ticket",
+        error: "مش مسموح لك ترفع ملفات على التذكرة دي",
       };
     }
 
@@ -421,7 +421,7 @@ export async function uploadAttachment(
     console.error("Error uploading attachment:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to upload file",
+      error: error instanceof Error ? error.message : "تعذّر رفع الملف",
     };
   }
 }
@@ -443,7 +443,7 @@ export async function getTicketAttachments(
     if (!request) {
       return {
         success: false,
-        error: "Ticket not found",
+        error: "مفيش تذكرة",
       };
     }
 
@@ -453,7 +453,7 @@ export async function getTicketAttachments(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to view this ticket's attachments",
+        error: "مش مسموح لك تشوف مرفقات التذكرة دي",
       };
     }
 
@@ -477,7 +477,7 @@ export async function getTicketAttachments(
     console.error("Error fetching attachments:", error);
     return {
       success: false,
-      error: "Failed to fetch attachments",
+      error: "تعذّر جلب المرفقات",
     };
   }
 }
@@ -504,7 +504,7 @@ export async function deleteAttachment(
     if (!attachment) {
       return {
         success: false,
-        error: "Attachment not found",
+        error: "مفيش المرفق",
       };
     }
 
@@ -513,7 +513,7 @@ export async function deleteAttachment(
     if (userRole === "customer" && attachment.userId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to delete this attachment",
+        error: "مش مسموح لك تمسح المرفق ده",
       };
     }
 
@@ -534,7 +534,7 @@ export async function deleteAttachment(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "Ticket not found for this attachment",
+        error: "مفيش تذكرة for this attachment",
       };
     }
 
@@ -581,7 +581,7 @@ export async function deleteAttachment(
     console.error("Error deleting attachment:", error);
     return {
       success: false,
-      error: "Failed to delete attachment",
+      error: "تعذّر حذف المرفق",
     };
   }
 }

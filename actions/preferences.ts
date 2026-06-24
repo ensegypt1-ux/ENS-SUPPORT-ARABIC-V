@@ -24,7 +24,7 @@ export async function getUserPreferences(): Promise<
     if (!user) {
       return {
         success: false,
-        error: "User not found",
+        error: "مفيش المستخدم",
       };
     }
 
@@ -49,7 +49,7 @@ export async function getUserPreferences(): Promise<
       error:
         error instanceof Error
           ? error.message
-          : "Failed to get user preferences",
+          : "تعذّر الحصول على تفضيلات المستخدم",
     };
   }
 }
@@ -72,7 +72,7 @@ export async function updateUserPreferences(
     if (!user) {
       return {
         success: false,
-        error: "User not found",
+        error: "مفيش المستخدم",
       };
     }
 
@@ -121,7 +121,7 @@ export async function updateUserPreferences(
       error:
         error instanceof Error
           ? error.message
-          : "Failed to update user preferences",
+          : "تعذّر تحديث تفضيلات المستخدم",
     };
   }
 }

@@ -17,11 +17,11 @@ const COLORS: Record<string, string> = {
 };
 
 const LABELS: Record<string, string> = {
-  bug: "Bug",
-  feature_request: "Feature Request",
-  technical_support: "Technical Support",
-  account: "Account",
-  general: "General",
+  bug: "خطأ",
+  feature_request: "طلب ميزة",
+  technical_support: "دعم فني",
+  account: "حساب",
+  general: "عام",
 };
 
 export function CategoryDistributionChart({
@@ -39,13 +39,13 @@ export function CategoryDistributionChart({
           <div className="p-2 rounded-lg bg-info/15">
             <PieChart className="h-4 w-4 text-info" />
           </div>
-          Category Distribution
+          توزيع الفئات
         </CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
           <p className="text-center text-muted-foreground py-8 text-sm">
-            No data available
+            لا تتوفر بيانات
           </p>
         ) : (
           <div className="space-y-3">

@@ -257,44 +257,45 @@ export const DEFAULT_LANDING_CONTENT: Omit<
   "_id" | "updatedAt" | "updatedBy"
 > = {
   header: {
-    navigationLinks: [
-      { label: "Overview", href: "/#overview" },
-      { label: "Support Paths", href: "/#support-paths" },
-      { label: "How It Works", href: "/#how-it-works" },
-      { label: "Features", href: "/#features" },
-      { label: "FAQ", href: "/#faq" },
-      { label: "Contact", href: "/#contact" },
-    ],
-    signInText: "Sign In",
-    ctaButtonText: "Create Ticket",
-    ctaButtonLink: "/dashboard/tickets/new",
-    mobileCtaText: "Open Support",
+    navigationLinks: [],
+    signInText: "دخول",
+    ctaButtonText: "افتح تذكرة",
+    ctaButtonLink: "/support/new",
+    mobileCtaText: "افتح تذكرة",
   },
 
   hero: {
-    eyebrow: "Customer support portal",
-    headline: "Resolve product issues faster with tickets, docs, chat, and status updates in one place.",
+    eyebrow: "بوابة دعم ENS",
+    headline: "بوابة دعم ENS الرسمية",
     description:
-      "Solvio gives customers a clear support path from first question to final resolution, with self-service resources, file sharing, live collaboration, and transparent follow-up.",
-    primaryButtonText: "Create Ticket",
-    primaryButtonLink: "/dashboard/tickets/new",
-    secondaryButtonText: "Browse Knowledge Base",
+      "افتح تذكرة، تابع طلباتك، دور في قاعدة المعرفة، وكلم فريق الدعم — كله من مكان واحد.",
+    primaryButtonText: "افتح تذكرة",
+    primaryButtonLink: "/support/new",
+    secondaryButtonText: "قاعدة المعرفة",
     secondaryButtonLink: "/docs",
-    metrics: [
-      { id: "1", value: "120k+", label: "issues resolved" },
-      { id: "2", value: "<24h", label: "average first reply" },
-      { id: "3", value: "3 ways", label: "to get help fast" },
-    ],
+    metrics: [],
   },
 
   supportPaths: [
     {
+      id: "ensmenu",
+      icon: "Sparkles",
+      title: "ENSMenu",
+      description:
+        "دعم عملاء ENSMenu — تفعيل المنيو، الطلبات، الإعداد، والتخصيص.",
+      badge: "منتج ENS",
+      link: "/support/new",
+      colorClass: "bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300",
+      enabled: true,
+      order: 0,
+    },
+    {
       id: "1",
       icon: "Headphones",
-      title: "Technical Support",
-      description: "Open a ticket for product issues, account questions, or troubleshooting help.",
-      badge: "Best for active customer issues",
-      link: "/dashboard/tickets/new",
+      title: "الدعم الفني",
+      description: "افتح تذكرة لمشكلات ENS أو أسئلة الحساب أو استكشاف الأخطاء.",
+      badge: "الأفضل للمشكلات النشطة",
+      link: "/support/new",
       colorClass: "bg-sky-100 text-sky-700",
       enabled: true,
       order: 1,
@@ -302,10 +303,10 @@ export const DEFAULT_LANDING_CONTENT: Omit<
     {
       id: "2",
       icon: "Download",
-      title: "Installation Help",
-      description: "Get guided setup support, environment checks, and deployment assistance.",
-      badge: "Fast onboarding support",
-      link: "/dashboard/tickets/new",
+      title: "مساعدة التثبيت",
+      description: "احصل على دعم إعداد موجّه وفحص البيئة ومساعدة النشر.",
+      badge: "دعم انطلاق سريع",
+      link: "/support/new",
       colorClass: "bg-emerald-100 text-emerald-700",
       enabled: true,
       order: 2,
@@ -313,10 +314,10 @@ export const DEFAULT_LANDING_CONTENT: Omit<
     {
       id: "3",
       icon: "Wrench",
-      title: "Customization Request",
-      description: "Discuss feature tailoring, workflow changes, or scoped implementation support.",
-      badge: "For custom requirements",
-      link: "/dashboard/tickets/new",
+      title: "طلب تخصيص",
+      description: "ناقش تخصيص الميزات أو تغييرات سير العمل أو دعم التنفيذ المحدود.",
+      badge: "للمتطلبات المخصصة",
+      link: "/support/new",
       colorClass: "bg-amber-100 text-amber-700",
       enabled: true,
       order: 3,
@@ -324,10 +325,10 @@ export const DEFAULT_LANDING_CONTENT: Omit<
     {
       id: "4",
       icon: "Bug",
-      title: "Report a Bug",
-      description: "Share reproducible issues with screenshots and attachments for faster triage.",
-      badge: "Track fixes clearly",
-      link: "/dashboard/tickets/new",
+      title: "الإبلاغ عن خلل",
+      description: "شارك المشكلات القابلة لإعادة الإنتاج مع لقطات الشاشة والمرفقات لتسريع المعالجة.",
+      badge: "تتبع واضح للإصلاحات",
+      link: "/support/new",
       colorClass: "bg-rose-100 text-rose-700",
       enabled: true,
       order: 4,
@@ -338,32 +339,32 @@ export const DEFAULT_LANDING_CONTENT: Omit<
     {
       id: "1",
       icon: "FileText",
-      title: "Submit your request",
-      description: "Create a support ticket with category, priority, and the details your team needs.",
+      title: "قدّم طلبك",
+      description: "أنشئ تذكرة دعم مع الفئة والأولوية والتفاصيل التي يحتاجها فريقك.",
       enabled: true,
       order: 1,
     },
     {
       id: "2",
       icon: "Paperclip",
-      title: "Attach context",
-      description: "Upload screenshots, documents, or purchase details to speed up diagnosis.",
+      title: "أرفق السياق",
+      description: "ارفع لقطات الشاشة أو المستندات أو تفاصيل الشراء لتسريع التشخيص.",
       enabled: true,
       order: 2,
     },
     {
       id: "3",
       icon: "MessageCircle",
-      title: "Collaborate in real time",
-      description: "Use comments, messaging, and notifications to stay aligned as work progresses.",
+      title: "تعاون في الوقت الفعلي",
+      description: "استخدم التعليقات والرسائل والإشعارات للبقاء على اطلاع أثناء التقدم.",
       enabled: true,
       order: 3,
     },
     {
       id: "4",
       icon: "CalendarClock",
-      title: "Resolve or schedule next steps",
-      description: "Track status changes, schedule meetings when needed, and close the loop with clarity.",
+      title: "الحل أو جدولة الخطوات التالية",
+      description: "تابع تغييرات الحالة وجدول الاجتماعات عند الحاجة وأغلق الدورة بوضوح.",
       enabled: true,
       order: 4,
     },
@@ -373,9 +374,9 @@ export const DEFAULT_LANDING_CONTENT: Omit<
     {
       id: "1",
       icon: "Ticket",
-      title: "Structured ticket management",
-      description: "Track issue status, ownership, priority, and history from one shared record.",
-      badge: "Clear progress for every request",
+      title: "إدارة تذاكر منظمة",
+      description: "تتبع حالة المشكلة والمسؤول والأولوية والسجل من سجل مشترك واحد.",
+      badge: "تقدم واضح لكل طلب",
       link: "/dashboard/tickets",
       enabled: true,
       order: 1,
@@ -383,9 +384,9 @@ export const DEFAULT_LANDING_CONTENT: Omit<
     {
       id: "2",
       icon: "BookOpen",
-      title: "Knowledge base access",
-      description: "Let customers solve common questions through searchable documentation and guides.",
-      badge: "Self-service before escalation",
+      title: "الوصول لقاعدة المعرفة",
+      description: "دع العملاء يحلون الأسئلة الشائعة عبر قاعدة المعرفة القابلة للبحث.",
+      badge: "خدمة ذاتية قبل التصعيد",
       link: "/docs",
       enabled: true,
       order: 2,
@@ -393,9 +394,9 @@ export const DEFAULT_LANDING_CONTENT: Omit<
     {
       id: "3",
       icon: "MessageSquareText",
-      title: "Real-time communication",
-      description: "Keep conversations moving with comments, chat, and live follow-ups inside the portal.",
-      badge: "Fewer back-and-forth delays",
+      title: "تواصل في الوقت الفعلي",
+      description: "حافظ على المحادثات عبر التعليقات والدردشة والمتابعة المباشرة داخل البوابة.",
+      badge: "تقليل التأخير",
       link: "/dashboard/messages",
       enabled: true,
       order: 3,
@@ -403,162 +404,127 @@ export const DEFAULT_LANDING_CONTENT: Omit<
     {
       id: "4",
       icon: "Paperclip",
-      title: "File attachments",
-      description: "Share screenshots, logs, and supporting files directly with each request.",
-      badge: "Better issue context",
-      link: "/dashboard/tickets/new",
+      title: "مرفقات الملفات",
+      description: "شارك لقطات الشاشة والسجلات والملفات الداعمة مباشرة مع كل طلب.",
+      badge: "سياق أفضل للمشكلة",
+      link: "/support/new",
       enabled: true,
       order: 4,
     },
     {
       id: "5",
       icon: "Bell",
-      title: "Notifications and updates",
-      description: "Stay informed when status changes, replies arrive, or meetings are scheduled.",
-      badge: "Never miss follow-up",
+      title: "الإشعارات والتحديثات",
+      description: "ابقَ على اطلاع عند تغيير الحالة أو وصول الردود أو جدولة الاجتماعات.",
+      badge: "لا تفوت المتابعة",
       link: "/dashboard/notifications",
       enabled: true,
       order: 5,
     },
     {
       id: "6",
-      icon: "ChartNoAxesCombined",
-      title: "Team operations and analytics",
-      description: "Support teams can assign work, monitor trends, and improve response performance.",
-      badge: "Built for support staff too",
-      link: "/admin",
+      icon: "Ticket",
+      title: "متابعة الطلبات الجارية",
+      description: "راجع حالة تذاكرك السابقة والردود والمرفقات من لوحة التحكم.",
+      badge: "كل طلباتك في مكان واحد",
+      link: "/dashboard/tickets",
       enabled: true,
       order: 6,
     },
   ],
 
   proof: {
-    eyebrow: "Trusted workflows",
-    headline: "Built for customers who need answers quickly and teams who need support operations that stay organized.",
+    eyebrow: "كيف نعمل معك",
+    headline: "مسار دعم واضح من أول سؤال حتى الحل.",
     description:
-      "Solvio combines self-service, responsive support, and internal coordination so requests do not disappear between teams.",
+      "تجمع بوابة ENS بين الخدمة الذاتية عبر قاعدة المعرفة والمساعد الذكي، والدعم المباشر عبر التذاكر والرسائل، مع متابعة شفافة لكل خطوة.",
     trustStatement:
-      "Customers can see progress clearly while support teams manage assignments, updates, and follow-up from one workspace.",
-    stats: [
-      { id: "1", value: "20,000+", label: "portal visits supported" },
-      { id: "2", value: "98%", label: "tickets updated with clear status changes" },
-      { id: "3", value: "24/7", label: "self-service help center access" },
-    ],
-    partners: [
-      { id: "1", name: "airbnb", displayName: "Airbnb", enabled: true, order: 1 },
-      { id: "2", name: "slack", displayName: "Slack", enabled: true, order: 2 },
-      { id: "3", name: "discord", displayName: "Discord", enabled: true, order: 3 },
-      { id: "4", name: "walmart", displayName: "Walmart", enabled: true, order: 4 },
-      { id: "5", name: "notion", displayName: "Notion", enabled: true, order: 5 },
-      { id: "6", name: "shopify", displayName: "Shopify", enabled: true, order: 6 },
-    ],
-    testimonials: [
-      {
-        id: "1",
-        name: "Wade Warren",
-        role: "Product Manager",
-        initials: "WW",
-        text: "The portal made it easy to submit our issue, attach the right files, and follow the fix without chasing updates.",
-        rating: 5,
-        enabled: true,
-        order: 1,
-      },
-      {
-        id: "2",
-        name: "Jenny Wilson",
-        role: "Operations Lead",
-        initials: "JW",
-        text: "We reduced support back-and-forth because the knowledge base and live ticket updates gave our team a much clearer path.",
-        rating: 5,
-        enabled: true,
-        order: 2,
-      },
-    ],
+      "كل طلب يحتفظ بسياقه الكامل — الملفات والمحادثات وتحديثات الحالة — حتى لا تحتاج لإعادة المحاولة من البداية.",
+    stats: [],
+    partners: [],
+    testimonials: [],
   },
 
   faq: [
     {
       id: "1",
-      question: "How do I submit a support request?",
+      question: "إزاي أفتح تذكرة دعم؟",
       answer:
-        "Open a new ticket from the portal, choose the right support path, describe the issue, and include any screenshots or files that help reproduce it.",
+        "من «افتح تذكرة» — اختار نوع المشكلة، اكتب التفاصيل، وارفع لقطات أو ملفات لو محتاج. مش لازم حساب، بس لو عندك حساب سجّل دخول عشان تتابع أسهل.",
       enabled: true,
       order: 1,
     },
     {
       id: "2",
-      question: "Can I track the progress of my issue?",
+      question: "إزاي أتابع حالة طلبي؟",
       answer:
-        "Yes. Each request includes status updates, comments, attachments, and activity history so you can follow progress without emailing back and forth.",
+        "سجّل دخولك وروح «طلباتي». هتلاقي الحالة، الردود، المرفقات، وسجل النشاط — من غير ما تتابع على الإيميل.",
       enabled: true,
       order: 2,
     },
     {
       id: "3",
-      question: "Should I use the knowledge base or create a ticket?",
+      question: "أدور في قاعدة المعرفة ولا أفتح تذكرة؟",
       answer:
-        "Start with the knowledge base for setup steps, known issues, and guides. If your case needs help from the team, create a ticket directly from the portal.",
+        "ابدأ بقاعدة المعرفة للإعداد والمشاكل المعروفة. لو لسه محتاج مساعدة، افتح تذكرة — الفريق يكمل من نفس السياق.",
       enabled: true,
       order: 3,
     },
     {
       id: "4",
-      question: "Can I attach files or screenshots?",
+      question: "ينفع أرفق ملفات؟",
       answer:
-        "Yes. Tickets support file uploads so you can share screenshots, logs, or other materials that make troubleshooting faster.",
+        "أيوه. ارفع Screenshots أو Logs أو أي ملف يساعدنا نفهم المشكلة — كل حاجة بتفضل مربوطة بالتذكرة.",
       enabled: true,
       order: 4,
     },
     {
       id: "5",
-      question: "What happens if the issue needs a meeting or custom work?",
+      question: "محتاج اجتماع أو تخصيص؟",
       answer:
-        "Support can schedule a meeting for deeper investigation, and customization requests can be discussed through the same portal so requirements and updates stay in one place.",
+        "افتح تذكرة بنوع «تخصيص» أو «تثبيت» — الفريق يحدد معاك الخطوة الجاية، ولو محتاج مكالمة هيتم جدولتها من البوابة.",
       enabled: true,
       order: 5,
     },
   ],
 
   contactCta: {
-    eyebrow: "Need direct help?",
-    headline: "Start with the fastest support path for your issue, then reach our team if you need hands-on help.",
+    eyebrow: "لسه محتاج مساعدة؟",
+    headline: "ابعت لنا — وهنوّصلك للمسار الصح",
     description:
-      "Create a ticket for immediate tracking, browse the knowledge base for self-service answers, or send a message through the contact form for general questions.",
-    primaryButtonText: "Create Ticket",
-    primaryButtonLink: "/dashboard/tickets/new",
-    secondaryButtonText: "Browse Knowledge Base",
+      "للأسئلة العامة استخدم النموذج. للمشاكل اللي محتاجة متابعة، افتح تذكرة عشان الحالة تتسجّل والفريق يرد عليك.",
+    primaryButtonText: "افتح تذكرة",
+    primaryButtonLink: "/support/new",
+    secondaryButtonText: "قاعدة المعرفة",
     secondaryButtonLink: "/docs",
-    formTitle: "Talk to our support team",
+    formTitle: "رسالة للدعم",
     formDescription:
-      "Share your question and we will point you to the right support path or follow up with the next step.",
+      "اكتب سؤالك بالتفصيل — هنرد عليك أو نوجّهك لطلب رسمي لو محتاج.",
   },
 
   footer: {
-    brandName: "Solvio",
-    brandHighlight: "Support",
+    brandName: "ENS",
+    brandHighlight: "الدعم",
     tagline:
-      "A customer support portal for tickets, documentation, collaboration, and follow-up that stays clear from first request to final resolution.",
-    copyright: "© 2026 Solvio. All rights reserved.",
+      "مركز دعم ENS الرسمي — مساعدة ENSMenu، تذاكر، قاعدة معرفة، ومتابعة واضحة.",
+    copyright: "© 2026 ENS. كل الحقوق محفوظة.",
     links: {
       product: [
-        { label: "Create Ticket", href: "/dashboard/tickets/new" },
-        { label: "Messages", href: "/dashboard/messages" },
-        { label: "Knowledge Base", href: "/docs" },
+        { label: "افتح تذكرة", href: "/support/new" },
+        { label: "طلباتي", href: "/login?callbackUrl=/dashboard/tickets" },
       ],
       resources: [
-        { label: "Overview", href: "/#overview" },
-        { label: "Features", href: "/#features" },
-        { label: "FAQ", href: "/#faq" },
+        { label: "قاعدة المعرفة", href: "/#guides" },
+        { label: "أسئلة شائعة", href: "/#faq" },
       ],
       company: [
-        { label: "Home", href: "/" },
-        { label: "Support Paths", href: "/#support-paths" },
-        { label: "Contact", href: "/#contact" },
+        { label: "دعم ENSMenu", href: "/#ensmenu-support" },
+        { label: "قاعدة معرفة ENSMenu", href: "/docs?q=ENSMenu" },
       ],
       legal: [
-        { label: "Portal Access", href: "/login" },
-        { label: "Create Account", href: "/register" },
-        { label: "Contact Support", href: "/#contact" },
+        { label: "مركز الدعم", href: "/" },
+        { label: "تواصل", href: "/#contact" },
+        { label: "دخول", href: "/login" },
       ],
     },
   },
@@ -606,9 +572,7 @@ const normalizeHero = (
     secondaryButtonLink:
       hero?.secondaryButtonLink || current.secondaryButtonLink,
     metrics:
-      hero?.metrics && hero.metrics.length > 0
-        ? hero.metrics
-        : current.metrics,
+      hero?.metrics !== undefined ? hero.metrics : current.metrics,
   };
 };
 
@@ -620,7 +584,7 @@ const normalizeSupportPaths = (
     ? supportPaths
     : quickServices?.map((item) => ({
         ...item,
-        badge: "Popular support path",
+        badge: "مسار دعم شائع",
       })) || [];
 
   return source.length > 0 ? source : DEFAULT_LANDING_CONTENT.supportPaths;
@@ -663,24 +627,25 @@ const normalizeProof = (
     description: proof?.description || current.description,
     trustStatement: proof?.trustStatement || current.trustStatement,
     stats:
-      proof?.stats && proof.stats.length > 0
+      proof?.stats !== undefined
         ? proof.stats
-        : [
-            {
-              id: current.stats[0].id,
-              value: partnersStats?.count || current.stats[0].value,
-              label: partnersStats?.headline || current.stats[0].label,
-            },
-            ...current.stats.slice(1),
-          ],
+        : partnersStats?.count || partnersStats?.headline
+          ? [
+              {
+                id: "legacy-1",
+                value: partnersStats?.count || "",
+                label: partnersStats?.headline || "",
+              },
+            ]
+          : current.stats,
     partners:
-      proof?.partners && proof.partners.length > 0
+      proof?.partners !== undefined
         ? proof.partners
         : partners?.length
           ? partners
           : current.partners,
     testimonials:
-      proof?.testimonials && proof.testimonials.length > 0
+      proof?.testimonials !== undefined
         ? proof.testimonials
         : testimonials?.length
           ? testimonials

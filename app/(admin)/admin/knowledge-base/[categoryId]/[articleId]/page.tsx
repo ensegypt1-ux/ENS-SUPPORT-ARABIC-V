@@ -41,16 +41,16 @@ export default async function EditArticlePage({ params }: PageProps) {
             href="/admin/knowledge-base"
             className="hover:text-foreground transition-colors"
           >
-            Knowledge Base
+            قاعدة المعرفة
           </Link>
-          <ChevronRight className="h-3.5 w-3.5" />
+          <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
           <Link
             href={`/admin/knowledge-base/${categoryId}`}
             className="hover:text-foreground transition-colors"
           >
             {category.title}
           </Link>
-          <ChevronRight className="h-3.5 w-3.5" />
+          <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
           <span className="text-foreground font-medium truncate max-w-48">
             {article.title}
           </span>
@@ -61,8 +61,8 @@ export default async function EditArticlePage({ params }: PageProps) {
               href={`/docs/${category.slug}/${article.slug}`}
               target="_blank"
             >
-              <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-              View in Docs
+              <ExternalLink className="h-3.5 w-3.5 me-1.5" />
+              عرض في الوثائق
             </Link>
           </Button>
         )}
@@ -78,7 +78,7 @@ export default async function EditArticlePage({ params }: PageProps) {
             <div className="min-w-0">
               <p className="font-semibold text-sm truncate">{article.title}</p>
               <p className="text-xs text-muted-foreground">
-                In{" "}
+                في{" "}
                 <span className="font-medium text-foreground">
                   {category.title}
                 </span>
@@ -89,7 +89,7 @@ export default async function EditArticlePage({ params }: PageProps) {
             variant={article.isPublished ? "default" : "secondary"}
             className="shrink-0 text-[11px]"
           >
-            {article.isPublished ? "Live" : "Draft"}
+            {article.isPublished ? "منشور" : "مسودة"}
           </Badge>
         </div>
         <div className="p-5">

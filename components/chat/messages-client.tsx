@@ -51,6 +51,12 @@ interface MessagesClientProps {
 type RightPanelView = "profile" | "media";
 type MediaTab = "media" | "files" | "links";
 
+const MEDIA_TAB_LABELS: Record<MediaTab, string> = {
+  media: "الوسائط",
+  files: "الملفات",
+  links: "الروابط",
+};
+
 export function MessagesClient({
   userId,
   userRole,
@@ -241,18 +247,18 @@ export function MessagesClient({
       {/* Full-Height 3-Column Messenger Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] xl:grid-cols-[320px_1fr_300px] h-[calc(100vh-theme(spacing.14)-2rem)] md:h-[calc(100vh-theme(spacing.14)-3rem)] rounded-xl overflow-hidden border border-border/50 bg-card/50 backdrop-blur-sm">
         {/* ============ LEFT COLUMN: Conversations List ============ */}
-        <div className="flex flex-col overflow-hidden border-r border-border/50 bg-card">
+        <div className="flex flex-col overflow-hidden border-e border-border/50 bg-card">
           {/* Header */}
           <div className="px-4 py-3 shrink-0">
             <div className="flex items-center justify-between mb-1">
-              <h2 className="text-xl font-bold">Chats</h2>
+              <h2 className="text-xl font-bold">المحادثات</h2>
               <div className="flex items-center gap-1">
                 <Button
                   size="icon"
                   variant="ghost"
                   className="h-8 w-8 rounded-full hover:bg-accent"
                   onClick={() => setShowNewConversationDialog(true)}
-                  title="New conversation"
+                  title="محادثة جديدة"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -296,7 +302,7 @@ export function MessagesClient({
                               {participant.user_image && (
                                 <AvatarImage
                                   src={participant.user_image}
-                                  alt={participant.user_name || "User"}
+                                  alt={participant.user_name || "مستخدم"}
                                 />
                               )}
                               <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
@@ -304,19 +310,19 @@ export function MessagesClient({
                                   "?"}
                               </AvatarFallback>
                             </Avatar>
-                            <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-card" />
+                            <span className="absolute bottom-0 end-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-card" />
                           </div>
                           <div>
                             <h2 className="text-sm font-semibold leading-tight">
                               <NameWithRole
-                                name={participant.user_name || "User"}
+                                name={participant.user_name || "مستخدم"}
                                 role={participant.user_role}
                                 className="text-sm font-semibold"
                                 badgeClassName="h-4 px-2 text-[10px]"
                               />
                             </h2>
                             <p className="text-[11px] text-green-600 dark:text-green-400 font-medium">
-                              Active now
+                              متصل الآن
                             </p>
                           </div>
                         </div>
@@ -327,7 +333,7 @@ export function MessagesClient({
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 rounded-full text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50"
-                      title="Audio call"
+                      title="مكالمة صوتية"
                     >
                       <Phone className="h-4 w-4" />
                     </Button>
@@ -335,7 +341,7 @@ export function MessagesClient({
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 rounded-full text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50"
-                      title="Video call"
+                      title="مكالمة فيديو"
                     >
                       <Video className="h-4 w-4" />
                     </Button>
@@ -369,17 +375,17 @@ export function MessagesClient({
                 <MessageSquare className="h-9 w-9 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-lg font-semibold mb-2">
-                No conversation selected
+                اختار محادثة
               </h3>
               <p className="text-sm text-muted-foreground mb-5 max-w-xs">
-                Choose a conversation from the sidebar or start a new one to begin messaging
+                اختر محادثة من الشريط الجانبي أو ابدأ محادثة جديدة للمراسلة
               </p>
               <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6"
                 onClick={() => setShowNewConversationDialog(true)}
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Start New Conversation
+                <Plus className="h-4 w-4 me-2" />
+                بدء محادثة جديدة
               </Button>
             </div>
           )}
@@ -388,7 +394,7 @@ export function MessagesClient({
         {/* ============ RIGHT COLUMN: Profile & Media Panel ============ */}
         <div
           className={cn(
-            "hidden xl:flex flex-col overflow-hidden border-l border-border/50 bg-card",
+            "hidden xl:flex flex-col overflow-hidden border-s border-border/50 bg-card",
             !selectedConversationId && "xl:hidden"
           )}
         >
@@ -400,7 +406,7 @@ export function MessagesClient({
                   {selectedParticipant.user_image && (
                     <AvatarImage
                       src={selectedParticipant.user_image}
-                      alt={selectedParticipant.user_name || "User"}
+                      alt={selectedParticipant.user_name || "مستخدم"}
                     />
                   )}
                   <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
@@ -408,10 +414,10 @@ export function MessagesClient({
                   </AvatarFallback>
                 </Avatar>
                 <h3 className="text-base font-semibold text-center">
-                  {selectedParticipant.user_name || "User"}
+                  {selectedParticipant.user_name || "مستخدم"}
                 </h3>
                 <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-0.5">
-                  Active now
+                  متصل الآن
                 </p>
               </div>
 
@@ -419,7 +425,7 @@ export function MessagesClient({
               <div className="flex items-center justify-center gap-1.5 px-4 pb-4 shrink-0">
                 <Lock className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[11px] text-muted-foreground">
-                  End-to-end encrypted
+                  مشفّرة من طرف إلى طرف
                 </span>
               </div>
 
@@ -429,53 +435,53 @@ export function MessagesClient({
                   <div className="h-9 w-9 rounded-full bg-muted/60 flex items-center justify-center group-hover:bg-muted transition-colors">
                     <User className="h-4 w-4 text-foreground" />
                   </div>
-                  <span className="text-[11px] text-muted-foreground">Profile</span>
+                  <span className="text-[11px] text-muted-foreground">الملف الشخصي</span>
                 </button>
                 <button className="flex flex-col items-center gap-1.5 group" type="button">
                   <div className="h-9 w-9 rounded-full bg-muted/60 flex items-center justify-center group-hover:bg-muted transition-colors">
                     <BellOff className="h-4 w-4 text-foreground" />
                   </div>
-                  <span className="text-[11px] text-muted-foreground">Mute</span>
+                  <span className="text-[11px] text-muted-foreground">كتم</span>
                 </button>
                 <button className="flex flex-col items-center gap-1.5 group" type="button">
                   <div className="h-9 w-9 rounded-full bg-muted/60 flex items-center justify-center group-hover:bg-muted transition-colors">
                     <Search className="h-4 w-4 text-foreground" />
                   </div>
-                  <span className="text-[11px] text-muted-foreground">Search</span>
+                  <span className="text-[11px] text-muted-foreground">بحث</span>
                 </button>
               </div>
 
               {/* Menu Items */}
               <div className="flex-1 overflow-y-auto px-2">
-                <MenuLink icon={Info} label="Chat info" />
-                <MenuLink icon={Settings} label="Customize chat" />
+                <MenuLink icon={Info} label="معلومات المحادثة" />
+                <MenuLink icon={Settings} label="تخصيص المحادثة" />
                 <MenuLink
                   icon={ImageIcon}
-                  label="Media & files"
+                  label="الوسائط والملفات"
                   onClick={() => setRightPanelView("media")}
                 />
-                <MenuLink icon={Shield} label="Privacy & support" />
+                <MenuLink icon={Shield} label="الخصوصية والدعم" />
               </div>
 
               {/* Participant info for group chats */}
               {isGroupChat && (
                 <div className="px-4 py-3 border-t border-border/50 shrink-0">
                   <p className="text-xs text-muted-foreground">
-                    {selectedConversation?.participants.length} participants in this group
+                    {selectedConversation?.participants.length} مشارك في هذه المجموعة
                   </p>
                   <div className="mt-2 space-y-2">
                     {selectedConversation?.participants.map((p) => (
                       <div key={p.user_id} className="flex items-center gap-2">
                         <Avatar className="h-6 w-6">
                           {p.user_image && (
-                            <AvatarImage src={p.user_image} alt={p.user_name || "User"} />
+                            <AvatarImage src={p.user_image} alt={p.user_name || "مستخدم"} />
                           )}
                           <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-semibold">
                             {p.user_name?.[0]?.toUpperCase() || "?"}
                           </AvatarFallback>
                         </Avatar>
                         <span className="text-xs">
-                          {p.user_id === userId ? "You" : p.user_name || "User"}
+                          {p.user_id === userId ? "أنت" : p.user_name || "مستخدم"}
                         </span>
                       </div>
                     ))}
@@ -498,7 +504,7 @@ export function MessagesClient({
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
-                <h3 className="text-sm font-semibold">Media, files and links</h3>
+                <h3 className="text-sm font-semibold">الوسائط والملفات والروابط</h3>
               </div>
 
               {/* Media Tabs */}
@@ -515,9 +521,9 @@ export function MessagesClient({
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >
-                    {tab}
+                    {MEDIA_TAB_LABELS[tab]}
                     {mediaTab === tab && (
-                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                      <div className="absolute bottom-0 start-0 end-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
                     )}
                   </button>
                 ))}
@@ -536,7 +542,7 @@ export function MessagesClient({
                 ) : mediaTab === "media" ? (
                   /* ===== MEDIA TAB ===== */
                   mediaItems.length === 0 ? (
-                    <EmptyMediaState icon={ImageIcon} text="No media shared yet" />
+                    <EmptyMediaState icon={ImageIcon} text="لم تُشارك وسائط بعد" />
                   ) : (
                     <div className="p-2">
                       {Object.entries(groupByMonth(mediaItems)).map(
@@ -577,7 +583,7 @@ export function MessagesClient({
                 ) : mediaTab === "files" ? (
                   /* ===== FILES TAB ===== */
                   fileItems.length === 0 ? (
-                    <EmptyMediaState icon={FileIcon} text="No files shared yet" />
+                    <EmptyMediaState icon={FileIcon} text="لم تُشارك ملفات بعد" />
                   ) : (
                     <div className="p-2">
                       {Object.entries(groupByMonth(fileItems)).map(
@@ -622,13 +628,13 @@ export function MessagesClient({
                 ) : (
                   /* ===== LINKS TAB ===== */
                   linkItems.length === 0 ? (
-                    <EmptyMediaState icon={LinkIcon} text="No links shared yet" />
+                    <EmptyMediaState icon={LinkIcon} text="لم تُشارك روابط بعد" />
                   ) : (
                     <div className="p-2">
                       {Object.entries(
                         groupByMonth(linkItems.map((l) => ({ ...l, attachment: null })))
                       ).length === 0 ? (
-                        <EmptyMediaState icon={LinkIcon} text="No links shared yet" />
+                        <EmptyMediaState icon={LinkIcon} text="لم تُشارك روابط بعد" />
                       ) : (
                         linkItems.map(({ url, message }, idx) => (
                           <a

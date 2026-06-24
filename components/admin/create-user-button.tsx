@@ -11,8 +11,8 @@ export function CreateUserButton() {
   return (
     <>
       <Button onClick={() => setDialogOpen(true)}>
-        <UserPlus className="mr-2 h-4 w-4" />
-        Create Team Member
+        <UserPlus className="me-2 h-4 w-4" />
+        إنشاء عضو فريق
       </Button>
 
       <UserFormDialog
@@ -20,7 +20,7 @@ export function CreateUserButton() {
         onOpenChange={setDialogOpen}
         user={null}
         mode="create"
-        entityLabel="Team Member"
+        entityLabel="عضو الفريق"
         audience="team"
       />
     </>

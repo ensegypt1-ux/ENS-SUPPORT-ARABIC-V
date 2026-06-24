@@ -56,6 +56,7 @@ import {
   getEnvatoSettingsAction,
   verifyPurchaseCodeAction,
 } from "@/actions/envato";
+import { FORM_UI, PRIORITY_LABELS, TICKET_UI, UI } from "@/lib/strings";
 
 interface Customer {
   id: string;
@@ -66,7 +67,7 @@ interface Customer {
 interface TicketFormProps {
   /**
    * "customer" renders the self-service form (default). "admin" adds the
-   * required customer selector + inline "New Category" add, and submits via
+   * required customer selector + inline "فئة جديدة" add, and submits via
    * the admin server action. Everything else is identical.
    */
   variant?: "admin" | "customer";
@@ -87,8 +88,8 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
   const router = useRouter();
 
   const breadcrumbRoot = isAdmin
-    ? { label: "Admin", href: "/admin" }
-    : { label: "Dashboard", href: "/dashboard" };
+    ? { label: FORM_UI.adminBreadcrumb, href: "/admin" }
+    : { label: UI.dashboard, href: "/dashboard" };
   const ticketsHref = isAdmin ? "/admin/tickets" : "/dashboard/tickets";
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -181,7 +182,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
         }
       } catch (error) {
         console.error("Failed to fetch customers:", error);
-        toast.error("Failed to load customers");
+        toast.error("مقدرناش نحمّل العملاء");
       } finally {
         setLoadingCustomers(false);
       }
@@ -254,7 +255,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
   const handleVerifyPurchaseCode = async () => {
     const code = purchaseCode?.trim();
     if (!code) {
-      setPurchaseCodeError("Please enter a purchase code");
+      setPurchaseCodeError("اكتب كود الشراء");
       setPurchaseCodeVerified(false);
       return;
     }
@@ -268,16 +269,16 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
       if (result.success) {
         setPurchaseCodeVerified(true);
         setPurchaseCodeError("");
-        toast.success("Purchase code verified!");
+        toast.success("كود الشراء متأكد!");
       } else {
         setPurchaseCodeVerified(false);
-        setPurchaseCodeError(result.error || "Verification failed");
-        toast.error(result.error || "Verification failed");
+        setPurchaseCodeError(result.error || "التحقق مش ناجح");
+        toast.error(result.error || "التحقق مش ناجح");
       }
     } catch {
       setPurchaseCodeVerified(false);
-      setPurchaseCodeError("Verification error");
-      toast.error("Verification error");
+      setPurchaseCodeError("حصل خطأ في التحقق");
+      toast.error("حصل خطأ في التحقق");
     } finally {
       setIsVerifyingPurchaseCode(false);
     }
@@ -285,7 +286,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
 
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) {
-      toast.error("Category name is required");
+      toast.error("اسم الفئة لازم");
       return;
     }
     setAddingCategory(true);
@@ -295,7 +296,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
         slug: newCategorySlug.trim() || undefined,
       });
       if (result.success) {
-        toast.success("Category added");
+        toast.success("اتضافت الفئة");
         const slug = (newCategorySlug.trim() || slugify(newCategoryName)).trim();
         setAddCategoryOpen(false);
         setNewCategoryName("");
@@ -308,10 +309,10 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
           );
         }
       } else {
-        toast.error(result.error || "Failed to add category");
+        toast.error(result.error || "مقدرناش نضيف الفئة");
       }
     } catch {
-      toast.error("Failed to add category");
+      toast.error("مقدرناش نضيف الفئة");
     } finally {
       setAddingCategory(false);
     }
@@ -327,8 +328,8 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
         : await createTicket(data);
 
       if (!result.success) {
-        setError(result.error || "Failed to create ticket");
-        toast.error(result.error || "Failed to create ticket");
+        setError(result.error || "مقدرناش نعمل التذكرة");
+        toast.error(result.error || "مقدرناش نعمل التذكرة");
         setIsSubmitting(false);
         return;
       }
@@ -347,26 +348,26 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
         const uploadResult = await uploadTicketAttachments(ticketId, formData);
         if (!uploadResult.success) {
           toast.warning(
-            `Ticket created but some files failed to upload${
+            `التذكرة اتعملت بس بعض الملفات مترفعتش${
               uploadResult.error ? `: ${uploadResult.error}` : ""
             }`,
           );
         } else if (uploadResult.data && uploadResult.data.length > 0) {
           toast.success(
-            `Ticket created with ${uploadResult.data.length} attachment(s)!`,
+            `التذكرة اتعملت مع ${uploadResult.data.length} ${FORM_UI.attachmentWord}`,
           );
         } else {
-          toast.success("Ticket created successfully!");
+          toast.success("التذكرة اتعملت");
         }
       } else {
-        toast.success("Ticket created successfully!");
+        toast.success("التذكرة اتعملت");
       }
 
       router.push(`${ticketsHref}/${ticketId}`);
       router.refresh();
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : "An unexpected error occurred";
+        error instanceof Error ? error.message : FORM_UI.unexpectedError;
       setError(errorMessage);
       toast.error(errorMessage);
       setIsSubmitting(false);
@@ -381,10 +382,10 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
   }));
 
   const priorities = [
-    { value: "low", label: "Low", color: "bg-slate-400" },
-    { value: "medium", label: "Medium", color: "bg-blue-500" },
-    { value: "high", label: "High", color: "bg-amber-500" },
-    { value: "urgent", label: "Urgent", color: "bg-red-500" },
+    { value: "low", label: PRIORITY_LABELS.low, color: "bg-slate-400" },
+    { value: "medium", label: PRIORITY_LABELS.medium, color: "bg-blue-500" },
+    { value: "high", label: PRIORITY_LABELS.high, color: "bg-amber-500" },
+    { value: "urgent", label: PRIORITY_LABELS.urgent, color: "bg-red-500" },
   ];
 
   return (
@@ -405,13 +406,13 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 href={ticketsHref}
                 className="hover:text-foreground transition-colors"
               >
-                Tickets
+                {UI.tickets}
               </Link>
               <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-medium text-foreground">New Ticket</span>
+              <span className="font-medium text-foreground">افتح تذكرة</span>
             </nav>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Create New Ticket
+              افتح تذكرة جديدة
             </h1>
           </div>
         </div>
@@ -432,22 +433,23 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
             <div className="lg:col-span-2 space-y-6">
               {/* General Section */}
               <div className="bg-background rounded-xl border p-6 space-y-6">
-                <h2 className="text-lg font-semibold">General</h2>
+                <h2 className="text-lg font-semibold">عام</h2>
 
                 {/* Title */}
                 <div className="space-y-2">
                   <Label htmlFor="title">
-                    Ticket Title <span className="text-destructive">*</span>
+                    {FORM_UI.requestTitle}{" "}
+                    <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="title"
-                    placeholder="Enter ticket title"
+                    placeholder={FORM_UI.requestTitlePlaceholder}
                     {...register("title")}
                     disabled={isSubmitting}
                     className="h-11 placeholder:text-muted-foreground/50"
                   />
                   <p className="text-xs text-muted-foreground">
-                    A title is required and recommended to be unique.
+                    {FORM_UI.requestTitleHint}
                   </p>
                   {errors.title && (
                     <p className="text-sm text-destructive">
@@ -459,17 +461,18 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 {/* Description */}
                 <div className="space-y-2">
                   <Label htmlFor="description">
-                    Description <span className="text-destructive">*</span>
+                    {UI.description}{" "}
+                    <span className="text-destructive">*</span>
                   </Label>
                   <Textarea
                     id="description"
-                    placeholder="Describe the issue or request..."
+                    placeholder={FORM_UI.requirementsPlaceholder}
                     {...register("description")}
                     disabled={isSubmitting}
                     className="resize-none placeholder:text-muted-foreground/50 min-h-30"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Set a description to the ticket for better visibility.
+                    اكتب وصف واضح للتذكرة.
                   </p>
                   {errors.description && (
                     <p className="text-sm text-destructive">
@@ -482,14 +485,16 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
               {/* Attachments Section */}
               {process.env.NEXT_PUBLIC_FILE_UPLOADS_ENABLED === "true" && (
                 <div className="bg-background rounded-xl border p-6 space-y-4">
-                  <h2 className="text-lg font-semibold">Attachments</h2>
+                  <h2 className="text-lg font-semibold">{TICKET_UI.attachments}</h2>
                   <FileUploadPreview
                     onFilesChange={handleFilesChange}
                     disabled={isSubmitting}
                     maxFiles={5}
                     maxFileSize={20971520}
                   />
-                  <p className="text-xs text-muted-foreground">Files :</p>
+                  <p className="text-xs text-muted-foreground">
+                    {FORM_UI.attachmentsHint}
+                  </p>
                 </div>
               )}
 
@@ -498,21 +503,21 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 <div className="bg-background rounded-xl border p-6 space-y-6">
                   <div>
                     <h2 className="text-lg font-semibold">
-                      Product Verification
+                      {FORM_UI.productInfo}
                       {envatoSettings.requirePurchaseCode && (
-                        <span className="text-destructive ml-1">*</span>
+                        <span className="text-destructive ms-1">*</span>
                       )}
                     </h2>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Verify the purchase for priority support
+                      {FORM_UI.productInfoHint}
                     </p>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="purchaseCode">
-                      Purchase Code
+                      {TICKET_UI.purchaseCode}
                       {envatoSettings.requirePurchaseCode && (
-                        <span className="text-destructive ml-1">*</span>
+                        <span className="text-destructive ms-1">*</span>
                       )}
                     </Label>
                     <div className="flex gap-3">
@@ -523,17 +528,17 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                           {...register("purchaseCode")}
                           disabled={isSubmitting || isVerifyingPurchaseCode}
                           className={cn(
-                            "font-mono h-11 pr-10",
+                            "font-mono h-11 pe-10",
                             purchaseCodeVerified &&
                               "border-green-500 focus-visible:ring-green-500",
                             purchaseCodeError && "border-destructive",
                           )}
                         />
                         {purchaseCodeVerified && (
-                          <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />
+                          <CheckCircle2 className="absolute end-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />
                         )}
                         {purchaseCodeError && !purchaseCodeVerified && (
-                          <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-destructive" />
+                          <XCircle className="absolute end-3 top-1/2 -translate-y-1/2 h-5 w-5 text-destructive" />
                         )}
                       </div>
                       <Button
@@ -556,11 +561,11 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : purchaseCodeVerified ? (
                           <>
-                            <CheckCircle2 className="h-4 w-4 mr-2" />
-                            Verified
+                            <CheckCircle2 className="h-4 w-4 me-2" />
+                            متأكد
                           </>
                         ) : (
-                          "Verify"
+                          "تحقّق"
                         )}
                       </Button>
                     </div>
@@ -582,7 +587,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                       <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
-                          Please verify the purchase code to submit this ticket
+                          تحقّق من كود الشراء قبل ما تبعت التذكرة
                         </AlertDescription>
                       </Alert>
                     )}
@@ -598,7 +603,8 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 {isAdmin && (
                   <div className="p-5 space-y-2">
                     <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                      Customer <span className="text-destructive">*</span>
+                      {TICKET_UI.customer}{" "}
+                      <span className="text-destructive">*</span>
                     </Label>
                     <Combobox
                       options={customerOptions}
@@ -607,11 +613,11 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                       disabled={isSubmitting || loadingCustomers}
                       placeholder={
                         loadingCustomers
-                          ? "Loading customers..."
-                          : "Select a customer"
+                          ? `${UI.loading}`
+                          : FORM_UI.selectCustomerPlaceholder
                       }
-                      searchPlaceholder="Search customers..."
-                      emptyMessage="No customers found"
+                      searchPlaceholder={FORM_UI.searchCustomers}
+                      emptyMessage={FORM_UI.noCustomersFound}
                       className="h-10"
                       aria-invalid={errors.customerId ? "true" : undefined}
                     />
@@ -626,7 +632,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 {/* Priority */}
                 <div className="p-5 space-y-2">
                   <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                    Priority
+                    {UI.priority}
                   </Label>
                   <Select
                     value={priority}
@@ -639,7 +645,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                     disabled={isSubmitting}
                   >
                     <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder="Select priority" />
+                      <SelectValue placeholder={FORM_UI.selectPriority} />
                     </SelectTrigger>
                     <SelectContent>
                       {priorities.map((p) => (
@@ -664,7 +670,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 {/* Category */}
                 <div className="p-5 space-y-2">
                   <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                    Category
+                    {UI.category}
                   </Label>
                   <Select
                     value={category}
@@ -681,16 +687,16 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                     disabled={isSubmitting}
                   >
                     <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder="Select category" />
+                      <SelectValue placeholder={`اختار ${UI.category}`} />
                     </SelectTrigger>
                     <SelectContent>
                       {loadingCategories ? (
                         <SelectItem value="general" disabled>
-                          Loading...
+                          {UI.loading}
                         </SelectItem>
                       ) : categories.length === 0 ? (
                         <SelectItem value="general" disabled>
-                          No categories
+                          مفيش فئات
                         </SelectItem>
                       ) : (
                         categories.map((cat) => (
@@ -703,7 +709,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                         <SelectItem value="__add_new__" disabled={isSubmitting}>
                           <div className="flex items-center gap-2">
                             <Plus className="h-4 w-4" />
-                            New Category
+                            فئة جديدة
                           </div>
                         </SelectItem>
                       )}
@@ -719,7 +725,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 {/* Department */}
                 <div className="p-5 space-y-2">
                   <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                    Department
+                    {TICKET_UI.department}
                   </Label>
                   <Select
                     value={departmentSlug || ""}
@@ -727,16 +733,16 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                     disabled={isSubmitting || loadingDepartments}
                   >
                     <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder="Select department" />
+                      <SelectValue placeholder={`اختار ${TICKET_UI.department}`} />
                     </SelectTrigger>
                     <SelectContent>
                       {loadingDepartments ? (
                         <SelectItem value="__loading" disabled>
-                          Loading...
+                          {UI.loading}
                         </SelectItem>
                       ) : departments.length === 0 ? (
                         <SelectItem value="__empty" disabled>
-                          No departments
+                          مفيش أقسام
                         </SelectItem>
                       ) : (
                         departments.map((d) => (
@@ -752,7 +758,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 {/* Product */}
                 <div className="p-5 space-y-2">
                   <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                    Product
+                    {TICKET_UI.product}
                   </Label>
                   <Select
                     value={productSlug || ""}
@@ -760,16 +766,16 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                     disabled={isSubmitting || loadingProducts}
                   >
                     <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder="Pick a product" />
+                      <SelectValue placeholder={`اختار ${TICKET_UI.product}`} />
                     </SelectTrigger>
                     <SelectContent>
                       {loadingProducts ? (
                         <SelectItem value="__loading" disabled>
-                          Loading...
+                          {UI.loading}
                         </SelectItem>
                       ) : products.length === 0 ? (
                         <SelectItem value="__empty" disabled>
-                          No products available
+                          مفيش منتجات
                         </SelectItem>
                       ) : (
                         products.map((p) => (
@@ -785,14 +791,16 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 {/* Timezone */}
                 <div className="p-5 space-y-2">
                   <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                    Timezone
+                    {FORM_UI.timezone}
                   </Label>
                   <TimezoneSelect
                     value={timezone}
                     onValueChange={(value) => setValue("timezone", value)}
                     disabled={isSubmitting}
                     placeholder={
-                      isAdmin ? "Select customer's timezone" : "Select timezone"
+                      isAdmin
+                        ? "اختار المنطقة الزمنية للعميل"
+                        : FORM_UI.selectTimezone
                     }
                   />
                   {errors.timezone && (
@@ -815,13 +823,13 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {isAdmin ? "Creating..." : "Submitting..."}
+                      <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                      {isAdmin ? FORM_UI.creating : "بيتبعت..."}
                     </>
                   ) : isAdmin ? (
-                    "Create Ticket"
+                    "افتح تذكرة"
                   ) : (
-                    "Submit Ticket"
+                    UI.submit
                   )}
                 </Button>
                 <Button
@@ -831,7 +839,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                   onClick={() => router.back()}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {UI.cancel}
                 </Button>
               </div>
             </div>
@@ -847,16 +855,15 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
         >
           <DialogContent className="sm:max-w-130">
             <DialogHeader>
-              <DialogTitle>New Category</DialogTitle>
+              <DialogTitle>فئة جديدة</DialogTitle>
               <DialogDescription>
-                Add a custom ticket category. It will appear in ticket creation
-                lists.
+                ضيف فئة تذكرة جديدة. هتظهر في قوائم فتح التذاكر.
               </DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label>Name</Label>
+                <Label>{UI.name}</Label>
                 <Input
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
@@ -865,7 +872,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Slug (optional)</Label>
+                <Label>المعرّف ({UI.optional})</Label>
                 <Input
                   value={newCategorySlug}
                   onChange={(e) => setNewCategorySlug(e.target.value)}
@@ -873,7 +880,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                   disabled={addingCategory}
                 />
                 <p className="text-xs text-muted-foreground">
-                  If left blank, slug will be generated from the name.
+                  لو سيبته فاضي، هيتعمل من الاسم.
                 </p>
               </div>
             </div>
@@ -885,7 +892,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                 onClick={() => setAddCategoryOpen(false)}
                 disabled={addingCategory}
               >
-                Cancel
+                {UI.cancel}
               </Button>
               <Button
                 type="button"
@@ -894,13 +901,13 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
               >
                 {addingCategory ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Adding...
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    {UI.loading}
                   </>
                 ) : (
                   <>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add
+                    <Plus className="me-2 h-4 w-4" />
+                    {UI.create}
                   </>
                 )}
               </Button>

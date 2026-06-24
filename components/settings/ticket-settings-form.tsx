@@ -1,13 +1,6 @@
 "use client";
 
 import { z } from "zod";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -25,8 +18,22 @@ import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { SystemSettings } from "@/types/settings";
 import { updateSettings } from "@/actions/settings";
-import { Loader2, Save, Ticket } from "lucide-react";
+import { Loader2, Plus, Save, Ticket, Trash2, Pencil } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PageSectionLabel, adminTableHeadClass } from "@/components/ui/arabic-ux";
+import {
+  adminTableShellClass,
+  adminTableShellDir,
+} from "@/components/ui/admin-table-shell";
+import { cn } from "@/lib/utils";
+import {
+  SettingsFormCard,
+  SettingsSaveBar,
+} from "@/components/settings/settings-form-shell";
+import {
+  PanelSectionHeader,
+  PanelSwitchField,
+} from "@/components/ui/panel-form";
 import {
   Table,
   TableBody,
@@ -71,10 +78,10 @@ import {
   getTicketProducts,
   updateTicketProduct,
 } from "@/actions/ticket-products";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { PRIORITY_LABELS } from "@/lib/strings";
 
 const ticketSettingsSchema = z.object({
-  ticketNumberPrefix: z.string().min(1, "Prefix is required"),
+  ticketNumberPrefix: z.string().min(1, "البادئة مطلوبة"),
   defaultPriority: z.enum(["low", "medium", "high", "urgent"]),
   autoCloseResolvedTicketsDays: z.number().min(0).max(365),
   allowCustomerCloseTickets: z.boolean(),
@@ -102,15 +109,15 @@ type DepartmentRow = CategoryRow;
 type ProductRow = CategoryRow;
 
 const createCategorySchema = z.object({
-  name: z.string().min(1, "Category name is required"),
+  name: z.string().min(1, "اسم الفئة مطلوب"),
   slug: z.string().optional(),
 });
 
 type CreateCategoryFormData = z.infer<typeof createCategorySchema>;
 
 const editCategorySchema = z.object({
-  name: z.string().min(1, "Category name is required"),
-  slug: z.string().min(1, "Slug is required").optional(),
+  name: z.string().min(1, "اسم الفئة مطلوب"),
+  slug: z.string().min(1, "المعرّف مطلوب").optional(),
   sortOrder: z.number().min(0).max(1000),
   isActive: z.boolean(),
 });
@@ -118,15 +125,15 @@ const editCategorySchema = z.object({
 type EditCategoryFormData = z.infer<typeof editCategorySchema>;
 
 const createDepartmentSchema = z.object({
-  name: z.string().min(1, "Department name is required"),
+  name: z.string().min(1, "اسم القسم مطلوب"),
   slug: z.string().optional(),
 });
 
 type CreateDepartmentFormData = z.infer<typeof createDepartmentSchema>;
 
 const editDepartmentSchema = z.object({
-  name: z.string().min(1, "Department name is required"),
-  slug: z.string().min(1, "Slug is required").optional(),
+  name: z.string().min(1, "اسم القسم مطلوب"),
+  slug: z.string().min(1, "المعرّف مطلوب").optional(),
   sortOrder: z.number().min(0).max(1000),
   isActive: z.boolean(),
 });
@@ -134,15 +141,15 @@ const editDepartmentSchema = z.object({
 type EditDepartmentFormData = z.infer<typeof editDepartmentSchema>;
 
 const createProductSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
+  name: z.string().min(1, "اسم المنتج مطلوب"),
   slug: z.string().optional(),
 });
 
 type CreateProductFormData = z.infer<typeof createProductSchema>;
 
 const editProductSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
-  slug: z.string().min(1, "Slug is required").optional(),
+  name: z.string().min(1, "اسم المنتج مطلوب"),
+  slug: z.string().min(1, "المعرّف مطلوب").optional(),
   sortOrder: z.number().min(0).max(1000),
   isActive: z.boolean(),
 });
@@ -244,13 +251,13 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
     try {
       const result = await getTicketCategories();
       if (!result.success || !result.data) {
-        setCategoriesError(result.error || "Failed to load categories");
+        setCategoriesError(result.error || "تعذّر التحميل الفئات");
         setCategories([]);
       } else {
         setCategories(result.data);
       }
     } catch (e) {
-      setCategoriesError(e instanceof Error ? e.message : "Failed to load categories");
+      setCategoriesError(e instanceof Error ? e.message : "تعذّر التحميل الفئات");
       setCategories([]);
     } finally {
       setCategoriesLoading(false);
@@ -275,14 +282,14 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
     try {
       const result = await getTicketDepartments();
       if (!result.success || !result.data) {
-        setDepartmentsError(result.error || "Failed to load departments");
+        setDepartmentsError(result.error || "تعذّر التحميل الأقسام");
         setDepartments([]);
       } else {
         setDepartments(result.data);
       }
     } catch (e) {
       setDepartmentsError(
-        e instanceof Error ? e.message : "Failed to load departments",
+        e instanceof Error ? e.message : "تعذّر التحميل الأقسام",
       );
       setDepartments([]);
     } finally {
@@ -308,14 +315,14 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
     try {
       const result = await getTicketProducts();
       if (!result.success || !result.data) {
-        setProductsError(result.error || "Failed to load products");
+        setProductsError(result.error || "تعذّر التحميل المنتجات");
         setProducts([]);
       } else {
         setProducts(result.data);
       }
     } catch (e) {
       setProductsError(
-        e instanceof Error ? e.message : "Failed to load products",
+        e instanceof Error ? e.message : "تعذّر التحميل المنتجات",
       );
       setProducts([]);
     } finally {
@@ -336,12 +343,12 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
       });
 
       if (result.success) {
-        toast.success("Ticket settings updated successfully");
+        toast.success("اتحدّثت إعدادات التذاكر");
       } else {
-        toast.error(result.error || "Failed to update settings");
+        toast.error(result.error || "مقدرناش نحدّث الإعدادات");
       }
     } catch (error) {
-      toast.error("An error occurred while updating settings");
+      toast.error("حصل خطأ وإحنا بنحدّث الإعدادات");
     } finally {
       setIsLoading(false);
     }
@@ -355,16 +362,16 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         slug: data.slug,
       });
       if (result.success) {
-        toast.success("Category added");
+        toast.success("اتضاف الفئة");
         createCategoryForm.reset({ name: "", slug: "" });
         setAddCategoryOpen(false);
         await refreshCategories();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to add category");
+        toast.error(result.error || "تعذّر الإضافة الفئة");
       }
     } catch {
-      toast.error("Failed to add category");
+      toast.error("تعذّر الإضافة الفئة");
     } finally {
       setCreatingCategory(false);
     }
@@ -399,15 +406,15 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
       if (!editingCategory.isSystem) payload.slug = data.slug;
       const result = await updateTicketCategory(payload);
       if (result.success) {
-        toast.success("Category updated");
+        toast.success("اتحدّثت الفئة");
         setEditingCategory(null);
         await refreshCategories();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update category");
+        toast.error(result.error || "مقدرناش نحدّث الفئة");
       }
     } catch {
-      toast.error("Failed to update category");
+      toast.error("مقدرناش نحدّث الفئة");
     } finally {
       setSavingCategory(false);
     }
@@ -419,15 +426,15 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
     try {
       const result = await deleteTicketCategory(deleteCategoryTarget.id);
       if (result.success) {
-        toast.success("Category deleted");
+        toast.success("اتمسحت الفئة");
         setDeleteCategoryTarget(null);
         await refreshCategories();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to delete category");
+        toast.error(result.error || "تعذّر الحذف الفئة");
       }
     } catch {
-      toast.error("Failed to delete category");
+      toast.error("تعذّر الحذف الفئة");
     } finally {
       setDeletingCategory(false);
     }
@@ -438,14 +445,14 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
     try {
       const result = await updateTicketCategory({ id: category.id, isActive: next });
       if (result.success) {
-        toast.success(next ? "Category enabled" : "Category disabled");
+        toast.success(next ? "اتفعّلت الفئة" : "اتعطّلت الفئة");
         await refreshCategories();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update category");
+        toast.error(result.error || "مقدرناش نحدّث الفئة");
       }
     } catch {
-      toast.error("Failed to update category");
+      toast.error("مقدرناش نحدّث الفئة");
     } finally {
       setTogglingCategoryId(null);
     }
@@ -459,16 +466,16 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         slug: data.slug,
       });
       if (result.success) {
-        toast.success("Department added");
+        toast.success("اتضاف القسم");
         createDepartmentForm.reset({ name: "", slug: "" });
         setAddDepartmentOpen(false);
         await refreshDepartments();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to add department");
+        toast.error(result.error || "تعذّر الإضافة القسم");
       }
     } catch {
-      toast.error("Failed to add department");
+      toast.error("تعذّر الإضافة القسم");
     } finally {
       setCreatingDepartment(false);
     }
@@ -503,15 +510,15 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
       if (!editingDepartment.isSystem) payload.slug = data.slug;
       const result = await updateTicketDepartment(payload);
       if (result.success) {
-        toast.success("Department updated");
+        toast.success("اتحدّث القسم");
         setEditingDepartment(null);
         await refreshDepartments();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update department");
+        toast.error(result.error || "مقدرناش نحدّث القسم");
       }
     } catch {
-      toast.error("Failed to update department");
+      toast.error("مقدرناش نحدّث القسم");
     } finally {
       setSavingDepartment(false);
     }
@@ -523,15 +530,15 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
     try {
       const result = await deleteTicketDepartment(deleteDepartmentTarget.id);
       if (result.success) {
-        toast.success("Department deleted");
+        toast.success("اتمسح القسم");
         setDeleteDepartmentTarget(null);
         await refreshDepartments();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to delete department");
+        toast.error(result.error || "تعذّر الحذف القسم");
       }
     } catch {
-      toast.error("Failed to delete department");
+      toast.error("تعذّر الحذف القسم");
     } finally {
       setDeletingDepartment(false);
     }
@@ -548,14 +555,14 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         isActive: next,
       });
       if (result.success) {
-        toast.success(next ? "Department enabled" : "Department disabled");
+        toast.success(next ? "اتفعّل القسم" : "اتعطّل القسم");
         await refreshDepartments();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update department");
+        toast.error(result.error || "مقدرناش نحدّث القسم");
       }
     } catch {
-      toast.error("Failed to update department");
+      toast.error("مقدرناش نحدّث القسم");
     } finally {
       setTogglingDepartmentId(null);
     }
@@ -569,16 +576,16 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         slug: data.slug,
       });
       if (result.success) {
-        toast.success("Product added");
+        toast.success("اتضاف المنتج");
         createProductForm.reset({ name: "", slug: "" });
         setAddProductOpen(false);
         await refreshProducts();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to add product");
+        toast.error(result.error || "تعذّر الإضافة المنتج");
       }
     } catch {
-      toast.error("Failed to add product");
+      toast.error("تعذّر الإضافة المنتج");
     } finally {
       setCreatingProduct(false);
     }
@@ -613,15 +620,15 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
       if (!editingProduct.isSystem) payload.slug = data.slug;
       const result = await updateTicketProduct(payload);
       if (result.success) {
-        toast.success("Product updated");
+        toast.success("اتحدّث المنتج");
         setEditingProduct(null);
         await refreshProducts();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update product");
+        toast.error(result.error || "مقدرناش نحدّث المنتج");
       }
     } catch {
-      toast.error("Failed to update product");
+      toast.error("مقدرناش نحدّث المنتج");
     } finally {
       setSavingProduct(false);
     }
@@ -633,15 +640,15 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
     try {
       const result = await deleteTicketProduct(deleteProductTarget.id);
       if (result.success) {
-        toast.success("Product deleted");
+        toast.success("اتمسح المنتج");
         setDeleteProductTarget(null);
         await refreshProducts();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to delete product");
+        toast.error(result.error || "تعذّر الحذف المنتج");
       }
     } catch {
-      toast.error("Failed to delete product");
+      toast.error("تعذّر الحذف المنتج");
     } finally {
       setDeletingProduct(false);
     }
@@ -658,41 +665,31 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         isActive: next,
       });
       if (result.success) {
-        toast.success(next ? "Product enabled" : "Product disabled");
+        toast.success(next ? "اتفعّل المنتج" : "اتعطّل المنتج");
         await refreshProducts();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update product");
+        toast.error(result.error || "مقدرناش نحدّث المنتج");
       }
     } catch {
-      toast.error("Failed to update product");
+      toast.error("مقدرناش نحدّث المنتج");
     } finally {
       setTogglingProductId(null);
     }
   };
 
   return (
-    <Card className="overflow-hidden rounded-lg border-0 p-0 shadow-lg bg-gradient-to-br from-card to-card/80">
-      <CardHeader className="border-b p-6 gap-0 bg-white">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-orange-500/10">
-            <Ticket className="h-5 w-5 text-orange-500" />
-          </div>
-          <div>
-            <CardTitle className="text-xl">Ticket Settings</CardTitle>
-            <CardDescription className="mt-1">
-              Configure how tickets are created and managed
-            </CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pb-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <SettingsFormCard
+      icon={<Ticket className="h-5 w-5 text-orange-500" />}
+      iconWrapperClassName="rounded-md bg-orange-500/10"
+      title="إعدادات التذاكر"
+      description="اضبط كيفية إنشاء التذاكر وإدارتها"
+      contentClassName="pb-6 space-y-8"
+    >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" dir="rtl">
           {/* Ticket Configuration Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Ticket Configuration
-            </h3>
+            <PageSectionLabel>تهيئة التذاكر</PageSectionLabel>
             <div className="rounded-xl border bg-muted/20 p-5">
               <div className="grid gap-5 sm:grid-cols-2">
                 {/* Ticket Number Prefix */}
@@ -701,7 +698,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                     htmlFor="ticketNumberPrefix"
                     className="text-sm font-medium"
                   >
-                    Ticket Number Prefix
+                    بادئة رقم التذكرة
                   </Label>
                   <Input
                     id="ticketNumberPrefix"
@@ -710,7 +707,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                     className="h-11 bg-background/80 border-input/50 focus:border-primary transition-colors"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Example: TICKET-0001, TICKET-0002, etc.
+                    مثال: TICKET-0001، TICKET-0002، وغيرها.
                   </p>
                   {errors.ticketNumberPrefix && (
                     <p className="text-sm text-destructive">
@@ -725,7 +722,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                     htmlFor="defaultPriority"
                     className="text-sm font-medium"
                   >
-                    Default Priority
+                    الأولوية الافتراضية
                   </Label>
                   <Select
                     value={watch("defaultPriority")}
@@ -737,13 +734,13 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                     }
                   >
                     <SelectTrigger className="h-11 bg-background/80 border-input/50">
-                      <SelectValue placeholder="Select default priority" />
+                      <SelectValue placeholder="اختر الأولوية الافتراضية" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="urgent">Urgent</SelectItem>
+                      <SelectItem value="low">{PRIORITY_LABELS.low}</SelectItem>
+                      <SelectItem value="medium">{PRIORITY_LABELS.medium}</SelectItem>
+                      <SelectItem value="high">{PRIORITY_LABELS.high}</SelectItem>
+                      <SelectItem value="urgent">{PRIORITY_LABELS.urgent}</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.defaultPriority && (
@@ -760,7 +757,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   htmlFor="autoCloseResolvedTicketsDays"
                   className="text-sm font-medium"
                 >
-                  Auto-close Resolved Tickets (Days)
+                  إغلاق التذاكر المحلولة تلقائياً (بالأيام)
                 </Label>
                 <Input
                   id="autoCloseResolvedTicketsDays"
@@ -772,8 +769,8 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   className="h-11 bg-background/80 border-input/50 focus:border-primary transition-colors max-w-xs"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Automatically close tickets after they&apos;ve been resolved
-                  for this many days. Set to 0 to disable.
+                  إغلاق التذاكر تلقائياً بعد مرور هذا العدد من الأيام على
+                  حلّها. اضبط على 0 للتعطيل.
                 </p>
                 {errors.autoCloseResolvedTicketsDays && (
                   <p className="text-sm text-destructive">
@@ -786,182 +783,123 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
 
           {/* Feature Toggles Section */}
           <div className="space-y-4 mb-0">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Feature Toggles
-            </h3>
+            <PageSectionLabel>ميزات اختيارية</PageSectionLabel>
             <div className="space-y-3">
-              {/* Allow Customer Close Tickets */}
-              <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
-                <div className="space-y-0.5">
-                  <Label
-                    htmlFor="allowCustomerCloseTickets"
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    Allow Customers to Close Tickets
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Let customers close their own tickets
-                  </p>
-                </div>
-                <Switch
-                  id="allowCustomerCloseTickets"
-                  checked={watch("allowCustomerCloseTickets")}
-                  onCheckedChange={(checked) =>
-                    setValue("allowCustomerCloseTickets", checked)
-                  }
-                />
-              </div>
+              <PanelSwitchField
+                label="السماح للعملاء بإغلاق التذاكر"
+                description="السماح للعملاء بإغلاق تذاكرهم"
+                control={
+                  <Switch
+                    id="allowCustomerCloseTickets"
+                    checked={watch("allowCustomerCloseTickets")}
+                    onCheckedChange={(checked) =>
+                      setValue("allowCustomerCloseTickets", checked)
+                    }
+                  />
+                }
+              />
 
-              {/* Require Purchase Code */}
-              <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
-                <div className="space-y-0.5">
-                  <Label
-                    htmlFor="requirePurchaseCode"
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    Require Purchase Code
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Require customers to provide a valid purchase code when
-                    creating tickets
-                  </p>
-                </div>
-                <Switch
-                  id="requirePurchaseCode"
-                  checked={watch("requirePurchaseCode")}
-                  onCheckedChange={(checked) =>
-                    setValue("requirePurchaseCode", checked)
-                  }
-                />
-              </div>
+              <PanelSwitchField
+                label="طلب رمز الشراء"
+                description="إلزام العملاء بتقديم رمز شراء صالح عند إنشاء التذاكر"
+                control={
+                  <Switch
+                    id="requirePurchaseCode"
+                    checked={watch("requirePurchaseCode")}
+                    onCheckedChange={(checked) =>
+                      setValue("requirePurchaseCode", checked)
+                    }
+                  />
+                }
+              />
 
-              {/* Enable Internal Notes */}
-              <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
-                <div className="space-y-0.5">
-                  <Label
-                    htmlFor="enableInternalNotes"
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    Enable Internal Notes
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Allow support staff to add private notes that customers
-                    can&apos;t see
-                  </p>
-                </div>
-                <Switch
-                  id="enableInternalNotes"
-                  checked={watch("enableInternalNotes")}
-                  onCheckedChange={(checked) =>
-                    setValue("enableInternalNotes", checked)
-                  }
-                />
-              </div>
+              <PanelSwitchField
+                label="تفعيل الملاحظات الداخلية"
+                description="السماح لفريق الدعم بإضافة ملاحظات خاصة لا يراها العملاء"
+                control={
+                  <Switch
+                    id="enableInternalNotes"
+                    checked={watch("enableInternalNotes")}
+                    onCheckedChange={(checked) =>
+                      setValue("enableInternalNotes", checked)
+                    }
+                  />
+                }
+              />
 
-              {/* Enable Ticket Tags */}
-              <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
-                <div className="space-y-0.5">
-                  <Label
-                    htmlFor="enableTicketTags"
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    Enable Ticket Tags
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Allow adding custom tags to tickets for better organization
-                  </p>
-                </div>
-                <Switch
-                  id="enableTicketTags"
-                  checked={watch("enableTicketTags")}
-                  onCheckedChange={(checked) =>
-                    setValue("enableTicketTags", checked)
-                  }
-                />
-              </div>
+              <PanelSwitchField
+                label="تفعيل وسوم التذاكر"
+                description="السماح بإضافة وسوم مخصصة للتذاكر لتنظيم أفضل"
+                control={
+                  <Switch
+                    id="enableTicketTags"
+                    checked={watch("enableTicketTags")}
+                    onCheckedChange={(checked) =>
+                      setValue("enableTicketTags", checked)
+                    }
+                  />
+                }
+              />
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-end py-6">
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="h-11 px-6 shadow-md hover:shadow-lg transition-all"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Changes
-                </>
-              )}
-            </Button>
-          </div>
+          <SettingsSaveBar isLoading={isLoading} />
         </form>
 
-        <div className="space-y-4">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            Ticket Categories
-          </h3>
+        <div className="space-y-4" dir="rtl">
+          <PageSectionLabel>فئات التذاكر</PageSectionLabel>
 
           <div className="rounded-xl border bg-muted/20 p-5">
-            <div className="flex items-center justify-between gap-3">
-              <div className="space-y-0.5">
-                <div className="text-sm font-medium">Categories</div>
-                <div className="text-xs text-muted-foreground">
-                  Add custom categories for ticket creation
-                </div>
-              </div>
-              <Button type="button" onClick={() => setAddCategoryOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Category
-              </Button>
-            </div>
+            <PanelSectionHeader
+              title="الفئات"
+              description="أضف فئات مخصصة لإنشاء التذاكر"
+              actions={
+                <Button type="button" onClick={() => setAddCategoryOpen(true)} className="gap-2">
+                  <span>إضافة فئة</span>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              }
+            />
           </div>
 
-          <div className="rounded-xl overflow-hidden border border-border bg-card/50 backdrop-blur-sm">
+          <div className={adminTableShellClass()} style={adminTableShellDir}>
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-border/50 bg-muted/20 hover:bg-muted/20">
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Name
+                  <TableHead className={cn(adminTableHeadClass, "w-[140px]")} dir="rtl">
+                    الإجراءات
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Slug
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    نشط
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Order
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    الترتيب
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Active
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    المعرّف
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider w-[140px]">
-                    Actions
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    الاسم
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-background/50">
                 {categoriesLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
-                      Loading categories...
+                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground" dir="rtl">
+                      جاري تحميل الفئات...
                     </TableCell>
                   </TableRow>
                 ) : categoriesError ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-10 text-center text-destructive">
+                    <TableCell colSpan={5} className="py-10 text-center text-destructive" dir="rtl">
                       {categoriesError}
                     </TableCell>
                   </TableRow>
                 ) : sortedCategories.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
-                      No categories found
+                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground" dir="rtl">
+                      ملقيناش فئات
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -970,47 +908,49 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                       key={cat.id}
                       className="border-b border-border/30 hover:bg-muted/30 transition-all duration-200"
                     >
-                      <TableCell className="py-3.5 px-4">
-                        <div className="font-medium">{cat.name}</div>
-                        {cat.isSystem && (
-                          <div className="text-xs text-muted-foreground">System</div>
-                        )}
+                      <TableCell className="py-3.5 px-4" dir="rtl">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                            onClick={() => openEditCategory(cat)}
+                          >
+                            <span>تعديل</span>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="gap-2"
+                            disabled={cat.isSystem}
+                            onClick={() => setDeleteCategoryTarget(cat)}
+                          >
+                            <span>حذف</span>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
-                      <TableCell className="py-3.5 px-4 text-muted-foreground">
-                        {cat.slug}
-                      </TableCell>
-                      <TableCell className="py-3.5 px-4 text-muted-foreground">
-                        {cat.sortOrder ?? 0}
-                      </TableCell>
-                      <TableCell className="py-3.5 px-4">
+                      <TableCell className="py-3.5 px-4" dir="rtl">
                         <Switch
                           checked={cat.isActive}
                           disabled={togglingCategoryId === cat.id}
                           onCheckedChange={(next) => onToggleCategoryActive(cat, next)}
                         />
                       </TableCell>
-                      <TableCell className="py-3.5 px-4">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openEditCategory(cat)}
-                          >
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            disabled={cat.isSystem}
-                            onClick={() => setDeleteCategoryTarget(cat)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </Button>
-                        </div>
+                      <TableCell className="py-3.5 px-4 text-muted-foreground" dir="rtl">
+                        {cat.sortOrder ?? 0}
+                      </TableCell>
+                      <TableCell className="py-3.5 px-4 text-muted-foreground" dir="rtl">
+                        {cat.slug}
+                      </TableCell>
+                      <TableCell className="py-3.5 px-4" dir="rtl">
+                        <div className="font-medium">{cat.name}</div>
+                        {cat.isSystem && (
+                          <div className="text-xs text-muted-foreground">نظام</div>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -1020,64 +960,60 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
           </div>
         </div>
 
-        <div className="space-y-4 mt-8">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            Ticket Departments
-          </h3>
+        <div className="space-y-4 mt-8" dir="rtl">
+          <PageSectionLabel>أقسام التذاكر</PageSectionLabel>
 
           <div className="rounded-xl border bg-muted/20 p-5">
-            <div className="flex items-center justify-between gap-3">
-              <div className="space-y-0.5">
-                <div className="text-sm font-medium">Departments</div>
-                <div className="text-xs text-muted-foreground">
-                  Add departments to route tickets to the right team
-                </div>
-              </div>
-              <Button type="button" onClick={() => setAddDepartmentOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Department
-              </Button>
-            </div>
+            <PanelSectionHeader
+              title="الأقسام"
+              description="أضف أقساماً لتوجيه التذاكر إلى الفريق المناسب"
+              actions={
+                <Button type="button" onClick={() => setAddDepartmentOpen(true)} className="gap-2">
+                  <span>إضافة قسم</span>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              }
+            />
           </div>
 
-          <div className="rounded-xl overflow-hidden border border-border bg-card/50 backdrop-blur-sm">
+          <div className={adminTableShellClass()} style={adminTableShellDir}>
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-border/50 bg-muted/20 hover:bg-muted/20">
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Name
+                  <TableHead className={cn(adminTableHeadClass, "w-[140px]")} dir="rtl">
+                    الإجراءات
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Slug
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    نشط
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Order
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    الترتيب
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Active
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    المعرّف
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider w-[140px]">
-                    Actions
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    الاسم
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-background/50">
                 {departmentsLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
-                      Loading departments...
+                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground" dir="rtl">
+                      جاري تحميل الأقسام...
                     </TableCell>
                   </TableRow>
                 ) : departmentsError ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-10 text-center text-destructive">
+                    <TableCell colSpan={5} className="py-10 text-center text-destructive" dir="rtl">
                       {departmentsError}
                     </TableCell>
                   </TableRow>
                 ) : sortedDepartments.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
-                      No departments found
+                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground" dir="rtl">
+                      ملقيناش أقسام
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -1086,47 +1022,49 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                       key={dept.id}
                       className="border-b border-border/30 hover:bg-muted/30 transition-all duration-200"
                     >
-                      <TableCell className="py-3.5 px-4">
-                        <div className="font-medium">{dept.name}</div>
-                        {dept.isSystem && (
-                          <div className="text-xs text-muted-foreground">System</div>
-                        )}
+                      <TableCell className="py-3.5 px-4" dir="rtl">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                            onClick={() => openEditDepartment(dept)}
+                          >
+                            <span>تعديل</span>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="gap-2"
+                            disabled={dept.isSystem}
+                            onClick={() => setDeleteDepartmentTarget(dept)}
+                          >
+                            <span>حذف</span>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
-                      <TableCell className="py-3.5 px-4 text-muted-foreground">
-                        {dept.slug}
-                      </TableCell>
-                      <TableCell className="py-3.5 px-4 text-muted-foreground">
-                        {dept.sortOrder ?? 0}
-                      </TableCell>
-                      <TableCell className="py-3.5 px-4">
+                      <TableCell className="py-3.5 px-4" dir="rtl">
                         <Switch
                           checked={dept.isActive}
                           disabled={togglingDepartmentId === dept.id}
                           onCheckedChange={(next) => onToggleDepartmentActive(dept, next)}
                         />
                       </TableCell>
-                      <TableCell className="py-3.5 px-4">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openEditDepartment(dept)}
-                          >
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            disabled={dept.isSystem}
-                            onClick={() => setDeleteDepartmentTarget(dept)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </Button>
-                        </div>
+                      <TableCell className="py-3.5 px-4 text-muted-foreground" dir="rtl">
+                        {dept.sortOrder ?? 0}
+                      </TableCell>
+                      <TableCell className="py-3.5 px-4 text-muted-foreground" dir="rtl">
+                        {dept.slug}
+                      </TableCell>
+                      <TableCell className="py-3.5 px-4" dir="rtl">
+                        <div className="font-medium">{dept.name}</div>
+                        {dept.isSystem && (
+                          <div className="text-xs text-muted-foreground">نظام</div>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -1136,64 +1074,60 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
           </div>
         </div>
 
-        <div className="space-y-4 mt-8">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            Ticket Products
-          </h3>
+        <div className="space-y-4 mt-8" dir="rtl">
+          <PageSectionLabel>منتجات التذاكر</PageSectionLabel>
 
           <div className="rounded-xl border bg-muted/20 p-5">
-            <div className="flex items-center justify-between gap-3">
-              <div className="space-y-0.5">
-                <div className="text-sm font-medium">Products</div>
-                <div className="text-xs text-muted-foreground">
-                  Add products that customers can pick when creating a ticket
-                </div>
-              </div>
-              <Button type="button" onClick={() => setAddProductOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Product
-              </Button>
-            </div>
+            <PanelSectionHeader
+              title="المنتجات"
+              description="أضف منتجات يمكن للعملاء اختيارها عند افتح تذكرة"
+              actions={
+                <Button type="button" onClick={() => setAddProductOpen(true)} className="gap-2">
+                  <span>إضافة منتج</span>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              }
+            />
           </div>
 
-          <div className="rounded-xl overflow-hidden border border-border bg-card/50 backdrop-blur-sm">
+          <div className={adminTableShellClass()} style={adminTableShellDir}>
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-border/50 bg-muted/20 hover:bg-muted/20">
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Name
+                  <TableHead className={cn(adminTableHeadClass, "w-[140px]")} dir="rtl">
+                    الإجراءات
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Slug
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    نشط
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Order
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    الترتيب
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                    Active
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    المعرّف
                   </TableHead>
-                  <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider w-[140px]">
-                    Actions
+                  <TableHead className={adminTableHeadClass} dir="rtl">
+                    الاسم
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-background/50">
                 {productsLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
-                      Loading products...
+                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground" dir="rtl">
+                      جاري تحميل المنتجات...
                     </TableCell>
                   </TableRow>
                 ) : productsError ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-10 text-center text-destructive">
+                    <TableCell colSpan={5} className="py-10 text-center text-destructive" dir="rtl">
                       {productsError}
                     </TableCell>
                   </TableRow>
                 ) : sortedProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
-                      No products found
+                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground" dir="rtl">
+                      ملقيناش منتجات
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -1202,47 +1136,49 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                       key={prod.id}
                       className="border-b border-border/30 hover:bg-muted/30 transition-all duration-200"
                     >
-                      <TableCell className="py-3.5 px-4">
-                        <div className="font-medium">{prod.name}</div>
-                        {prod.isSystem && (
-                          <div className="text-xs text-muted-foreground">System</div>
-                        )}
+                      <TableCell className="py-3.5 px-4" dir="rtl">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                            onClick={() => openEditProduct(prod)}
+                          >
+                            <span>تعديل</span>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="gap-2"
+                            disabled={prod.isSystem}
+                            onClick={() => setDeleteProductTarget(prod)}
+                          >
+                            <span>حذف</span>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
-                      <TableCell className="py-3.5 px-4 text-muted-foreground">
-                        {prod.slug}
-                      </TableCell>
-                      <TableCell className="py-3.5 px-4 text-muted-foreground">
-                        {prod.sortOrder ?? 0}
-                      </TableCell>
-                      <TableCell className="py-3.5 px-4">
+                      <TableCell className="py-3.5 px-4" dir="rtl">
                         <Switch
                           checked={prod.isActive}
                           disabled={togglingProductId === prod.id}
                           onCheckedChange={(next) => onToggleProductActive(prod, next)}
                         />
                       </TableCell>
-                      <TableCell className="py-3.5 px-4">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openEditProduct(prod)}
-                          >
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            disabled={prod.isSystem}
-                            onClick={() => setDeleteProductTarget(prod)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </Button>
-                        </div>
+                      <TableCell className="py-3.5 px-4 text-muted-foreground" dir="rtl">
+                        {prod.sortOrder ?? 0}
+                      </TableCell>
+                      <TableCell className="py-3.5 px-4 text-muted-foreground" dir="rtl">
+                        {prod.slug}
+                      </TableCell>
+                      <TableCell className="py-3.5 px-4" dir="rtl">
+                        <div className="font-medium">{prod.name}</div>
+                        {prod.isSystem && (
+                          <div className="text-xs text-muted-foreground">نظام</div>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -1265,9 +1201,9 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         >
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>Add Category</DialogTitle>
+              <DialogTitle>إضافة فئة</DialogTitle>
               <DialogDescriptionBase>
-                Create a new ticket category. It will appear in ticket creation lists.
+                أنشئ فئة تذكرة جديدة. ستظهر في قوائم إنشاء التذاكر.
               </DialogDescriptionBase>
             </DialogHeader>
 
@@ -1277,7 +1213,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
             >
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Name</Label>
+                  <Label className="text-sm font-medium">الاسم</Label>
                   <Input
                     className="h-11"
                     {...createCategoryForm.register("name")}
@@ -1290,7 +1226,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Slug (optional)</Label>
+                  <Label className="text-sm font-medium">المعرّف (اختياري)</Label>
                   <Input
                     className="h-11"
                     {...createCategoryForm.register("slug")}
@@ -1306,18 +1242,18 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   onClick={() => setAddCategoryOpen(false)}
                   disabled={creatingCategory}
                 >
-                  Cancel
+                  إلغاء
                 </Button>
-                <Button type="submit" disabled={creatingCategory}>
+                <Button type="submit" disabled={creatingCategory} className="gap-2">
                   {creatingCategory ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding...
+                      <span>جاري الإضافة...</span>
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     </>
                   ) : (
                     <>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add
+                      <span>إضافة</span>
+                      <Plus className="h-4 w-4" />
                     </>
                   )}
                 </Button>
@@ -1329,20 +1265,20 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>Edit Category</DialogTitle>
-              <DialogDescriptionBase>Update category name, slug, order, and active state.</DialogDescriptionBase>
+              <DialogTitle>تعديل الفئة</DialogTitle>
+              <DialogDescriptionBase>تحديث اسم الفئة والمعرّف والترتيب وحالة النشاط.</DialogDescriptionBase>
             </DialogHeader>
             <form onSubmit={editCategoryForm.handleSubmit(onSaveCategory)} className="space-y-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Name</Label>
+                  <Label className="text-sm font-medium">الاسم</Label>
                   <Input {...editCategoryForm.register("name")} className="h-11" />
                   {editCategoryForm.formState.errors.name && (
                     <p className="text-sm text-destructive">{editCategoryForm.formState.errors.name.message}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Slug</Label>
+                  <Label className="text-sm font-medium">المعرّف</Label>
                   <Input
                     {...editCategoryForm.register("slug")}
                     className="h-11"
@@ -1353,7 +1289,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Sort Order</Label>
+                  <Label className="text-sm font-medium">ترتيب العرض</Label>
                   <Input
                     type="number"
                     className="h-11"
@@ -1361,7 +1297,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Active</Label>
+                  <Label className="text-sm font-medium">نشط</Label>
                   <div className="h-11 flex items-center">
                     <Switch
                       checked={editCategoryForm.watch("isActive")}
@@ -1378,18 +1314,18 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   onClick={() => setEditingCategory(null)}
                   disabled={savingCategory}
                 >
-                  Cancel
+                  إلغاء
                 </Button>
-                <Button type="submit" disabled={savingCategory}>
+                <Button type="submit" disabled={savingCategory} className="gap-2">
                   {savingCategory ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
+                      <span>بيتحفظ...</span>
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     </>
                   ) : (
                     <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save
+                      <span>حفظ</span>
+                      <Save className="h-4 w-4" />
                     </>
                   )}
                 </Button>
@@ -1406,17 +1342,17 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete category?</AlertDialogTitle>
+              <AlertDialogTitle>حذف الفئة؟</AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently delete{" "}
+                هيتمسح{" "}
                 <span className="font-medium text-foreground">
                   {deleteCategoryTarget?.name}
-                </span>
-                . This action cannot be undone.
+                </span>{" "}
+                نهائياً. مش هينفع الرجوع عن هذا الإجراء.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={deletingCategory}>Cancel</AlertDialogCancel>
+              <AlertDialogCancel disabled={deletingCategory}>إلغاء</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 disabled={deletingCategory || !deleteCategoryTarget}
@@ -1425,7 +1361,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   void onConfirmDeleteCategory();
                 }}
               >
-                {deletingCategory ? "Deleting..." : "Delete"}
+                {deletingCategory ? "جاري الحذف..." : "حذف"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -1444,9 +1380,9 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         >
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>Add Department</DialogTitle>
+              <DialogTitle>إضافة قسم</DialogTitle>
               <DialogDescriptionBase>
-                Create a new ticket department. It will appear in ticket creation lists.
+                أنشئ قسم تذكرة جديداً. سيظهر في قوائم إنشاء التذاكر.
               </DialogDescriptionBase>
             </DialogHeader>
 
@@ -1456,7 +1392,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
             >
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Name</Label>
+                  <Label className="text-sm font-medium">الاسم</Label>
                   <Input
                     className="h-11"
                     {...createDepartmentForm.register("name")}
@@ -1469,7 +1405,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Slug (optional)</Label>
+                  <Label className="text-sm font-medium">المعرّف (اختياري)</Label>
                   <Input
                     className="h-11"
                     {...createDepartmentForm.register("slug")}
@@ -1485,18 +1421,18 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   onClick={() => setAddDepartmentOpen(false)}
                   disabled={creatingDepartment}
                 >
-                  Cancel
+                  إلغاء
                 </Button>
-                <Button type="submit" disabled={creatingDepartment}>
+                <Button type="submit" disabled={creatingDepartment} className="gap-2">
                   {creatingDepartment ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding...
+                      <span>جاري الإضافة...</span>
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     </>
                   ) : (
                     <>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add
+                      <span>إضافة</span>
+                      <Plus className="h-4 w-4" />
                     </>
                   )}
                 </Button>
@@ -1508,20 +1444,20 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         <Dialog open={!!editingDepartment} onOpenChange={(open) => !open && setEditingDepartment(null)}>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>Edit Department</DialogTitle>
-              <DialogDescriptionBase>Update department name, slug, order, and active state.</DialogDescriptionBase>
+              <DialogTitle>تعديل القسم</DialogTitle>
+              <DialogDescriptionBase>تحديث اسم القسم والمعرّف والترتيب وحالة النشاط.</DialogDescriptionBase>
             </DialogHeader>
             <form onSubmit={editDepartmentForm.handleSubmit(onSaveDepartment)} className="space-y-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Name</Label>
+                  <Label className="text-sm font-medium">الاسم</Label>
                   <Input {...editDepartmentForm.register("name")} className="h-11" />
                   {editDepartmentForm.formState.errors.name && (
                     <p className="text-sm text-destructive">{editDepartmentForm.formState.errors.name.message}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Slug</Label>
+                  <Label className="text-sm font-medium">المعرّف</Label>
                   <Input
                     {...editDepartmentForm.register("slug")}
                     className="h-11"
@@ -1532,7 +1468,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Sort Order</Label>
+                  <Label className="text-sm font-medium">ترتيب العرض</Label>
                   <Input
                     type="number"
                     className="h-11"
@@ -1540,7 +1476,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Active</Label>
+                  <Label className="text-sm font-medium">نشط</Label>
                   <div className="h-11 flex items-center">
                     <Switch
                       checked={editDepartmentForm.watch("isActive")}
@@ -1557,18 +1493,18 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   onClick={() => setEditingDepartment(null)}
                   disabled={savingDepartment}
                 >
-                  Cancel
+                  إلغاء
                 </Button>
-                <Button type="submit" disabled={savingDepartment}>
+                <Button type="submit" disabled={savingDepartment} className="gap-2">
                   {savingDepartment ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
+                      <span>بيتحفظ...</span>
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     </>
                   ) : (
                     <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save
+                      <span>حفظ</span>
+                      <Save className="h-4 w-4" />
                     </>
                   )}
                 </Button>
@@ -1585,17 +1521,17 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete department?</AlertDialogTitle>
+              <AlertDialogTitle>حذف القسم؟</AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently delete{" "}
+                هيتمسح{" "}
                 <span className="font-medium text-foreground">
                   {deleteDepartmentTarget?.name}
-                </span>
-                . This action cannot be undone.
+                </span>{" "}
+                نهائياً. مش هينفع الرجوع عن هذا الإجراء.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={deletingDepartment}>Cancel</AlertDialogCancel>
+              <AlertDialogCancel disabled={deletingDepartment}>إلغاء</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 disabled={deletingDepartment || !deleteDepartmentTarget}
@@ -1604,7 +1540,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   void onConfirmDeleteDepartment();
                 }}
               >
-                {deletingDepartment ? "Deleting..." : "Delete"}
+                {deletingDepartment ? "جاري الحذف..." : "حذف"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -1623,9 +1559,9 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         >
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>Add Product</DialogTitle>
+              <DialogTitle>إضافة منتج</DialogTitle>
               <DialogDescriptionBase>
-                Create a new ticket product. It will appear in ticket creation lists.
+                أنشئ منتج تذكرة جديداً. سيظهر في قوائم إنشاء التذاكر.
               </DialogDescriptionBase>
             </DialogHeader>
 
@@ -1635,7 +1571,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
             >
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Name</Label>
+                  <Label className="text-sm font-medium">الاسم</Label>
                   <Input
                     className="h-11"
                     {...createProductForm.register("name")}
@@ -1648,7 +1584,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Slug (optional)</Label>
+                  <Label className="text-sm font-medium">المعرّف (اختياري)</Label>
                   <Input
                     className="h-11"
                     {...createProductForm.register("slug")}
@@ -1664,18 +1600,18 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   onClick={() => setAddProductOpen(false)}
                   disabled={creatingProduct}
                 >
-                  Cancel
+                  إلغاء
                 </Button>
-                <Button type="submit" disabled={creatingProduct}>
+                <Button type="submit" disabled={creatingProduct} className="gap-2">
                   {creatingProduct ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding...
+                      <span>جاري الإضافة...</span>
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     </>
                   ) : (
                     <>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add
+                      <span>إضافة</span>
+                      <Plus className="h-4 w-4" />
                     </>
                   )}
                 </Button>
@@ -1687,20 +1623,20 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>Edit Product</DialogTitle>
-              <DialogDescriptionBase>Update product name, slug, order, and active state.</DialogDescriptionBase>
+              <DialogTitle>تعديل المنتج</DialogTitle>
+              <DialogDescriptionBase>تحديث اسم المنتج والمعرّف والترتيب وحالة النشاط.</DialogDescriptionBase>
             </DialogHeader>
             <form onSubmit={editProductForm.handleSubmit(onSaveProduct)} className="space-y-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Name</Label>
+                  <Label className="text-sm font-medium">الاسم</Label>
                   <Input {...editProductForm.register("name")} className="h-11" />
                   {editProductForm.formState.errors.name && (
                     <p className="text-sm text-destructive">{editProductForm.formState.errors.name.message}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Slug</Label>
+                  <Label className="text-sm font-medium">المعرّف</Label>
                   <Input
                     {...editProductForm.register("slug")}
                     className="h-11"
@@ -1711,7 +1647,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Sort Order</Label>
+                  <Label className="text-sm font-medium">ترتيب العرض</Label>
                   <Input
                     type="number"
                     className="h-11"
@@ -1719,7 +1655,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Active</Label>
+                  <Label className="text-sm font-medium">نشط</Label>
                   <div className="h-11 flex items-center">
                     <Switch
                       checked={editProductForm.watch("isActive")}
@@ -1736,18 +1672,18 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   onClick={() => setEditingProduct(null)}
                   disabled={savingProduct}
                 >
-                  Cancel
+                  إلغاء
                 </Button>
-                <Button type="submit" disabled={savingProduct}>
+                <Button type="submit" disabled={savingProduct} className="gap-2">
                   {savingProduct ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
+                      <span>بيتحفظ...</span>
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     </>
                   ) : (
                     <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save
+                      <span>حفظ</span>
+                      <Save className="h-4 w-4" />
                     </>
                   )}
                 </Button>
@@ -1764,17 +1700,17 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete product?</AlertDialogTitle>
+              <AlertDialogTitle>حذف المنتج؟</AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently delete{" "}
+                هيتمسح{" "}
                 <span className="font-medium text-foreground">
                   {deleteProductTarget?.name}
-                </span>
-                . This action cannot be undone.
+                </span>{" "}
+                نهائياً. مش هينفع الرجوع عن هذا الإجراء.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={deletingProduct}>Cancel</AlertDialogCancel>
+              <AlertDialogCancel disabled={deletingProduct}>إلغاء</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 disabled={deletingProduct || !deleteProductTarget}
@@ -1783,12 +1719,11 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                   void onConfirmDeleteProduct();
                 }}
               >
-                {deletingProduct ? "Deleting..." : "Delete"}
+                {deletingProduct ? "جاري الحذف..." : "حذف"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </CardContent>
-    </Card>
+    </SettingsFormCard>
   );
 }

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/collapsible";
 import { CollapsedSidebarSubmenu } from "@/components/layout/collapsed-sidebar-submenu";
 import { useSidebarCollapsed } from "@/components/layout/app-sidebar";
+import { getServiceDisplayName } from "@/lib/service-labels";
 import {
   SubmenuChain,
   expandedNavItemClasses,
@@ -96,7 +97,7 @@ export function SupportAgentNav({
   type NavItem = NavLinkItem | NavGroupItem;
 
   const serviceChildren: NavLinkItem[] = services.map((service) => ({
-    name: service.name,
+    name: getServiceDisplayName(service.slug, service.name),
     href: `/support-agent/services/${service.slug}`,
     icon:
       service.slug === "customization"
@@ -108,26 +109,26 @@ export function SupportAgentNav({
 
   const navStructure: { section: string; items: NavItem[] }[] = [
     {
-      section: "OVERVIEW",
+      section: "نظرة عامة",
       items: [
         {
-          name: "Dashboard",
+          name: "لوحة التحكم",
           href: "/support-agent",
           icon: LayoutDashboard,
         },
       ],
     },
     {
-      section: "ASSIGNED WORK",
+      section: "العمل المُسند",
       items: [
         {
-          name: "My Tickets",
+          name: "طلباتي",
           href: "/support-agent/tickets",
           icon: Ticket,
-          collapsedLabel: "Tickets",
+          collapsedLabel: "تذاكر",
         },
         {
-          name: "Messages",
+          name: "الرسائل",
           href: "/support-agent/messages",
           icon: MessageSquare,
         },
@@ -136,10 +137,10 @@ export function SupportAgentNav({
     ...(serviceChildren.length > 0
       ? [
           {
-            section: "SERVICES",
+            section: "الخدمات",
             items: [
               {
-                name: "Services",
+                name: "الخدمات",
                 icon: Briefcase,
                 children: serviceChildren,
               },
@@ -148,10 +149,10 @@ export function SupportAgentNav({
         ]
       : []),
     {
-      section: "ACCOUNT",
+      section: "الحساب",
       items: [
         {
-          name: "Profile",
+          name: "حسابي",
           href: "/support-agent/profile",
           icon: User,
         },
@@ -346,7 +347,7 @@ export function SupportAgentNav({
                       )}
                     </CollapsibleTrigger>
                     <CollapsibleContent className="pt-1">
-                      <div className="relative ml-5 space-y-1 py-0.5 pl-5">
+                      <div className="relative ms-5 space-y-1 py-0.5 ps-5">
                         <SubmenuChain count={item.children.length} />
                         {item.children.map((child) =>
                           renderNavItem(child, true)

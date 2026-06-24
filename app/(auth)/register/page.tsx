@@ -59,7 +59,7 @@ function RegisterForm() {
       } as Record<string, unknown> & { email: string; password: string; name: string });
 
       if (result.error) {
-        setError(result.error.message || "Failed to create account");
+        setError(result.error.message || "تعذّر فتح الحساب");
         setIsLoading(false);
         return;
       }
@@ -79,7 +79,7 @@ function RegisterForm() {
       router.push(destination);
       router.refresh();
     } catch {
-      setError("An unexpected error occurred. Please try again.");
+      setError("حصل خطأ. جرّب تاني.");
       setIsLoading(false);
     }
   };
@@ -90,10 +90,10 @@ function RegisterForm() {
         <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
-              Create an account
+              افتح حساب
             </CardTitle>
             <CardDescription className="text-center">
-              Enter your information to create your support account
+              ادخل بياناتك عشان تفتح حساب الدعم
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -105,11 +105,11 @@ function RegisterForm() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">الاسم الكامل</Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="محمد أحمد"
                   {...register("name")}
                   disabled={isLoading}
                 />
@@ -119,11 +119,11 @@ function RegisterForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">الإيميل</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="your@email.com"
                   {...register("email")}
                   disabled={isLoading}
                 />
@@ -133,7 +133,7 @@ function RegisterForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="country">Country</Label>
+                <Label htmlFor="country">الدولة</Label>
                 <CountryCombobox
                   id="country"
                   value={country}
@@ -144,7 +144,7 @@ function RegisterForm() {
                     })
                   }
                   disabled={isLoading}
-                  placeholder="Select your country"
+                  placeholder="اختار دولتك"
                   aria-invalid={!!errors.country}
                 />
                 {errors.country && (
@@ -155,7 +155,7 @@ function RegisterForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">كلمة المرور</Label>
                 <Input
                   id="password"
                   type="password"
@@ -171,7 +171,7 @@ function RegisterForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -190,16 +190,16 @@ function RegisterForm() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating account...
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    بيفتح الحساب...
                   </>
                 ) : (
-                  "Create account"
+                  "افتح حساب"
                 )}
               </Button>
 
               <div className="text-sm text-center text-muted-foreground">
-                Already have an account?{" "}
+                عندك حساب؟{" "}
                 <Link
                   href={
                     redirectUrl
@@ -208,7 +208,7 @@ function RegisterForm() {
                   }
                   className="font-medium text-info hover:text-info/90"
                 >
-                  Sign in
+                  دخول
                 </Link>
               </div>
             </CardFooter>

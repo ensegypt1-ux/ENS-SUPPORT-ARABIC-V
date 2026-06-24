@@ -36,6 +36,7 @@ import { HowItWorksPanel } from "@/components/ai-training/how-it-works-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImportPairsDialog } from "@/components/ai-training/import-pairs-dialog";
 import { WidgetSettingsForm } from "@/components/ai-training/widget-settings-form";
+import { AdminPageHeader } from "@/components/layout/admin-page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -89,28 +90,28 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
 
   const stats = [
     {
-      title: "Total Pairs",
+      title: "إجمالي الأزواج",
       value: totalPairs,
       icon: Database,
       iconColor: "text-info",
       iconBgColor: "bg-info/15",
-      description: "Across all categories",
+      description: "في جميع الفئات",
     },
     {
-      title: "Ready",
+      title: "جاهز",
       value: readyPairs,
       icon: CheckCircle2,
       iconColor: "text-success",
       iconBgColor: "bg-success/15",
-      description: "Embeddings generated",
+      description: "التضمينات جاهزة",
     },
     {
-      title: "Active",
+      title: "نشط",
       value: activePairs,
       icon: Activity,
       iconColor: "text-primary",
       iconBgColor: "bg-primary/15",
-      description: "Available for matching",
+      description: "متاح للمطابقة",
     },
   ];
 
@@ -119,30 +120,28 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
       <Tabs defaultValue={tab} className="space-y-6">
         {/* Sticky page header: title + tabs stay pinned while scrolling */}
         <div className="sticky top-14 z-30 -mx-4 -mt-4 border-b border-border bg-background/95 px-4 pt-4 backdrop-blur md:-mx-6 md:-mt-6 md:px-6 md:pt-6 supports-backdrop-filter:bg-background/80">
-          <div className="flex flex-col gap-4 pb-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
-                <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                  AI Support Agent
-                </h1>
-              </div>
-              <p className="text-muted-foreground mt-1 text-sm">
-                Train your chatbot with approved Q&amp;A pairs, review
-                conversations, and tune behavior.
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <RegenerateButton />
-              <ImportPairsDialog />
-              <Button asChild size="sm">
-                <Link href="/admin/ai-support-agent/new">
-                  <Plus className="mr-1.5 h-3.5 w-3.5" />
-                  New Pair
-                </Link>
-              </Button>
-            </div>
-          </div>
+          <AdminPageHeader
+            className="pb-3"
+            title={
+              <>
+                <span>وكيل الدعم الذكي</span>
+                <Sparkles className="h-5 w-5 shrink-0 text-primary" />
+              </>
+            }
+            description="درّب روبوت المحادثة بأسئلة وأجوبة معتمدة، راقب المحادثات، واضبط السلوك."
+            actions={
+              <>
+                <RegenerateButton />
+                <ImportPairsDialog />
+                <Button asChild size="sm">
+                  <Link href="/admin/ai-support-agent/new">
+                    <Plus className="me-1.5 h-3.5 w-3.5" />
+                    زوج جديد
+                  </Link>
+                </Button>
+              </>
+            }
+          />
 
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger
@@ -150,70 +149,70 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
               className="group relative -mb-px flex-none gap-2 rounded-lg rounded-b-none border-0 border-b-2 border-transparent bg-transparent px-3.5 pb-3 pt-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none [&_svg]:transition-colors [&_svg]:text-muted-foreground/70 group-hover:[&_svg]:text-foreground data-[state=active]:[&_svg]:text-primary"
             >
               <Workflow className="h-4 w-4" />
-              How it Works
+              كيف يعمل
             </TabsTrigger>
             <TabsTrigger
               value="pairs"
               className="group relative -mb-px flex-none gap-2 rounded-lg rounded-b-none border-0 border-b-2 border-transparent bg-transparent px-3.5 pb-3 pt-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none [&_svg]:transition-colors [&_svg]:text-muted-foreground/70 group-hover:[&_svg]:text-foreground data-[state=active]:[&_svg]:text-primary"
             >
               <MessagesSquare className="h-4 w-4" />
-              Q&amp;A Pairs
+              أزواج الأسئلة والأجوبة
             </TabsTrigger>
             <TabsTrigger
               value="web-sources"
               className="group relative -mb-px flex-none gap-2 rounded-lg rounded-b-none border-0 border-b-2 border-transparent bg-transparent px-3.5 pb-3 pt-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none [&_svg]:transition-colors [&_svg]:text-muted-foreground/70 group-hover:[&_svg]:text-foreground data-[state=active]:[&_svg]:text-primary"
             >
               <Globe className="h-4 w-4" />
-              Web Sources
+              مصادر الويب
             </TabsTrigger>
             <TabsTrigger
               value="files"
               className="group relative -mb-px flex-none gap-2 rounded-lg rounded-b-none border-0 border-b-2 border-transparent bg-transparent px-3.5 pb-3 pt-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none [&_svg]:transition-colors [&_svg]:text-muted-foreground/70 group-hover:[&_svg]:text-foreground data-[state=active]:[&_svg]:text-primary"
             >
               <FolderUp className="h-4 w-4" />
-              Files
+              الملفات
             </TabsTrigger>
             <TabsTrigger
               value="evaluation"
               className="group relative -mb-px flex-none gap-2 rounded-lg rounded-b-none border-0 border-b-2 border-transparent bg-transparent px-3.5 pb-3 pt-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none [&_svg]:transition-colors [&_svg]:text-muted-foreground/70 group-hover:[&_svg]:text-foreground data-[state=active]:[&_svg]:text-primary"
             >
               <Gauge className="h-4 w-4" />
-              Evaluation
+              التقييم
             </TabsTrigger>
             <TabsTrigger
               value="logs"
               className="group relative -mb-px flex-none gap-2 rounded-lg rounded-b-none border-0 border-b-2 border-transparent bg-transparent px-3.5 pb-3 pt-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none [&_svg]:transition-colors [&_svg]:text-muted-foreground/70 group-hover:[&_svg]:text-foreground data-[state=active]:[&_svg]:text-primary"
             >
               <ScrollText className="h-4 w-4" />
-              Chat Logs
+              سجلات المحادثة
             </TabsTrigger>
             <TabsTrigger
               value="settings"
               className="group relative -mb-px flex-none gap-2 rounded-lg rounded-b-none border-0 border-b-2 border-transparent bg-transparent px-3.5 pb-3 pt-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none [&_svg]:transition-colors [&_svg]:text-muted-foreground/70 group-hover:[&_svg]:text-foreground data-[state=active]:[&_svg]:text-primary"
             >
               <Settings2 className="h-4 w-4" />
-              Settings
+              الإعدادات
             </TabsTrigger>
             <TabsTrigger
               value="widget"
               className="group relative -mb-px flex-none gap-2 rounded-lg rounded-b-none border-0 border-b-2 border-transparent bg-transparent px-3.5 pb-3 pt-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none [&_svg]:transition-colors [&_svg]:text-muted-foreground/70 group-hover:[&_svg]:text-foreground data-[state=active]:[&_svg]:text-primary"
             >
               <Palette className="h-4 w-4" />
-              Widget
+              الأداة
             </TabsTrigger>
             <TabsTrigger
               value="embed"
               className="group relative -mb-px flex-none gap-2 rounded-lg rounded-b-none border-0 border-b-2 border-transparent bg-transparent px-3.5 pb-3 pt-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none [&_svg]:transition-colors [&_svg]:text-muted-foreground/70 group-hover:[&_svg]:text-foreground data-[state=active]:[&_svg]:text-primary"
             >
               <Code2 className="h-4 w-4" />
-              Install (Embed)
+              التثبيت (التضمين)
             </TabsTrigger>
             <TabsTrigger
               value="test"
               className="group relative -mb-px flex-none gap-2 rounded-lg rounded-b-none border-0 border-b-2 border-transparent bg-transparent px-3.5 pb-3 pt-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none [&_svg]:transition-colors [&_svg]:text-muted-foreground/70 group-hover:[&_svg]:text-foreground data-[state=active]:[&_svg]:text-primary"
             >
               <FlaskConical className="h-4 w-4" />
-              Test AI
+              اختبار الذكاء الاصطناعي
             </TabsTrigger>
           </TabsList>
         </div>
@@ -231,7 +230,7 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
             />
           ) : (
             <p className="text-sm text-destructive">
-              {settingsResult.error ?? "Failed to load settings"}
+              {settingsResult.error ?? "مقدرناش نحمّل الإعدادات"}
             </p>
           )}
         </TabsContent>
@@ -251,7 +250,7 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
             />
           ) : (
             <p className="text-sm text-destructive">
-              {pairsResult.error ?? "Failed to load pairs"}
+              {pairsResult.error ?? "مقدرناش نحمّل الأزواج"}
             </p>
           )}
         </TabsContent>
@@ -282,7 +281,7 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
             <AISettingsForm settings={settings} />
           ) : (
             <p className="text-sm text-destructive">
-              {settingsResult.error ?? "Failed to load settings"}
+              {settingsResult.error ?? "مقدرناش نحمّل الإعدادات"}
             </p>
           )}
         </TabsContent>
@@ -292,7 +291,7 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
             <WidgetSettingsForm settings={settings} />
           ) : (
             <p className="text-sm text-destructive">
-              {settingsResult.error ?? "Failed to load settings"}
+              {settingsResult.error ?? "مقدرناش نحمّل الإعدادات"}
             </p>
           )}
         </TabsContent>

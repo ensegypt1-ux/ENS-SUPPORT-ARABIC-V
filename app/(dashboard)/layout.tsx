@@ -9,6 +9,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardNav } from "@/components/layout/dashboard-nav";
 import { getServicesForNav } from "@/actions/services";
 import { getSystemSettings } from "@/lib/settings-utils";
+import { FALLBACKS } from "@/lib/strings";
 
 export default async function DashboardLayout({
   children,
@@ -33,7 +34,7 @@ export default async function DashboardLayout({
 
   const user = {
     id: sessionUser.id,
-    name: sessionUser.name ?? "Unknown User",
+    name: sessionUser.name ?? FALLBACKS.unknownUser,
     email: sessionUser.email ?? "",
     role: sessionUser.role ?? "customer",
     image: userDoc?.image ?? sessionUser.image ?? "",

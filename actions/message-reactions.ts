@@ -25,16 +25,16 @@ export async function addMessageReaction(
     });
 
     if (!session?.user) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     if (!emoji || emoji.length > 10) {
-      return { success: false, error: "Invalid emoji" };
+      return { success: false, error: "رمز تعبيري مش صح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "Message not found" };
+      return { success: false, error: "مفيش الرسالة" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -42,7 +42,7 @@ export async function addMessageReaction(
       session.user.id
     );
     if (!conversation) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const exists = (message.reactions || []).some(
@@ -51,7 +51,7 @@ export async function addMessageReaction(
     );
 
     if (exists) {
-      return { success: false, error: "You already reacted with this emoji" };
+      return { success: false, error: "لقد تفاعلت بالفعل بهذا الرمز التعبيري" };
     }
 
     const reaction: MessageReaction = {
@@ -79,7 +79,7 @@ export async function addMessageReaction(
     return { success: true, reaction };
   } catch (error) {
     console.error("Error adding reaction:", error);
-    return { success: false, error: "Failed to add reaction" };
+    return { success: false, error: "تعذّر إضافة التفاعل" };
   }
 }
 
@@ -93,12 +93,12 @@ export async function removeMessageReaction(
     });
 
     if (!session?.user) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "Message not found" };
+      return { success: false, error: "مفيش الرسالة" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -106,7 +106,7 @@ export async function removeMessageReaction(
       session.user.id
     );
     if (!conversation) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     message.reactions = (message.reactions || []).filter(
@@ -132,7 +132,7 @@ export async function removeMessageReaction(
     return { success: true };
   } catch (error) {
     console.error("Error removing reaction:", error);
-    return { success: false, error: "Failed to remove reaction" };
+    return { success: false, error: "تعذّر إزالة التفاعل" };
   }
 }
 
@@ -145,13 +145,13 @@ export async function getMessageReactions(
     });
 
     if (!session?.user) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const message = await getMessageDocument(messageId);
 
     if (!message) {
-      return { success: false, error: "Message not found" };
+      return { success: false, error: "مفيش الرسالة" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -159,7 +159,7 @@ export async function getMessageReactions(
       session.user.id
     );
     if (!conversation) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     return {
@@ -170,7 +170,7 @@ export async function getMessageReactions(
     };
   } catch (error) {
     console.error("Error fetching reactions:", error);
-    return { success: false, error: "Failed to fetch reactions" };
+    return { success: false, error: "تعذّر جلب التفاعلات" };
   }
 }
 
@@ -184,12 +184,12 @@ export async function toggleMessageReaction(
     });
 
     if (!session?.user) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "Message not found" };
+      return { success: false, error: "مفيش الرسالة" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -197,7 +197,7 @@ export async function toggleMessageReaction(
       session.user.id
     );
     if (!conversation) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const exists = (message.reactions || []).some(
@@ -214,6 +214,6 @@ export async function toggleMessageReaction(
     return { ...result, added: true };
   } catch (error) {
     console.error("Error toggling reaction:", error);
-    return { success: false, error: "Failed to toggle reaction" };
+    return { success: false, error: "تعذّر تبديل التفاعل" };
   }
 }

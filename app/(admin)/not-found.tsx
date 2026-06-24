@@ -6,13 +6,10 @@ import { FileQuestion, LayoutDashboard } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "404 - Admin Page Not Found",
-  description: "The admin page you're looking for doesn't exist.",
+  title: "404 - صفحة الإدارة غير موجودة",
+  description: "صفحة الإدارة التي تبحث عنها غير موجودة.",
 };
 
-/**
- * Admin Routes Not Found Page
- */
 export default function AdminNotFound() {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-8">
@@ -21,14 +18,14 @@ export default function AdminNotFound() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
             <FileQuestion className="h-8 w-8 text-muted-foreground" />
           </div>
-          <CardTitle className="text-2xl">Admin Page Not Found</CardTitle>
+          <CardTitle className="text-2xl">صفحة الإدارة غير موجودة</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <div className="space-y-2">
             <p className="text-6xl font-bold text-muted-foreground/20">404</p>
             <p className="text-muted-foreground">
-              The admin page you&apos;re looking for doesn&apos;t exist or you
-              don&apos;t have permission to access it.
+              صفحة الإدارة التي تبحث عنها غير موجودة أو ليس لديك صلاحية
+              الوصول إليها.
             </p>
           </div>
 
@@ -36,34 +33,34 @@ export default function AdminNotFound() {
             <Button asChild>
               <Link href="/admin" className="gap-2">
                 <LayoutDashboard className="h-4 w-4" />
-                Admin Dashboard
+                لوحة تحكم الإدارة
               </Link>
             </Button>
             <BackButton />
           </div>
 
           <div className="pt-4 border-t">
-            <p className="text-sm text-muted-foreground">Common admin pages:</p>
+            <p className="text-sm text-muted-foreground">صفحات إدارية شائعة:</p>
             <div className="mt-2 flex flex-wrap justify-center gap-2">
               <Link
                 href="/admin/tickets"
                 className="text-xs text-primary hover:underline"
               >
-                Tickets
+                التذاكر
               </Link>
               <span className="text-xs text-muted-foreground">•</span>
               <Link
                 href="/admin/users"
                 className="text-xs text-primary hover:underline"
               >
-                Users
+                المستخدمون
               </Link>
               <span className="text-xs text-muted-foreground">•</span>
               <Link
                 href="/admin/settings"
                 className="text-xs text-primary hover:underline"
               >
-                Settings
+                الإعدادات
               </Link>
             </div>
           </div>

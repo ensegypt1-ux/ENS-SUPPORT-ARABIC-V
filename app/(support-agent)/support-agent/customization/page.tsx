@@ -48,68 +48,68 @@ export default async function SupportAgentCustomizationPage({
 
   const customizationStats = [
     {
-      title: "Total Assigned",
+      title: "إجمالي المعيّن",
       value: requests.length,
       icon: Wrench,
       iconColor: "text-slate-600",
       iconBgColor: "bg-slate-50 dark:bg-slate-950",
-      description: "Customization requests assigned to you",
+      description: "طلبات التخصيص المعيّنة لك",
     },
     {
-      title: "Open",
+      title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
       iconColor: "text-amber-600",
       iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "Awaiting your review",
+      description: "في انتظار مراجعتك",
     },
     {
-      title: "In Progress",
+      title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
       iconColor: "text-indigo-600",
       iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "You are currently working on",
+      description: "تعمل عليها حاليًا",
     },
     {
-      title: "Resolved / Closed",
+      title: "محلولة / مغلقة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
       iconColor: "text-emerald-600",
       iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "Completed customization requests",
+      description: "طلبات تخصيص مكتملة",
     },
   ];
 
   const tabItems = [
-    { value: "all", label: "All", count: requests.length },
-    { value: "open", label: "Open", count: openRequests.length },
+    { value: "all", label: "الكل", count: requests.length },
+    { value: "open", label: "مفتوحة", count: openRequests.length },
     {
       value: "scheduled_meeting",
-      label: "Scheduled Meeting",
+      label: "اجتماع مجدول",
       count: scheduledMeetingRequests.length,
     },
     {
       value: "waiting_on_customer",
-      label: "Waiting",
+      label: "في الانتظار",
       count: waitingRequests.length,
     },
     {
       value: "in_progress",
-      label: "In Progress",
+      label: "قيد المعالجة",
       count: inProgressRequests.length,
     },
-    { value: "resolved", label: "Resolved", count: resolvedRequests.length },
-    { value: "closed", label: "Closed", count: closedRequests.length },
+    { value: "resolved", label: "محلولة", count: resolvedRequests.length },
+    { value: "closed", label: "مغلقة", count: closedRequests.length },
   ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Customization Requests</h1>
+        <h1 className="text-3xl font-bold">طلبات التخصيص</h1>
         <p className="text-muted-foreground mt-1">
-          Manage customization service requests assigned to you
+          إدارة طلبات خدمة التخصيص المعيّنة لك
         </p>
       </div>
 
@@ -122,7 +122,7 @@ export default async function SupportAgentCustomizationPage({
           <PageTabsHeader
             tabs={tabItems}
             showSearch
-            searchPlaceholder="Search requests..."
+            searchPlaceholder="بحث في الطلبات..."
             searchDefaultValue={filters.search}
             showPriorityFilter
             priorityDefaultValue={filters.priority}
@@ -136,7 +136,7 @@ export default async function SupportAgentCustomizationPage({
             {requests.length === 0 ? (
               <EmptySearchResults
                 searchQuery={filters.search}
-                entityName="requests"
+                entityName="طلبات"
               />
             ) : viewMode === "table" ? (
               <TicketsTable
@@ -162,7 +162,7 @@ export default async function SupportAgentCustomizationPage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No open customization requests
+                  مفيش طلبات تخصيص مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -183,7 +183,7 @@ export default async function SupportAgentCustomizationPage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No scheduled meeting customization requests
+                  مفيش طلبات تخصيص باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -207,7 +207,7 @@ export default async function SupportAgentCustomizationPage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No waiting customization requests
+                  مفيش طلبات تخصيص في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -228,7 +228,7 @@ export default async function SupportAgentCustomizationPage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No in-progress customization requests
+                  مفيش طلبات تخصيص قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -252,7 +252,7 @@ export default async function SupportAgentCustomizationPage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No resolved customization requests
+                  مفيش طلبات تخصيص محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -273,7 +273,7 @@ export default async function SupportAgentCustomizationPage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No closed customization requests
+                  مفيش طلبات تخصيص مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

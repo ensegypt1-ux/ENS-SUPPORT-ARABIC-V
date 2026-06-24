@@ -19,14 +19,14 @@ export function DocsFeedback() {
   const [feedback, setFeedback] = useState<"good" | "ok" | "bad" | null>(null);
 
   const options = [
-    { key: "good", icon: Smile },
-    { key: "ok", icon: Meh },
-    { key: "bad", icon: Frown },
+    { key: "good", icon: Smile, label: "جيد" },
+    { key: "ok", icon: Meh, label: "مقبول" },
+    { key: "bad", icon: Frown, label: "سيء" },
   ] as const;
 
   return (
     <div>
-      <p className="text-sm font-semibold text-foreground">Was this helpful?</p>
+      <p className="text-sm font-semibold text-foreground">هل كان هذا مفيداً؟</p>
       <div className="mt-3 flex items-center gap-2">
         {options.map((opt) => {
           const isActive = feedback === opt.key;
@@ -36,7 +36,7 @@ export function DocsFeedback() {
               key={opt.key}
               type="button"
               onClick={() => setFeedback(opt.key)}
-              aria-label={`Feedback: ${opt.key}`}
+              aria-label={`ملاحظات: ${opt.label}`}
               className={cn(
                 "flex size-9 items-center justify-center rounded-full border transition-all",
                 isActive
@@ -51,7 +51,7 @@ export function DocsFeedback() {
       </div>
       {feedback && (
         <p className="mt-3 text-xs text-muted-foreground">
-          Thanks for the feedback!
+          شكراً على ملاحظاتك!
         </p>
       )}
     </div>
@@ -66,17 +66,17 @@ export function DocsHelpCard() {
         <LifeBuoy className="size-4" />
       </div>
       <p className="mt-3 text-sm font-semibold text-foreground">
-        Need a hand?
+        تحتاج مساعدة؟
       </p>
       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-        Can&apos;t find what you&apos;re looking for? Open a ticket and our
-        support team will get back to you.
+        لم تجد ما تبحث عنه؟ افتح تذكرة وسيتواصل معك فريق
+        الدعم.
       </p>
       <Link
         href="/dashboard/tickets/new"
         className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:opacity-80"
       >
-        Create a ticket
+        افتح تذكرة
         <ArrowRight className="size-3" />
       </Link>
     </div>
@@ -86,15 +86,15 @@ export function DocsHelpCard() {
 /** "Related" quick links. */
 export function DocsRelated() {
   const links = [
-    { label: "Features", href: "/#features", icon: Sparkles },
-    { label: "FAQ", href: "/#faq", icon: HelpCircle },
-    { label: "Contact", href: "/#contact", icon: Mail },
+    { label: "الميزات", href: "/#features", icon: Sparkles },
+    { label: "الأسئلة الشائعة", href: "/#faq", icon: HelpCircle },
+    { label: "تواصل", href: "/#contact", icon: Mail },
   ];
 
   return (
     <div className="space-y-1">
       <p className="px-2 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-        Related
+        ذات صلة
       </p>
       {links.map((link) => {
         const Icon = link.icon;

@@ -14,8 +14,8 @@ interface NewsletterFormProps {
 }
 
 export function NewsletterForm({
-  placeholder = "Enter your email",
-  buttonText = "Subscribe",
+  placeholder = "أدخل بريدك الإلكتروني",
+  buttonText = "اشتراك",
   formClassName,
   inputClassName,
   buttonClassName,
@@ -26,7 +26,7 @@ export function NewsletterForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
-      toast.error("Please enter your email address");
+      toast.error("اكتب بريدك الإلكتروني");
       return;
     }
 
@@ -40,7 +40,7 @@ export function NewsletterForm({
         toast.error(result.message);
       }
     } catch {
-      toast.error("An unexpected error occurred");
+      toast.error("حصل خطأ مش متوقع");
     } finally {
       setIsLoading(false);
     }

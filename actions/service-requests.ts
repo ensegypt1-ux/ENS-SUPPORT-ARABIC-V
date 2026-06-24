@@ -38,7 +38,7 @@ async function generateTicketNumber(): Promise<string> {
 }
 
 function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : "Unknown error";
+  return error instanceof Error ? error.message : "خطأ غير معروف";
 }
 
 async function getUserRole(): Promise<UserRole> {
@@ -54,7 +54,7 @@ async function ensureServiceExistsForRole(serviceSlug: string, role: UserRole) {
     isActive: true,
     roles: role,
   });
-  if (!service) throw new Error("Service not found");
+  if (!service) throw new Error("مفيش خدمة");
   return service;
 }
 
@@ -86,8 +86,8 @@ async function sendServiceAssignmentNotifications(params: {
   await createNotification({
     userId: params.assignedToId,
     type: "ticket_assignment",
-    title: "Service Request Assigned to You",
-    body: `You have been assigned to service request #${params.ticket.ticketNumber}: ${params.ticket.title}`,
+    title: "اتعيّن لك طلب خدمة",
+    body: `اتعيّنت على طلب الخدمة #${params.ticket.ticketNumber}: ${params.ticket.title}`,
     data: {
       ticketId: params.ticketId,
       ticketNumber: params.ticket.ticketNumber,
@@ -215,7 +215,7 @@ export async function getServiceRequestsForAdmin(
     console.error("Get service requests (admin) error:", error);
     return {
       success: false,
-      error: getErrorMessage(error) || "Failed to fetch requests",
+      error: getErrorMessage(error) || "تعذّر جلب الطلبات",
     };
   }
 }
@@ -310,7 +310,7 @@ export async function getMyServiceRequests(
     console.error("Get my service requests error:", error);
     return {
       success: false,
-      error: getErrorMessage(error) || "Failed to fetch requests",
+      error: getErrorMessage(error) || "تعذّر جلب الطلبات",
     };
   }
 }
@@ -490,8 +490,8 @@ export async function createServiceRequest(
       if (adminIds.length > 0) {
         await createBulkNotifications(adminIds, {
           type: "new_ticket",
-          title: "New Service Request",
-          body: `${session.user.name} created service request #${ticketNumber}: ${validatedData.title}`,
+          title: "طلب خدمة جديد",
+          body: `أنشأ ${session.user.name} طلب الخدمة #${ticketNumber}: ${validatedData.title}`,
           data: {
             ticketId: insertedId.toString(),
             ticketNumber,
@@ -522,13 +522,13 @@ export async function createServiceRequest(
     console.error("Create service request error:", error);
     return {
       success: false,
-      error: getErrorMessage(error) || "Failed to create request",
+      error: getErrorMessage(error) || "تعذّر إنشاء الطلب",
     };
   }
 }
 
 const createServiceRequestForStaffSchema = z.object({
-  customerId: z.string().min(1, "Customer is required"),
+  customerId: z.string().min(1, "العميل مطلوب"),
   title: z.string().min(1),
   description: z.string().min(1),
   priority: z.enum(["low", "medium", "high", "urgent"]),
@@ -712,8 +712,8 @@ export async function createServiceRequestForStaff(
       await createNotification({
         userId: validatedData.customerId,
         type: "new_ticket",
-        title: "New Service Request Created",
-        body: `A service request has been created for you: ${validatedData.title}`,
+        title: "طلب خدمة اتعمل",
+        body: `طلب خدمة اتعمل لك: ${validatedData.title}`,
         data: {
           ticketId: insertedId.toString(),
           ticketNumber,
@@ -727,8 +727,8 @@ export async function createServiceRequestForStaff(
       if (otherAdminIds.length > 0) {
         await createBulkNotifications(otherAdminIds, {
           type: "new_ticket",
-          title: "New Service Request",
-          body: `${session.user.name} created service request #${ticketNumber}: ${validatedData.title}`,
+          title: "طلب خدمة جديد",
+          body: `أنشأ ${session.user.name} طلب الخدمة #${ticketNumber}: ${validatedData.title}`,
           data: {
             ticketId: insertedId.toString(),
             ticketNumber,
@@ -759,7 +759,7 @@ export async function createServiceRequestForStaff(
     console.error("Create service request (staff) error:", error);
     return {
       success: false,
-      error: getErrorMessage(error) || "Failed to create request",
+      error: getErrorMessage(error) || "تعذّر إنشاء الطلب",
     };
   }
 }
@@ -796,7 +796,7 @@ export async function updateServiceContent(
     const ticket = lookup.request;
 
     if (!ticket || !lookup.kind || !lookup.collectionName) {
-      return { success: false, error: "Service request not found" };
+      return { success: false, error: "مفيش طلب خدمة" };
     }
 
     const isMatchingService =
@@ -805,12 +805,12 @@ export async function updateServiceContent(
       (lookup.kind === "customization" && serviceSlug === "customization") ||
       (lookup.kind === "installation" && serviceSlug === "installation");
     if (!isMatchingService)
-      return { success: false, error: "Service request not found" };
+      return { success: false, error: "مفيش طلب خدمة" };
 
     if (role === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to update this request",
+        error: "مش مسموح لك تحدّث الطلب ده",
       };
     }
 
@@ -871,7 +871,7 @@ export async function updateServiceContent(
     console.error("Update service request error:", error);
     return {
       success: false,
-      error: getErrorMessage(error) || "Failed to update request",
+      error: getErrorMessage(error) || "تعذّر تحديث الطلب",
     };
   }
 }

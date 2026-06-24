@@ -80,7 +80,7 @@ export async function createTicket(
       if (!validatedData.purchaseCode) {
         return {
           success: false,
-          error: "Purchase code is required to create a support ticket",
+          error: "رمز الشراء مطلوب لافتح تذكرة دعم",
         };
       }
 
@@ -92,7 +92,7 @@ export async function createTicket(
       if (!verificationResult.success) {
         return {
           success: false,
-          error: verificationResult.error || "Invalid purchase code",
+          error: verificationResult.error || "رمز شراء مش صح",
         };
       }
 
@@ -196,18 +196,18 @@ export async function createTicket(
 
     try {
       if (assignedToId) {
-        const titlePrefix =
+        const assignmentLabels =
           kind === "installation"
-            ? "Installation Request"
+            ? { title: "اتعيّن لك طلب تثبيت", type: "طلب التثبيت" }
             : kind === "customization"
-              ? "Customization Request"
-              : "Ticket";
+              ? { title: "اتعيّن لك طلب تخصيص", type: "طلب التخصيص" }
+              : { title: "اتعيّنت لك تذكرة", type: "التذكرة" };
 
         await createNotification({
           userId: assignedToId,
           type: "ticket_assignment",
-          title: `${titlePrefix} Assigned to You`,
-          body: `You have been assigned to ${titlePrefix.toLowerCase()} #${ticketNumber}: ${validatedData.title}`,
+          title: assignmentLabels.title,
+          body: `اتعيّنت على ${assignmentLabels.type} #${ticketNumber}: ${validatedData.title}`,
           data: {
             ticketId: idString,
             ticketNumber,
@@ -307,14 +307,10 @@ export async function createTicket(
       const adminIds = (await getUserIdsByRole(["admin"])).filter(
         (id) => id !== session.user.id
       );
-      console.log(
-        "[Notifications] Found admin users:",
-        adminIds
-      );
 
       if (adminIds.length > 0) {
-        let notificationTitle = "New Support Ticket";
-        let notificationBody = `${session.user.name} created ticket #${ticketNumber}: ${validatedData.title}`;
+        let notificationTitle = "تذكرة دعم جديدة";
+        let notificationBody = `أنشأ ${session.user.name} التذكرة #${ticketNumber}: ${validatedData.title}`;
         let url = `/admin/tickets/${idString}`;
         const data: any = {
           ticketId: idString,
@@ -323,27 +319,20 @@ export async function createTicket(
         };
 
         if (kind === "installation") {
-          notificationTitle = "New Installation Request";
-          notificationBody = `${session.user.name} created installation request #${ticketNumber}: ${validatedData.title}`;
+          notificationTitle = "طلب تثبيت جديد";
+          notificationBody = `أنشأ ${session.user.name} طلب التثبيت #${ticketNumber}: ${validatedData.title}`;
           url = `/admin/installation/${idString}`;
           data.installationId = idString;
           data.url = url;
         } else if (kind === "customization") {
-          notificationTitle = "New Customization Request";
-          notificationBody = `${session.user.name} created customization request #${ticketNumber}: ${validatedData.title}`;
+          notificationTitle = "طلب تخصيص جديد";
+          notificationBody = `أنشأ ${session.user.name} طلب التخصيص #${ticketNumber}: ${validatedData.title}`;
           url = `/admin/customization/${idString}`;
           data.customizationId = idString;
           data.url = url;
         }
 
-        console.log("[Notifications] Creating bulk notifications with:", {
-          userIds: adminIds,
-          title: notificationTitle,
-          body: notificationBody,
-          data,
-        });
-
-        const notificationResult = await createBulkNotifications(
+        await createBulkNotifications(
           adminIds,
           {
             type: "new_ticket",
@@ -351,11 +340,6 @@ export async function createTicket(
             body: notificationBody,
             data,
           }
-        );
-
-        console.log(
-          "[Notifications] Bulk notification result:",
-          notificationResult
         );
 
         // Mirror the alert to the shared admin Telegram group (send-only),
@@ -368,8 +352,6 @@ export async function createTicket(
             (descriptionPreview ? `\n\n${descriptionPreview}` : ""),
           url,
         });
-      } else {
-        console.log("[Notifications] No admin/support users found to notify");
       }
     } catch (notificationError) {
       console.error(
@@ -391,13 +373,13 @@ export async function createTicket(
     return {
       success: true,
       data: serializedTicket as any,
-      message: "Ticket created successfully",
+      message: "التذكرة اتعملت",
     };
   } catch (error: any) {
     console.error("Error creating ticket:", error);
     return {
       success: false,
-      error: error.message || "Failed to create ticket",
+      error: error.message || "تعذّر إنشاء التذكرة",
     };
   }
 }
@@ -449,7 +431,7 @@ export async function getMyTickets(filters?: {
     console.error("Error fetching tickets:", error);
     return {
       success: false,
-      error: error.message || "Failed to fetch tickets",
+      error: error.message || "تعذّر جلب التذاكر",
     };
   }
 }
@@ -523,7 +505,7 @@ export async function getMyCustomizationRequests(filters?: {
     console.error("Error fetching customization requests:", error);
     return {
       success: false,
-      error: error.message || "Failed to fetch customization requests",
+      error: error.message || "تعذّر جلب طلبات التخصيص",
     };
   }
 }
@@ -597,7 +579,7 @@ export async function getMyInstallationRequests(filters?: {
     console.error("Error fetching installation requests:", error);
     return {
       success: false,
-      error: error.message || "Failed to fetch installation requests",
+      error: error.message || "تعذّر جلب طلبات التثبيت",
     };
   }
 }
@@ -621,7 +603,7 @@ export async function getTicketById(
     if (!request) {
       return {
         success: false,
-        error: "Ticket not found",
+        error: "مفيش تذكرة",
       };
     }
 
@@ -629,7 +611,7 @@ export async function getTicketById(
     if (userRole === "customer" && request.customerId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to view this ticket",
+        error: "مش مسموح لك تشوف التذكرة دي",
       };
     }
 
@@ -641,7 +623,7 @@ export async function getTicketById(
     console.error("Error fetching ticket:", error);
     return {
       success: false,
-      error: error.message || "Failed to fetch ticket",
+      error: error.message || "تعذّر جلب التذكرة",
     };
   }
 }
@@ -669,7 +651,7 @@ export async function updateTicket(
     if (!ticket) {
       return {
         success: false,
-        error: "Ticket not found",
+        error: "مفيش تذكرة",
       };
     }
 
@@ -677,7 +659,7 @@ export async function updateTicket(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to update this ticket",
+        error: "مش مسموح لك تحدّث التذكرة دي",
       };
     }
 
@@ -821,13 +803,13 @@ export async function updateTicket(
     return {
       success: true,
       data: result as Ticket,
-      message: "Ticket updated successfully",
+      message: "التذكرة اتحدّثت",
     };
   } catch (error: any) {
     console.error("Error updating ticket:", error);
     return {
       success: false,
-      error: error.message || "Failed to update ticket",
+      error: error.message || "تعذّر تحديث التذكرة",
     };
   }
 }
@@ -858,7 +840,7 @@ export async function updateCustomizationContent(
     if (!ticket || lookup.kind !== "customization" || !lookup.collectionName) {
       return {
         success: false,
-        error: "Customization request not found",
+        error: "مفيش طلب تخصيص",
       };
     }
 
@@ -866,7 +848,7 @@ export async function updateCustomizationContent(
     if (ticket.customerId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to update this customization request",
+        error: "مش مسموح لك تحدّث طلب التخصيص ده",
       };
     }
 
@@ -916,13 +898,13 @@ export async function updateCustomizationContent(
     return {
       success: true,
       data: updated as Ticket,
-      message: "Customization request updated successfully",
+      message: "طلب التخصيص اتحدّث",
     };
   } catch (error: any) {
     console.error("Error updating customization request:", error);
     return {
       success: false,
-      error: error.message || "Failed to update customization request",
+      error: error.message || "تعذّر تحديث طلب التخصيص",
     };
   }
 }
@@ -953,7 +935,7 @@ export async function updateInstallationContent(
     if (!ticket || lookup.kind !== "installation" || !lookup.collectionName) {
       return {
         success: false,
-        error: "Installation request not found",
+        error: "مفيش طلب تثبيت",
       };
     }
 
@@ -961,7 +943,7 @@ export async function updateInstallationContent(
     if (ticket.customerId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to update this installation request",
+        error: "مش مسموح لك تحدّث طلب التثبيت ده",
       };
     }
 
@@ -1011,13 +993,13 @@ export async function updateInstallationContent(
     return {
       success: true,
       data: updated as Ticket,
-      message: "Installation request updated successfully",
+      message: "طلب التثبيت اتحدّث",
     };
   } catch (error: any) {
     console.error("Error updating installation request:", error);
     return {
       success: false,
-      error: error.message || "Failed to update installation request",
+      error: error.message || "تعذّر تحديث طلب التثبيت",
     };
   }
 }

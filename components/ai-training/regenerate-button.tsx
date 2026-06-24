@@ -17,16 +17,16 @@ export function RegenerateButton() {
       const result = await regenerateAIEmbeddings();
       if (result.success && result.data) {
         if (result.data.regenerated === 0 && result.data.failed === 0) {
-          toast.success("All pairs already have embeddings");
+          toast.success("جميع الأزواج لديها تضمينات بالفعل");
         } else {
           toast.success(
-            `Regenerated ${result.data.regenerated}` +
-              (result.data.failed ? `, ${result.data.failed} failed` : "")
+            `اتولّدت ${result.data.regenerated}` +
+              (result.data.failed ? `، ${result.data.failed}` : "")
           );
         }
         router.refresh();
       } else {
-        toast.error(result.error ?? "Failed to regenerate");
+        toast.error(result.error ?? "تعذّرت إعادة التوليد");
       }
     } finally {
       setIsLoading(false);
@@ -41,11 +41,11 @@ export function RegenerateButton() {
       disabled={isLoading}
     >
       {isLoading ? (
-        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+        <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
       ) : (
-        <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+        <RefreshCw className="me-1.5 h-3.5 w-3.5" />
       )}
-      Regenerate
+      إعادة التوليد
     </Button>
   );
 }

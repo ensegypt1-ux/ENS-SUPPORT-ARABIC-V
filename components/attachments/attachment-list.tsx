@@ -64,14 +64,14 @@ export function AttachmentList({
       const result = await deleteAttachment(attachmentToDelete);
 
       if (result.success) {
-        toast.success("Attachment deleted successfully");
+        toast.success("اتمسح المرفق");
         onDelete?.();
       } else {
-        toast.error(result.error || "Failed to delete attachment");
+        toast.error(result.error || "تعذّر الحذف المرفق");
       }
     } catch (error) {
       console.error("Delete error:", error);
-      toast.error("Failed to delete attachment");
+      toast.error("تعذّر الحذف المرفق");
     } finally {
       setDeletingId(null);
       setAttachmentToDelete(null);
@@ -89,9 +89,9 @@ export function AttachmentList({
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === 0) return "0 بايت";
     const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const sizes = ["بايت", "ك.ب", "م.ب", "غ.ب"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
@@ -109,11 +109,11 @@ export function AttachmentList({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Attachments</CardTitle>
+          <CardTitle>المرفقات</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground text-center py-4">
-            No attachments yet
+            مفيش مرفقات بعد
           </p>
         </CardContent>
       </Card>
@@ -124,7 +124,7 @@ export function AttachmentList({
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Attachments ({attachments.length})</CardTitle>
+          <CardTitle>المرفقات ({attachments.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -162,7 +162,7 @@ export function AttachmentList({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 ml-4">
+                  <div className="flex items-center gap-2 ms-4">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -174,6 +174,7 @@ export function AttachmentList({
                         target="_blank"
                         rel="noopener noreferrer"
                         download={attachment.filename}
+                        aria-label="تنزيل المرفق"
                       >
                         <Download className="h-4 w-4" />
                       </a>
@@ -187,6 +188,7 @@ export function AttachmentList({
                           handleDeleteClick(attachment._id.toString())
                         }
                         disabled={isDeleting}
+                        aria-label="حذف المرفق"
                       >
                         {isDeleting ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -207,19 +209,18 @@ export function AttachmentList({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Attachment</AlertDialogTitle>
+            <AlertDialogTitle>حذف المرفق</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this attachment? This action
-              cannot be undone.
+              متأكد من حذف هذا المرفق؟ مش هينفع الرجوع عن هذا الإجراء.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              حذف
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

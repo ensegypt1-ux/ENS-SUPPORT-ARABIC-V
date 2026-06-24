@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getAllTickets } from "@/actions/admin";
+import { AdminPageHeader } from "@/components/layout/admin-page-header";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +17,7 @@ import {
   CheckCircle2,
   Plus,
 } from "lucide-react";
+import { STATUS_LABELS, UI } from "@/lib/strings";
 
 // Disable static generation for this page since it has dynamic data
 export const dynamic = "force-dynamic";
@@ -60,78 +62,75 @@ export default async function AdminTicketsPage({
   // Stats configuration for admin-wide overview
   const ticketStats = [
     {
-      title: "Total Tickets",
+      title: "إجمالي التذاكر",
       value: tickets.length,
       icon: TicketIcon,
       iconColor: "text-sky-600",
       iconBgColor: "bg-sky-50 dark:bg-sky-950",
-      description: "All tickets in the system",
+      description: "كل التذاكر في النظام",
     },
     {
-      title: "Open Tickets",
+      title: STATUS_LABELS.open,
       value: openTickets.length,
       icon: AlertCircle,
       iconColor: "text-amber-600",
       iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "Awaiting response",
+      description: STATUS_LABELS.waiting_on_customer,
     },
     {
-      title: "In Progress",
+      title: STATUS_LABELS.in_progress,
       value: inProgressTickets.length,
       icon: Clock,
       iconColor: "text-indigo-600",
       iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "Being worked on",
+      description: STATUS_LABELS.in_progress,
     },
     {
-      title: "Resolved / Closed",
+      title: `${STATUS_LABELS.resolved} / ${STATUS_LABELS.closed}`,
       value: resolvedTickets.length + closedTickets.length,
       icon: CheckCircle2,
       iconColor: "text-emerald-600",
       iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "Completed tickets",
+      description: "مكتملة",
     },
   ];
 
   const tabItems = [
-    { value: "all", label: "All", count: tickets.length },
-    { value: "open", label: "Open", count: openTickets.length },
+    { value: "all", label: UI.all, count: tickets.length },
+    { value: "open", label: STATUS_LABELS.open, count: openTickets.length },
     {
       value: "scheduled_meeting",
-      label: "Scheduled Meeting",
+      label: STATUS_LABELS.scheduled_meeting,
       count: scheduledMeetingTickets.length,
     },
     {
       value: "waiting_on_customer",
-      label: "Waiting",
+      label: STATUS_LABELS.waiting_on_customer,
       count: waitingTickets.length,
     },
     {
       value: "in_progress",
-      label: "In Progress",
+      label: STATUS_LABELS.in_progress,
       count: inProgressTickets.length,
     },
-    { value: "resolved", label: "Resolved", count: resolvedTickets.length },
-    { value: "closed", label: "Closed", count: closedTickets.length },
+    { value: "resolved", label: STATUS_LABELS.resolved, count: resolvedTickets.length },
+    { value: "closed", label: STATUS_LABELS.closed, count: closedTickets.length },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Tickets</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage and respond to customer support tickets
-          </p>
-        </div>
-        <Button asChild className="w-full sm:w-auto">
-          <Link href="/admin/tickets/new">
-            <Plus className="h-4 w-4" />
-            Create Ticket
-          </Link>
-        </Button>
-      </div>
+    <div className="space-y-6 text-start">
+      <AdminPageHeader
+        title={UI.tickets}
+        description="إدارة تذاكر الدعم والرد على العملاء"
+        actions={
+          <Button asChild className="w-full sm:w-auto">
+            <Link href="/admin/tickets/new">
+              <Plus className="h-4 w-4" />
+              افتح تذكرة
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Stats Cards */}
       <StatsGrid stats={ticketStats} />
@@ -142,7 +141,7 @@ export default async function AdminTicketsPage({
           <PageTabsHeader
             tabs={tabItems}
             showSearch
-            searchPlaceholder="Search tickets..."
+            searchPlaceholder={`${UI.search} ${UI.tickets}...`}
             searchDefaultValue={filters.search}
             showPriorityFilter
             priorityDefaultValue={filters.priority}
@@ -156,7 +155,7 @@ export default async function AdminTicketsPage({
             {tickets.length === 0 ? (
               <EmptySearchResults
                 searchQuery={filters.search}
-                entityName="tickets"
+                entityName={UI.tickets}
               />
             ) : viewMode === "table" ? (
               <TicketsTable tickets={tickets} hrefBase="/admin/tickets" />
@@ -176,7 +175,7 @@ export default async function AdminTicketsPage({
             {openTickets.length === 0 ? (
               <Card className="rounded-lg">
                 <CardContent className="py-8  text-center text-muted-foreground">
-                  No open tickets
+                  مفيش تذاكر {STATUS_LABELS.open}
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -197,7 +196,7 @@ export default async function AdminTicketsPage({
             {scheduledMeetingTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No scheduled meeting tickets
+                  مفيش تذاكر {STATUS_LABELS.scheduled_meeting}
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -221,7 +220,7 @@ export default async function AdminTicketsPage({
             {waitingTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No waiting tickets
+                  مفيش تذاكر {STATUS_LABELS.waiting_on_customer}
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -245,7 +244,7 @@ export default async function AdminTicketsPage({
             {inProgressTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No in progress tickets
+                  مفيش تذاكر {STATUS_LABELS.in_progress}
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -269,7 +268,7 @@ export default async function AdminTicketsPage({
             {resolvedTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No resolved tickets
+                  مفيش تذاكر {STATUS_LABELS.resolved}
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -293,7 +292,7 @@ export default async function AdminTicketsPage({
             {closedTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No closed tickets
+                  مفيش تذاكر {STATUS_LABELS.closed}
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

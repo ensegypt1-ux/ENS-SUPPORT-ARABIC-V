@@ -73,7 +73,7 @@ function parseCsv(text: string): ImportPair[] {
   const cIdx = normalized.indexOf("category");
 
   if (qIdx === -1 || aIdx === -1) {
-    throw new Error('CSV must have "question" and "answer" columns');
+    throw new Error('ملف CSV لازم يحتوي على أعمدة "question" و"answer"');
   }
 
   return dataRows
@@ -92,7 +92,8 @@ function parsePairs(text: string): ImportPair[] {
   if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
     const data = JSON.parse(trimmed);
     const arr = Array.isArray(data) ? data : data.pairs;
-    if (!Array.isArray(arr)) throw new Error("JSON must be an array or { pairs: [...] }");
+    if (!Array.isArray(arr))
+      throw new Error('JSON لازم يكون مصفوفة أو { pairs: [...] }');
     return arr
       .filter((p) => p?.question && p?.answer)
       .map((p) => ({
@@ -115,17 +116,17 @@ export function ImportPairsDialog() {
     try {
       parsed = parsePairs(content);
     } catch (error: any) {
-      toast.error(error?.message ?? "Failed to parse input");
+      toast.error(error?.message ?? "تعذّر تحليل المدخلات");
       return;
     }
 
     if (parsed.length === 0) {
-      toast.error("No valid pairs found");
+      toast.error("ملقيناش أزواج صالحة");
       return;
     }
 
     if (parsed.length > 500) {
-      toast.error("Maximum 500 pairs per import");
+      toast.error("الحد الأقصى 500 زوج لكل استيراد");
       return;
     }
 
@@ -134,15 +135,15 @@ export function ImportPairsDialog() {
       const result = await importAITrainingPairs({ pairs: parsed });
       if (result.success && result.data) {
         toast.success(
-          `Imported ${result.data.imported} pair(s)` +
-            (result.data.failed ? `, ${result.data.failed} failed` : "") +
-            (result.data.skipped ? `, ${result.data.skipped} skipped` : "")
+          `اتستورد ${result.data.imported} زوج` +
+            (result.data.failed ? `، ${result.data.failed}` : "") +
+            (result.data.skipped ? `، اتتخطي ${result.data.skipped}` : "")
         );
         setContent("");
         setOpen(false);
         router.refresh();
       } else {
-        toast.error(result.error ?? "Import failed");
+        toast.error(result.error ?? "تعذّر الاستيراد");
       }
     } finally {
       setIsLoading(false);
@@ -153,20 +154,20 @@ export function ImportPairsDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <Upload className="mr-1.5 h-3.5 w-3.5" />
-          Import
+          <Upload className="me-1.5 h-3.5 w-3.5" />
+          استيراد
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Import Training Pairs</DialogTitle>
+          <DialogTitle>استيراد أزواج التدريب</DialogTitle>
           <DialogDescription>
-            Paste CSV (with <code>question,answer,category</code> header) or
-            JSON. Max 500 pairs per import.
+            الصق CSV (مع ترويسة <code>question,answer,category</code>) أو JSON.
+            الحد الأقصى 500 زوج لكل استيراد.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
-          <Label className="text-xs font-medium">Content</Label>
+          <Label className="text-xs font-medium">المحتوى</Label>
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -181,11 +182,11 @@ export function ImportPairsDialog() {
             onClick={() => setOpen(false)}
             disabled={isLoading}
           >
-            Cancel
+            إلغاء
           </Button>
           <Button onClick={handleImport} disabled={isLoading || !content.trim()}>
-            {isLoading && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
-            Import
+            {isLoading && <Loader2 className="me-2 h-3.5 w-3.5 animate-spin" />}
+            استيراد
           </Button>
         </DialogFooter>
       </DialogContent>

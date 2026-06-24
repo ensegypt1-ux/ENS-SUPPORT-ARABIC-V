@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { ENS_BRAND } from "@/lib/ens-brand";
 
 // =============================================================================
 // SETTINGS TYPES
@@ -162,10 +163,10 @@ export const DEFAULT_SETTINGS: Omit<
   "_id" | "updatedAt" | "updatedBy"
 > = {
   general: {
-    siteName: "Support Ticket System",
-    siteDescription: "Customer support and ticket management",
-    supportEmail: "support@example.com",
-    companyName: "Your Company",
+    siteName: ENS_BRAND.portalTitle,
+    siteDescription: ENS_BRAND.siteDescription,
+    supportEmail: "",
+    companyName: ENS_BRAND.companyName,
     timezone: "UTC",
     dateFormat: "MMM dd, yyyy",
     timeFormat: "12h",
@@ -186,7 +187,7 @@ export const DEFAULT_SETTINGS: Omit<
     notifyOnNewComment: true,
     notifyOnTicketAssignment: true,
     notifyOnTicketResolution: true,
-    adminNotificationEmail: "admin@example.com",
+    adminNotificationEmail: "",
   },
   fileUploads: {
     enabled: false,

@@ -54,59 +54,59 @@ export default async function InstallationPage({
 
   const installationStats = [
     {
-      title: "Open",
+      title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
       iconColor: "text-blue-600",
       iconBgColor: "bg-blue-50 dark:bg-blue-950",
-      description: "Awaiting review",
+      description: "في انتظار المراجعة",
     },
     {
-      title: "In Progress",
+      title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
       iconColor: "text-amber-600",
       iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "Being worked on",
+      description: "قيد العمل",
     },
     {
-      title: "Completed",
+      title: "مكتملة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
       iconColor: "text-green-600",
       iconBgColor: "bg-green-50 dark:bg-green-950",
-      description: "Resolved or closed",
+      description: "محلولة أو مغلقة",
     },
     {
-      title: "Total Requests",
+      title: "إجمالي الطلبات",
       value: requests.length,
       icon: Download,
       iconColor: "text-slate-600",
       iconBgColor: "bg-slate-50 dark:bg-slate-950",
-      description: "All installation requests",
+      description: "جميع طلبات التثبيت",
     },
   ];
 
   const tabItems = [
-    { value: "all", label: "All", count: requests.length },
-    { value: "open", label: "Open", count: openRequests.length },
+    { value: "all", label: "الكل", count: requests.length },
+    { value: "open", label: "مفتوحة", count: openRequests.length },
     {
       value: "scheduled_meeting",
-      label: "Scheduled Meeting",
+      label: "اجتماع مجدول",
       count: scheduledMeetingRequests.length,
     },
     {
       value: "waiting_on_customer",
-      label: "Waiting",
+      label: "في الانتظار",
       count: waitingRequests.length,
     },
     {
       value: "in_progress",
-      label: "In Progress",
+      label: "قيد المعالجة",
       count: inProgressRequests.length,
     },
-    { value: "resolved", label: "Resolved", count: resolvedRequests.length },
-    { value: "closed", label: "Closed", count: closedRequests.length },
+    { value: "resolved", label: "محلولة", count: resolvedRequests.length },
+    { value: "closed", label: "مغلقة", count: closedRequests.length },
   ];
 
   return (
@@ -116,17 +116,17 @@ export default async function InstallationPage({
         <div>
           <div className="mb-2">
             <h1 className="text-3xl font-bold text-foreground">
-              My Installation Requests
+              طلبات التثبيت الخاصة بي
             </h1>
           </div>
           <p className="text-muted-foreground mt-2">
-            View and manage your installation and setup requests
+            عرض وإدارة طلبات التثبيت والإعداد الخاصة بك
           </p>
         </div>
         <Button asChild>
           <Link href="/dashboard/installation/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Request
+            <Plus className="me-2 h-4 w-4" />
+            طلب جديد
           </Link>
         </Button>
       </div>
@@ -140,15 +140,15 @@ export default async function InstallationPage({
           <CardContent className="py-12 text-center">
             <Download className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="mt-4 text-lg font-semibold">
-              No installation requests yet
+              مفيش طلبات تثبيت بعد
             </h3>
             <p className="text-muted-foreground mt-2">
-              Get started by creating your first installation request
+              ابدأ بإنشاء أول طلب تثبيت لك
             </p>
             <Button asChild className="mt-4">
               <Link href="/dashboard/installation/new">
-                <Plus className="mr-2 h-4 w-4" />
-                New Request
+                <Plus className="me-2 h-4 w-4" />
+                طلب جديد
               </Link>
             </Button>
           </CardContent>
@@ -159,7 +159,7 @@ export default async function InstallationPage({
             <PageTabsHeader
               tabs={tabItems}
               showSearch
-              searchPlaceholder="Search requests..."
+              searchPlaceholder="بحث في الطلبات..."
               searchDefaultValue={filters.search}
               showPriorityFilter
               priorityDefaultValue={filters.priority}
@@ -173,7 +173,7 @@ export default async function InstallationPage({
               {requests.length === 0 ? (
                 <EmptySearchResults
                   searchQuery={filters.search}
-                  entityName="requests"
+                  entityName="طلبات"
                 />
               ) : viewMode === "table" ? (
                 <TicketsTable
@@ -199,7 +199,7 @@ export default async function InstallationPage({
               {openRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No open requests
+                    مفيش طلبات مفتوحة
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -226,7 +226,7 @@ export default async function InstallationPage({
               {scheduledMeetingRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No scheduled meeting requests
+                    مفيش طلبات باجتماع مجدول
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -253,7 +253,7 @@ export default async function InstallationPage({
               {waitingRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No waiting requests
+                    مفيش طلبات في الانتظار
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -280,7 +280,7 @@ export default async function InstallationPage({
               {inProgressRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No in-progress requests
+                    مفيش طلبات قيد المعالجة
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -307,7 +307,7 @@ export default async function InstallationPage({
               {resolvedRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No resolved requests
+                    مفيش طلبات محلولة
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -334,7 +334,7 @@ export default async function InstallationPage({
               {closedRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No closed requests
+                    مفيش طلبات مغلقة
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (

@@ -38,13 +38,11 @@ export function NotificationList({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Notifications</h2>
+          <h2 className="text-2xl font-bold">الإشعارات</h2>
           <p className="text-sm text-muted-foreground mt-1">
             {unreadCount > 0
-              ? `You have ${unreadCount} unread notification${
-                  unreadCount === 1 ? "" : "s"
-                }`
-              : "You're all caught up!"}
+              ? `لديك ${unreadCount} ${unreadCount === 1 ? "إشعار غير مقروء" : "إشعارات غير مقروءة"}`
+              : "خلصت كل الإشعارات!"}
           </p>
         </div>
         {unreadCount > 0 && (
@@ -55,7 +53,7 @@ export function NotificationList({
             className="gap-2"
           >
             <CheckCheck className="h-4 w-4" />
-            Mark all as read
+            تحديد الكل كمقروء
           </Button>
         )}
       </div>
@@ -68,16 +66,16 @@ export function NotificationList({
         <TabsList>
           <TabsTrigger value="all" className="gap-2">
             <Bell className="h-4 w-4" />
-            All
-            <span className="ml-1 text-xs text-muted-foreground">
+            الكل
+            <span className="ms-1 text-xs text-muted-foreground">
               ({notifications.length})
             </span>
           </TabsTrigger>
           <TabsTrigger value="unread" className="gap-2">
             <Filter className="h-4 w-4" />
-            Unread
+            غير مقروء
             {unreadCount > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 rounded-full bg-destructive text-destructive-foreground text-xs font-medium">
+              <span className="ms-1 px-1.5 py-0.5 rounded-full bg-destructive text-destructive-foreground text-xs font-medium">
                 {unreadCount}
               </span>
             )}
@@ -110,13 +108,13 @@ export function NotificationList({
               <Bell className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
               <h3 className="text-lg font-semibold mb-2">
                 {filter === "unread"
-                  ? "No unread notifications"
-                  : "No notifications yet"}
+                  ? "مفيش إشعارات مش مقروءة"
+                  : "مفيش إشعارات لسه"}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {filter === "unread"
-                  ? "You've read all your notifications"
-                  : "When you receive notifications, they'll appear here"}
+                  ? "خلصت كل إشعاراتك"
+                  : "عند استلامك إشعارات، ستظهر هنا"}
               </p>
             </div>
           )}

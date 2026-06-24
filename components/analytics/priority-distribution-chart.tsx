@@ -16,10 +16,10 @@ const PRIORITY_COLORS: Record<string, string> = {
 };
 
 const LABELS: Record<string, string> = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-  urgent: "Urgent",
+  low: "منخفضة",
+  medium: "متوسطة",
+  high: "عالية",
+  urgent: "عاجلة",
 };
 
 const PRIORITY_ORDER = ["urgent", "high", "medium", "low"];
@@ -41,13 +41,13 @@ export function PriorityDistributionChart({
           <div className="p-2 rounded-lg bg-warning/15">
             <AlertTriangle className="h-4 w-4 text-warning" />
           </div>
-          Priority Distribution
+          توزيع الأولويات
         </CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
           <p className="text-center text-muted-foreground py-8 text-sm">
-            No data available
+            لا تتوفر بيانات
           </p>
         ) : (
           <div className="space-y-3">

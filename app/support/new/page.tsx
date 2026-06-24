@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PublicHeader } from "@/components/layout/public-header";
 import { PublicFooter } from "@/components/layout/public-footer";
 import { PublicTicketForm } from "@/components/tickets/public-ticket-form";
-import { getPublicLandingContent } from "@/actions/landing-page";
 import { getAppMetadata } from "@/lib/settings-utils";
-import type { LandingPageContent } from "@/types/landing-page";
+import { getPublicHomeContent } from "@/lib/public-home-content";
 
 export async function generateMetadata(): Promise<Metadata> {
   const app = await getAppMetadata();
@@ -13,13 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `Create a Ticket | ${appName}`,
     description:
-      "Submit a support ticket — no account required. Describe your issue and our team will follow up by email.",
+      "أرسل تذكرة دعم — لا يلزم حساب. صِف مشكلتك وسيتابع فريقنا عبر البريد.",
   };
 }
 
-export default async function PublicNewTicketPage() {
-  const result = await getPublicLandingContent();
-  const content = result.data as LandingPageContent;
+export default function PublicNewTicketPage() {
+  const content = getPublicHomeContent();
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -36,7 +35,9 @@ export default async function PublicNewTicketPage() {
           aria-hidden
           className="absolute inset-x-0 top-0 -z-10 h-72 bg-gradient-to-b from-primary/[0.07] to-transparent"
         />
-        <PublicTicketForm />
+        <Suspense fallback={null}>
+          <PublicTicketForm />
+        </Suspense>
       </main>
       <PublicFooter content={content?.footer} />
     </div>

@@ -19,26 +19,25 @@ export default async function NewAITrainingPairPage() {
   return (
     <div className="max-w-2xl space-y-6 pb-8">
       <div>
-        <Button asChild variant="ghost" size="sm" className="mb-2 -ml-2">
-          <Link href="/admin/ai-support-agent">
-            <ChevronLeft className="h-4 w-4" />
-            Back to AI Support Agent
+        <Button asChild variant="ghost" size="sm" className="mb-2 -ms-2">
+          <Link href="/admin/ai-support-agent" className="flex items-center gap-1.5">
+            <ChevronLeft className="h-4 w-4 rtl:-scale-x-100" />
+            العودة إلى وكيل الدعم الذكي
           </Link>
         </Button>
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          New Training Pair
+          زوج تدريب جديد
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Add a question and the approved answer. An embedding will be generated
-          automatically.
+          أضف سؤالاً والإجابة المعتمدة. سياتعمل التضمين تلقائياً.
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Q&amp;A Pair</CardTitle>
+          <CardTitle className="text-base">زوج الأسئلة والأجوبة</CardTitle>
           <CardDescription>
-            Keep questions phrased how a real customer would ask them.
+            اكتب الأسئلة بالصيغة التي يسأل بها العميل فعلاً.
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowLeft, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Logo } from "@/components/ui/logo";
 import { usePathname } from "next/navigation";
@@ -13,81 +13,87 @@ import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/layout/user-menu";
 import type { HeaderSection } from "@/types/landing-page";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { useWhatsAppSettings } from "@/components/providers/settings-provider";
+import { useWhatsAppSettings, useCompanyInfo } from "@/components/providers/settings-provider";
+import { resolveUserDisplayName } from "@/lib/user-display";
+import {
+  PORTAL_NAV_GROUPS,
+  PORTAL_PRIMARY_CTA,
+  filterPortalNavLinks,
+  navLinkClassName,
+  type PortalNavLink,
+} from "@/lib/public-portal-nav";
 
 interface PublicHeaderProps {
   variant?: "landing" | "auth";
   header?: HeaderSection;
 }
 
-const defaultHeader: HeaderSection = {
-  navigationLinks: [
-    { label: "Overview", href: "/#overview" },
-    { label: "Support Paths", href: "/#support-paths" },
-    { label: "How It Works", href: "/#how-it-works" },
-    { label: "Features", href: "/#features" },
-    { label: "FAQ", href: "/#faq" },
-    { label: "Contact", href: "/#contact" },
-  ],
-  signInText: "Sign In",
-  ctaButtonText: "Create Ticket",
-  ctaButtonLink: "/dashboard/tickets/new",
-  mobileCtaText: "Open Support",
-};
+const authFallbackLinks: PortalNavLink[] = [
+  { label: "مركز الدعم", href: "/" },
+  { label: "قاعدة المعرفة", href: "/docs", emphasis: "muted" },
+];
 
-export function PublicHeader({ header }: PublicHeaderProps) {
+export function PublicHeader({ variant = "landing", header }: PublicHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [currentHash, setCurrentHash] = useState("");
   const pathname = usePathname();
   const { data: session, isPending } = useSession();
   const whatsapp = useWhatsAppSettings();
+  const { name: companyName } = useCompanyInfo();
 
-  const h = header ?? defaultHeader;
+  const isLoggedIn = Boolean(session?.user);
+  const h = header;
+  const signInText = h?.signInText ?? "دخول";
+  const ctaLabel = h?.ctaButtonText ?? PORTAL_PRIMARY_CTA.label;
+  const ctaHref = h?.ctaButtonLink ?? PORTAL_PRIMARY_CTA.href;
+  const mobileCtaLabel = h?.mobileCtaText ?? PORTAL_PRIMARY_CTA.mobileLabel;
+  const guestCtaLink = PORTAL_PRIMARY_CTA.href;
 
-  // WhatsApp shows in the header only when the admin enabled it in settings.
+  const navGroups =
+    variant === "landing"
+      ? PORTAL_NAV_GROUPS
+      : [
+          {
+            id: "auth",
+            label: "التنقل",
+            links: authFallbackLinks,
+          },
+        ];
+
   const whatsappUrl =
     whatsapp?.enabled && whatsapp.phoneNumber
       ? `https://wa.me/${whatsapp.phoneNumber
           .replace(/[^\d+]/g, "")
           .replace("+", "")}?text=${encodeURIComponent(
-          whatsapp.defaultMessage || "Hello! I have a question.",
+          whatsapp.defaultMessage || "مرحباً! لدي استفسار.",
         )}`
       : null;
-  // Guests can't reach the authenticated /dashboard/tickets/new form, so the
-  // CTA sends them to the public ticket page instead. Signed-in users keep the
-  // configured link.
-  const guestCtaLink = "/support/new";
 
-  // Handle scroll effect for sticky header
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-
+    const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
     const syncHash = () => setCurrentHash(window.location.hash);
-
     syncHash();
     window.addEventListener("hashchange", syncHash);
     return () => window.removeEventListener("hashchange", syncHash);
   }, []);
 
-  const navigationLinks = h.navigationLinks;
   const normalizePath = (path: string) => {
     if (!path || path === "/") return "/";
     return path.endsWith("/") ? path.slice(0, -1) : path;
   };
+
   const getHashFromHref = (href: string) => {
     const hashIndex = href.indexOf("#");
     return hashIndex >= 0 ? href.slice(hashIndex) : "";
   };
 
-  const isLinkActive = (href: string, index: number) => {
+  const isLinkActive = (href: string) => {
     if (
       href.startsWith("http") ||
       href.startsWith("mailto:") ||
@@ -102,10 +108,7 @@ export function PublicHeader({ header }: PublicHeaderProps) {
     const linkHash = hashPart ? `#${hashPart}` : "";
 
     if (linkHash) {
-      return (
-        activePath === linkPath &&
-        (currentHash === linkHash || (!currentHash && index === 0))
-      );
+      return activePath === linkPath && currentHash === linkHash;
     }
 
     if (linkPath === "/") {
@@ -115,101 +118,129 @@ export function PublicHeader({ header }: PublicHeaderProps) {
     return activePath === linkPath || activePath.startsWith(`${linkPath}/`);
   };
 
+  const renderNavLink = (
+    link: PortalNavLink,
+    onNavigate?: () => void,
+    mobile = false,
+  ) => {
+    const active = isLinkActive(link.href);
+    return (
+      <Link
+        key={`${link.href}-${link.label}`}
+        href={link.href}
+        onClick={() => {
+          setCurrentHash(getHashFromHref(link.href));
+          onNavigate?.();
+        }}
+        className={cn(
+          navLinkClassName(link.emphasis, active),
+          mobile && "w-full rounded-xl px-3.5 py-2.5 text-[14px]",
+        )}
+      >
+        {link.label}
+      </Link>
+    );
+  };
+
   const elevated = scrolled || mobileMenuOpen;
 
   return (
     <header className="sticky top-0 z-50 w-full px-3 pt-3 sm:px-4">
-      {/* Floating glass pill */}
       <div
         className={cn(
-          "mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 rounded-2xl border px-3 transition-all duration-300 sm:px-4",
+          "mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 rounded-2xl border px-3 transition-all duration-300 sm:gap-3 sm:px-4",
           elevated
-            ? "border-border/60 bg-background/80 shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-background/70"
-            : "border-transparent bg-transparent"
+            ? "border-border/60 bg-background/85 shadow-lg shadow-black/[0.06] backdrop-blur-xl dark:bg-background/75 dark:shadow-black/30"
+            : "border-border/40 bg-background/60 shadow-sm shadow-black/[0.03] backdrop-blur-md dark:bg-background/50",
         )}
       >
-        {/* Logo */}
         <Link href="/" className="flex shrink-0 items-center">
-          <Logo
-            width={100}
-            height={40}
-            className="h-7 w-auto"
-            showFallbackText
-          />
+          <Logo width={100} height={40} className="h-7 w-auto" showFallbackText />
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-1 md:flex">
-          {navigationLinks.map((link, i) => {
-            const active = isLinkActive(link.href, i);
+        {/* Desktop — grouped workflow nav */}
+        <nav
+          className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 lg:flex"
+          aria-label="تنقل مركز الدعم"
+        >
+          {navGroups.map((group, groupIndex) => {
+            const visibleLinks = filterPortalNavLinks(group.links, isLoggedIn);
+            if (visibleLinks.length === 0) return null;
 
             return (
-              <Link
-                key={`${link.href}-${i}`}
-                href={link.href}
-                onClick={() => setCurrentHash(getHashFromHref(link.href))}
-                className={cn(
-                  "rounded-full px-3.5 py-1.5 text-[14px] font-medium transition-colors",
-                  active
-                    ? "bg-primary/10 text-primary"
-                    : "text-foreground/70 hover:bg-muted/70 hover:text-foreground"
-                )}
-              >
-                {link.label}
-              </Link>
+              <div key={group.id} className="flex items-center">
+                {groupIndex > 0 ? (
+                  <span
+                    aria-hidden
+                    className="mx-1.5 hidden h-4 w-px bg-border/70 lg:block"
+                  />
+                ) : null}
+                <div className="flex items-center gap-0.5">
+                  {visibleLinks.map((link) => renderNavLink(link))}
+                </div>
+              </div>
             );
           })}
         </nav>
 
-        {/* Right Side Actions */}
-        <div className="flex shrink-0 items-center gap-2">
-          {/* WhatsApp (admin-enabled) */}
-          {whatsappUrl && (
+        {/* Tablet — compact nav */}
+        <nav
+          className="hidden min-w-0 items-center gap-0.5 md:flex lg:hidden"
+          aria-label="تنقل مركز الدعم"
+        >
+          {filterPortalNavLinks(
+            navGroups.flatMap((g) => g.links),
+            isLoggedIn,
+          )
+            .filter((link) => link.emphasis !== "muted")
+            .slice(0, 4)
+            .map((link) => renderNavLink(link))}
+        </nav>
+
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          {whatsappUrl ? (
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Message us on WhatsApp"
-              title="Message us on WhatsApp"
+              aria-label="راسلنا على واتساب"
+              title="راسلنا على واتساب"
               className="inline-flex shrink-0 items-center justify-center transition-transform hover:scale-110 active:scale-95"
             >
               <Image
                 src="/whatsapp.png"
-                alt="WhatsApp"
+                alt="واتساب"
                 width={28}
                 height={28}
                 className="h-7 w-7"
               />
             </a>
-          )}
+          ) : null}
 
-          {/* Theme Toggle */}
           <div className="hidden sm:block">
             <ThemeToggle withLabel={false} />
           </div>
 
-          {/* Auth Buttons or User Menu */}
           {isPending ? (
             <div className="h-9 w-24 animate-pulse rounded-full bg-muted/50" />
           ) : session?.user ? (
             <div className="hidden items-center gap-2 md:flex">
-              {/* Show Create Ticket for clients/customers */}
               {(session.user as SessionUser).role !== "admin" &&
                 (session.user as SessionUser).role !== "support" && (
                   <Button
                     size="sm"
-                    className="group h-9 rounded-full px-4 text-[13.5px] font-semibold shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98]"
+                    className="group h-9 rounded-full px-4 text-[13px] font-bold shadow-md shadow-primary/20"
                     asChild
                   >
-                    <Link href={h.ctaButtonLink}>
-                      {h.ctaButtonText}
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    <Link href={ctaHref}>
+                      {ctaLabel}
+                      <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
                     </Link>
                   </Button>
                 )}
               <UserMenu
                 user={{
-                  name: session.user.name ?? "Unknown User",
+                  name: session.user.name ?? "مستخدم غير معروف",
                   email: session.user.email ?? "",
                   role: (session.user as SessionUser).role ?? "customer",
                   image: (session.user as SessionUser).image ?? "",
@@ -220,33 +251,32 @@ export function PublicHeader({ header }: PublicHeaderProps) {
           ) : (
             <div className="hidden items-center gap-1.5 md:flex">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                className="h-9 rounded-full border-border/80 bg-background/60 px-4 text-[13.5px] font-semibold text-foreground backdrop-blur transition-colors hover:border-primary/40 hover:bg-muted/60"
+                className="h-9 rounded-full px-3 text-[13px] font-medium text-muted-foreground"
                 asChild
               >
-                <Link href="/login">{h.signInText}</Link>
+                <Link href="/login">{signInText}</Link>
               </Button>
               <Button
                 size="sm"
-                className="group h-9 rounded-full px-4 text-[13.5px] font-semibold shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98]"
+                className="group h-9 rounded-full px-4 text-[13px] font-bold shadow-md shadow-primary/20"
                 asChild
               >
                 <Link href={guestCtaLink}>
-                  {h.ctaButtonText}
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  {ctaLabel}
+                  <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
                 </Link>
               </Button>
             </div>
           )}
 
-          {/* Mobile Menu Button */}
           <Button
             variant="ghost"
             size="icon-sm"
             className="rounded-full md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label="فتح/إغلاق القائمة"
           >
             {mobileMenuOpen ? (
               <X className="h-4.5 w-4.5" />
@@ -257,102 +287,93 @@ export function PublicHeader({ header }: PublicHeaderProps) {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
+      {mobileMenuOpen ? (
         <div className="mx-auto mt-2 max-w-6xl rounded-2xl border border-border/60 bg-background/95 p-4 shadow-xl backdrop-blur-xl md:hidden">
-          {/* Mobile Navigation Links */}
-          <nav className="flex flex-col gap-1">
-            {navigationLinks.map((link, i) => {
-              const active = isLinkActive(link.href, i);
+          {/* Primary CTA — always first on mobile */}
+          <div className="mb-4 space-y-2">
+            <Button size="lg" className="group h-11 w-full rounded-xl font-bold" asChild>
+              <Link
+                href={guestCtaLink}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {mobileCtaLabel}
+                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+              </Link>
+            </Button>
+            {!isLoggedIn ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full rounded-xl"
+                asChild
+              >
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  {signInText} للمتابعة
+                </Link>
+              </Button>
+            ) : null}
+          </div>
+
+          <nav className="space-y-4">
+            {navGroups.map((group) => {
+              const visibleLinks = filterPortalNavLinks(group.links, isLoggedIn);
+              if (visibleLinks.length === 0) return null;
 
               return (
-                <Link
-                  key={`${link.href}-${i}`}
-                  href={link.href}
-                  onClick={() => {
-                    setCurrentHash(getHashFromHref(link.href));
-                    setMobileMenuOpen(false);
-                  }}
-                  className={cn(
-                    "rounded-xl px-3.5 py-2.5 text-[15px] font-medium transition-colors",
-                    active
-                      ? "bg-primary/10 text-primary"
-                      : "text-foreground/75 hover:bg-muted/60 hover:text-foreground"
-                  )}
-                >
-                  {link.label}
-                </Link>
+                <div key={group.id}>
+                  <p className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {group.label}
+                  </p>
+                  <div className="flex flex-col gap-0.5">
+                    {visibleLinks.map((link) =>
+                      renderNavLink(link, () => setMobileMenuOpen(false), true),
+                    )}
+                  </div>
+                </div>
               );
             })}
           </nav>
 
-          {/* Mobile Theme Toggle */}
-          <div className="px-2 py-2 sm:hidden">
+          <div className="mt-4 border-t border-border/60 px-1 pt-3 sm:hidden">
             <ThemeToggle withLabel={true} />
           </div>
 
-          {/* Mobile Auth Buttons or User Info */}
-          {!isPending && (
-            <div className="mt-3 border-t border-border/60 pt-3">
-              {session?.user ? (
-                <div className="space-y-2.5">
-                  <div className="rounded-xl bg-muted/40 px-3.5 py-2.5">
-                    <p className="text-[13px] font-semibold text-foreground">
-                      {session.user.name}
-                    </p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
-                      {session.user.email}
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full rounded-xl text-[13px]"
-                    asChild
-                  >
-                    <Link
-                      href={
-                        (session.user as SessionUser).role === "admin" ||
-                        (session.user as SessionUser).role === "support"
-                          ? "/admin"
-                          : "/dashboard"
-                      }
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Go to Dashboard
-                    </Link>
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full rounded-xl text-[13px]"
-                    asChild
-                  >
-                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                      {h.signInText}
-                    </Link>
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="w-full rounded-xl text-[13px]"
-                    asChild
-                  >
-                    <Link
-                      href={guestCtaLink}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {h.mobileCtaText}
-                    </Link>
-                  </Button>
-                </div>
-              )}
+          {!isPending && session?.user ? (
+            <div className="mt-4 border-t border-border/60 pt-3">
+              <div className="rounded-xl bg-muted/40 px-3.5 py-2.5">
+                <p className="text-[13px] font-semibold text-foreground">
+                  {resolveUserDisplayName(
+                    session.user.name,
+                    session.user.email,
+                    companyName,
+                  )}
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {session.user.email}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2 w-full rounded-xl text-[13px]"
+                asChild
+              >
+                <Link
+                  href={
+                    (session.user as SessionUser).role === "admin" ||
+                    (session.user as SessionUser).role === "support"
+                      ? "/admin"
+                      : "/dashboard"
+                  }
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  لوحة التحكم
+                </Link>
+              </Button>
             </div>
-          )}
+          ) : null}
         </div>
-      )}
+      ) : null}
     </header>
   );
 }

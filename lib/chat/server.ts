@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import { getCollection } from "@/lib/db";
+import { FALLBACKS } from "@/lib/strings";
 import type { User } from "@/types";
 import type {
   ConversationMessageSummary,
@@ -107,7 +108,7 @@ async function getUsersMap(userIds: string[]) {
     const id = user.id || user._id.toString();
     map.set(id, {
       id,
-      name: user.name || "Unknown User",
+      name: user.name || FALLBACKS.unknownUser,
       email: user.email || "",
       role: user.role || "customer",
       image: user.image || undefined,

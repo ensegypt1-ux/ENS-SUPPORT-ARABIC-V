@@ -63,7 +63,7 @@ export async function createAgentTicket(
   const summary = input.summary?.trim();
   const details = input.details?.trim();
   if (!summary || !details) {
-    return { success: false, error: "Summary and details are required" };
+    return { success: false, error: "الملخص والتفاصيل مطلوبان" };
   }
 
   let departmentSlug = input.departmentSlug?.trim() || undefined;
@@ -161,8 +161,8 @@ export async function createAgentTicket(
       await createNotification({
         userId: assignedToId,
         type: "ticket_assignment",
-        title: "Ticket Assigned to You",
-        body: `You have been assigned to ticket #${ticketNumber}: ${title}`,
+        title: "تم تعيين تذكرة لك",
+        body: `تم تعيينك على التذكرة #${ticketNumber}: ${title}`,
         data: {
           ticketId: _id.toString(),
           ticketNumber,
@@ -176,8 +176,8 @@ export async function createAgentTicket(
       await createBulkNotifications(adminIds, {
         type: "new_ticket",
         title: assignedToId
-          ? `New ticket ${ticketNumber} assigned`
-          : `New AI ticket ${ticketNumber}`,
+          ? `تذكرة جديدة ${ticketNumber} معيّنة`
+          : `تذكرة ذكاء اصطناعي جديدة ${ticketNumber}`,
         body: title,
         data: {
           ticketId: _id.toString(),
@@ -200,8 +200,8 @@ export async function createAgentTicket(
 
     await sendAdminNewTicketEmails({
       ticket,
-      customerName: input.name || "Unknown",
-      customerEmail: input.email || "Unknown",
+      customerName: input.name || "غير معروف",
+      customerEmail: input.email || "غير معروف",
       ticketUrl: `${baseUrl}${paths.adminDetail}`,
     });
 
@@ -211,9 +211,9 @@ export async function createAgentTicket(
     await sendNewTicketIntegrationNotifications({
       ticket,
       kind: "ticket",
-      actorName: input.name || "Customer",
+      actorName: input.name || "عميل",
       actorRole: "customer",
-      customerName: input.name || "Unknown",
+      customerName: input.name || "غير معروف",
       customerEmail: input.email,
       adminUrl: `${baseUrl}${paths.adminDetail}`,
       dashboardUrl: `${baseUrl}${paths.dashboardDetail}`,

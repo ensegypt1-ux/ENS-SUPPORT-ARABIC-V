@@ -35,36 +35,36 @@ export default async function SupportAgentProfilePage() {
   const agentStats = stats
     ? [
         {
-          title: "Total Assigned",
+          title: "إجمالي المعيّن",
           value: stats.totalAssigned,
           icon: Ticket,
           iconColor: "text-info",
           iconBgColor: "bg-info/15",
-          description: "All assigned tickets",
+          description: "جميع التذاكر المعيّنة",
         },
         {
-          title: "Open Tickets",
+          title: "تذاكر مفتوحة",
           value: stats.openTickets,
           icon: AlertCircle,
           iconColor: "text-warning",
           iconBgColor: "bg-warning/15",
-          description: "Awaiting response",
+          description: "في انتظار الرد",
         },
         {
-          title: "In Progress",
+          title: "قيد المعالجة",
           value: stats.inProgressTickets,
           icon: Clock,
           iconColor: "text-accent",
           iconBgColor: "bg-accent/15",
-          description: "Being worked on",
+          description: "قيد العمل",
         },
         {
-          title: "Resolved",
+          title: "محلولة",
           value: stats.resolvedTickets,
           icon: CheckCircle2,
           iconColor: "text-success",
           iconBgColor: "bg-success/15",
-          description: "Completed tickets",
+          description: "تذاكر مكتملة",
         },
       ]
     : [];
@@ -88,9 +88,9 @@ export default async function SupportAgentProfilePage() {
     <div className="max-w-5xl mx-auto space-y-8 py-2">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">الملف الشخصي</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Manage your support agent profile and view your statistics
+          إدارة ملفك الشخصي كوكيل دعم وعرض إحصائياتك
         </p>
       </div>
 

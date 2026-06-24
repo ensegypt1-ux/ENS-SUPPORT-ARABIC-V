@@ -21,6 +21,8 @@ import { getUserDetails } from "@/actions/admin";
 import type { Ticket as TicketType } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ClientDetailActions } from "@/components/admin/client-detail-actions";
+import { CountryDisplay } from "@/components/shared/country-display";
+import { STATUS_LABELS, PRIORITY_LABELS } from "@/lib/strings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Serialized types (after JSON.parse(JSON.stringify()))
@@ -238,12 +240,12 @@ export default async function CustomerDetailPage({
         <div className="flex items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              Customer Details
+              العميل التفاصيل
             </h1>
             <p className="text-muted-foreground mt-1">
               {isAdmin
-                ? "View comprehensive customer information and support history"
-                : "View customer information and assigned tickets"}
+                ? "عرض معلومات العميل وسجل الدعم بالكامل"
+                : "عرض معلومات العميل والتذاكر المعيّنة"}
             </p>
           </div>
         </div>
@@ -251,8 +253,8 @@ export default async function CustomerDetailPage({
           <ClientDetailActions user={serializedUser} isAdmin={isAdmin} />
           <Link href="/admin/customers">
             <Button variant="outline">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Customers
+              <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
+              رجوع إلى العملاء
             </Button>
           </Link>
         </div>
@@ -261,7 +263,7 @@ export default async function CustomerDetailPage({
       {/* Customer Profile Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Customer Information</CardTitle>
+          <CardTitle>معلومات العميل</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-start gap-6">
@@ -279,7 +281,7 @@ export default async function CustomerDetailPage({
                     variant="secondary"
                     className="text-foreground dark:text-foreground"
                   >
-                    Customer
+                    العميل
                   </Badge>
                   {user.emailVerified && (
                     <Badge
@@ -287,7 +289,7 @@ export default async function CustomerDetailPage({
                       className="gap-1 text-foreground dark:text-foreground"
                     >
                       <CheckCircle2 className="h-3 w-3" />
-                      Verified
+                      موثّق
                     </Badge>
                   )}
                 </div>
@@ -301,7 +303,7 @@ export default async function CustomerDetailPage({
                 {user.country && (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <MapPin className="h-4 w-4" />
-                    <span>{user.country}</span>
+                    <CountryDisplay name={user.country} />
                   </div>
                 )}
                 {user.envatoUsername && (
@@ -320,14 +322,14 @@ export default async function CustomerDetailPage({
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Calendar className="h-4 w-4" />
                     <span>
-                      Registered {await formatDate(new Date(user.createdAt))}
+                      مسجّل في {await formatDate(new Date(user.createdAt))}
                     </span>
                   </div>
                 )}
                 {isAdmin && (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Shield className="h-4 w-4" />
-                    <span>Customer ID: {user.id}</span>
+                    <span>معرّف العميل: {user.id}</span>
                   </div>
                 )}
               </div>
@@ -344,26 +346,26 @@ export default async function CustomerDetailPage({
       >
         <Card className="gap-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
+            <CardTitle className="text-sm font-medium">إجمالي التذاكر</CardTitle>
             <Ticket className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalTickets}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              All support requests
+              جميع طلبات الدعم
             </p>
           </CardContent>
         </Card>
 
         <Card className="gap-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Open Tickets</CardTitle>
+            <CardTitle className="text-sm font-medium">تذاكر مفتوحة</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.openTickets}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Awaiting response
+              في انتظار الرد
             </p>
           </CardContent>
         </Card>
@@ -371,14 +373,14 @@ export default async function CustomerDetailPage({
         <Card className="gap-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Resolved Tickets
+              التذاكر المحلولة
             </CardTitle>
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.resolvedTickets}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Successfully resolved
+              تم حلها
             </p>
           </CardContent>
         </Card>
@@ -387,14 +389,14 @@ export default async function CustomerDetailPage({
           <Card className="gap-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Active Sessions
+                الجلسات النشطة
               </CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.activeSessions}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                Currently logged in
+                مسجّل دخول حالياً
               </p>
             </CardContent>
           </Card>
@@ -405,19 +407,19 @@ export default async function CustomerDetailPage({
       {isAdmin && account && (
         <Card>
           <CardHeader>
-            <CardTitle>Account Information</CardTitle>
+            <CardTitle>معلومات الحساب</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Authentication Provider
+                  مزوّد المصادقة
                 </p>
                 <p className="font-medium capitalize">{account.providerId}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Account Created
+                  تاريخ إنشاء الحساب
                 </p>
                 <p className="font-medium">
                   {await formatDate(new Date(account.createdAt))}
@@ -425,7 +427,7 @@ export default async function CustomerDetailPage({
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Last Updated
+                  آخر تحديث
                 </p>
                 <p className="font-medium">
                   {await formatDate(new Date(account.updatedAt))}
@@ -439,12 +441,12 @@ export default async function CustomerDetailPage({
       {/* Support Tickets */}
       <Card>
         <CardHeader>
-          <CardTitle>Support Tickets ({serializedTickets.length})</CardTitle>
+          <CardTitle>تذاكر الدعم ({serializedTickets.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {serializedTickets.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
-              No support tickets found for this client
+              مفيش تذاكر دعم لهذا العميل
             </p>
           ) : (
             <div className="space-y-3">
@@ -464,7 +466,7 @@ export default async function CustomerDetailPage({
                           variant={getStatusBadge(ticket.status).variant}
                           className={getStatusBadge(ticket.status).className}
                         >
-                          {ticket.status.replace("_", " ")}
+                          {STATUS_LABELS[ticket.status as keyof typeof STATUS_LABELS] ?? ticket.status}
                         </Badge>
                         <Badge
                           variant={getPriorityBadge(ticket.priority).variant}
@@ -472,7 +474,7 @@ export default async function CustomerDetailPage({
                             getPriorityBadge(ticket.priority).className
                           }
                         >
-                          {ticket.priority}
+                          {PRIORITY_LABELS[ticket.priority as keyof typeof PRIORITY_LABELS] ?? ticket.priority}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2">
@@ -481,11 +483,11 @@ export default async function CustomerDetailPage({
                       <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                         <span>#{ticket.ticketNumber}</span>
                         {ticket.formattedCreatedAt && (
-                          <span>Created {ticket.formattedCreatedAt}</span>
+                          <span>تاريخ الإنشاء {ticket.formattedCreatedAt}</span>
                         )}
                         {ticket.formattedLastActivityAt && (
                           <span>
-                            Last activity {ticket.formattedLastActivityAt}
+                            آخر نشاط {ticket.formattedLastActivityAt}
                           </span>
                         )}
                       </div>
@@ -502,12 +504,12 @@ export default async function CustomerDetailPage({
       {isAdmin && (
         <Card>
           <CardHeader>
-            <CardTitle>Recent Sessions (Last 10)</CardTitle>
+            <CardTitle>الجلسات الأخيرة (آخر 10)</CardTitle>
           </CardHeader>
           <CardContent>
             {serializedSessions.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                No sessions found
+                مفيش جلسات
               </p>
             ) : (
               <div className="space-y-3">
@@ -527,7 +529,7 @@ export default async function CustomerDetailPage({
                           <div className="flex items-center gap-2 mb-3">
                             <Activity className="h-4 w-4 text-muted-foreground" />
                             <span className="font-medium">
-                              {browser} on {os}
+                              {browser} على {os}
                             </span>
                             {isActive ? (
                               <Badge
@@ -535,7 +537,7 @@ export default async function CustomerDetailPage({
                                 className="gap-1 text-white dark:text-white"
                               >
                                 <CheckCircle2 className="h-3 w-3" />
-                                Active
+                                نشطة
                               </Badge>
                             ) : (
                               <Badge
@@ -543,7 +545,7 @@ export default async function CustomerDetailPage({
                                 className="gap-1 text-foreground dark:text-foreground"
                               >
                                 <XCircle className="h-3 w-3" />
-                                Expired
+                                منتهية
                               </Badge>
                             )}
                           </div>
@@ -551,13 +553,13 @@ export default async function CustomerDetailPage({
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                             <div>
                               <p className="text-muted-foreground mb-1">
-                                Device Type
+                                نوع الجهاز
                               </p>
                               <p className="font-medium">{device}</p>
                             </div>
                             <div>
                               <p className="text-muted-foreground mb-1">
-                                IP Address
+                                عنوان IP
                               </p>
                               <p className="font-medium font-mono text-xs">
                                 {session.ipAddress}
@@ -565,7 +567,7 @@ export default async function CustomerDetailPage({
                             </div>
                             <div>
                               <p className="text-muted-foreground mb-1">
-                                Login Time
+                                وقت تسجيل الدخول
                               </p>
                               <p className="font-medium">
                                 {session.formattedCreatedAt}
@@ -573,7 +575,7 @@ export default async function CustomerDetailPage({
                             </div>
                             <div>
                               <p className="text-muted-foreground mb-1">
-                                Last Active
+                                آخر نشاط
                               </p>
                               <p className="font-medium">
                                 {session.formattedUpdatedAt}
@@ -581,7 +583,7 @@ export default async function CustomerDetailPage({
                             </div>
                             <div>
                               <p className="text-muted-foreground mb-1">
-                                Expires At
+                                تنتهي في
                               </p>
                               <p className="font-medium">
                                 {session.formattedExpiresAt}
@@ -589,10 +591,10 @@ export default async function CustomerDetailPage({
                             </div>
                             <div>
                               <p className="text-muted-foreground mb-1">
-                                Status
+                                الحالة
                               </p>
                               <p className="font-medium">
-                                {isActive ? "Active" : "Expired"}
+                                {isActive ? "نشطة" : "منتهية"}
                               </p>
                             </div>
                           </div>
@@ -600,7 +602,7 @@ export default async function CustomerDetailPage({
                           {session.userAgent !== "Unknown" && (
                             <div className="mt-3 pt-3 border-t border-border">
                               <p className="text-xs text-muted-foreground mb-1">
-                                User Agent
+                                وكيل المستخدم
                               </p>
                               <p className="text-xs font-mono text-muted-foreground break-all">
                                 {session.userAgent}

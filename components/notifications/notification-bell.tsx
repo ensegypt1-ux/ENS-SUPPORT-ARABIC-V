@@ -207,12 +207,12 @@ export function NotificationBell({
 
       void playNotificationSound();
 
-      toast(notification.title || "New notification", {
-        description: notification.body || "You have a new update.",
+      toast(notification.title || "إشعار جديد", {
+        description: notification.body || "فيه تحديث جديد.",
         duration: 6000,
         action: destination
           ? {
-              label: "Open",
+              label: "فتح",
               onClick: () => router.push(destination),
             }
           : undefined,
@@ -290,11 +290,11 @@ export function NotificationBell({
         title:
           typeof payload.title === "string" && payload.title
             ? payload.title
-            : "New notification",
+            : "إشعار جديد",
         body:
           typeof payload.body === "string" && payload.body
             ? payload.body
-            : "You have a new update.",
+            : "فيه تحديث جديد.",
         data: payloadData,
         read: false,
         created_at: new Date().toISOString(),
@@ -332,7 +332,7 @@ export function NotificationBell({
           {unreadCount > 0 && (
             <>
               {/* Badge count */}
-              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-blue-700 text-destructive-foreground text-xs text-white font-medium flex items-center justify-center">
+              <span className="absolute -top-1 -end-1 h-5 w-5 rounded-full bg-blue-700 text-destructive-foreground text-xs text-white font-medium flex items-center justify-center">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             </>
@@ -346,7 +346,7 @@ export function NotificationBell({
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold">Notifications</h3>
+            <h3 className="text-sm font-semibold">الإشعارات</h3>
             {unreadCount > 0 && (
               <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-700 px-1.5 text-[11px] font-semibold text-white">
                 {unreadCount > 9 ? "9+" : unreadCount}
@@ -362,7 +362,7 @@ export function NotificationBell({
                 markAllAsRead();
               }}
             >
-              Mark all read
+              تحديد الكل كمقروء
             </button>
           )}
         </div>
@@ -390,9 +390,9 @@ export function NotificationBell({
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
               <Bell className="h-5 w-5 text-muted-foreground" />
             </div>
-            <p className="text-sm font-medium">You&apos;re all caught up</p>
+            <p className="text-sm font-medium">خلصت كل الإشعارات</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              New notifications will show up here.
+              ستظهر الإشعارات الجديدة هنا.
             </p>
           </div>
         )}
@@ -419,7 +419,7 @@ export function NotificationBell({
             className="w-full cursor-pointer py-2.5 text-center text-sm font-medium text-blue-700 transition-colors hover:bg-muted/50 dark:text-blue-400"
             onClick={() => router.push(basePath)}
           >
-            View all notifications
+            عرض جميع الإشعارات
           </button>
         )}
 
@@ -429,14 +429,14 @@ export function NotificationBell({
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-sm font-medium leading-tight">
-                Browser notifications
+                إشعارات المتصفح
               </p>
               <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
                 {pushSupported
                   ? pushSubscribed
-                    ? "On for this device."
-                    : "Get alerts while the app is in the background."
-                  : "Not supported in this browser."}
+                    ? "مفعّلة على هذا الجهاز."
+                    : "احصل على تنبيهات أثناء وجود التطبيق في الخلفية."
+                  : "غير مدعومة في هذا المتصفح."}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -446,7 +446,7 @@ export function NotificationBell({
               <Switch
                 checked={pushSubscribed}
                 disabled={pushToggleDisabled}
-                aria-label="Enable browser notifications"
+                aria-label="تفعيل إشعارات المتصفح"
                 onCheckedChange={(checked) => {
                   if (checked) {
                     void enablePush();
@@ -462,8 +462,8 @@ export function NotificationBell({
             <div className="mt-2 flex items-start gap-2 rounded-md border border-amber-200/70 bg-amber-50 px-2.5 py-2 text-[11px] text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300">
               <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <p>
-                Blocked in browser settings. Re-enable for this site, then
-                toggle again.
+                محظورة في إعدادات المتصفح. أعد تفعيلها لهذا الموقع، ثم
+                جرّب التبديل مرة أخرى.
               </p>
             </div>
           )}

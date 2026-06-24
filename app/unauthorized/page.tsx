@@ -11,21 +11,21 @@ export default function UnauthorizedPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/15">
             <ShieldAlert className="h-8 w-8 text-destructive" />
           </div>
-          <CardTitle className="text-2xl">Access Denied</CardTitle>
+          <CardTitle className="text-2xl">مش مسموح</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <p className="text-muted-foreground">
-            You don&apos;t have permission to access this page.
+            ليس لديك صلاحية للوصول إلى هذه الصفحة.
           </p>
           <p className="text-sm text-muted-foreground">
-            If you believe this is an error, please contact your administrator.
+            إذا كنت تعتقد أن هذا خطأ،  التواصل مع المسؤول.
           </p>
           <div className="flex gap-2 justify-center pt-4">
             <Button asChild variant="outline">
-              <Link href="/dashboard">Go to Dashboard</Link>
+              <Link href="/dashboard">الذهاب إلى لوحة التحكم</Link>
             </Button>
             <Button asChild>
-              <Link href="/">Go Home</Link>
+              <Link href="/">الذهاب للصفحة الرئيسية</Link>
             </Button>
           </div>
         </CardContent>

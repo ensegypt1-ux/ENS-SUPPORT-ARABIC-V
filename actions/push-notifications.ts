@@ -53,7 +53,7 @@ export async function getPushNotificationStatus(): Promise<
       error:
         error instanceof Error
           ? error.message
-          : "Failed to get push notification status",
+          : "تعذّر الحصول على حالة إشعارات المتصفح",
     };
   }
 }
@@ -68,7 +68,7 @@ export async function registerPushSubscription(
       return {
         success: false,
         error:
-          "Web push is not configured. Add your VAPID keys before enabling browser notifications.",
+          "إشعارات المتصفح غير مُعدّة. أضف مفاتيح VAPID قبل تفعيل إشعارات المتصفح.",
       };
     }
 
@@ -87,8 +87,8 @@ export async function registerPushSubscription(
     const testNotification = await sendPushNotificationToSubscription(
       subscription,
       {
-        title: "Browser push is ready",
-        body: "You will now receive ticket, chat, and activity alerts even when the app is in the background.",
+        title: "إشعارات المتصفح جاهزة",
+        body: "ستتلقى الآن تنبيهات التذاكر والمحادثات والنشاط حتى عندما يكون التطبيق في الخلفية.",
         url: notificationsPath,
         tag: "push-subscription-ready",
         data: {
@@ -114,7 +114,7 @@ export async function registerPushSubscription(
       data: {
         subscriptionCount,
       },
-      message: "Browser push notifications enabled successfully.",
+      message: "إشعارات المتصفح اتفعّلت.",
     };
   } catch (error) {
     console.error("Register push subscription error:", error);
@@ -124,7 +124,7 @@ export async function registerPushSubscription(
       error:
         error instanceof Error
           ? error.message
-          : "Failed to register push subscription",
+          : "تعذّر تسجيل اشتراك الإشعارات",
     };
   }
 }
@@ -138,7 +138,7 @@ export async function unregisterPushSubscription(
     if (!endpoint) {
       return {
         success: false,
-        error: "Missing push subscription endpoint.",
+        error: "نقطة نهاية اشتراك الإشعارات مفقودة.",
       };
     }
 
@@ -152,7 +152,7 @@ export async function unregisterPushSubscription(
       data: {
         subscriptionCount,
       },
-      message: "Browser push notifications disabled for this device.",
+      message: "إشعارات المتصفح اتعطّلت على الجهاز ده.",
     };
   } catch (error) {
     console.error("Unregister push subscription error:", error);
@@ -162,7 +162,7 @@ export async function unregisterPushSubscription(
       error:
         error instanceof Error
           ? error.message
-          : "Failed to unregister push subscription",
+          : "تعذّر إلغاء اشتراك الإشعارات",
     };
   }
 }

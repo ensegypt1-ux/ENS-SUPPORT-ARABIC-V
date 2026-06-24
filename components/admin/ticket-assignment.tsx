@@ -51,18 +51,18 @@ export function TicketAssignment({
         setSelectedValue(nextAssignedToId || "unassigned");
         toast.success(
           value !== "unassigned"
-            ? "Ticket assigned successfully"
-            : "Ticket unassigned successfully"
+            ? "تم تعيين التذكرة"
+            : "تم إلغاء تعيين التذكرة"
         );
         router.refresh();
       } else {
         setSelectedValue(previousValue);
-        toast.error(result.error || "Failed to assign ticket");
+        toast.error(result.error || "تعذّر تعيين التذكرة");
       }
     } catch (error) {
       console.error("Assignment error:", error);
       setSelectedValue(previousValue);
-      toast.error("Failed to assign ticket");
+      toast.error("تعذّر تعيين التذكرة");
     } finally {
       setIsUpdating(false);
     }
@@ -75,10 +75,10 @@ export function TicketAssignment({
       disabled={isUpdating}
     >
       <SelectTrigger>
-        <SelectValue placeholder="Select assignee" />
+        <SelectValue placeholder="اختر المُعيَّن" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="unassigned">Unassigned</SelectItem>
+        <SelectItem value="unassigned">غير مُعيَّن</SelectItem>
         {supportStaff.map((staff, index) => (
           <SelectItem key={`${staff.id}-${index}`} value={staff.id}>
             <NameWithRole

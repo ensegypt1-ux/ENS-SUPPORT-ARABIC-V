@@ -22,10 +22,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Download, AlertCircle, Search, Users } from "lucide-react";
+import { Loader2, Download, AlertCircle, Users } from "lucide-react";
 import { toast } from "sonner";
 import { FileUploadPreview } from "@/components/attachments/file-upload-preview";
 import { TimezoneSelect } from "@/components/ui/timezone-select";
+import {
+  FormSectionTitle,
+  LocalSearchField,
+} from "@/components/ui/arabic-ux";
+import { FORM_UI, PRIORITY_FORM_LABELS, UI } from "@/lib/strings";
 import { cn } from "@/lib/utils";
 
 type ClientUser = User & {
@@ -98,8 +103,8 @@ export default function AdminNewInstallationPage() {
       });
 
       if (!result.success) {
-        setError(result.error || "Failed to create installation request");
-        toast.error(result.error || "Failed to create installation request");
+        setError(result.error || FORM_UI.createFailed);
+        toast.error(result.error || FORM_UI.createFailed);
         setIsSubmitting(false);
         return;
       }
@@ -116,79 +121,79 @@ export default function AdminNewInstallationPage() {
 
         if (!uploadResult.success) {
           toast.warning(
-            `Request created but some files failed to upload: ${uploadResult.error}`
+            `${FORM_UI.uploadPartialFail}: ${uploadResult.error}`
           );
         } else if (uploadResult.data && uploadResult.data.length > 0) {
           toast.success(
-            `Installation request created with ${uploadResult.data.length} attachment(s)!`
+            `${FORM_UI.createSuccess} (${uploadResult.data.length} ${FORM_UI.attachmentWord})`
           );
         } else {
-          toast.success("Installation request created successfully!");
+          toast.success(FORM_UI.createSuccess);
         }
       } else {
-        toast.success("Installation request created successfully!");
+        toast.success(FORM_UI.createSuccess);
       }
 
       router.push(`/admin/installation/${ticketId}`);
       router.refresh();
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : "An unexpected error occurred";
+        error instanceof Error ? error.message : FORM_UI.unexpectedError;
       setError(errorMessage);
       toast.error(errorMessage);
       setIsSubmitting(false);
     }
   };
 
-  const priorities = [
-    { value: "low", label: "Low - Flexible timeline", color: "bg-slate-400" },
-    {
-      value: "medium",
-      label: "Medium - Within a few days",
-      color: "bg-blue-500",
-    },
-    {
-      value: "high",
-      label: "High - Need it within 24 hours",
-      color: "bg-amber-500",
-    },
-    { value: "urgent", label: "Urgent - Critical, ASAP", color: "bg-red-500" },
-  ];
+  const priorities = (
+    ["low", "medium", "high", "urgent"] as const
+  ).map((value) => ({
+    value,
+    label: PRIORITY_FORM_LABELS[value],
+    color:
+      value === "low"
+        ? "bg-slate-400"
+        : value === "medium"
+          ? "bg-blue-500"
+          : value === "high"
+            ? "bg-amber-500"
+            : "bg-red-500",
+  }));
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Header */}
-      <div className="bg-background border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between pb-6">
-            <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-muted/30 text-start">
+      <div className="border-b bg-background">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-row items-center justify-between pb-6 pt-2">
+            <div className="relative h-20 w-20">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-primary/5" />
+              <div className="absolute inset-2 flex items-center justify-center rounded-full bg-gradient-to-br from-primary/30 to-primary/10">
+                <Download className="h-8 w-8 text-primary" />
+              </div>
+            </div>
+            <div className="space-y-1">
               <h1 className="text-xl font-semibold text-foreground">
-                Create Installation Request
+                {FORM_UI.createInstallationTitle}
               </h1>
-              <span className="text-muted-foreground">•</span>
-              <nav className="text-sm text-muted-foreground flex items-center">
+              <nav className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 <Link
                   href="/admin"
-                  className="hover:text-foreground transition-colors"
+                  className="transition-colors hover:text-foreground"
                 >
-                  Admin
+                  {FORM_UI.adminBreadcrumb}
                 </Link>
-                <span className="mx-2">•</span>
+                <span aria-hidden="true">•</span>
                 <Link
                   href="/admin/installation"
-                  className="hover:text-foreground transition-colors"
+                  className="transition-colors hover:text-foreground"
                 >
-                  Installation
+                  {FORM_UI.installationBreadcrumb}
                 </Link>
-                <span className="mx-2">•</span>
-                <span className="text-foreground">New Request</span>
+                <span aria-hidden="true">•</span>
+                <span className="text-foreground">
+                  {FORM_UI.newRequestBreadcrumb}
+                </span>
               </nav>
-            </div>
-            <div className="relative w-20 h-20">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full" />
-              <div className="absolute inset-2 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full flex items-center justify-center">
-                <Download className="w-8 h-8 text-primary" />
-              </div>
             </div>
           </div>
         </div>
@@ -208,14 +213,12 @@ export default function AdminNewInstallationPage() {
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Customer Selection - Admin Only */}
-              <div className="bg-background rounded-xl border p-6 space-y-4">
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-primary" />
-                  <h2 className="text-lg font-semibold">Select Customer</h2>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Choose which customer this installation request is for
-                </p>
+              <div className="space-y-4 rounded-xl border bg-background p-6">
+                <FormSectionTitle
+                  icon={<Users className="h-5 w-5 text-primary" />}
+                  title={FORM_UI.selectCustomer}
+                  description={FORM_UI.selectCustomerHint}
+                />
 
                 {isLoadingCustomers ? (
                   <div className="flex items-center justify-center py-8">
@@ -223,16 +226,14 @@ export default function AdminNewInstallationPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-3 gap-3 items-center">
-                      <div className="relative col-span-2">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder="Search customers..."
-                          value={customerSearch}
-                          onChange={(e) => setCustomerSearch(e.target.value)}
-                          className="pl-10 h-11"
-                        />
-                      </div>
+                    <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-3">
+                      <LocalSearchField
+                        className="sm:col-span-2"
+                        value={customerSearch}
+                        onChange={setCustomerSearch}
+                        placeholder={FORM_UI.searchCustomers}
+                        disabled={isSubmitting}
+                      />
 
                       <Select
                         value={customerId}
@@ -240,12 +241,12 @@ export default function AdminNewInstallationPage() {
                         disabled={isSubmitting}
                       >
                         <SelectTrigger className="h-11 min-h-11 w-full">
-                          <SelectValue placeholder="Select a customer" />
+                          <SelectValue placeholder={FORM_UI.selectCustomerPlaceholder} />
                         </SelectTrigger>
                         <SelectContent>
                           {filteredCustomers.map((customer) => (
                             <SelectItem key={customer.id} value={customer.id}>
-                              <div className="flex flex-col">
+                              <div className="flex flex-col text-start">
                                 <span className="font-medium">
                                   {customer.name}
                                 </span>
@@ -256,8 +257,8 @@ export default function AdminNewInstallationPage() {
                             </SelectItem>
                           ))}
                           {filteredCustomers.length === 0 && (
-                            <div className="py-4 text-center text-muted-foreground text-sm">
-                              No customers found
+                            <div className="py-4 text-center text-sm text-muted-foreground">
+                              {FORM_UI.noCustomersFound}
                             </div>
                           )}
                         </SelectContent>
@@ -265,13 +266,13 @@ export default function AdminNewInstallationPage() {
                     </div>
 
                     {selectedCustomer && (
-                      <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+                      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
                         <p className="text-sm font-medium">
                           {selectedCustomer.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {selectedCustomer.email} •{" "}
-                          {selectedCustomer.ticketCount} tickets
+                          {selectedCustomer.ticketCount} {FORM_UI.ticketsCount}
                         </p>
                       </div>
                     )}
@@ -286,24 +287,25 @@ export default function AdminNewInstallationPage() {
               </div>
 
               {/* General Section */}
-              <div className="bg-background rounded-xl border p-6 space-y-6">
-                <h2 className="text-lg font-semibold">Installation Details</h2>
+              <div className="space-y-6 rounded-xl border bg-background p-6">
+                <h2 className="text-lg font-semibold">
+                  {FORM_UI.installationDetails}
+                </h2>
 
-                {/* Title */}
                 <div className="space-y-2">
                   <Label htmlFor="title">
-                    Installation Request Title{" "}
+                    {FORM_UI.requestTitle}{" "}
                     <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="title"
-                    placeholder="Enter installation request title"
+                    placeholder={FORM_UI.requestTitlePlaceholder}
                     {...register("title")}
                     disabled={isSubmitting}
                     className="h-11 placeholder:text-muted-foreground/50"
                   />
                   <p className="text-xs text-muted-foreground">
-                    A title is required and recommended to be unique.
+                    {FORM_UI.requestTitleHint}
                   </p>
                   {errors.title && (
                     <p className="text-sm text-destructive">
@@ -315,20 +317,19 @@ export default function AdminNewInstallationPage() {
                 {/* Description */}
                 <div className="space-y-2">
                   <Label htmlFor="description">
-                    Installation Requirements{" "}
+                    {FORM_UI.requirements}{" "}
                     <span className="text-destructive">*</span>
                   </Label>
                   <Textarea
                     id="description"
-                    placeholder="Describe the installation requirements..."
+                    placeholder={FORM_UI.requirementsPlaceholder}
                     {...register("description")}
                     disabled={isSubmitting}
-                    className="resize-none placeholder:text-muted-foreground/50 min-h-[120px]"
+                    className="min-h-[120px] resize-none placeholder:text-muted-foreground/50"
                   />
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <AlertCircle className="h-3 w-3" />
-                    Never share passwords in this form. Contact the customer
-                    securely for credentials.
+                  <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <AlertCircle className="h-3 w-3 shrink-0" />
+                    {FORM_UI.securityNote}
                   </p>
                   {errors.description && (
                     <p className="text-sm text-destructive">
@@ -340,11 +341,10 @@ export default function AdminNewInstallationPage() {
 
               {/* Attachments Section */}
               {process.env.NEXT_PUBLIC_FILE_UPLOADS_ENABLED === "true" && (
-                <div className="bg-background rounded-xl border p-6 space-y-4">
-                  <h2 className="text-lg font-semibold">Attachments</h2>
+                <div className="space-y-4 rounded-xl border bg-background p-6">
+                  <h2 className="text-lg font-semibold">{FORM_UI.attachments}</h2>
                   <p className="text-xs text-muted-foreground">
-                    Upload server details, configuration files, or screenshots
-                    that might help with the installation
+                    {FORM_UI.attachmentsHint}
                   </p>
                   <FileUploadPreview
                     onFilesChange={handleFilesChange}
@@ -358,33 +358,35 @@ export default function AdminNewInstallationPage() {
               {/* Product Information */}
               {process.env.NEXT_PUBLIC_PURCHASE_CODE_VALIDATION_ENABLED ===
                 "true" && (
-                <div className="bg-background rounded-xl border p-6 space-y-6">
-                  <div>
-                    <h2 className="text-lg font-semibold">
-                      Product Information{" "}
-                      <span className="text-destructive">*</span>
-                    </h2>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Please provide product details to verify the purchase
-                    </p>
-                  </div>
+                <div className="space-y-6 rounded-xl border bg-background p-6">
+                  <FormSectionTitle
+                    title={
+                      <>
+                        {FORM_UI.productInfo}{" "}
+                        <span className="text-destructive">*</span>
+                      </>
+                    }
+                    description={FORM_UI.productInfoHint}
+                  />
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="productName">Product Name</Label>
+                      <Label htmlFor="productName">{FORM_UI.productName}</Label>
                       <Input
                         id="productName"
-                        placeholder="e.g., My Awesome Plugin"
+                        placeholder={FORM_UI.productNamePlaceholder}
                         {...register("productName")}
                         disabled={isSubmitting}
                         className="h-11"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="productVersion">Product Version</Label>
+                      <Label htmlFor="productVersion">
+                        {FORM_UI.productVersion}
+                      </Label>
                       <Input
                         id="productVersion"
-                        placeholder="e.g., 1.0.0"
+                        placeholder={FORM_UI.productVersionPlaceholder}
                         {...register("productVersion")}
                         disabled={isSubmitting}
                         className="h-11"
@@ -393,16 +395,16 @@ export default function AdminNewInstallationPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="purchaseCode">Purchase Code</Label>
+                    <Label htmlFor="purchaseCode">{FORM_UI.purchaseCode}</Label>
                     <Input
                       id="purchaseCode"
-                      placeholder="Enter Envato purchase code"
+                      placeholder={FORM_UI.purchaseCodePlaceholder}
                       {...register("purchaseCode")}
                       disabled={isSubmitting}
                       className="h-11 font-mono"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Enter the Envato purchase code for verification
+                      {FORM_UI.purchaseCodeHint}
                     </p>
                     {errors.purchaseCode && (
                       <p className="text-sm text-destructive">
@@ -417,9 +419,9 @@ export default function AdminNewInstallationPage() {
             {/* Right Column - Sidebar */}
             <div className="space-y-6">
               {/* Priority */}
-              <div className="bg-background rounded-xl border p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Priority</h2>
+              <div className="space-y-4 rounded-xl border bg-background p-6">
+                <div className="flex flex-row items-center justify-between">
+                  <h2 className="text-lg font-semibold">{FORM_UI.priority}</h2>
                   <span
                     className={cn(
                       "h-2.5 w-2.5 rounded-full",
@@ -441,7 +443,7 @@ export default function AdminNewInstallationPage() {
                   disabled={isSubmitting}
                 >
                   <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Select priority" />
+                    <SelectValue placeholder={FORM_UI.selectPriority} />
                   </SelectTrigger>
                   <SelectContent>
                     {priorities.map((p) => (
@@ -457,7 +459,7 @@ export default function AdminNewInstallationPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Set the installation priority.
+                  {FORM_UI.priorityHint}
                 </p>
                 {errors.priority && (
                   <p className="text-sm text-destructive">
@@ -467,43 +469,42 @@ export default function AdminNewInstallationPage() {
               </div>
 
               {/* Timezone */}
-              <div className="bg-background rounded-xl border p-6 space-y-4">
-                <h2 className="text-lg font-semibold">Timezone</h2>
+              <div className="space-y-4 rounded-xl border bg-background p-6">
+                <h2 className="text-lg font-semibold">{FORM_UI.timezone}</h2>
                 <TimezoneSelect
                   value={timezone}
                   onValueChange={(value) => setValue("timezone", value)}
                   disabled={isSubmitting}
-                  placeholder="Select timezone"
+                  placeholder={FORM_UI.selectTimezone}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Set the timezone for scheduling meetings or calls.
+                  {FORM_UI.timezoneHint}
                 </p>
               </div>
 
-              {/* Submit Buttons */}
-              <div className="bg-background rounded-xl border p-6 space-y-3">
+              <div className="space-y-3 rounded-xl border bg-background p-6">
                 <Button
                   type="submit"
-                  className="w-full h-11"
+                  className="h-11 w-full"
                   disabled={isSubmitting || !customerId}
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating...
+                      <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                      {FORM_UI.creating}
                     </>
                   ) : (
-                    "Create Request"
+                    FORM_UI.createRequest
                   )}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full h-11"
+                  className="h-11 w-full"
                   onClick={() => router.back()}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {UI.cancel}
                 </Button>
               </div>
             </div>

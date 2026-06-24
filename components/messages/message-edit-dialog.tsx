@@ -41,12 +41,12 @@ export function MessageEditDialog({
     e.preventDefault();
     
     if (!content.trim()) {
-      toast.error("Message cannot be empty");
+      toast.error("اكتب رسالة");
       return;
     }
 
     if (content === message.content) {
-      toast.info("No changes made");
+      toast.info("مفيش تغييرات");
       onOpenChange(false);
       return;
     }
@@ -56,11 +56,11 @@ export function MessageEditDialog({
       const result = await editMessage(message.id, content);
       
       if (result.success) {
-        toast.success("Message updated");
+        toast.success("اتحدّث الرسالة");
         onOpenChange(false);
         onSuccess?.();
       } else {
-        toast.error(result.error || "Failed to update message");
+        toast.error(result.error || "تعذّر التحديث الرسالة");
       }
     } finally {
       setLoading(false);
@@ -71,9 +71,9 @@ export function MessageEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Edit Message</DialogTitle>
+          <DialogTitle>تعديل الرسالة</DialogTitle>
           <DialogDescription>
-            Make changes to your message. Others will see that it was edited.
+            عدّل رسالتك. سيرى الآخرون أنها عُدّلت.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -81,7 +81,7 @@ export function MessageEditDialog({
             <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Type your message..."
+              placeholder="اكتب رسالتك..."
               className="min-h-[100px]"
               disabled={loading}
               autoFocus
@@ -94,10 +94,10 @@ export function MessageEditDialog({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              Cancel
+              إلغاء
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : "Save Changes"}
+              {loading ? "جاري الحفظ..." : "حفظ التغييرات"}
             </Button>
           </DialogFooter>
         </form>

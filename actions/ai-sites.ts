@@ -10,9 +10,9 @@ import { SITES_COLLECTION, generateSiteKey } from "@/lib/ai/sites";
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new Error("مش مسموح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("Forbidden: Admin access required");
+  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
   return session;
 }
 
@@ -38,7 +38,7 @@ const domainsSchema = z
   .optional();
 
 const createSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(60),
+  name: z.string().trim().min(1, "الاسم مطلوب").max(60),
   domains: domainsSchema,
 });
 
@@ -94,7 +94,7 @@ export async function updateSite(
 ): Promise<ApiResponse<AISitePublic>> {
   try {
     await requireAdmin();
-    if (!ObjectId.isValid(id)) return { success: false, error: "Invalid id" };
+    if (!ObjectId.isValid(id)) return { success: false, error: "المعرّف مش صح" };
     const parsed = updateSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message };
@@ -110,7 +110,7 @@ export async function updateSite(
       { $set: set },
       { returnDocument: "after" }
     );
-    if (!doc) return { success: false, error: "Site not found" };
+    if (!doc) return { success: false, error: "مفيش الموقع" };
     revalidateAI();
     return { success: true, data: toPublic(doc) };
   } catch (error: any) {
@@ -124,14 +124,14 @@ export async function rotateSiteKey(
 ): Promise<ApiResponse<AISitePublic>> {
   try {
     await requireAdmin();
-    if (!ObjectId.isValid(id)) return { success: false, error: "Invalid id" };
+    if (!ObjectId.isValid(id)) return { success: false, error: "المعرّف مش صح" };
     const col = await getCollection<AISite>(SITES_COLLECTION);
     const doc = await col.findOneAndUpdate(
       { _id: new ObjectId(id) },
       { $set: { key: generateSiteKey(), updatedAt: new Date() } },
       { returnDocument: "after" }
     );
-    if (!doc) return { success: false, error: "Site not found" };
+    if (!doc) return { success: false, error: "مفيش الموقع" };
     revalidateAI();
     return { success: true, data: toPublic(doc) };
   } catch (error: any) {
@@ -147,19 +147,19 @@ export async function rotateSiteKey(
 export async function deleteSite(id: string): Promise<ApiResponse<null>> {
   try {
     await requireAdmin();
-    if (!ObjectId.isValid(id)) return { success: false, error: "Invalid id" };
+    if (!ObjectId.isValid(id)) return { success: false, error: "المعرّف مش صح" };
 
     const assigned = await countSiteSources(id);
     if (assigned > 0) {
       return {
         success: false,
-        error: `This site still has ${assigned} assigned source(s). Reassign them to Global (or another site) or delete them first.`,
+        error: `لا يزال هذا الموقع يحتوي على ${assigned} مصدر(مصادر) مُعيَّن. أعد تعيينها إلى Global (أو موقع آخر) أو احذفها أولاً.`,
       };
     }
 
     const col = await getCollection<AISite>(SITES_COLLECTION);
     const res = await col.deleteOne({ _id: new ObjectId(id) });
-    if (res.deletedCount === 0) return { success: false, error: "Not found" };
+    if (res.deletedCount === 0) return { success: false, error: "مفيش" };
     revalidateAI();
     return { success: true, data: null };
   } catch (error: any) {

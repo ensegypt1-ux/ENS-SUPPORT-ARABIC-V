@@ -10,8 +10,8 @@ import type { SessionUser } from "@/lib/auth";
 import { EnhancedNotificationList } from "@/components/notifications/enhanced-notification-list";
 
 export const metadata = {
-  title: "Notifications | Support Agent",
-  description: "View and manage your notifications",
+  title: "الإشعارات | Support Agent",
+  description: "عرض وإدارة إشعاراتك",
 };
 
 export default async function SupportAgentNotificationsPage() {

@@ -112,7 +112,7 @@ export function NewConversationDialog({
       }
     } catch (error) {
       console.error("Error fetching users:", error);
-      toast.error("Failed to load users");
+      toast.error("تعذّر التحميل المستخدمين");
     } finally {
       setFetchingUsers(false);
     }
@@ -122,18 +122,18 @@ export function NewConversationDialog({
     e.preventDefault();
 
     if (selectedUserIds.length === 0) {
-      toast.error("Please select at least one user");
+      toast.error("اختار مستخدم واحد على الأقل");
       return;
     }
 
     // Validate based on conversation type
     if (conversationType === "direct" && selectedUserIds.length > 1) {
-      toast.error("Direct messages can only have one participant");
+      toast.error("يمكن أن تحتوي الرسائل المباشرة على مشارك واحد فقط");
       return;
     }
 
     if (conversationType === "group" && selectedUserIds.length < 2) {
-      toast.error("Group chats must have at least 2 participants");
+      toast.error("لازم فيه المحادثات الجماعية على مشاركين على الأقل");
       return;
     }
 
@@ -145,14 +145,14 @@ export function NewConversationDialog({
       });
 
       if (result.success && result.data) {
-        toast.success("Conversation created");
+        toast.success("اتعمل المحادثة");
         onConversationCreated(result.data.id);
       } else {
-        toast.error(result.error || "Failed to create conversation");
+        toast.error(result.error || "تعذّر الإنشاء المحادثة");
       }
     } catch (error) {
       console.error("Error creating conversation:", error);
-      toast.error("An unexpected error occurred");
+      toast.error("حصل خطأ مش متوقع");
     } finally {
       setLoading(false);
     }
@@ -194,10 +194,10 @@ export function NewConversationDialog({
           <>
             <DialogHeader className="gap-0">
               <DialogTitle className="text-lg font-bold">
-                Choose Conversation Type
+                اختيار نوع المحادثة
               </DialogTitle>
               <DialogDescription className="text-sm font-medium text-muted-foreground">
-                Select the type of conversation you want to create.
+                اختر نوع المحادثة التي تريد إنشاءها.
               </DialogDescription>
             </DialogHeader>
 
@@ -216,12 +216,12 @@ export function NewConversationDialog({
                 )}
               >
                 <User className="h-7 w-7 text-blue-600 dark:text-blue-400" />
-                <div className="text-left">
+                <div className="text-start">
                   <h3 className="font-semibold text-base mb-1">
-                    Direct Message
+                    رسالة مباشرة
                   </h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Start a private conversation with one person
+                    ابدأ محادثة خاصة مع شخص واحد
                   </p>
                 </div>
               </button>
@@ -240,10 +240,10 @@ export function NewConversationDialog({
                 )}
               >
                 <Users className="h-7 w-7 text-blue-600 dark:text-blue-400" />
-                <div className="text-left">
-                  <h3 className="font-semibold text-base mb-1">Group Chat</h3>
+                <div className="text-start">
+                  <h3 className="font-semibold text-base mb-1">محادثة جماعية</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Create a group conversation with multiple people
+                    أنشئ محادثة جماعية مع عدة أشخاص
                   </p>
                 </div>
               </button>
@@ -260,7 +260,7 @@ export function NewConversationDialog({
                 disabled={!conversationType}
                 className="bg-blue-600 hover:bg-blue-700"
               >
-                Next
+                التالي
               </Button>
             </DialogFooter>
           </>
@@ -270,13 +270,13 @@ export function NewConversationDialog({
             <DialogHeader className="pb-4">
               <DialogTitle className="text-xl font-semibold">
                 {conversationType === "direct"
-                  ? "Select Person"
-                  : "Add Participants"}
+                  ? "اختيار شخص"
+                  : "إضافة مشاركين"}
               </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
                 {conversationType === "direct"
-                  ? "Choose one person to message."
-                  : "Choose who to include in this group conversation."}
+                  ? "اختر شخصاً واحداً للمراسلة."
+                  : "اختر من تريد إضافته إلى هذه المحادثة الجماعية."}
               </DialogDescription>
             </DialogHeader>
 
@@ -285,14 +285,14 @@ export function NewConversationDialog({
               {selectedUsers.length > 0 && (
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold text-foreground">
-                    Selected Participants ({selectedUsers.length})
+                    المشاركون المختارون ({selectedUsers.length})
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {selectedUsers.map((user) => (
                       <Badge
                         key={user.id}
                         variant="secondary"
-                        className="pl-2 pr-1 py-1.5 gap-2"
+                        className="ps-2 pe-1 py-1.5 gap-2"
                       >
                         <Avatar className="h-5 w-5">
                           {user.image && <AvatarImage src={user.image} />}
@@ -309,7 +309,7 @@ export function NewConversationDialog({
                         <button
                           type="button"
                           onClick={() => removeUser(user.id)}
-                          className="ml-1 rounded-full hover:bg-muted p-0.5"
+                          className="ms-1 rounded-full hover:bg-muted p-0.5"
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -322,15 +322,15 @@ export function NewConversationDialog({
               {/* Add Participants */}
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-foreground">
-                  Add Participants
+                  إضافة مشاركين
                 </h3>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search users..."
+                    placeholder="البحث عن مستخدمين..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
+                    className="ps-9"
                   />
                 </div>
 
@@ -338,11 +338,11 @@ export function NewConversationDialog({
                 <div className="border rounded-lg max-h-80 overflow-y-auto">
                   {fetchingUsers ? (
                     <p className="text-sm text-muted-foreground text-center py-8">
-                      Loading users...
+                      جارٍ تحميل المستخدمين...
                     </p>
                   ) : filteredUsers.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-8">
-                      No users found
+                      ملقيناش مستخدمين
                     </p>
                   ) : (
                     <div className="divide-y">
@@ -392,9 +392,9 @@ export function NewConversationDialog({
                 type="button"
                 variant="outline"
                 onClick={() => setStep("type")}
-                className="sm:mr-2"
+                className="sm:me-2"
               >
-                Back
+                رجوع
               </Button>
               <Button
                 type="submit"
@@ -406,7 +406,7 @@ export function NewConversationDialog({
                 ) : (
                   <MessageCircle className="h-4 w-4" />
                 )}
-                Create Conversation
+                إنشاء محادثة
               </Button>
             </DialogFooter>
           </form>

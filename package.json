@@ -1,10 +1,11 @@
 {
-  "name": "Solvio - Customer support system",
+  "name": "ens-customer-support-portal",
   "version": "3.1.0",
   "private": true,
   "scripts": {
     "dev": "tsx watch server.ts",
-    "build": "next build",
+    "build": "node scripts/build.mjs",
+    "build:debug": "node scripts/build.mjs --debug",
     "start": "NODE_ENV=production tsx server.ts",
     "lint": "eslint",
     "setup:indexes": "node scripts/setup-mongodb-indexes.js",

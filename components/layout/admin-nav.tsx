@@ -17,7 +17,6 @@ import {
   FileText,
   UserCheck,
   MessageSquare,
-  Layout,
   Mail,
   BookOpen,
   Sparkles,
@@ -30,6 +29,7 @@ import {
 import { CollapsedSidebarSubmenu } from "@/components/layout/collapsed-sidebar-submenu";
 import { usePathname } from "next/navigation";
 import { useSidebarCollapsed } from "@/components/layout/app-sidebar";
+import { getServiceDisplayName } from "@/lib/service-labels";
 import {
   SubmenuChain,
   expandedNavItemClasses,
@@ -111,7 +111,7 @@ export function AdminNav({ userRole, services }: AdminNavProps) {
   const serviceChildren: NavItem[] = services
     .filter((service) => service.roles.includes(userRole))
     .map((service) => ({
-      name: service.name,
+      name: getServiceDisplayName(service.slug, service.name),
       href: `/admin/services/${service.slug}`,
       icon: iconForKey(service.iconKey),
       roles: service.roles,
@@ -119,10 +119,10 @@ export function AdminNav({ userRole, services }: AdminNavProps) {
 
   const navStructure: { section: string; items: NavItem[] }[] = [
     {
-      section: "MANAGEMENT",
+      section: "نظرة عامة",
       items: [
         {
-          name: "Dashboard",
+          name: "لوحة التحكم",
           href: "/admin",
           icon: LayoutDashboard,
           roles: ["admin", "support"],
@@ -130,51 +130,51 @@ export function AdminNav({ userRole, services }: AdminNavProps) {
       ],
     },
     {
-      section: "SUPPORT",
+      section: "الدعم",
       items: [
         {
-          name: "All Tickets",
+          name: "جميع التذاكر",
           href: "/admin/tickets",
           icon: FileText,
           roles: ["admin", "support"],
-          collapsedLabel: "Tickets",
+          collapsedLabel: "تذاكر",
         },
         {
-          name: "Messages",
+          name: "الرسائل",
           href: "/admin/messages",
           icon: MessageSquare,
           roles: ["admin", "support"],
         },
          {
-          name: "AI Support Agent",
+          name: "مساعد الدعم",
           href: "/admin/ai-support-agent",
           icon: Sparkles,
           roles: ["admin"],
-          collapsedLabel: "AI",
+          collapsedLabel: "ذكاء",
         },
         {
-          name: "Newsletter",
+          name: "النشرة",
           href: "/admin/newsletter",
           icon: Mail,
           roles: ["admin"],
-          collapsedLabel: "News",
+          collapsedLabel: "أخبار",
         },
         {
-          name: "Contact",
+          name: "التواصل",
           href: "/admin/contact",
           icon: MessageSquare,
           roles: ["admin"],
-          collapsedLabel: "Contact",
+          collapsedLabel: "تواصل",
         },
       ],
     },
     ...(serviceChildren.length > 0
       ? [
           {
-            section: "SERVICES",
+            section: "الخدمات",
             items: [
               {
-                name: "Services",
+                name: "الخدمات",
                 href: "/admin/services",
                 icon: Briefcase,
                 roles: ["admin", "support"],
@@ -185,42 +185,35 @@ export function AdminNav({ userRole, services }: AdminNavProps) {
         ]
       : []),
     {
-      section: "CMS",
+      section: "المحتوى",
       items: [
         {
-          name: "Landing Page",
-          href: "/admin/landing-page",
-          icon: Layout,
-          roles: ["admin"],
-          collapsedLabel: "Landing",
-        },
-        {
-          name: "Knowledge Base",
+          name: "قاعدة المعرفة",
           href: "/admin/knowledge-base",
           icon: BookOpen,
           roles: ["admin"],
-          collapsedLabel: "Docs",
+          collapsedLabel: "وثائق",
         }
       ],
     },
     {
-      section: "ADMINISTRATION",
+      section: "الإدارة",
       items: [
         {
-          name: "Customers",
+          name: "العملاء",
           href: "/admin/customers",
           icon: UserCheck,
           roles: ["admin", "support"],
         },
         {
-          name: "Team Members",
+          name: "أعضاء الفريق",
           href: "/admin/users",
           icon: Users,
           roles: ["admin"],
-          collapsedLabel: "Team",
+          collapsedLabel: "فريق",
         },
         {
-          name: "Settings",
+          name: "الإعدادات",
           href: "/admin/settings",
           icon: Settings,
           roles: ["admin"],
@@ -336,7 +329,7 @@ export function AdminNav({ userRole, services }: AdminNavProps) {
         return (
           <div key={section.section} className={cn("space-y-1", collapsed && "space-y-1")}>
             {!collapsed && (
-              <h3 className="px-3 text-[11px] leading-4 font-semibold text-muted-foreground/80 uppercase tracking-[0.08em]">
+              <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 text-start">
                 {section.section}
               </h3>
             )}
@@ -430,7 +423,7 @@ export function AdminNav({ userRole, services }: AdminNavProps) {
                             ) : (
                               <ChevronRight
                                 className={cn(
-                                  "h-4 w-4 shrink-0",
+                                  "h-4 w-4 shrink-0 rtl:-scale-x-100",
                                   hasActiveChild
                                     ? activeIconClasses
                                     : "text-slate-400 dark:text-slate-500"
@@ -441,7 +434,7 @@ export function AdminNav({ userRole, services }: AdminNavProps) {
                         )}
                       </CollapsibleTrigger>
                       <CollapsibleContent className="pt-1">
-                        <div className="relative ml-5 space-y-1 py-0.5 pl-5">
+                        <div className="relative ms-5 space-y-1 py-0.5 ps-5">
                           <SubmenuChain count={visibleChildren.length} />
                           {visibleChildren.map((child) =>
                             renderNavItem(child, true)

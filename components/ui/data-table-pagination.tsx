@@ -76,7 +76,7 @@ export function DataTablePagination({
     onPageChange,
     onPageSizeChange,
     pageSizeOptions = [10, 20, 50],
-    resultsLabel = "results",
+    resultsLabel = "نتيجة",
     className,
 }: DataTablePaginationProps) {
     const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
@@ -85,17 +85,14 @@ export function DataTablePagination({
     return (
         <div
             className={cn(
-                "flex flex-col gap-4 border-t border-border/60 bg-background/80 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between",
+                "grid gap-4 border-t border-border/60 bg-background/80 px-4 py-4 sm:px-6 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center",
                 className
             )}
+            style={{ direction: "ltr" }}
         >
-            <p className="text-sm text-muted-foreground">
-                Showing {startItem} to {endItem} of {totalItems} {resultsLabel}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            <div className="flex flex-wrap items-center gap-2 lg:col-start-1 lg:row-start-1 lg:justify-start">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>Rows per page</span>
+                    <span>صفوف في الصفحة</span>
                     <Select
                         value={String(pageSize)}
                         onValueChange={(value) => onPageSizeChange(Number(value))}
@@ -121,9 +118,9 @@ export function DataTablePagination({
                         className="rounded-md"
                         onClick={() => onPageChange(1)}
                         disabled={page === 1}
-                        aria-label="Go to first page"
+                        aria-label="أول صفحة"
                     >
-                        <ChevronsLeft className="h-4 w-4" />
+                        <ChevronsLeft className="h-4 w-4 rtl:rotate-180" />
                     </Button>
                     <Button
                         type="button"
@@ -132,9 +129,9 @@ export function DataTablePagination({
                         className="rounded-md"
                         onClick={() => onPageChange(page - 1)}
                         disabled={page === 1}
-                        aria-label="Go to previous page"
+                        aria-label="الصفحة اللي فاتت"
                     >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
                     </Button>
 
                     {pageItems.map((item, index) =>
@@ -155,7 +152,7 @@ export function DataTablePagination({
                                 className="rounded-md"
                                 onClick={() => onPageChange(item)}
                                 aria-current={item === page ? "page" : undefined}
-                                aria-label={`Go to page ${item}`}
+                                aria-label={`صفحة ${item}`}
                             >
                                 {item}
                             </Button>
@@ -169,9 +166,9 @@ export function DataTablePagination({
                         className="rounded-md"
                         onClick={() => onPageChange(page + 1)}
                         disabled={page === totalPages}
-                        aria-label="Go to next page"
+                        aria-label="الصفحة اللي جاية"
                     >
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-4 w-4 rtl:rotate-180" />
                     </Button>
                     <Button
                         type="button"
@@ -180,12 +177,16 @@ export function DataTablePagination({
                         className="rounded-md"
                         onClick={() => onPageChange(totalPages)}
                         disabled={page === totalPages}
-                        aria-label="Go to last page"
+                        aria-label="آخر صفحة"
                     >
-                        <ChevronsRight className="h-4 w-4" />
+                        <ChevronsRight className="h-4 w-4 rtl:rotate-180" />
                     </Button>
                 </div>
             </div>
+
+            <p className="text-right text-sm text-muted-foreground lg:col-start-2 lg:row-start-1" dir="rtl">
+                بنعرض {startItem}–{endItem} من {totalItems} {resultsLabel}
+            </p>
         </div>
     );
 }

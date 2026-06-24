@@ -22,10 +22,14 @@ import { SiteSelect } from "@/components/ai-training/site-select";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
+import {
+  PanelCardHeading,
+  PanelSectionHeader,
+  panelListRowClass,
+  panelListRowStyle,
+} from "@/components/ui/panel-form";
 import {
   Dialog,
   DialogContent,
@@ -62,7 +66,7 @@ function isActive(sources: AIWebSourcePublic[]): boolean {
 
 function formatDate(iso: string | null): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString();
+  return new Date(iso).toLocaleString("ar-SA");
 }
 
 function StatusBadge({ source }: { source: AIWebSourcePublic }) {
@@ -72,8 +76,8 @@ function StatusBadge({ source }: { source: AIWebSourcePublic }) {
         variant="outline"
         className="border-success/40 bg-success/10 text-success"
       >
-        <CheckCircle2 className="mr-1 h-3 w-3" />
-        Ready
+        <CheckCircle2 className="me-1 h-3 w-3" />
+        جاهز
       </Badge>
     );
   }
@@ -83,8 +87,8 @@ function StatusBadge({ source }: { source: AIWebSourcePublic }) {
         variant="outline"
         className="border-destructive/40 bg-destructive/10 text-destructive"
       >
-        <AlertCircle className="mr-1 h-3 w-3" />
-        Index failed
+        <AlertCircle className="me-1 h-3 w-3" />
+        تعذّرت الفهرسة
       </Badge>
     );
   }
@@ -93,13 +97,13 @@ function StatusBadge({ source }: { source: AIWebSourcePublic }) {
     const label =
       p && p.total > 0
         ? `${p.phase} ${p.visited}/${p.total}`
-        : (p?.phase ?? "Indexing…");
+        : (p?.phase ?? "جارٍ الفهرسة…");
     return (
       <Badge
         variant="outline"
         className="border-info/40 bg-info/10 text-info"
       >
-        <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+        <Loader2 className="me-1 h-3 w-3 animate-spin" />
         {label}
       </Badge>
     );
@@ -109,8 +113,8 @@ function StatusBadge({ source }: { source: AIWebSourcePublic }) {
       variant="outline"
       className="border-muted-foreground/30 bg-muted text-muted-foreground"
     >
-      <Clock className="mr-1 h-3 w-3" />
-      Queued
+      <Clock className="me-1 h-3 w-3" />
+      في الانتظار
     </Badge>
   );
 }
@@ -128,17 +132,17 @@ function ScopeSelect({
 }) {
   return (
     <select
-      aria-label="Knowledge scope"
+      aria-label="نطاق المعرفة"
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
       className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-44"
     >
-      <option value="">Global</option>
+      <option value="">عام</option>
       {sites.map((s) => (
         <option key={s._id} value={s._id}>
           {s.name}
-          {s.enabled ? "" : " (disabled)"}
+          {s.enabled ? "" : " (معطّل)"}
         </option>
       ))}
     </select>
@@ -164,12 +168,12 @@ function AddSourceDialog({
 
   const handleSubmit = async () => {
     if (!name.trim() || !url.trim()) {
-      toast.error("Enter a name and a URL");
+      toast.error("دخل الاسم والرابط");
       return;
     }
     const pages = Math.round(Number(maxPages));
     if (!Number.isFinite(pages) || pages < 1 || pages > MAX_PAGES_CEILING) {
-      toast.error(`Max pages must be between 1 and ${MAX_PAGES_CEILING}`);
+      toast.error(`الحد الأقصى للصفحات لازم يكون بين 1 و${MAX_PAGES_CEILING}`);
       return;
     }
     setSubmitting(true);
@@ -181,7 +185,7 @@ function AddSourceDialog({
         siteId: siteId || undefined,
       });
       if (result.success) {
-        toast.success("Crawl started — indexing in the background");
+        toast.success("بدأ الزحف — الفهرسة في الخلفية");
         setName("");
         setUrl("");
         setMaxPages(String(DEFAULT_MAX_PAGES));
@@ -189,7 +193,7 @@ function AddSourceDialog({
         setOpen(false);
         onAdded();
       } else {
-        toast.error(result.error ?? "Failed to add source");
+        toast.error(result.error ?? "تعذّرت إضافة المصدر");
       }
     } finally {
       setSubmitting(false);
@@ -200,32 +204,31 @@ function AddSourceDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm">
-          <Plus className="mr-1.5 h-3.5 w-3.5" />
-          Add URL
+          <Plus className="me-1.5 h-3.5 w-3.5" />
+          إضافة رابط
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add a website</DialogTitle>
+          <DialogTitle>إضافة موقع ويب</DialogTitle>
           <DialogDescription>
-            Enter a name and an entry URL. The crawler visits pages across the
-            same domain, then learns and embeds their content so the AI can
-            answer from it.
+            أدخل اسمًا ورابط دخول. يزور الزاحف الصفحات ضمن نفس النطاق، ثم
+            يتعلّم ويُضمّن محتواها ليجيب الذكاء الاصطناعي منه.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label htmlFor="ws-name">Name</Label>
+            <Label htmlFor="ws-name">الاسم</Label>
             <Input
               id="ws-name"
-              placeholder="e.g. Product Docs"
+              placeholder="مثال: وثائق المنتج"
               value={name}
               maxLength={60}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="ws-url">URL</Label>
+            <Label htmlFor="ws-url">الرابط</Label>
             <Input
               id="ws-url"
               type="url"
@@ -235,7 +238,7 @@ function AddSourceDialog({
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="ws-max-pages">Max pages</Label>
+            <Label htmlFor="ws-max-pages">الحد الأقصى للصفحات</Label>
             <Input
               id="ws-max-pages"
               type="number"
@@ -245,9 +248,9 @@ function AddSourceDialog({
               onChange={(e) => setMaxPages(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Upper limit on pages crawled across the whole domain (1–
-              {MAX_PAGES_CEILING}). Raise it for large sites; higher values take
-              longer and cost more to embed.
+              الحد الأعلى للصفحات المزحوفة عبر النطاق بالكامل (1–
+              {MAX_PAGES_CEILING}). ارفعه للمواقع الكبيرة؛ القيم الأعلى تستغرق
+              وقتًا أطول وتكلف أكثر للتضمين.
             </p>
           </div>
           <SiteSelect
@@ -264,11 +267,11 @@ function AddSourceDialog({
             onClick={() => setOpen(false)}
             disabled={submitting}
           >
-            Cancel
+            إلغاء
           </Button>
           <Button onClick={handleSubmit} disabled={submitting}>
-            {submitting && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
-            Start indexing
+            {submitting && <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />}
+            بدء الفهرسة
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -321,10 +324,10 @@ export function WebSourcesPanel({
     try {
       const result = await reindexWebSource(id);
       if (result.success) {
-        toast.success("Re-indexing started");
+        toast.success("بدأت إعادة الفهرسة");
         await refresh();
       } else {
-        toast.error(result.error ?? "Failed to re-index");
+        toast.error(result.error ?? "تعذّرت إعادة الفهرسة");
       }
     } finally {
       setBusyId(null);
@@ -336,11 +339,11 @@ export function WebSourcesPanel({
     try {
       const result = await deleteWebSource(id);
       if (result.success) {
-        toast.success("Source removed");
+        toast.success("اتشالت إزالة المصدر");
         await refresh();
         router.refresh();
       } else {
-        toast.error(result.error ?? "Failed to delete");
+        toast.error(result.error ?? "تعذّر الحذف");
       }
     } finally {
       setBusyId(null);
@@ -361,13 +364,13 @@ export function WebSourcesPanel({
         siteId: nextSiteId || undefined,
       });
       if (result.success && result.data) {
-        toast.success("Source scope updated");
+        toast.success("اتحدّث نطاق المصدر");
         setSources((prev) =>
           prev.map((s) => (s._id === id ? result.data! : s))
         );
         router.refresh();
       } else {
-        toast.error(result.error ?? "Failed to update scope");
+        toast.error(result.error ?? "تعذّر التحديث النطاق");
         await refresh();
       }
     } finally {
@@ -379,33 +382,30 @@ export function WebSourcesPanel({
   const totalChunks = sources.reduce((n, s) => n + s.chunksIndexed, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
-          <div>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Globe className="h-4 w-4 text-primary" />
-              Website Sources
-            </CardTitle>
-            <CardDescription>
-              {sources.length === 0
-                ? "Add a website to crawl and learn from."
-                : `${sources.length} source${sources.length === 1 ? "" : "s"} · ` +
-                  `${totalPages} pages · ${totalChunks} chunks embedded`}
-            </CardDescription>
-          </div>
-          <AddSourceDialog onAdded={refresh} sites={sites} />
+        <CardHeader className="space-y-0">
+          <PanelSectionHeader
+            title="مصادر المواقع"
+            icon={<Globe className="h-4 w-4 text-primary" />}
+            description={
+              sources.length === 0
+                ? "أضف موقعاً للزحف والتعلّم منه."
+                : `${sources.length} مصدر · ${totalPages} صفحة · ${totalChunks} جزء مضمّن`
+            }
+            actions={<AddSourceDialog onAdded={refresh} sites={sites} />}
+          />
         </CardHeader>
         <CardContent>
           {sources.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-12 text-center">
               <Globe className="mb-3 h-8 w-8 text-muted-foreground/60" />
               <p className="text-sm font-medium text-foreground">
-                No websites yet
+                مفيش مواقع بعد
               </p>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                Add a documentation site, help center or any public URL. The AI
-                crawls it, embeds the content and answers from it automatically.
+                أضف موقع وثائق أو مركز مساعدة أو أي رابط عام. يزحف الذكاء
+                الاصطناعي عليه ويُضمّن المحتوى ويجيب منه تلقائيًا.
               </p>
             </div>
           ) : (
@@ -413,37 +413,10 @@ export function WebSourcesPanel({
               {sources.map((s) => (
                 <li
                   key={s._id}
-                  className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
+                  className={panelListRowClass}
+                  style={panelListRowStyle}
                 >
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="truncate font-medium text-foreground">
-                        {s.name}
-                      </span>
-                      <StatusBadge source={s} />
-                      <Badge variant="outline" className="text-[10px]">
-                        {siteName(s.siteId) ?? "Global"}
-                      </Badge>
-                    </div>
-                    <a
-                      href={s.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-0.5 block truncate text-xs text-muted-foreground hover:text-foreground hover:underline"
-                    >
-                      {s.url}
-                    </a>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {s.status === "ready"
-                        ? `${s.pagesIndexed} pages · ${s.chunksIndexed} chunks · indexed ${formatDate(
-                            s.lastCrawledAt
-                          )}`
-                        : s.status === "failed"
-                          ? (s.error ?? "Indexing failed")
-                          : `Up to ${s.maxPages} pages`}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
+                  <div className="flex shrink-0 flex-wrap gap-2 sm:col-start-1 sm:row-start-1">
                     <ScopeSelect
                       value={s.siteId ?? ""}
                       sites={sites}
@@ -465,7 +438,7 @@ export function WebSourcesPanel({
                       ) : (
                         <RefreshCw className="h-3.5 w-3.5" />
                       )}
-                      <span className="ml-1.5 hidden sm:inline">Re-index</span>
+                      <span className="ms-1.5 hidden sm:inline">إعادة الفهرسة</span>
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -482,24 +455,53 @@ export function WebSourcesPanel({
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Remove web source</AlertDialogTitle>
+                          <AlertDialogTitle>إزالة مصدر الويب</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Delete <strong>{s.name}</strong> and all{" "}
-                            {s.chunksIndexed} embedded chunks from the knowledge
-                            base? This cannot be undone.
+                            حذف <strong>{s.name}</strong> وجميع {s.chunksIndexed}{" "}
+                            جزءًا مضمّنًا من قاعدة المعرفة؟ مش هينفع الرجوع عن
+                            هذا الإجراء.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel>إلغاء</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => handleDelete(s._id)}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
-                            Delete
+                            حذف
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
+                  </div>
+                  <div className="min-w-0 text-right sm:col-start-2 sm:row-start-1" dir="rtl">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <span className="truncate font-medium text-foreground">
+                        {s.name}
+                      </span>
+                      <StatusBadge source={s} />
+                      <Badge variant="outline" className="text-[10px]">
+                        {siteName(s.siteId) ?? "عام"}
+                      </Badge>
+                    </div>
+                    <a
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-0.5 block truncate text-xs text-muted-foreground hover:text-foreground hover:underline"
+                      dir="ltr"
+                    >
+                      {s.url}
+                    </a>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {s.status === "ready"
+                        ? `${s.pagesIndexed} صفحة · ${s.chunksIndexed} جزء · فُهرس ${formatDate(
+                            s.lastCrawledAt
+                          )}`
+                        : s.status === "failed"
+                          ? (s.error ?? "تعذّرت الفهرسة")
+                          : `حتى ${s.maxPages} صفحة`}
+                    </p>
                   </div>
                 </li>
               ))}

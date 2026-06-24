@@ -46,17 +46,17 @@ export default async function CategoryDetailPage({ params }: PageProps) {
             href="/admin/knowledge-base"
             className="hover:text-foreground transition-colors"
           >
-            Knowledge Base
+            قاعدة المعرفة
           </Link>
-          <ChevronRight className="h-3.5 w-3.5" />
+          <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
           <span className="text-foreground font-medium truncate max-w-48">
             {category.title}
           </span>
         </nav>
         <Button variant="outline" size="sm" asChild>
           <Link href={`/docs/${category.slug}`} target="_blank">
-            <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-            View in Docs
+            <ExternalLink className="h-3.5 w-3.5 me-1.5" />
+              عرض في الوثائق
           </Link>
         </Button>
       </div>
@@ -72,7 +72,7 @@ export default async function CategoryDetailPage({ params }: PageProps) {
               </div>
               <div className="min-w-0">
                 <p className="font-semibold text-sm truncate">{category.title}</p>
-                <p className="text-xs text-muted-foreground">Category settings</p>
+                <p className="text-xs text-muted-foreground">إعدادات الفئة</p>
               </div>
             </div>
             <div className="p-5">
@@ -85,17 +85,16 @@ export default async function CategoryDetailPage({ params }: PageProps) {
         <div className="lg:col-span-3 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-base font-semibold">Articles</h2>
+              <h2 className="text-base font-semibold">المقالات</h2>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {articles.length}{" "}
-                {articles.length !== 1 ? "articles" : "article"} in this
-                category
+                {articles.length === 1 ? "مقالة" : "مقالات"} في هذه الفئة
               </p>
             </div>
             <Button asChild size="sm">
               <Link href={`/admin/knowledge-base/${categoryId}/new`}>
-                <Plus className="h-4 w-4 mr-1.5" />
-                New Article
+                <Plus className="h-4 w-4 me-1.5" />
+                مقال جديد
               </Link>
             </Button>
           </div>
@@ -105,14 +104,14 @@ export default async function CategoryDetailPage({ params }: PageProps) {
               <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
                 <BookOpen className="h-6 w-6 text-muted-foreground/50" />
               </div>
-              <p className="text-sm font-medium">No articles yet</p>
+              <p className="text-sm font-medium">مفيش مقالات بعد</p>
               <p className="text-xs text-muted-foreground mt-1 mb-4">
-                Add your first article to this category.
+                أضف أول مقالة إلى هذه الفئة.
               </p>
               <Button asChild variant="outline" size="sm">
                 <Link href={`/admin/knowledge-base/${categoryId}/new`}>
-                  <Plus className="h-3.5 w-3.5 mr-1.5" />
-                  Add First Article
+                  <Plus className="h-3.5 w-3.5 me-1.5" />
+                  إضافة أول مقالة
                 </Link>
               </Button>
             </div>
@@ -144,7 +143,7 @@ export default async function CategoryDetailPage({ params }: PageProps) {
                             ) : (
                               <EyeOff className="h-2.5 w-2.5" />
                             )}
-                            {article.isPublished ? "Live" : "Draft"}
+                            {article.isPublished ? "منشور" : "مسودة"}
                           </Badge>
                         </div>
                         {article.excerpt && (
@@ -155,8 +154,8 @@ export default async function CategoryDetailPage({ params }: PageProps) {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1 ml-3 shrink-0">
-                      <span className="text-xs text-muted-foreground mr-1 hidden sm:block">
+                    <div className="flex items-center gap-1 ms-3 shrink-0">
+                      <span className="text-xs text-muted-foreground me-1 hidden sm:block">
                         #{article.sortOrder}
                       </span>
                       <Button

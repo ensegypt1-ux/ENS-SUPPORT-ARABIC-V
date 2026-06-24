@@ -21,9 +21,9 @@ const RUNS_COLLECTION = "ai_eval_runs";
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new Error("مش مسموح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("Forbidden: Admin access required");
+  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
   return session;
 }
 
@@ -32,8 +32,8 @@ function revalidateAI() {
 }
 
 const caseSchema = z.object({
-  question: z.string().trim().min(1, "Question is required").max(1000),
-  expectedAnswer: z.string().trim().min(1, "Expected answer is required").max(5000),
+  question: z.string().trim().min(1, "السؤال مطلوب").max(1000),
+  expectedAnswer: z.string().trim().min(1, "الإجابة المتوقعة مطلوبة").max(5000),
   category: z.string().trim().max(100).optional(),
   siteId: z.string().max(100).optional(),
 });
@@ -114,7 +114,7 @@ export async function deleteEvalCase(id: string): Promise<ApiResponse<void>> {
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid case ID" };
+      return { success: false, error: "معرّف الحالة مش صح" };
     }
     const col = await getCollection<AIEvalCase>(CASES_COLLECTION);
     await col.deleteOne({ _id: new ObjectId(id) });

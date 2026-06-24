@@ -42,7 +42,7 @@ export function PerformanceMetrics({
           <div className="p-2 rounded-lg bg-accent/15">
             <BarChart3 className="h-4 w-4 text-accent" />
           </div>
-          Performance Overview
+          نظرة عامة على الأداء
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -50,35 +50,35 @@ export function PerformanceMetrics({
           {/* Response Time */}
           <div className="rounded-xl border border-border p-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm text-muted-foreground">Avg Response Time</span>
+              <span className="text-sm text-muted-foreground">متوسط وقت الاستجابة</span>
               <span className="text-lg font-semibold text-foreground">
                 {formatTime(responseTime?.averageResponseTime)}
               </span>
             </div>
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Fastest: {formatTime(responseTime?.fastestResponse)}</span>
-              <span>Slowest: {formatTime(responseTime?.slowestResponse)}</span>
+              <span>الأسرع: {formatTime(responseTime?.fastestResponse)}</span>
+              <span>الأبطأ: {formatTime(responseTime?.slowestResponse)}</span>
             </div>
           </div>
 
           {/* Resolution Time */}
           <div className="rounded-xl border border-border p-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm text-muted-foreground">Avg Resolution Time</span>
+              <span className="text-sm text-muted-foreground">متوسط وقت الحل</span>
               <span className="text-lg font-semibold text-foreground">
                 {formatTime(resolutionTime?.averageResolutionTime)}
               </span>
             </div>
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Fastest: {formatTime(resolutionTime?.fastestResolution)}</span>
-              <span>Slowest: {formatTime(resolutionTime?.slowestResolution)}</span>
+              <span>الأسرع: {formatTime(resolutionTime?.fastestResolution)}</span>
+              <span>الأبطأ: {formatTime(resolutionTime?.slowestResolution)}</span>
             </div>
           </div>
 
           {/* Resolution Rate */}
           <div className="rounded-xl border border-border p-3">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Resolution Rate</span>
+              <span className="text-sm text-muted-foreground">معدل الحل</span>
               <span className="text-lg font-semibold text-foreground">{resolutionRate}%</span>
             </div>
             <div className="w-full bg-muted rounded-full h-2">
@@ -92,7 +92,7 @@ export function PerformanceMetrics({
           {/* Performance Score */}
           <div className="rounded-xl border border-border bg-muted/20 p-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">Performance Score</span>
+              <span className="text-sm font-medium text-foreground">درجة الأداء</span>
               <div className="flex items-center gap-2">
                 <span className={`text-2xl font-bold ${
                   performanceScore >= 70 ? "text-success" :

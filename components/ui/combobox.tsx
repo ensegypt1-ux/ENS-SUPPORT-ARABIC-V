@@ -84,9 +84,9 @@ export function Combobox({
   groups,
   value,
   onValueChange,
-  placeholder = "Select...",
-  searchPlaceholder = "Search...",
-  emptyMessage = "No results found.",
+  placeholder = "اختر...",
+  searchPlaceholder = "بحث...",
+  emptyMessage = "مفيش نتائج.",
   disabled,
   clearable = false,
   id,
@@ -138,7 +138,7 @@ export function Combobox({
           data-placeholder={!selectedOption}
           className={cn(TRIGGER_CLASSES, className)}
         >
-          <span className="line-clamp-1 text-left">
+          <span className="line-clamp-1 text-start">
             {selectedOption
               ? renderValue?.(selectedOption) ?? selectedOption.label
               : placeholder}

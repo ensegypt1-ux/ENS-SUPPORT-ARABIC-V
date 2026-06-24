@@ -5,26 +5,26 @@ import {
   type ComboboxGroup,
   type ComboboxProps,
 } from "@/components/ui/combobox";
-import { COUNTRIES } from "@/lib/constants/countries";
+import { getCountriesForCombobox } from "@/lib/country-utils";
 
-const COUNTRY_GROUPS: ComboboxGroup[] = [...COUNTRIES]
-  .sort((a, b) => a.name.localeCompare(b.name))
-  .reduce<ComboboxGroup[]>((groups, country) => {
-    const heading = country.name[0]?.toUpperCase() || "#";
-    const currentGroup = groups[groups.length - 1];
+const COUNTRY_GROUPS: ComboboxGroup[] = getCountriesForCombobox().reduce<
+  ComboboxGroup[]
+>((groups, country) => {
+  const heading = country.label[0] || "#";
+  const currentGroup = groups[groups.length - 1];
 
-    if (!currentGroup || currentGroup.heading !== heading) {
-      groups.push({ heading, options: [] });
-    }
+  if (!currentGroup || currentGroup.heading !== heading) {
+    groups.push({ heading, options: [] });
+  }
 
-    groups[groups.length - 1].options.push({
-      value: country.name,
-      label: country.name,
-      keywords: [country.code],
-    });
+  groups[groups.length - 1].options.push({
+    value: country.value,
+    label: country.label,
+    keywords: country.keywords,
+  });
 
-    return groups;
-  }, []);
+  return groups;
+}, []);
 
 export type CountryComboboxProps = Omit<
   ComboboxProps,
@@ -35,9 +35,9 @@ export type CountryComboboxProps = Omit<
 };
 
 export function CountryCombobox({
-  placeholder = "Select country",
-  searchPlaceholder = "Search countries...",
-  emptyMessage = "No country found.",
+  placeholder = "اختر الدولة",
+  searchPlaceholder = "بحث في الدول...",
+  emptyMessage = "ملقيناش دولة.",
   portalled = true,
   ...props
 }: CountryComboboxProps) {

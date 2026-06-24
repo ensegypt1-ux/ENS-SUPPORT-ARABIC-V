@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -65,8 +65,8 @@ export default function NewCustomizationPage() {
       });
 
       if (!result.success) {
-        setError(result.error || "Failed to create customization request");
-        toast.error(result.error || "Failed to create customization request");
+        setError(result.error || "تعذّر الإنشاء طلب التخصيص");
+        toast.error(result.error || "تعذّر الإنشاء طلب التخصيص");
         setIsSubmitting(false);
         return;
       }
@@ -83,24 +83,24 @@ export default function NewCustomizationPage() {
 
         if (!uploadResult.success) {
           toast.warning(
-            `Request created but some files failed to upload: ${uploadResult.error}`
+            `اتعمل الطلب لكن تعذّر رفع بعض الملفات: ${uploadResult.error}`
           );
         } else if (uploadResult.data && uploadResult.data.length > 0) {
           toast.success(
-            `Customization request created with ${uploadResult.data.length} attachment(s)!`
+            `اتعمل طلب التخصيص مع ${uploadResult.data.length} مرفق(ات)!`
           );
         } else {
-          toast.success("Customization request created successfully!");
+          toast.success("اتعمل طلب التخصيص!");
         }
       } else {
-        toast.success("Customization request created successfully!");
+        toast.success("اتعمل طلب التخصيص!");
       }
 
       router.push(`/dashboard/customization/${ticketId}`);
       router.refresh();
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : "An unexpected error occurred";
+        error instanceof Error ? error.message : "حصل خطأ مش متوقع";
       setError(errorMessage);
       toast.error(errorMessage);
       setIsSubmitting(false);
@@ -108,16 +108,16 @@ export default function NewCustomizationPage() {
   };
 
   const priorities = [
-    { value: "low", label: "Low - No rush", color: "bg-slate-400" },
+    { value: "low", label: "منخفضة - بدون استعجال", color: "bg-slate-400" },
     {
       value: "medium",
-      label: "Medium - Standard timeline",
+      label: "متوسطة - جدول زمني قياسي",
       color: "bg-blue-500",
     },
-    { value: "high", label: "High - Need it soon", color: "bg-amber-500" },
+    { value: "high", label: "عالية - مطلوب قريبًا", color: "bg-amber-500" },
     {
       value: "urgent",
-      label: "Urgent - Critical for business",
+      label: "عاجلة - Critical for business",
       color: "bg-red-500",
     },
   ];
@@ -133,20 +133,20 @@ export default function NewCustomizationPage() {
                 href="/dashboard"
                 className="hover:text-foreground transition-colors"
               >
-                Dashboard
+                لوحة التحكم
               </Link>
               <ChevronRight className="h-3.5 w-3.5 shrink-0" />
               <Link
                 href="/dashboard/customization"
                 className="hover:text-foreground transition-colors"
               >
-                Customization
+                التخصيص
               </Link>
               <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-medium text-foreground">New Request</span>
+              <span className="font-medium text-foreground">طلب جديد</span>
             </nav>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Request Customization
+              طلب تخصيص
             </h1>
           </div>
         </div>
@@ -167,7 +167,7 @@ export default function NewCustomizationPage() {
             <div className="lg:col-span-2 space-y-6">
               {/* General Section */}
               <div className="bg-background rounded-xl border p-6 space-y-6">
-                <h2 className="text-lg font-semibold">Customization Details</h2>
+                <h2 className="text-lg font-semibold">تفاصيل التخصيص</h2>
 
                 {/* Title */}
                 <div className="space-y-2">
@@ -177,13 +177,13 @@ export default function NewCustomizationPage() {
                   </Label>
                   <Input
                     id="title"
-                    placeholder="Enter customization request title"
+                    placeholder="أدخل عنوان طلب التخصيص"
                     {...register("title")}
                     disabled={isSubmitting}
                     className="h-11 placeholder:text-muted-foreground/50"
                   />
                   <p className="text-xs text-muted-foreground">
-                    A title is required and recommended to be unique.
+                    العنوان مطلوب ويُفضّل أن يكون فريدًا.
                   </p>
                   {errors.title && (
                     <p className="text-sm text-destructive">
@@ -200,7 +200,7 @@ export default function NewCustomizationPage() {
                   </Label>
                   <Textarea
                     id="description"
-                    placeholder="Describe your customization requirements..."
+                    placeholder="صف متطلبات التخصيص..."
                     {...register("description")}
                     disabled={isSubmitting}
                     className="resize-none placeholder:text-muted-foreground/50 min-h-[120px]"
@@ -220,10 +220,9 @@ export default function NewCustomizationPage() {
               {/* Attachments Section */}
               {process.env.NEXT_PUBLIC_FILE_UPLOADS_ENABLED === "true" && (
                 <div className="bg-background rounded-xl border p-6 space-y-4">
-                  <h2 className="text-lg font-semibold">Attachments</h2>
+                  <h2 className="text-lg font-semibold">المرفقات</h2>
                   <p className="text-xs text-muted-foreground">
-                    Upload mockups, wireframes, examples, or any files that help
-                    explain your customization needs
+                    ارفع تصميمات أو أمثلة أو أي ملفات توضّح احتياجات التخصيص
                   </p>
                   <FileUploadPreview
                     onFilesChange={handleFilesChange}
@@ -231,7 +230,7 @@ export default function NewCustomizationPage() {
                     maxFiles={5}
                     maxFileSize={20971520}
                   />
-                  <p className="text-xs text-muted-foreground">Files :</p>
+                  <p className="text-xs text-muted-foreground">الملفات:</p>
                 </div>
               )}
 
@@ -241,29 +240,29 @@ export default function NewCustomizationPage() {
                 <div className="bg-background rounded-xl border p-6 space-y-6">
                   <div>
                     <h2 className="text-lg font-semibold">
-                      Product Information
+                      معلومات المنتج
                     </h2>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Optional product details for your customization request
+                      تفاصيل المنتج الاختيارية لطلب التخصيص
                     </p>
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="productName">Product Name</Label>
+                      <Label htmlFor="productName">اسم المنتج</Label>
                       <Input
                         id="productName"
-                        placeholder="e.g., My Awesome Plugin"
+                        placeholder="مثال: إضافتي الرائعة"
                         {...register("productName")}
                         disabled={isSubmitting}
                         className="h-11"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="productVersion">Product Version</Label>
+                      <Label htmlFor="productVersion">إصدار المنتج</Label>
                       <Input
                         id="productVersion"
-                        placeholder="e.g., 1.0.0"
+                        placeholder="مثال: 1.0.0"
                         {...register("productVersion")}
                         disabled={isSubmitting}
                         className="h-11"
@@ -272,16 +271,16 @@ export default function NewCustomizationPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="purchaseCode">Purchase Code</Label>
+                    <Label htmlFor="purchaseCode">رمز الشراء</Label>
                     <Input
                       id="purchaseCode"
-                      placeholder="Enter your Envato purchase code"
+                      placeholder="أدخل رمز شراء Envato الخاص بك"
                       {...register("purchaseCode")}
                       disabled={isSubmitting}
                       className="h-11 font-mono"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Enter your Envato purchase code if applicable
+                      أدخل رمز شراء Envato الخاص بك if applicable
                     </p>
                     {errors.purchaseCode && (
                       <p className="text-sm text-destructive">
@@ -298,7 +297,7 @@ export default function NewCustomizationPage() {
               {/* Priority */}
               <div className="bg-background rounded-xl border p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Priority</h2>
+                  <h2 className="text-lg font-semibold">الأولوية</h2>
                   <span
                     className={cn(
                       "h-2.5 w-2.5 rounded-full",
@@ -320,7 +319,7 @@ export default function NewCustomizationPage() {
                   disabled={isSubmitting}
                 >
                   <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Select priority" />
+                    <SelectValue placeholder="اختر الأولوية" />
                   </SelectTrigger>
                   <SelectContent>
                     {priorities.map((p) => (
@@ -347,15 +346,15 @@ export default function NewCustomizationPage() {
 
               {/* Timezone */}
               <div className="bg-background rounded-xl border p-6 space-y-4">
-                <h2 className="text-lg font-semibold">Timezone</h2>
+                <h2 className="text-lg font-semibold">المنطقة الزمنية</h2>
                 <TimezoneSelect
                   value={timezone}
                   onValueChange={(value) => setValue("timezone", value)}
                   disabled={isSubmitting}
-                  placeholder="Select timezone"
+                  placeholder="اختر المنطقة الزمنية"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Set your timezone for scheduling meetings or calls.
+                  حدد منطقتك الزمنية لجدولة الاجتماعات أو المكالمات.
                 </p>
               </div>
 
@@ -368,11 +367,11 @@ export default function NewCustomizationPage() {
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Submitting...
+                      <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                      جاري الإرسال...
                     </>
                   ) : (
-                    "Submit Request"
+                    "إرسال الطلب"
                   )}
                 </Button>
                 <Button
@@ -382,7 +381,7 @@ export default function NewCustomizationPage() {
                   onClick={() => router.back()}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  إلغاء
                 </Button>
               </div>
             </div>

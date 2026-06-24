@@ -33,10 +33,10 @@ export function DeletePairButton({
     try {
       const result = await deleteAITrainingPair(id);
       if (result.success) {
-        toast.success("Pair deleted");
+        toast.success("اتمسح الزوج");
         router.refresh();
       } else {
-        toast.error(result.error ?? "Failed to delete");
+        toast.error(result.error ?? "تعذّر الحذف");
       }
     } finally {
       setIsLoading(false);
@@ -56,20 +56,20 @@ export function DeletePairButton({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Training Pair</AlertDialogTitle>
+          <AlertDialogTitle>حذف زوج التدريب</AlertDialogTitle>
           <AlertDialogDescription>
-            Delete <strong>{question.slice(0, 80)}</strong>? This cannot be
-            undone.
+            حذف <strong>{question.slice(0, 80)}</strong>؟ مش هينفع الرجوع عن
+            هذا الإجراء.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>إلغاء</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isLoading}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete
+            حذف
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

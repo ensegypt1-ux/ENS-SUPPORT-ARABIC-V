@@ -17,12 +17,12 @@ import { CoverImageUploader } from "@/components/knowledge-base/cover-image-uplo
 import type { KBCategory } from "@/types";
 
 const schema = z.object({
-  title: z.string().min(1, "Title is required").max(100),
+  title: z.string().min(1, "العنوان مطلوب").max(100),
   description: z.string().max(500).optional(),
   icon: z.string().max(10).optional(),
   coverImage: z
     .string()
-    .url("Must be a valid URL")
+    .url("دخل رابط صح")
     .optional()
     .or(z.literal("")),
   sortOrder: z.number().int(),
@@ -71,12 +71,12 @@ export function CategoryForm({ category }: CategoryFormProps) {
       }
 
       if (result.success) {
-        toast.success(isEditing ? "Category updated" : "Category created");
+        toast.success(isEditing ? "اتحدّث القسم" : "اتعمل القسم");
         if (!isEditing && result.data?.id) {
           router.push(`/admin/knowledge-base/${result.data.id}`);
         }
       } else {
-        toast.error(result.error ?? "Something went wrong");
+        toast.error(result.error ?? "حصل خطأ");
       }
     } finally {
       setIsLoading(false);
@@ -89,11 +89,11 @@ export function CategoryForm({ category }: CategoryFormProps) {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="sm:col-span-2 space-y-1.5">
           <Label htmlFor="title" className="text-xs font-medium">
-            Title <span className="text-destructive">*</span>
+            العنوان <span className="text-destructive">*</span>
           </Label>
           <Input
             id="title"
-            placeholder="e.g. Getting Started"
+            placeholder="مثال: البدء"
             className="h-9"
             {...register("title")}
           />
@@ -103,7 +103,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="icon" className="text-xs font-medium">
-            Icon (emoji)
+            أيقونة (رمز تعبيري)
           </Label>
           <Input
             id="icon"
@@ -118,11 +118,11 @@ export function CategoryForm({ category }: CategoryFormProps) {
       {/* Description */}
       <div className="space-y-1.5">
         <Label htmlFor="description" className="text-xs font-medium">
-          Description
+          الوصف
         </Label>
         <Textarea
           id="description"
-          placeholder="Brief description of this category..."
+          placeholder="وصف موجز لهذا القسم..."
           rows={3}
           className="resize-none text-sm"
           {...register("description")}
@@ -136,7 +136,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
 
       {/* Cover Image */}
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Cover Image</Label>
+        <Label className="text-xs font-medium">صورة الغلاف</Label>
         <CoverImageUploader
           value={watch("coverImage")}
           onChange={(url) => setValue("coverImage", url, { shouldValidate: true })}
@@ -151,7 +151,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
       {/* Sort Order */}
       <div className="space-y-1.5">
         <Label htmlFor="sortOrder" className="text-xs font-medium">
-          Sort Order
+          ترتيب العرض
         </Label>
         <Input
           id="sortOrder"
@@ -172,12 +172,12 @@ export function CategoryForm({ category }: CategoryFormProps) {
           )}
           <div>
             <p className="text-sm font-medium">
-              {isPublished ? "Published" : "Draft"}
+              {isPublished ? "منشور" : "مسودة"}
             </p>
             <p className="text-xs text-muted-foreground">
               {isPublished
-                ? "Visible on public docs"
-                : "Hidden from public docs"}
+                ? "مرئي في الوثائق العامة"
+                : "مخفي عن الوثائق العامة"}
             </p>
           </div>
         </div>
@@ -191,8 +191,8 @@ export function CategoryForm({ category }: CategoryFormProps) {
       {/* Actions */}
       <div className="flex gap-2 pt-1">
         <Button type="submit" size="sm" disabled={isLoading} className="flex-1">
-          {isLoading && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
-          {isEditing ? "Save Changes" : "Create Category"}
+          {isLoading && <Loader2 className="me-2 h-3.5 w-3.5 animate-spin" />}
+          {isEditing ? "حفظ" : "إنشاء قسم"}
         </Button>
         <Button
           type="button"
@@ -200,7 +200,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
           size="sm"
           onClick={() => router.push("/admin/knowledge-base")}
         >
-          Cancel
+          إلغاء
         </Button>
       </div>
     </form>

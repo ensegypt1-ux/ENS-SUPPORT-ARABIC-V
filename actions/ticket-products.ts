@@ -13,7 +13,7 @@ import type { ApiResponse, TicketProductDefinition, UserRole } from "@/types";
 
 async function requireSignedIn() {
   const session = await getSession();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new Error("مش مسموح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
   const userId = (session.user as any)?.id ?? "unknown";
   return { session, role, userId };
@@ -21,7 +21,7 @@ async function requireSignedIn() {
 
 async function requireAdmin() {
   const session = await requirePermissionOrThrow("tickets.manage", {
-    message: "Forbidden: Tickets manage access required",
+    message: "ممنوع: يلزم صلاحية إدارة التذاكر",
   });
   return (session.user as { id?: string })?.id ?? "unknown";
 }
@@ -62,7 +62,7 @@ export async function getTicketProducts(): Promise<
     };
   } catch (error: any) {
     console.error("Get ticket products error:", error);
-    return { success: false, error: error.message || "Failed to load products" };
+    return { success: false, error: error.message || "تعذّر التحميل المنتجات" };
   }
 }
 
@@ -86,12 +86,12 @@ export async function getActiveTicketProducts(): Promise<
     };
   } catch (error: any) {
     console.error("Get active ticket products error:", error);
-    return { success: false, error: error.message || "Failed to load products" };
+    return { success: false, error: error.message || "تعذّر التحميل المنتجات" };
   }
 }
 
 const createTicketProductSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
+  name: z.string().min(1, "اسم المنتج مطلوب"),
   slug: z.string().optional(),
 });
 
@@ -108,9 +108,9 @@ export async function createTicketProduct(
 
     const rawSlug =
       parsed.data.slug?.trim() || slugifyTicketProduct(parsed.data.name);
-    if (!rawSlug) return { success: false, error: "Invalid slug" };
+    if (!rawSlug) return { success: false, error: "المعرّف مش صح" };
     if (RESERVED_TICKET_PRODUCT_SLUGS.has(rawSlug)) {
-      return { success: false, error: "Slug is reserved" };
+      return { success: false, error: "المعرّف محجوز" };
     }
 
     const collection = await getCollection<TicketProductDefinition>(
@@ -118,7 +118,7 @@ export async function createTicketProduct(
     );
     const existing = await collection.findOne({ slug: rawSlug });
     if (existing)
-      return { success: false, error: "A product with this slug already exists" };
+      return { success: false, error: "يوجد منتج بهذا المعرّف بالفعل" };
 
     const now = new Date();
     await collection.insertOne({
@@ -140,7 +140,7 @@ export async function createTicketProduct(
     return { success: true };
   } catch (error: any) {
     console.error("Create ticket product error:", error);
-    return { success: false, error: error.message || "Failed to create product" };
+    return { success: false, error: error.message || "تعذّر إنشاء المنتج" };
   }
 }
 
@@ -164,7 +164,7 @@ export async function updateTicketProduct(
     }
 
     if (!ObjectId.isValid(parsed.data.id)) {
-      return { success: false, error: "Invalid product id" };
+      return { success: false, error: "معرّف المنتج مش صح" };
     }
 
     const collection = await getCollection<TicketProductDefinition>(
@@ -172,7 +172,7 @@ export async function updateTicketProduct(
     );
     const objectId = new ObjectId(parsed.data.id);
     const existing = await collection.findOne({ _id: objectId });
-    if (!existing) return { success: false, error: "Product not found" };
+    if (!existing) return { success: false, error: "مفيش المنتج" };
 
     const updateDoc: Partial<TicketProductDefinition> & Record<string, any> = {
       updatedAt: new Date(),
@@ -187,16 +187,16 @@ export async function updateTicketProduct(
 
     if (typeof parsed.data.slug === "string") {
       if (existing.isSystem)
-        return { success: false, error: "System product slug cannot be changed" };
+        return { success: false, error: "مش ينفع تغيّر معرّف المنتج النظامي" };
       const nextSlug = slugifyTicketProduct(parsed.data.slug);
-      if (!nextSlug) return { success: false, error: "Invalid slug" };
+      if (!nextSlug) return { success: false, error: "المعرّف مش صح" };
       if (RESERVED_TICKET_PRODUCT_SLUGS.has(nextSlug)) {
-        return { success: false, error: "Slug is reserved" };
+        return { success: false, error: "المعرّف محجوز" };
       }
       if (nextSlug !== existing.slug) {
         const slugExists = await collection.findOne({ slug: nextSlug });
         if (slugExists)
-          return { success: false, error: "A product with this slug already exists" };
+          return { success: false, error: "يوجد منتج بهذا المعرّف بالفعل" };
         updateDoc.slug = nextSlug;
       }
     }
@@ -210,7 +210,7 @@ export async function updateTicketProduct(
     return { success: true };
   } catch (error: any) {
     console.error("Update ticket product error:", error);
-    return { success: false, error: error.message || "Failed to update product" };
+    return { success: false, error: error.message || "تعذّر تحديث المنتج" };
   }
 }
 
@@ -219,16 +219,16 @@ export async function deleteTicketProduct(id: string) {
     await requireAdmin();
 
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid product id" };
+      return { success: false, error: "معرّف المنتج مش صح" };
     }
 
     const collection = await getCollection<TicketProductDefinition>(
       "ticket_products"
     );
     const existing = await collection.findOne({ _id: new ObjectId(id) });
-    if (!existing) return { success: false, error: "Product not found" };
+    if (!existing) return { success: false, error: "مفيش المنتج" };
     if (existing.isSystem)
-      return { success: false, error: "System products cannot be deleted" };
+      return { success: false, error: "مش ينفع تمسح المنتجات النظامية" };
 
     await collection.deleteOne({ _id: new ObjectId(id) });
 
@@ -239,6 +239,6 @@ export async function deleteTicketProduct(id: string) {
     return { success: true };
   } catch (error: any) {
     console.error("Delete ticket product error:", error);
-    return { success: false, error: error.message || "Failed to delete product" };
+    return { success: false, error: error.message || "تعذّر حذف المنتج" };
   }
 }

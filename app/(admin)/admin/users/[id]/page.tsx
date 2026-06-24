@@ -213,11 +213,11 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">User Details</h1>
+            <h1 className="text-3xl font-bold text-foreground">تفاصيل المستخدم</h1>
             <p className="text-muted-foreground mt-1">
               {isAdmin
-                ? "View comprehensive user information and activity"
-                : "View user information and assigned tickets"}
+                ? "عرض معلومات المستخدم ونشاطه بالكامل"
+                : "عرض معلومات المستخدم والتذاكر المعيّنة"}
             </p>
           </div>
         </div>
@@ -225,8 +225,8 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
           <UserDetailActions user={serializedUser} isAdmin={isAdmin} />
           <Link href="/admin/users">
             <Button variant="outline">
-              <ArrowLeft className="h-4 w-4" />
-              Back
+              <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
+              رجوع
             </Button>
           </Link>
         </div>
@@ -235,7 +235,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
       {/* User Profile Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Profile Information</CardTitle>
+          <CardTitle>معلومات الملف الشخصي</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-start gap-6">
@@ -281,7 +281,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                 {isAdmin && (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Shield className="h-4 w-4" />
-                    <span>User ID: {user.id}</span>
+                    <span>معرّف المستخدم: {user.id}</span>
                   </div>
                 )}
                 {isAdmin && user.createdAt && (
@@ -306,7 +306,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
       >
         <Card className="gap-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
+            <CardTitle className="text-sm font-medium">إجمالي التذاكر</CardTitle>
             <Ticket className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -316,7 +316,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
 
         <Card className="gap-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Open Tickets</CardTitle>
+            <CardTitle className="text-sm font-medium">تذاكر مفتوحة</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -327,7 +327,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         <Card className="gap-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Resolved Tickets
+              محلولة Tickets
             </CardTitle>
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -355,7 +355,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
       {isAdmin && account && (
         <Card className="gap-2">
           <CardHeader>
-            <CardTitle>Account Information</CardTitle>
+            <CardTitle>معلومات الحساب</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -367,7 +367,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Account Created
+                  Account تاريخ الإنشاء
                 </p>
                 <p className="font-medium">
                   {await formatDate(new Date(account.createdAt))}
@@ -375,7 +375,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Last Updated
+                  آخر تحديث
                 </p>
                 <p className="font-medium">
                   {await formatDate(new Date(account.updatedAt))}
@@ -390,7 +390,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
       <Card className="gap-2">
         <CardHeader>
           <CardTitle>
-            {isAdmin ? "Recent Tickets" : "Assigned Tickets"} (
+            {isAdmin ? "التذاكر الأخيرة" : "مُعيَّن Tickets"} (
             {serializedTickets.length})
           </CardTitle>
         </CardHeader>
@@ -448,7 +448,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
       {isAdmin && (
         <Card className="gap-2">
           <CardHeader>
-            <CardTitle>Recent Sessions (Last 10)</CardTitle>
+            <CardTitle>الجلسات الأخيرة (آخر 10)</CardTitle>
           </CardHeader>
           <CardContent>
             {serializedSessions.length === 0 ? (
@@ -535,7 +535,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                             </div>
                             <div>
                               <p className="text-muted-foreground mb-1">
-                                Status
+                                الحالة
                               </p>
                               <p className="font-medium">
                                 {isActive ? "Active" : "Expired"}

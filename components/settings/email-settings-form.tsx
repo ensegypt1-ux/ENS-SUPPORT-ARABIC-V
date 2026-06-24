@@ -1,13 +1,6 @@
 "use client";
 
 import { z } from "zod";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -17,8 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { SystemSettings } from "@/types/settings";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Save, Send, Mail } from "lucide-react";
+import { Loader2, Send, Mail } from "lucide-react";
 import { updateSettings, testEmailSettings } from "@/actions/settings";
+import { PanelSwitchField } from "@/components/ui/panel-form";
+import { PageSectionLabel } from "@/components/ui/arabic-ux";
+import {
+  SettingsFormCard,
+  SettingsSaveBar,
+} from "@/components/settings/settings-form-shell";
 
 const emailSettingsSchema = z.object({
   enabled: z.boolean(),
@@ -27,7 +26,7 @@ const emailSettingsSchema = z.object({
   notifyOnNewComment: z.boolean(),
   notifyOnTicketAssignment: z.boolean(),
   notifyOnTicketResolution: z.boolean(),
-  adminNotificationEmail: z.string().email("Invalid email address"),
+  adminNotificationEmail: z.string().email("عنوان بريد إلكتروني مش صح"),
 });
 
 type EmailSettingsFormData = z.infer<typeof emailSettingsSchema>;
@@ -60,12 +59,12 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
       });
 
       if (result.success) {
-        toast.success("Email settings updated successfully");
+        toast.success("اتحدّثت إعدادات البريد");
       } else {
-        toast.error(result.error || "Failed to update settings");
+        toast.error(result.error || "مقدرناش نحدّث الإعدادات");
       }
     } catch (error) {
-      toast.error("An error occurred while updating settings");
+      toast.error("حصل خطأ وإحنا بنحدّث الإعدادات");
     } finally {
       setIsLoading(false);
     }
@@ -78,12 +77,12 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
       const result = await testEmailSettings();
 
       if (result.success) {
-        toast.success("Test email sent successfully! Check your inbox.");
+        toast.success("اتبعت بريد الاختبار — شيّك على الوارد.");
       } else {
-        toast.error(result.error || "Failed to send test email");
+        toast.error(result.error || "تعذّر الإرسال بريد الاختبار");
       }
     } catch (error) {
-      toast.error("An error occurred while sending test email");
+      toast.error("حصل خطأ وإحنا إرسال بريد الاختبار");
     } finally {
       setIsTesting(false);
     }
@@ -92,97 +91,67 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
   const emailEnabled = watch("enabled");
 
   return (
-    <Card className="overflow-hidden rounded-lg p-0 border-0 shadow-lg bg-gradient-to-br from-card to-card/80">
-      <CardHeader className="border-b p-6 gap-0 bg-white">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-500/10">
-            <Mail className="h-5 w-5 text-blue-500" />
-          </div>
-          <div>
-            <CardTitle className="text-xl">Email Settings</CardTitle>
-            <CardDescription className="mt-1">
-              Configure email notifications for tickets and updates
-            </CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Master Toggle Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Email Service
-            </h3>
-            <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
-              <div className="space-y-0.5">
-                <Label
-                  htmlFor="enabled"
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  Enable Email Notifications
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Send email notifications for ticket events
-                </p>
-              </div>
+    <SettingsFormCard
+      icon={<Mail className="h-5 w-5 text-blue-500" />}
+      iconWrapperClassName="rounded-md bg-blue-500/10"
+      title="إعدادات البريد"
+      description="اضبط إشعارات الإيميل للتذاكر والتحديثات"
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Master Toggle Section */}
+        <div className="space-y-4">
+          <PageSectionLabel>خدمة البريد</PageSectionLabel>
+          <PanelSwitchField
+            label="تفعيل إشعارات الإيميل"
+            description="إرسال إشعارات بريدية لأحداث التذاكر"
+            control={
               <Switch
                 id="enabled"
                 checked={watch("enabled")}
                 onCheckedChange={(checked) => setValue("enabled", checked)}
               />
-            </div>
-          </div>
+            }
+          />
+        </div>
 
-          {/* Admin Email Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Admin Notifications
-            </h3>
-            <div className="rounded-xl border bg-muted/20 p-5 space-y-2">
-              <Label
-                htmlFor="adminNotificationEmail"
-                className="text-sm font-medium"
-              >
-                Admin Notification Email
-              </Label>
-              <Input
-                id="adminNotificationEmail"
-                type="email"
-                {...register("adminNotificationEmail")}
-                placeholder="admin@example.com"
-                disabled={!emailEnabled}
-                className="h-11 bg-background/80 border-input/50 focus:border-primary transition-colors"
-              />
-              <p className="text-xs text-muted-foreground">
-                Email address to receive admin notifications
+        {/* Admin Email Section */}
+        <div className="space-y-4">
+          <PageSectionLabel>إشعارات المسؤول</PageSectionLabel>
+          <div className="rounded-xl border bg-muted/20 p-5 space-y-2">
+            <Label
+              htmlFor="adminNotificationEmail"
+              className="text-sm font-medium"
+            >
+              بريد إشعارات المسؤول
+            </Label>
+            <Input
+              id="adminNotificationEmail"
+              type="email"
+              dir="ltr"
+              {...register("adminNotificationEmail")}
+              placeholder="admin@company.com"
+              disabled={!emailEnabled}
+              className="input-ltr h-11 bg-background/80 border-input/50 focus:border-primary transition-colors"
+            />
+            <p className="text-xs text-muted-foreground">
+              الإيميل لاستلام إشعارات المسؤول
+            </p>
+            {errors.adminNotificationEmail && (
+              <p className="text-sm text-destructive">
+                {errors.adminNotificationEmail.message}
               </p>
-              {errors.adminNotificationEmail && (
-                <p className="text-sm text-destructive">
-                  {errors.adminNotificationEmail.message}
-                </p>
-              )}
-            </div>
+            )}
           </div>
+        </div>
 
-          {/* Notification Preferences Section */}
-          <div className="space-y-4 mb-0">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Notification Preferences
-            </h3>
-            <div className="space-y-3">
-              {/* Notify on New Ticket */}
-              <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
-                <div className="space-y-0.5">
-                  <Label
-                    htmlFor="notifyOnNewTicket"
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    New Ticket Created
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Notify when a new ticket is created
-                  </p>
-                </div>
+        {/* Notification Preferences Section */}
+        <div className="space-y-4 mb-0">
+          <PageSectionLabel>تفضيلات الإشعارات</PageSectionLabel>
+          <div className="space-y-3">
+            <PanelSwitchField
+              label="تذكرة جديدة"
+              description="إشعار عند افتح تذكرة جديدة"
+              control={
                 <Switch
                   id="notifyOnNewTicket"
                   checked={watch("notifyOnNewTicket")}
@@ -191,21 +160,13 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
                   }
                   disabled={!emailEnabled}
                 />
-              </div>
+              }
+            />
 
-              {/* Notify on Ticket Update */}
-              <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
-                <div className="space-y-0.5">
-                  <Label
-                    htmlFor="notifyOnTicketUpdate"
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    Ticket Status Changed
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Notify when ticket status is updated
-                  </p>
-                </div>
+            <PanelSwitchField
+              label="تغيّر حالة التذكرة"
+              description="إشعار عند تحديث حالة التذكرة"
+              control={
                 <Switch
                   id="notifyOnTicketUpdate"
                   checked={watch("notifyOnTicketUpdate")}
@@ -214,21 +175,13 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
                   }
                   disabled={!emailEnabled}
                 />
-              </div>
+              }
+            />
 
-              {/* Notify on New Comment */}
-              <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
-                <div className="space-y-0.5">
-                  <Label
-                    htmlFor="notifyOnNewComment"
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    New Comment Added
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Notify when a new comment is added
-                  </p>
-                </div>
+            <PanelSwitchField
+              label="تعليق جديد"
+              description="إشعار عند إضافة تعليق جديد"
+              control={
                 <Switch
                   id="notifyOnNewComment"
                   checked={watch("notifyOnNewComment")}
@@ -237,21 +190,13 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
                   }
                   disabled={!emailEnabled}
                 />
-              </div>
+              }
+            />
 
-              {/* Notify on Ticket Assignment */}
-              <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
-                <div className="space-y-0.5">
-                  <Label
-                    htmlFor="notifyOnTicketAssignment"
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    Ticket Assigned
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Notify when a ticket is assigned to support staff
-                  </p>
-                </div>
+            <PanelSwitchField
+              label="إسناد التذكرة"
+              description="إشعار عند إسناد التذكرة لفريق الدعم"
+              control={
                 <Switch
                   id="notifyOnTicketAssignment"
                   checked={watch("notifyOnTicketAssignment")}
@@ -260,21 +205,13 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
                   }
                   disabled={!emailEnabled}
                 />
-              </div>
+              }
+            />
 
-              {/* Notify on Ticket Resolution */}
-              <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
-                <div className="space-y-0.5">
-                  <Label
-                    htmlFor="notifyOnTicketResolution"
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    Ticket Resolved
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Notify when a ticket is marked as resolved
-                  </p>
-                </div>
+            <PanelSwitchField
+              label="حلّ التذكرة"
+              description="إشعار عند وضع علامة «محلولة» على التذكرة"
+              control={
                 <Switch
                   id="notifyOnTicketResolution"
                   checked={watch("notifyOnTicketResolution")}
@@ -283,52 +220,36 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
                   }
                   disabled={!emailEnabled}
                 />
-              </div>
-            </div>
+              }
+            />
           </div>
+        </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-between py-6">
+        <SettingsSaveBar
+          isLoading={isLoading}
+          secondary={
             <Button
               type="button"
               variant="outline"
               onClick={handleTestEmail}
               disabled={isTesting || !emailEnabled}
-              className="h-11 px-5"
+              className="h-11 gap-2 px-5"
             >
               {isTesting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
+                  <span>جاري الإرسال...</span>
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 </>
               ) : (
                 <>
-                  <Send className="mr-2 h-4 w-4" />
-                  Send Test Email
+                  <span>إرسال بريد اختبار</span>
+                  <Send className="h-4 w-4" />
                 </>
               )}
             </Button>
-
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="h-11 px-6 shadow-md hover:shadow-lg transition-all"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Changes
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+          }
+        />
+      </form>
+    </SettingsFormCard>
   );
 }

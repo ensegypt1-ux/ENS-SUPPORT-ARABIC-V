@@ -1,12 +1,11 @@
 /**
- * Returns a time-of-day greeting ("Good morning" / "Good afternoon" /
- * "Good evening") for the given date. Defaults to the current time.
+ * Returns a time-of-day greeting for the given date. Defaults to the current time.
  */
 export function getGreeting(date: Date = new Date()): string {
   const hour = date.getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
+  if (hour < 12) return "صباح الخير";
+  if (hour < 17) return "مساء الخير";
+  return "مساء النور";
 }
 
 /** Extracts the first name from a full name, e.g. "James Smith" -> "James". */

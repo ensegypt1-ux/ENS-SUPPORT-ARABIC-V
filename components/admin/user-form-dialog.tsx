@@ -52,7 +52,7 @@ export function UserFormDialog({
   onOpenChange,
   user,
   mode,
-  entityLabel = "User",
+  entityLabel = "مستخدم",
   audience,
 }: UserFormDialogProps) {
   const router = useRouter();
@@ -82,9 +82,9 @@ export function UserFormDialog({
 
   // Role dropdown options for the standard (non-team) flow.
   const roleOptions: { value: UserRole; label: string }[] = [
-    { value: "customer", label: "Customer" },
-    { value: "support", label: "Support" },
-    { value: "admin", label: "Admin" },
+    { value: "customer", label: "عميل" },
+    { value: "support", label: "دعم فني" },
+    { value: "admin", label: "مدير" },
   ];
   const defaultRole: UserRole = isTeamAudience ? "support" : "customer";
 
@@ -244,16 +244,16 @@ export function UserFormDialog({
       if (result.success) {
         toast.success(
           result.message ||
-            `${entityLabel} ${isEditMode ? "updated" : "created"} successfully`
+            `${isEditMode ? "اتحدّث" : "اتعمل"} ${entityLabel}`
         );
         onOpenChange(false);
         router.refresh();
       } else {
-        toast.error(result.error || "An error occurred");
+        toast.error(result.error || "حصل خطأ");
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "An unexpected error occurred"
+        error instanceof Error ? error.message : "حصل خطأ مش متوقع"
       );
     } finally {
       setIsLoading(false);
@@ -272,12 +272,12 @@ export function UserFormDialog({
             </div>
             <div className="space-y-1">
               <DialogTitle className="text-base font-semibold leading-none">
-                {isEditMode ? `Edit ${entityLabel}` : `Create New ${entityLabel}`}
+                {isEditMode ? `تعديل ${entityLabel}` : `إنشاء ${entityLabel} جديد`}
               </DialogTitle>
               <DialogDescription className="text-sm leading-snug">
                 {isEditMode
-                  ? `Update ${entityLabel.toLowerCase()} details and permissions.`
-                  : `Add a new ${entityLabel.toLowerCase()} with login access.`}
+                  ? `تحديث بيانات ${entityLabel} والصلاحيات.`
+                  : `إضافة ${entityLabel} جديد بصلاحية تسجيل الدخول.`}
               </DialogDescription>
             </div>
           </div>
@@ -290,11 +290,11 @@ export function UserFormDialog({
               {/* Name */}
               <div className="space-y-2">
                 <Label htmlFor="name">
-                  Name <span className="text-destructive">*</span>
+                  الاسم <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="name"
-                  placeholder="John Doe"
+                  placeholder="محمد أحمد"
                   {...register("name")}
                   disabled={isLoading}
                 />
@@ -308,12 +308,12 @@ export function UserFormDialog({
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">
-                  Email <span className="text-destructive">*</span>
+                  الإيميل <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder="example@email.com"
                   {...register("email")}
                   disabled={isLoading}
                 />
@@ -331,7 +331,7 @@ export function UserFormDialog({
                 /* Single Role dropdown sourced from Settings → Access (RBAC). */
                 <div className="space-y-2">
                   <Label htmlFor="role">
-                    Role <span className="text-destructive">*</span>
+                    الدور <span className="text-destructive">*</span>
                   </Label>
                   <Select
                     value={selectedRoleValue}
@@ -341,7 +341,7 @@ export function UserFormDialog({
                     <SelectTrigger id="role" className="w-full">
                       <SelectValue
                         placeholder={
-                          rbacRolesLoading ? "Loading..." : "Select a role"
+                          rbacRolesLoading ? "جاري التحميل..." : "اختر دورًا"
                         }
                       />
                     </SelectTrigger>
@@ -354,7 +354,7 @@ export function UserFormDialog({
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Roles and permissions are managed in Settings → Access.
+                    تُدار الأدوار والصلاحيات من الإعدادات ← الوصول.
                   </p>
                   {errors.role && (
                     <p className="text-sm text-destructive">
@@ -367,7 +367,7 @@ export function UserFormDialog({
                   {/* Role */}
                   <div className="space-y-2">
                     <Label htmlFor="role">
-                      Role <span className="text-destructive">*</span>
+                      الدور <span className="text-destructive">*</span>
                     </Label>
                     <Select
                       value={role}
@@ -377,7 +377,7 @@ export function UserFormDialog({
                       disabled={isLoading}
                     >
                       <SelectTrigger id="role" className="w-full">
-                        <SelectValue placeholder="Select a role" />
+                        <SelectValue placeholder="اختر دورًا" />
                       </SelectTrigger>
                       <SelectContent>
                         {roleOptions.map((opt) => (
@@ -397,7 +397,7 @@ export function UserFormDialog({
                   {/* Permission role */}
                   {showPermissionRole && (
                     <div className="space-y-2">
-                      <Label htmlFor="rbacRoleId">Permission Role</Label>
+                      <Label htmlFor="rbacRoleId">دور الصلاحيات</Label>
                       <Select
                         value={
                           rbacRoleId && rbacRoleId.length > 0
@@ -415,13 +415,13 @@ export function UserFormDialog({
                         <SelectTrigger id="rbacRoleId" className="w-full">
                           <SelectValue
                             placeholder={
-                              rbacRolesLoading ? "Loading..." : "Default"
+                              rbacRolesLoading ? "جاري التحميل..." : "افتراضي"
                             }
                           />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value={defaultRbacRoleValue}>
-                            Default
+                            افتراضي
                           </SelectItem>
                           {rbacRoles.map((r) => (
                             <SelectItem key={r.id} value={r.id}>
@@ -438,19 +438,18 @@ export function UserFormDialog({
               {role === "support" && (
                 <div className="space-y-2">
                   <Label>
-                    Ticket Departments{" "}
+                    أقسام التذاكر{" "}
                     <span className="text-destructive">*</span>
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    The AI agent classifies each customer query and auto-assigns
-                    the escalation ticket to a support agent covering the
-                    matching department.
+                    يصنّف وكيل الذكاء الاصطناعي كل استفسار عميل ويُعيّن تذكرة
+                    التصعيد تلقائيًا لوكيل دعم يغطي القسم المطابق.
                   </p>
                   <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-background p-3">
                     {departments.length === 0 && (
                       <p className="col-span-2 text-xs text-muted-foreground">
-                        No active departments. Create one under Ticket Settings
-                        first.
+                        مفيش أقسام نشطة. أنشئ قسمًا أولًا من إعدادات
+                        التذاكر.
                       </p>
                     )}
                     {departments.map((d) => {
@@ -488,7 +487,7 @@ export function UserFormDialog({
               {/* Country — not collected for support agents */}
               {role !== "support" && (
                 <div className="space-y-2">
-                  <Label htmlFor="country">Country (Optional)</Label>
+                  <Label htmlFor="country">الدولة (اختياري)</Label>
                   <CountryCombobox
                     id="country"
                     value={country}
@@ -517,7 +516,7 @@ export function UserFormDialog({
               {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password">
-                  Password{" "}
+                  كلمة المرور{" "}
                   {!isEditMode && <span className="text-destructive">*</span>}
                 </Label>
                 <div className="relative">
@@ -525,16 +524,16 @@ export function UserFormDialog({
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className="pr-10"
+                    className="pe-10"
                     {...register("password")}
                     disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                    className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                     tabIndex={-1}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -545,7 +544,7 @@ export function UserFormDialog({
                 </div>
                 {isEditMode && (
                   <p className="text-xs text-muted-foreground">
-                    Leave blank to keep the current password.
+                    اتركه فارغًا للإبقاء على كلمة المرور الحالية.
                   </p>
                 )}
                 {errors.password && (
@@ -558,7 +557,7 @@ export function UserFormDialog({
               {/* Confirm Password */}
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">
-                  Confirm Password{" "}
+                  تأكيد كلمة المرور{" "}
                   {!isEditMode && <span className="text-destructive">*</span>}
                 </Label>
                 <div className="relative">
@@ -566,17 +565,17 @@ export function UserFormDialog({
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className="pr-10"
+                    className="pe-10"
                     {...register("confirmPassword")}
                     disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword((v) => !v)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                    className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                     tabIndex={-1}
                     aria-label={
-                      showConfirmPassword ? "Hide password" : "Show password"
+                      showConfirmPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"
                     }
                   >
                     {showConfirmPassword ? (
@@ -602,16 +601,16 @@ export function UserFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
             >
-              Cancel
+              إلغاء
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {isEditMode ? "Updating..." : "Creating..."}
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                  {isEditMode ? "جاري التحديث..." : "جاري الإنشاء..."}
                 </>
               ) : (
-                <>{isEditMode ? `Update ${entityLabel}` : `Create ${entityLabel}`}</>
+                <>{isEditMode ? `تحديث ${entityLabel}` : `إنشاء ${entityLabel}`}</>
               )}
             </Button>
           </DialogFooter>

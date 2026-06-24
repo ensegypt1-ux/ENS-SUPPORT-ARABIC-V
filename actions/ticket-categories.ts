@@ -14,7 +14,7 @@ import type { ApiResponse, TicketCategoryDefinition, UserRole } from "@/types";
 
 async function requireSignedIn() {
   const session = await getSession();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new Error("مش مسموح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
   const userId = (session.user as any)?.id ?? "unknown";
   return { session, role, userId };
@@ -22,7 +22,7 @@ async function requireSignedIn() {
 
 async function requireAdmin() {
   const session = await requirePermissionOrThrow("tickets.manage", {
-    message: "Forbidden: Tickets manage access required",
+    message: "ممنوع: يلزم صلاحية إدارة التذاكر",
   });
   return (session.user as { id?: string })?.id ?? "unknown";
 }
@@ -62,7 +62,7 @@ export async function getTicketCategories(): Promise<
     };
   } catch (error: any) {
     console.error("Get ticket categories error:", error);
-    return { success: false, error: error.message || "Failed to load categories" };
+    return { success: false, error: error.message || "تعذّر التحميل الفئات" };
   }
 }
 
@@ -85,12 +85,12 @@ export async function getActiveTicketCategories(): Promise<
     };
   } catch (error: any) {
     console.error("Get active ticket categories error:", error);
-    return { success: false, error: error.message || "Failed to load categories" };
+    return { success: false, error: error.message || "تعذّر التحميل الفئات" };
   }
 }
 
 const createTicketCategorySchema = z.object({
-  name: z.string().min(1, "Category name is required"),
+  name: z.string().min(1, "اسم الفئة مطلوب"),
   slug: z.string().optional(),
 });
 
@@ -105,14 +105,14 @@ export async function createTicketCategory(input: z.infer<typeof createTicketCat
     }
 
     const rawSlug = parsed.data.slug?.trim() || slugifyTicketCategory(parsed.data.name);
-    if (!rawSlug) return { success: false, error: "Invalid slug" };
+    if (!rawSlug) return { success: false, error: "المعرّف مش صح" };
     if (RESERVED_TICKET_CATEGORY_SLUGS.has(rawSlug)) {
-      return { success: false, error: "Slug is reserved" };
+      return { success: false, error: "المعرّف محجوز" };
     }
 
     const collection = await getCollection<TicketCategoryDefinition>("ticket_categories");
     const existing = await collection.findOne({ slug: rawSlug });
-    if (existing) return { success: false, error: "A category with this slug already exists" };
+    if (existing) return { success: false, error: "توجد فئة بهذا المعرّف بالفعل" };
 
     const now = new Date();
     await collection.insertOne({
@@ -134,7 +134,7 @@ export async function createTicketCategory(input: z.infer<typeof createTicketCat
     return { success: true };
   } catch (error: any) {
     console.error("Create ticket category error:", error);
-    return { success: false, error: error.message || "Failed to create category" };
+    return { success: false, error: error.message || "تعذّر إنشاء الفئة" };
   }
 }
 
@@ -157,13 +157,13 @@ export async function updateTicketCategory(input: z.infer<typeof updateTicketCat
     }
 
     if (!ObjectId.isValid(parsed.data.id)) {
-      return { success: false, error: "Invalid category id" };
+      return { success: false, error: "معرّف الفئة مش صح" };
     }
 
     const collection = await getCollection<TicketCategoryDefinition>("ticket_categories");
     const objectId = new ObjectId(parsed.data.id);
     const existing = await collection.findOne({ _id: objectId });
-    if (!existing) return { success: false, error: "Category not found" };
+    if (!existing) return { success: false, error: "مفيش الفئة" };
 
     const updateDoc: Partial<TicketCategoryDefinition> & Record<string, any> = {
       updatedAt: new Date(),
@@ -175,15 +175,15 @@ export async function updateTicketCategory(input: z.infer<typeof updateTicketCat
     if (typeof parsed.data.sortOrder === "number") updateDoc.sortOrder = parsed.data.sortOrder;
 
     if (typeof parsed.data.slug === "string") {
-      if (existing.isSystem) return { success: false, error: "System category slug cannot be changed" };
+      if (existing.isSystem) return { success: false, error: "مش ينفع تغيّر معرّف الفئة النظامية" };
       const nextSlug = slugifyTicketCategory(parsed.data.slug);
-      if (!nextSlug) return { success: false, error: "Invalid slug" };
+      if (!nextSlug) return { success: false, error: "المعرّف مش صح" };
       if (RESERVED_TICKET_CATEGORY_SLUGS.has(nextSlug)) {
-        return { success: false, error: "Slug is reserved" };
+        return { success: false, error: "المعرّف محجوز" };
       }
       if (nextSlug !== existing.slug) {
         const slugExists = await collection.findOne({ slug: nextSlug });
-        if (slugExists) return { success: false, error: "A category with this slug already exists" };
+        if (slugExists) return { success: false, error: "توجد فئة بهذا المعرّف بالفعل" };
         updateDoc.slug = nextSlug;
       }
     }
@@ -197,7 +197,7 @@ export async function updateTicketCategory(input: z.infer<typeof updateTicketCat
     return { success: true };
   } catch (error: any) {
     console.error("Update ticket category error:", error);
-    return { success: false, error: error.message || "Failed to update category" };
+    return { success: false, error: error.message || "تعذّر تحديث الفئة" };
   }
 }
 
@@ -206,13 +206,13 @@ export async function deleteTicketCategory(id: string) {
     await requireAdmin();
 
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid category id" };
+      return { success: false, error: "معرّف الفئة مش صح" };
     }
 
     const collection = await getCollection<TicketCategoryDefinition>("ticket_categories");
     const existing = await collection.findOne({ _id: new ObjectId(id) });
-    if (!existing) return { success: false, error: "Category not found" };
-    if (existing.isSystem) return { success: false, error: "System categories cannot be deleted" };
+    if (!existing) return { success: false, error: "مفيش الفئة" };
+    if (existing.isSystem) return { success: false, error: "مش ينفع تمسح الفئات النظامية" };
 
     await collection.deleteOne({ _id: new ObjectId(id) });
 
@@ -223,6 +223,6 @@ export async function deleteTicketCategory(id: string) {
     return { success: true };
   } catch (error: any) {
     console.error("Delete ticket category error:", error);
-    return { success: false, error: error.message || "Failed to delete category" };
+    return { success: false, error: error.message || "تعذّر حذف الفئة" };
   }
 }

@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, Shield } from "lucide-react";
 
-import { PERMISSIONS, RBAC_ROLE_SCOPES, type Permission } from "@/types/rbac";
+import { PERMISSIONS, RBAC_ROLE_SCOPES, type Permission, type RbacRoleScope } from "@/types/rbac";
 import {
   createRbacRoleAction,
   deleteRbacRoleAction,
@@ -15,7 +15,9 @@ import {
   updateRbacRoleAction,
 } from "@/actions/rbac-roles";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PanelSectionHeader } from "@/components/ui/panel-form";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -47,7 +49,11 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { adminTableHeadClass } from "@/components/ui/arabic-ux";
+import {
+  adminTableShellClass,
+  adminTableShellDir,
+} from "@/components/ui/admin-table-shell";
 
 const roleSchema = z.object({
   name: z.string().min(2).max(60),
@@ -58,6 +64,30 @@ const roleSchema = z.object({
 });
 
 type RoleFormData = z.infer<typeof roleSchema>;
+
+const SCOPE_ROLE_LABELS: Record<RbacRoleScope, string> = {
+  customer: "العميل",
+  support: "الدعم",
+  admin: "مسؤول",
+};
+
+const PERMISSION_GROUP_LABELS: Record<string, string> = {
+  panel: "لوحة التحكم",
+  settings: "الإعدادات",
+  rbac: "الصلاحيات",
+  users: "المستخدمون",
+  tickets: "التذاكر",
+  comments: "التعليقات",
+  services: "الخدمات",
+  analytics: "التحليلات",
+  messages: "الرسائل",
+  newsletter: "النشرة البريدية",
+  landing: "صفحة الهبوط",
+  notifications: "الإشعارات",
+  meetings: "الاجتماعات",
+  clients: "العملاء",
+  other: "أخرى",
+};
 
 function groupPermissions(perms: readonly Permission[]) {
   const grouped: Record<string, Permission[]> = {};
@@ -99,7 +129,7 @@ export function AccessSettingsForm() {
     setLoading(true);
     const result = await getRbacRoles();
     if (!result.success || !result.data) {
-      toast.error(result.error || "Failed to load roles");
+      toast.error(result.error || "تعذّر التحميل الأدوار");
       setRoles([]);
       setLoading(false);
       return;
@@ -150,10 +180,10 @@ export function AccessSettingsForm() {
           permissions: data.permissions,
         });
         if (!result.success) {
-          toast.error(result.error || "Failed to create role");
+          toast.error(result.error || "تعذّر الإنشاء الدور");
           return;
         }
-        toast.success("Role created");
+        toast.success("اتعمل الدور");
       } else if (selectedRole) {
         const result = await updateRbacRoleAction({
           roleId: selectedRole._id,
@@ -162,10 +192,10 @@ export function AccessSettingsForm() {
           permissions: data.permissions,
         });
         if (!result.success) {
-          toast.error(result.error || "Failed to update role");
+          toast.error(result.error || "مقدرناش نحدّث الدور");
           return;
         }
-        toast.success("Role updated");
+        toast.success("اتحدّث الدور");
       }
       setDialogOpen(false);
       await load();
@@ -187,10 +217,10 @@ export function AccessSettingsForm() {
     try {
       const result = await deleteRbacRoleAction(deleteTarget._id);
       if (!result.success) {
-        toast.error(result.error || "Failed to delete role");
+        toast.error(result.error || "تعذّر الحذف الدور");
         return;
       }
-      toast.success("Role deleted");
+      toast.success("اتمسح الدور");
       setDeleteTarget(null);
       await load();
     } finally {
@@ -199,43 +229,45 @@ export function AccessSettingsForm() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <Card className="rounded-lg border-0">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-muted-foreground" />
-            <CardTitle>Access Control (RBAC)</CardTitle>
-          </div>
-          <Button onClick={openCreate} disabled={loading}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Role
-          </Button>
+        <CardHeader className="p-6" dir="rtl">
+          <PanelSectionHeader
+            title="التحكم بالصلاحيات والأدوار"
+            icon={<Shield className="h-5 w-5 text-muted-foreground" />}
+            actions={
+              <Button onClick={openCreate} disabled={loading} className="gap-2">
+                <span>دور جديد</span>
+                <Plus className="h-4 w-4" />
+              </Button>
+            }
+          />
         </CardHeader>
-        <CardContent>
+        <CardContent dir="rtl">
           {loading ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading roles...
+              جاري تحميل الأدوار...
             </div>
           ) : (
-            <div className="rounded-xl overflow-hidden border border-border bg-card/50">
+            <div className={adminTableShellClass()} style={adminTableShellDir}>
               <Table>
                 <TableHeader>
                   <TableRow className="border-b border-border/50 bg-muted/20 hover:bg-muted/20">
-                    <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                      Role
+                    <TableHead className={cn(adminTableHeadClass, "w-[120px]")} dir="rtl">
+                      الإجراءات
                     </TableHead>
-                    <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                      Base
+                    <TableHead className={adminTableHeadClass} dir="rtl">
+                      النوع
                     </TableHead>
-                    <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                      Permissions
+                    <TableHead className={adminTableHeadClass} dir="rtl">
+                      الصلاحيات
                     </TableHead>
-                    <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                      Type
+                    <TableHead className={adminTableHeadClass} dir="rtl">
+                      الأساس
                     </TableHead>
-                    <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider w-[120px]">
-                      Actions
+                    <TableHead className={adminTableHeadClass} dir="rtl">
+                      الدور
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -245,32 +277,7 @@ export function AccessSettingsForm() {
                       key={String(role._id)}
                       className="border-b border-border/30 hover:bg-muted/30 transition-all duration-200"
                     >
-                      <TableCell className="py-3 px-4">
-                        <div className="min-w-0">
-                          <p className="font-medium text-sm text-foreground truncate">
-                            {role.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {role.key}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-3 px-4">
-                        <Badge variant="secondary" className="capitalize">
-                          {role.scopeBaseRole}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="py-3 px-4 text-sm text-muted-foreground">
-                        {(role.permissions || []).length}
-                      </TableCell>
-                      <TableCell className="py-3 px-4">
-                        {role.isSystem ? (
-                          <Badge variant="outline">System</Badge>
-                        ) : (
-                          <Badge variant="secondary">Custom</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="py-3 px-4">
+                      <TableCell className="py-3 px-4" dir="rtl">
                         <div className="flex items-center gap-2">
                           <Button
                             variant="ghost"
@@ -292,6 +299,31 @@ export function AccessSettingsForm() {
                           </Button>
                         </div>
                       </TableCell>
+                      <TableCell className="py-3 px-4" dir="rtl">
+                        {role.isSystem ? (
+                          <Badge variant="outline">نظام</Badge>
+                        ) : (
+                          <Badge variant="secondary">مخصص</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-3 px-4 text-sm text-muted-foreground" dir="rtl">
+                        {(role.permissions || []).length}
+                      </TableCell>
+                      <TableCell className="py-3 px-4" dir="rtl">
+                        <Badge variant="secondary">
+                          {SCOPE_ROLE_LABELS[role.scopeBaseRole] ?? role.scopeBaseRole}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="py-3 px-4" dir="rtl">
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm text-foreground truncate">
+                            {role.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {role.key}
+                          </p>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -305,13 +337,13 @@ export function AccessSettingsForm() {
         <DialogContent className="sm:max-w-[900px]">
           <DialogHeader>
             <DialogTitle>
-              {mode === "create" ? "Create Role" : "Edit Role"}
+              {mode === "create" ? "إنشاء دور" : "تعديل الدور"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">الاسم</Label>
                 <Input id="name" disabled={saving} {...form.register("name")} />
                 {form.formState.errors.name?.message && (
                   <p className="text-sm text-destructive">
@@ -320,7 +352,7 @@ export function AccessSettingsForm() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="key">Key</Label>
+                <Label htmlFor="key">المفتاح</Label>
                 <Input
                   id="key"
                   disabled={saving || mode === "edit"}
@@ -336,7 +368,7 @@ export function AccessSettingsForm() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Base role</Label>
+                <Label>الدور الأساسي</Label>
                 <Select
                   value={form.watch("scopeBaseRole")}
                   onValueChange={(v) =>
@@ -347,17 +379,17 @@ export function AccessSettingsForm() {
                   disabled={saving || mode === "edit"}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select base role" />
+                    <SelectValue placeholder="اختر الدور الأساسي" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="customer">Customer</SelectItem>
-                    <SelectItem value="support">Support</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="customer">العميل</SelectItem>
+                    <SelectItem value="support">الدعم</SelectItem>
+                    <SelectItem value="admin">مسؤول</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">الوصف</Label>
                 <Textarea
                   id="description"
                   className="min-h-[40px]"
@@ -369,15 +401,17 @@ export function AccessSettingsForm() {
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label>Permissions</Label>
+                <Label>الصلاحيات</Label>
                 <span className="text-xs text-muted-foreground">
-                  Selected: {watchedPerms?.length || 0}
+                  المحددة: {watchedPerms?.length || 0}
                 </span>
               </div>
               <div className="grid gap-4 md:grid-cols-3">
                 {Object.entries(groupedPermissions).map(([group, perms]) => (
                   <div key={group} className="rounded-lg border p-3">
-                    <p className="text-sm font-medium capitalize mb-2">{group}</p>
+                    <p className="text-sm font-medium mb-2">
+                      {PERMISSION_GROUP_LABELS[group] ?? group}
+                    </p>
                     <div className="space-y-2">
                       {perms.map((perm) => {
                         const checked = (watchedPerms || []).includes(perm);
@@ -406,11 +440,11 @@ export function AccessSettingsForm() {
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>
-                Cancel
+                إلغاء
               </Button>
               <Button type="submit" disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                Save
+                {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : null}
+                حفظ
               </Button>
             </DialogFooter>
           </form>
@@ -420,17 +454,17 @@ export function AccessSettingsForm() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete role</AlertDialogTitle>
+            <AlertDialogTitle>حذف الدور</AlertDialogTitle>
             <AlertDialogDescription>
               {deleteTarget
-                ? `Delete “${deleteTarget.name}”? This cannot be undone.`
-                : "Delete this role?"}
+                ? `حذف «${deleteTarget.name}»؟ مش هينفع الرجوع عن هذا الإجراء.`
+                : "حذف هذا الدور؟"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>إلغاء</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} disabled={deleting}>
-              {deleting ? "Deleting..." : "Delete"}
+              {deleting ? "جاري الحذف..." : "حذف"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

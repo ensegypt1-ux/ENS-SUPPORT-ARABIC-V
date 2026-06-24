@@ -30,6 +30,9 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type { Ticket as TicketType, User as UserType } from "@/types";
+import { AR_LOCALE, PRIORITY_LABELS } from "@/lib/strings";
+import { formatRoleLabel } from "@/components/shared/name-with-role";
+import { PanelCardTitle } from "@/components/ui/panel-form";
 
 // Force dynamic rendering for authenticated routes
 export const dynamic = "force-dynamic";
@@ -110,7 +113,7 @@ export default async function AdminDashboardPage() {
   > = {};
   usersData.forEach((user) => {
     users[user.id] = {
-      name: user.name || "Unknown User",
+      name: user.name || "مستخدم غير معروف",
       email: user.email || "",
       role: user.role || "customer",
       image: user.image,
@@ -134,7 +137,7 @@ export default async function AdminDashboardPage() {
         missingUsers.forEach((user) => {
           const userId = user._id.toString();
           users[userId] = {
-            name: user.name || "Unknown User",
+            name: user.name || "مستخدم غير معروف",
             email: user.email || "",
             role: user.role || "customer",
             image: user.image,
@@ -150,36 +153,36 @@ export default async function AdminDashboardPage() {
   const keyStatsData = stats
     ? [
         {
-          title: "Open Tickets",
+          title: "تذاكر مفتوحة",
           value: stats.openTickets,
           icon: AlertCircle,
           iconColor: "text-warning",
           iconBgColor: "bg-warning/15",
-          description: "Awaiting response",
+          description: "في انتظار الرد",
         },
         {
-          title: "Urgent",
+          title: "عاجلة",
           value: stats.urgentTickets,
           icon: AlertTriangle,
           iconColor: "text-destructive",
           iconBgColor: "bg-destructive/15",
-          description: "Require immediate attention",
+          description: "تتطلب اهتمامًا فوريًا",
         },
         {
-          title: "In Progress",
+          title: "قيد المعالجة",
           value: stats.inProgressTickets,
           icon: Clock,
           iconColor: "text-accent",
           iconBgColor: "bg-accent/15",
-          description: "Being worked on",
+          description: "قيد العمل",
         },
         {
-          title: "Resolved",
+          title: "محلولة",
           value: stats.resolvedTickets,
           icon: CheckCircle2,
           iconColor: "text-success",
           iconBgColor: "bg-success/15",
-          description: "Completed tickets",
+          description: "تذاكر مكتملة",
         },
       ]
     : [];
@@ -190,7 +193,7 @@ export default async function AdminDashboardPage() {
       <DashboardGreeting
         name={userName}
         initialGreeting={getGreeting()}
-        subtitle="Here's what's happening with your support desk today."
+        subtitle="إليك ما يحدث في مكتب الدعم اليوم."
       />
 
       {/* Key Metrics - Single Row */}
@@ -200,23 +203,26 @@ export default async function AdminDashboardPage() {
         {/* Recent Tickets */}
         <Card className="border-border rounded-lg shadow-sm overflow-hidden py-4">
           <CardHeader className="flex flex-col items-start gap-3 border-b border-border bg-muted/20 pb-4! sm:flex-row sm:items-center sm:justify-between">
-            <CardTitle className="flex items-center gap-2 text-base font-semibold">
-              <div className="p-2 rounded-lg bg-info/15">
-                <FileText className="h-4 w-4 text-info" />
-              </div>
-              Recent Tickets
-            </CardTitle>
+            <PanelCardTitle
+              icon={
+                <div className="rounded-lg bg-info/15 p-2">
+                  <FileText className="h-4 w-4 text-info" />
+                </div>
+              }
+            >
+              التذاكر الأخيرة
+            </PanelCardTitle>
             <Button asChild variant="ghost" size="sm" className="h-8 w-full sm:w-auto">
-              <Link href="/admin/tickets" className="text-xs">
-                View All
-                <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+              <Link href="/admin/tickets" className="flex items-center gap-1.5 text-xs">
+                عرض الكل
+                <ArrowRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
               </Link>
             </Button>
           </CardHeader>
           <CardContent>
             {recentTickets.length === 0 ? (
               <p className="text-center text-muted-foreground py-8 text-sm">
-                No tickets yet
+                مفيش تذاكر بعد
               </p>
             ) : (
               <div className="space-y-3">
@@ -243,11 +249,11 @@ export default async function AdminDashboardPage() {
                           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Users className="h-3 w-3" />
-                              {customer?.name || "Unknown"}
+                              {customer?.name || "غير معروف"}
                             </span>
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
-                              {new Date(ticket.createdAt).toLocaleDateString()}
+                              {new Date(ticket.createdAt).toLocaleDateString(AR_LOCALE)}
                             </span>
                           </div>
                         </div>
@@ -263,23 +269,26 @@ export default async function AdminDashboardPage() {
         {/* Recent User Registrations */}
         <Card className="border-border rounded-lg shadow-sm overflow-hidden py-4">
           <CardHeader className="flex flex-col items-start gap-3 border-b border-border bg-muted/20 pb-4! sm:flex-row sm:items-center sm:justify-between">
-            <CardTitle className="flex items-center gap-2 text-base font-semibold">
-              <div className="p-2 rounded-lg bg-success/15">
-                <UserPlus className="h-4 w-4 text-success" />
-              </div>
-              Recent Users
-            </CardTitle>
+            <PanelCardTitle
+              icon={
+                <div className="rounded-lg bg-success/15 p-2">
+                  <UserPlus className="h-4 w-4 text-success" />
+                </div>
+              }
+            >
+              المستخدمون الجدد
+            </PanelCardTitle>
             <Button asChild variant="ghost" size="sm" className="h-8 w-full sm:w-auto">
-              <Link href="/admin/users" className="text-xs">
-                View All
-                <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+              <Link href="/admin/users" className="flex items-center gap-1.5 text-xs">
+                عرض الكل
+                <ArrowRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
               </Link>
             </Button>
           </CardHeader>
           <CardContent>
             {recentUsers.length === 0 ? (
               <p className="text-center text-muted-foreground py-8 text-sm">
-                No recent users
+                مفيش مستخدمون جدد
               </p>
             ) : (
               <div className="space-y-3">
@@ -303,12 +312,12 @@ export default async function AdminDashboardPage() {
                           </p>
                         </div>
                       </div>
-                      <div className="text-left sm:text-right">
-                        <span className="inline-flex items-center rounded-lg border border-border bg-muted/50 px-2.5 py-1 text-xs font-medium text-foreground capitalize">
-                          {user.role}
+                      <div className="text-start sm:text-end">
+                        <span className="inline-flex items-center rounded-lg border border-border bg-muted/50 px-2.5 py-1 text-xs font-medium text-foreground">
+                          {formatRoleLabel(user.role)}
                         </span>
                         <p className="text-xs text-muted-foreground mt-1.5">
-                          {new Date(user.createdAt).toLocaleDateString()}
+                          {new Date(user.createdAt).toLocaleDateString(AR_LOCALE)}
                         </p>
                       </div>
                     </div>
@@ -325,17 +334,20 @@ export default async function AdminDashboardPage() {
         {/* Priority Distribution */}
         <Card className="border-border rounded-lg shadow-sm overflow-hidden py-4">
           <CardHeader className="border-b border-border bg-muted/20 pb-2!">
-            <CardTitle className="flex items-center gap-2 text-base font-semibold">
-              <div className="p-2 rounded-lg bg-info/15">
-                <BarChart3 className="h-4 w-4 text-info" />
-              </div>
-              Priority Distribution
-            </CardTitle>
+            <PanelCardTitle
+              icon={
+                <div className="rounded-lg bg-info/15 p-2">
+                  <BarChart3 className="h-4 w-4 text-info" />
+                </div>
+              }
+            >
+              توزيع الأولوية
+            </PanelCardTitle>
           </CardHeader>
           <CardContent>
             {priorityDist.length === 0 ? (
               <p className="text-center text-muted-foreground py-8 text-sm">
-                No data available
+                مفيش بيانات
               </p>
             ) : (
               <div className="flex flex-col items-center">
@@ -416,8 +428,8 @@ export default async function AdminDashboardPage() {
                   </svg>
                   {/* Center Text */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
-                      Total
+                    <span className="mt-1 text-xs font-medium text-muted-foreground">
+                      الإجمالي
                     </span>
                     <span className="text-4xl font-bold text-foreground mt-1">
                       {priorityDist.reduce((sum, i) => sum + i.count, 0)}
@@ -462,8 +474,8 @@ export default async function AdminDashboardPage() {
                             }`}
                           />
                           <div className="flex items-baseline gap-1.5 flex-1 min-w-0">
-                            <span className="text-sm text-foreground capitalize font-medium truncate">
-                              {item.priority}
+                            <span className="text-sm text-foreground font-medium truncate">
+                              {PRIORITY_LABELS[item.priority as keyof typeof PRIORITY_LABELS] ?? item.priority}
                             </span>
                             <span className="text-xs text-muted-foreground whitespace-nowrap">
                               ({percentage}%)
@@ -482,17 +494,20 @@ export default async function AdminDashboardPage() {
         {/* Status Distribution */}
         <Card className="border-border rounded-lg shadow-sm overflow-hidden py-4">
           <CardHeader className="border-b border-border bg-muted/20 pb-2!">
-            <CardTitle className="flex items-center gap-2 text-base font-semibold">
-              <div className="p-2 rounded-lg bg-success/15">
-                <TrendingUp className="h-4 w-4 text-success" />
-              </div>
-              Status Distribution
-            </CardTitle>
+            <PanelCardTitle
+              icon={
+                <div className="rounded-lg bg-success/15 p-2">
+                  <TrendingUp className="h-4 w-4 text-success" />
+                </div>
+              }
+            >
+              توزيع الحالة
+            </PanelCardTitle>
           </CardHeader>
           <CardContent>
             {statusDist.length === 0 ? (
               <p className="text-center text-muted-foreground py-8 text-sm">
-                No data available
+                مفيش بيانات
               </p>
             ) : (
               <div className="flex flex-col">
@@ -512,12 +527,12 @@ export default async function AdminDashboardPage() {
                       scheduled_meeting: "bg-purple-500",
                     };
                     const statusLabels: Record<string, string> = {
-                      open: "Open",
-                      in_progress: "In Progress",
-                      waiting_on_customer: "Waiting",
-                      resolved: "Resolved",
-                      closed: "Closed",
-                      scheduled_meeting: "Meeting",
+                      open: "مفتوحة",
+                      in_progress: "قيد المعالجة",
+                      waiting_on_customer: "في الانتظار",
+                      resolved: "محلولة",
+                      closed: "مغلقة",
+                      scheduled_meeting: "اجتماع مجدول",
                     };
 
                     return statusDist.map((item) => {
@@ -557,12 +572,12 @@ export default async function AdminDashboardPage() {
                       scheduled_meeting: "bg-purple-500",
                     };
                     const statusLabels: Record<string, string> = {
-                      open: "Open",
-                      in_progress: "In Progress",
-                      waiting_on_customer: "Waiting",
-                      resolved: "Resolved",
-                      closed: "Closed",
-                      scheduled_meeting: "Meeting",
+                      open: "مفتوحة",
+                      in_progress: "قيد المعالجة",
+                      waiting_on_customer: "في الانتظار",
+                      resolved: "محلولة",
+                      closed: "مغلقة",
+                      scheduled_meeting: "اجتماع مجدول",
                     };
 
                     return statusDist.map((item) => {

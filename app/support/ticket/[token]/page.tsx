@@ -2,16 +2,15 @@ import type { Metadata } from "next";
 import { PublicHeader } from "@/components/layout/public-header";
 import { PublicFooter } from "@/components/layout/public-footer";
 import { GuestTicketView } from "@/components/tickets/guest-ticket-view";
-import { getPublicLandingContent } from "@/actions/landing-page";
 import { getAppMetadata } from "@/lib/settings-utils";
-import type { LandingPageContent } from "@/types/landing-page";
+import { getPublicHomeContent } from "@/lib/public-home-content";
 
 export async function generateMetadata(): Promise<Metadata> {
   const app = await getAppMetadata();
   const appName = typeof app.title === "string" ? app.title : "Support";
   return {
     title: `Your Ticket | ${appName}`,
-    description: "View the status of your support ticket and reply to our team.",
+    description: "اعرض حالة تذكرة الدعم ورد على فريقنا.",
     robots: { index: false, follow: false },
   };
 }
@@ -22,8 +21,7 @@ export default async function GuestTicketPage({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
-  const result = await getPublicLandingContent();
-  const content = result.data as LandingPageContent;
+  const content = getPublicHomeContent();
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">

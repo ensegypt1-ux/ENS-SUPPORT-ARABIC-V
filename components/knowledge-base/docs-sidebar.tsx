@@ -81,12 +81,12 @@ export function DocsSidebar({
         >
           <Compass className="size-3.5" />
         </span>
-        Overview
+        نظرة عامة
       </Link>
 
       {groups.length === 0 && (
         <p className="px-2 text-xs text-muted-foreground">
-          No matches for &ldquo;{query}&rdquo;
+          مفيش نتائج لـ &ldquo;{query}&rdquo;
         </p>
       )}
 
@@ -127,7 +127,7 @@ export function DocsSidebar({
               <ul className="space-y-0.5">
                 {groupArticles.length === 0 ? (
                   <li className="px-2 py-1.5 text-xs text-muted-foreground/50 italic">
-                    No articles yet
+                    مفيش مقالات بعد
                   </li>
                 ) : (
                   groupArticles.map((article) => {

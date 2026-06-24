@@ -33,7 +33,7 @@ export function WidgetPreview({
   widgetHeight,
 }: WidgetPreviewProps) {
   const theme = resolveWidgetTheme(primaryColor, accentColor);
-  const title = headerTitle.trim() || "Live Chat";
+  const title = headerTitle.trim() || "المحادثة المباشرة";
 
   return (
     <div
@@ -51,7 +51,7 @@ export function WidgetPreview({
             <X className="h-4 w-4" />
           </span>
         </div>
-        <div className="absolute -bottom-5 left-1/2 -translate-x-1/2">
+        <div className="absolute -bottom-5 start-1/2 -translate-x-1/2">
           <div className="h-12 w-12 overflow-hidden rounded-full bg-white p-0.5 shadow-md ring-2 ring-white">
             {headerAvatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -81,8 +81,8 @@ export function WidgetPreview({
           >
             <Sparkles className="h-3.5 w-3.5" />
           </div>
-          <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-muted px-3.5 py-2 text-sm leading-relaxed text-foreground">
-            {welcomeMessage || "Hi! How can I help you today?"}
+          <div className="max-w-[80%] rounded-2xl rounded-bs-md bg-muted px-3.5 py-2 text-sm leading-relaxed text-foreground">
+            {welcomeMessage || "مرحباً! كيف يمكنني مساعدتك اليوم؟"}
           </div>
         </div>
       </div>
@@ -90,11 +90,11 @@ export function WidgetPreview({
       {/* Input */}
       <div className="space-y-2 px-4 pb-3 pt-2">
         <div
-          className="flex items-center gap-2 rounded-full border-2 py-1.5 pl-4 pr-1.5"
+          className="flex items-center gap-2 rounded-full border-2 py-1.5 ps-4 pe-1.5"
           style={{ borderColor: theme.primary }}
         >
           <span className="flex-1 truncate text-sm text-muted-foreground">
-            {placeholder || "Type a message..."}
+            {placeholder || "اكتب رسالة..."}
           </span>
           <span
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white"

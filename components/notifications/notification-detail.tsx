@@ -94,13 +94,13 @@ export function NotificationDetail({
 
       if (result.success) {
         setIsRead(!isRead);
-        toast.success(isRead ? "Marked as unread" : "Marked as read");
+        toast.success(isRead ? "اتعلّم مش مقروء" : "اتعلّم مقروء");
         router.refresh();
       } else {
-        toast.error("Failed to update notification");
+        toast.error("مقدرناش نحدّث الإشعار");
       }
     } catch (error) {
-      toast.error("Failed to update notification");
+      toast.error("مقدرناش نحدّث الإشعار");
     } finally {
       setIsLoading(false);
     }
@@ -115,14 +115,14 @@ export function NotificationDetail({
       );
 
       if (result.success) {
-        toast.success("Notification deleted");
+        toast.success("اتمسح الإشعار");
         router.push(backUrl);
         router.refresh();
       } else {
-        toast.error("Failed to delete notification");
+        toast.error("مقدرناش نمسح الإشعار");
       }
     } catch (error) {
-      toast.error("Failed to delete notification");
+      toast.error("مقدرناش نمسح الإشعار");
     } finally {
       setIsLoading(false);
       setShowDeleteDialog(false);
@@ -165,8 +165,8 @@ export function NotificationDetail({
             size="sm"
             onClick={() => router.push(backUrl)}
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Notifications
+            <ArrowLeft className="me-2 h-4 w-4" />
+            العودة إلى الإشعارات
           </Button>
 
           <div className="flex items-center gap-2">
@@ -178,13 +178,13 @@ export function NotificationDetail({
             >
               {isRead ? (
                 <>
-                  <EyeOff className="mr-2 h-4 w-4" />
-                  Mark as Unread
+                  <EyeOff className="me-2 h-4 w-4" />
+                  تحديد كغير مقروء
                 </>
               ) : (
                 <>
-                  <Eye className="mr-2 h-4 w-4" />
-                  Mark as Read
+                  <Eye className="me-2 h-4 w-4" />
+                  تحديد كمقروء
                 </>
               )}
             </Button>
@@ -194,8 +194,8 @@ export function NotificationDetail({
               onClick={() => setShowDeleteDialog(true)}
               disabled={isLoading}
             >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              <Trash2 className="me-2 h-4 w-4" />
+              حذف
             </Button>
           </div>
         </div>
@@ -212,7 +212,7 @@ export function NotificationDetail({
                   <CardTitle className="text-2xl">
                     {notification.title}
                   </CardTitle>
-                  {!isRead && <Badge variant="default">Unread</Badge>}
+                  {!isRead && <Badge variant="default">غير مقروء</Badge>}
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {formatDistanceToNow(new Date(notification.sentAt), {
@@ -225,7 +225,7 @@ export function NotificationDetail({
           <CardContent className="space-y-6">
             {/* Body */}
             <div>
-              <h3 className="text-sm font-medium mb-2">Message</h3>
+              <h3 className="text-sm font-medium mb-2">الرسالة</h3>
               <p className="text-base">{notification.body}</p>
             </div>
 
@@ -234,12 +234,12 @@ export function NotificationDetail({
             {/* Metadata */}
             {notification.data && Object.keys(notification.data).length > 0 && (
               <div>
-                <h3 className="text-sm font-medium mb-3">Details</h3>
+                <h3 className="text-sm font-medium mb-3">التفاصيل</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {notification.data.ticketNumber && (
                     <div className="flex flex-col">
                       <span className="text-xs text-muted-foreground">
-                        Ticket Number
+                        رقم التذكرة
                       </span>
                       <span className="text-sm font-medium">
                         #{notification.data.ticketNumber}
@@ -249,7 +249,7 @@ export function NotificationDetail({
                   {notification.data.conversationId && (
                     <div className="flex flex-col">
                       <span className="text-xs text-muted-foreground">
-                        Conversation ID
+                        معرّف المحادثة
                       </span>
                       <span className="text-sm font-mono">
                         {notification.data.conversationId}
@@ -259,7 +259,7 @@ export function NotificationDetail({
                   {notification.data.meetingTitle && (
                     <div className="flex flex-col">
                       <span className="text-xs text-muted-foreground">
-                        Meeting
+                        الاجتماع
                       </span>
                       <span className="text-sm font-medium">
                         {notification.data.meetingTitle}
@@ -269,7 +269,7 @@ export function NotificationDetail({
                   {notification.data.scheduledAt && (
                     <div className="flex flex-col">
                       <span className="text-xs text-muted-foreground">
-                        Scheduled At
+                        مجدول في
                       </span>
                       <span className="text-sm">
                         {new Date(
@@ -282,7 +282,7 @@ export function NotificationDetail({
                     notification.data.newStatus && (
                       <div className="flex flex-col">
                         <span className="text-xs text-muted-foreground">
-                          Status Change
+                          تغيير الحالة
                         </span>
                         <span className="text-sm">
                           {notification.data.oldStatus} →{" "}
@@ -303,8 +303,8 @@ export function NotificationDetail({
                   onClick={handleNavigateToResource}
                   className="w-full sm:w-auto"
                 >
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  View Related Resource
+                  <ExternalLink className="me-2 h-4 w-4" />
+                  عرض المورد المرتبط
                 </Button>
               </div>
             )}
@@ -316,20 +316,19 @@ export function NotificationDetail({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Notification?</AlertDialogTitle>
+            <AlertDialogTitle>حذف الإشعار؟</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This notification will be
-              permanently deleted.
+              مش هتقدر ترجع — الإشعار هيتمسح نهائي.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isLoading}>إلغاء</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isLoading}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              حذف
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

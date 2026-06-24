@@ -9,6 +9,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SupportAgentNav } from "@/components/layout/support-agent-nav";
 import { getServicesForNav } from "@/actions/services";
 import { getSystemSettings } from "@/lib/settings-utils";
+import { FALLBACKS } from "@/lib/strings";
 
 export default async function SupportAgentLayout({
   children,
@@ -38,7 +39,7 @@ export default async function SupportAgentLayout({
 
   const user = {
     id: sessionUser.id,
-    name: sessionUser.name ?? "Unknown User",
+    name: sessionUser.name ?? FALLBACKS.unknownUser,
     email: sessionUser.email ?? "",
     role: userRole,
     image: userDoc?.image ?? sessionUser.image ?? "",

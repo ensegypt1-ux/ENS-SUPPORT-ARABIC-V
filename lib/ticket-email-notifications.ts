@@ -6,6 +6,7 @@ import {
   sendEmail,
   shouldSendEmailNotification,
 } from "@/lib/email";
+import { isPlaceholderEmail } from "@/lib/support-email";
 import type { Ticket, User } from "@/types";
 
 type EmailUser = User & { _id?: ObjectId };
@@ -41,7 +42,7 @@ export async function sendTicketAssignmentEmail(params: {
     ...emailTemplates.ticketAssigned(
       params.ticket.ticketNumber,
       params.ticket.title,
-      assignee.name || "Support Team",
+      assignee.name || "فريق الدعم",
       params.ticketUrl
     ),
   });
@@ -81,7 +82,7 @@ export async function sendAdminNewTicketEmails(params: {
 
   const recipients = new Set<string>();
   const configuredAdminEmail = settings.email?.adminNotificationEmail?.trim();
-  if (configuredAdminEmail && configuredAdminEmail !== "admin@example.com") {
+  if (configuredAdminEmail && !isPlaceholderEmail(configuredAdminEmail)) {
     recipients.add(configuredAdminEmail);
   }
 
@@ -103,7 +104,7 @@ export async function sendAdminNewTicketEmails(params: {
     params.ticket.createdAt instanceof Date
       ? params.ticket.createdAt
       : new Date(params.ticket.createdAt);
-  const createdAtFormatted = createdAt.toLocaleString("en-US", {
+  const createdAtFormatted = createdAt.toLocaleString("ar-SA", {
     dateStyle: "medium",
     timeStyle: "short",
   });

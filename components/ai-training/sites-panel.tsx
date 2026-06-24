@@ -27,10 +27,14 @@ import { Switch } from "@/components/ui/switch";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
+import {
+  PanelCardHeading,
+  PanelSectionHeader,
+  panelListRowClass,
+  panelListRowStyle,
+} from "@/components/ui/panel-form";
 import {
   Dialog,
   DialogContent,
@@ -68,15 +72,15 @@ function CopyButton({ value, label }: { value: string; label: string }) {
       size="icon"
       variant="ghost"
       className="h-8 w-8 shrink-0"
-      title={`Copy ${label}`}
+      title={`نسخ ${label}`}
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(value);
           setCopied(true);
-          toast.success(`${label} copied`);
+          toast.success(`اتنسخ ${label}`);
           setTimeout(() => setCopied(false), 2000);
         } catch {
-          toast.error("Couldn't copy — copy manually");
+          toast.error("تعذّر النسخ — انسخ يدويًا");
         }
       }}
     >
@@ -92,8 +96,11 @@ function CopyButton({ value, label }: { value: string; label: string }) {
 /** A read-only code block with a copy button (shared by every snippet). */
 function SnippetRow({ code, label }: { code: string; label: string }) {
   return (
-    <div className="flex items-center gap-2">
-      <pre className="min-w-0 flex-1 overflow-x-auto rounded-lg border border-border bg-muted/50 p-3 text-xs leading-relaxed">
+    <div className="flex items-center gap-2" style={{ direction: "ltr" }}>
+      <pre
+        dir="ltr"
+        className="min-w-0 flex-1 overflow-x-auto rounded-lg border border-border bg-muted/50 p-3 text-left text-xs leading-relaxed"
+      >
         <code>{code}</code>
       </pre>
       <CopyButton value={code} label={label} />
@@ -133,7 +140,7 @@ function SiteDialog({
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      toast.error("Enter a site name");
+      toast.error("دخل اسم الموقع");
       return;
     }
     setSubmitting(true);
@@ -143,11 +150,11 @@ function SiteDialog({
         ? await updateSite(site._id, payload)
         : await createSite(payload);
       if (result.success) {
-        toast.success(isEditing ? "Site updated" : "Site created");
+        toast.success(isEditing ? "اتحدّث الموقع" : "اتعمل الموقع");
         setOpen(false);
         onSaved();
       } else {
-        toast.error(result.error ?? "Failed to save site");
+        toast.error(result.error ?? "تعذّر حفظ الموقع");
       }
     } finally {
       setSubmitting(false);
@@ -159,26 +166,26 @@ function SiteDialog({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit site" : "Add a site"}</DialogTitle>
+          <DialogTitle>{isEditing ? "تعديل الموقع" : "إضافة موقع"}</DialogTitle>
           <DialogDescription>
-            A site is a knowledge scope. Assign sources (web crawls, files, Q&amp;A
-            pairs) to it, then embed its snippet — the bot answers only from that
-            site&apos;s sources plus anything marked Global.
+            الموقع هو نطاق معرفة. عيّن له المصادر (زحف الويب، الملفات، أزواج
+            السؤال والجواب)، ثم ضمّن مقتطفه — يجيب الروبوت فقط من مصادر هذا
+            الموقع وما يُعلَّم عامًا.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label htmlFor="site-name">Name</Label>
+            <Label htmlFor="site-name">الاسم</Label>
             <Input
               id="site-name"
-              placeholder="e.g. Acme Store"
+              placeholder="مثال: متجر أكمي"
               value={name}
               maxLength={60}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="site-domains">Allowed domains (optional)</Label>
+            <Label htmlFor="site-domains">النطاقات المسموحة (اختياري)</Label>
             <Input
               id="site-domains"
               placeholder="acme.com, shop.acme.com"
@@ -186,8 +193,8 @@ function SiteDialog({
               onChange={(e) => setDomains(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Comma-separated. When set, the widget only answers for this site
-              when embedded on these hosts. Leave blank to allow any host.
+              مفصولة بفواصل. عند التعيين، تجيب الأداة لهذا الموقع فقط عند
+              تضمينها على هذه المضيفات. اتركها فارغة للسماح بأي مضيف.
             </p>
           </div>
         </div>
@@ -197,13 +204,13 @@ function SiteDialog({
             onClick={() => setOpen(false)}
             disabled={submitting}
           >
-            Cancel
+            إلغاء
           </Button>
           <Button onClick={handleSubmit} disabled={submitting}>
             {submitting && (
-              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
             )}
-            {isEditing ? "Save changes" : "Create site"}
+            {isEditing ? "حفظ" : "إنشاء موقع"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -235,7 +242,7 @@ export function SitesPanel({
   }, [appUrl]);
   const base = origin || "https://your-app.com";
   const globalSnippet = `<script src="${base}/widget.js" async></script>`;
-  const iframeSnippet = `<iframe src="${base}/embed" title="Live chat" allow="clipboard-write" style="border:0;width:${widgetWidth}px;height:${widgetHeight}px;"></iframe>`;
+  const iframeSnippet = `<iframe src="${base}/embed" title="محادثة مباشرة" allow="clipboard-write" style="border:0;width:${widgetWidth}px;height:${widgetHeight}px;"></iframe>`;
 
   const refresh = async () => {
     const result = await listSites();
@@ -253,7 +260,7 @@ export function SitesPanel({
     try {
       const result = await updateSite(site._id, { enabled });
       if (!result.success) {
-        toast.error(result.error ?? "Failed to update");
+        toast.error(result.error ?? "تعذّر التحديث");
         setSites((prev) =>
           prev.map((s) =>
             s._id === site._id ? { ...s, enabled: !enabled } : s
@@ -270,10 +277,10 @@ export function SitesPanel({
     try {
       const result = await rotateSiteKey(id);
       if (result.success) {
-        toast.success("Key rotated — update the embed snippet on that site");
+        toast.success("اتدوّر المفتاح — حدّث كود التضمين على الموقع");
         await refresh();
       } else {
-        toast.error(result.error ?? "Failed to rotate key");
+        toast.error(result.error ?? "تعذّر تدوير المفتاح");
       }
     } finally {
       setBusyId(null);
@@ -285,10 +292,10 @@ export function SitesPanel({
     try {
       const result = await deleteSite(id);
       if (result.success) {
-        toast.success("Site deleted");
+        toast.success("اتمسح الموقع");
         await refresh();
       } else {
-        toast.error(result.error ?? "Failed to delete");
+        toast.error(result.error ?? "تعذّر الحذف");
       }
     } finally {
       setBusyId(null);
@@ -296,50 +303,50 @@ export function SitesPanel({
   };
 
   return (
-    <div className="space-y-6">
-      {/* 1. Global bot — paste anywhere to answer from ALL knowledge. */}
+    <div className="space-y-6 text-right" dir="rtl">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Globe className="h-4 w-4 text-primary" />
-            Global widget — answers from all knowledge
-          </CardTitle>
-          <CardDescription>
-            Paste this just before the closing{" "}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">
-              &lt;/body&gt;
-            </code>{" "}
-            tag of any website. A chat bubble floats in the corner and answers
-            from <strong>everything</strong> you&apos;ve trained. Use a site
-            below instead to answer from just one site&apos;s sources.
-          </CardDescription>
+          <PanelCardHeading
+            title="الأداة العامة — تجيب من كل المعرفة"
+            icon={<Globe className="h-4 w-4 text-primary" />}
+            description={
+              <>
+                الصق هذا قبل وسم الإغلاق{" "}
+                <code className="rounded bg-muted px-1 py-0.5 text-xs" dir="ltr">
+                  &lt;/body&gt;
+                </code>{" "}
+                في أي موقع. تظهر فقاعة محادثة في الزاوية وتجيب من{" "}
+                <strong>كل</strong> ما درّبته. استخدم موقعاً أدناه للإجابة من
+                مصادر موقع واحد فقط.
+              </>
+            }
+          />
         </CardHeader>
         <CardContent>
-          <SnippetRow code={globalSnippet} label="Snippet" />
+          <SnippetRow code={globalSnippet} label="المقتطف" />
         </CardContent>
       </Card>
 
-      {/* 2. Per-site bots — each scoped to its own sources (+ global). */}
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
-          <div>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Code2 className="h-4 w-4 text-primary" />
-              Per-site widgets
-            </CardTitle>
-            <CardDescription>
-              {sites.length === 0
-                ? "Add a site to make the widget answer from only that site's sources (plus anything marked Global)."
-                : `${sites.length} site${sites.length === 1 ? "" : "s"}. Each snippet answers from that site's sources plus Global.`}
-            </CardDescription>
-          </div>
-          <SiteDialog
-            onSaved={refresh}
-            trigger={
-              <Button size="sm">
-                <Plus className="mr-1.5 h-3.5 w-3.5" />
-                Add site
-              </Button>
+        <CardHeader className="space-y-0">
+          <PanelSectionHeader
+            title="أدوات لكل موقع"
+            icon={<Code2 className="h-4 w-4 text-primary" />}
+            description={
+              sites.length === 0
+                ? "أضف موقعاً لتجيب الأداة من مصادر ذلك الموقع فقط (بالإضافة إلى ما يُعلَّم عاماً)."
+                : `${sites.length} موقع. كل مقتطف يجيب من مصادر ذلك الموقع بالإضافة إلى العام.`
+            }
+            actions={
+              <SiteDialog
+                onSaved={refresh}
+                trigger={
+                  <Button size="sm">
+                    <Plus className="me-1.5 h-3.5 w-3.5" />
+                    إضافة موقع
+                  </Button>
+                }
+              />
             }
           />
         </CardHeader>
@@ -348,8 +355,8 @@ export function SitesPanel({
             <div className="rounded-lg border border-dashed border-border py-10 text-center">
               <Globe className="mx-auto mb-3 h-8 w-8 text-muted-foreground/50" />
               <p className="text-sm text-muted-foreground">
-                No sites yet. Use the Global snippet above, or add a site to
-                scope answers per website.
+                مفيش مواقع بعد. استخدم المقتطف العام أعلاه، أو أضف موقعًا
+                لتحديد نطاق الإجابات لكل موقع.
               </p>
             </div>
           ) : (
@@ -371,35 +378,34 @@ export function SitesPanel({
         </CardContent>
       </Card>
 
-      {/* 3. Advanced: inline iframe + domain locking. */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <SquareCode className="h-4 w-4 text-primary" />
-            Other ways to embed
-          </CardTitle>
-          <CardDescription>
-            For platforms that block scripts but allow an HTML/iframe block. It
-            renders inline where you place it (no floating bubble). For one
-            site, add{" "}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">
-              ?key=SITE_KEY
-            </code>{" "}
-            to the URL.
-          </CardDescription>
+          <PanelCardHeading
+            title="طرق تضمين أخرى"
+            icon={<SquareCode className="h-4 w-4 text-primary" />}
+            description={
+              <>
+                للمنصات التي تمنع السكربتات لكن تسمح بكتلة HTML/iframe. يُعرض
+                مضمّناً حيث تضعه (بدون فقاعة عائمة). لموقع واحد، أضف{" "}
+                <code className="rounded bg-muted px-1 py-0.5 text-xs" dir="ltr">
+                  ?key=SITE_KEY
+                </code>{" "}
+                إلى الرابط.
+              </>
+            }
+          />
         </CardHeader>
         <CardContent className="space-y-3">
-          <SnippetRow code={iframeSnippet} label="Inline snippet" />
-          <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-            <p className="font-medium text-foreground">Restrict where it loads</p>
-            <p className="mt-1">
-              By default the widget can be embedded anywhere. To lock it to
-              specific domains, set the{" "}
-              <code className="rounded bg-muted px-1 py-0.5 text-xs">
+          <SnippetRow code={iframeSnippet} label="مقتطف مضمّن" />
+          <div className="rounded-lg border border-border bg-muted/30 p-4 text-right text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">تقييد أماكن التحميل</p>
+            <p className="mt-1" dir="rtl">
+              افتراضياً يمكن تضمين الأداة في أي مكان. لقفلها على نطاقات
+              محددة، عيّن متغير البيئة{" "}
+              <code className="rounded bg-muted px-1 py-0.5 text-xs" dir="ltr">
                 EMBED_ALLOWED_ORIGINS
               </code>{" "}
-              environment variable to a comma-separated list of origins and
-              redeploy.
+              إلى قائمة أصول مفصولة بفواصل وأعد النشر.
             </p>
           </div>
         </CardContent>
@@ -431,34 +437,11 @@ function SiteRow({
   );
 
   return (
-    <li className="space-y-3 py-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="truncate font-medium text-foreground">
-              {site.name}
-            </span>
-            {!site.enabled && (
-              <Badge variant="outline" className="text-[10px]">
-                Disabled
-              </Badge>
-            )}
-            {site.domains.length > 0 && (
-              <Badge variant="outline" className="text-[10px]">
-                {site.domains.length} domain
-                {site.domains.length === 1 ? "" : "s"}
-              </Badge>
-            )}
-          </div>
-          {site.domains.length > 0 && (
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">
-              {site.domains.join(", ")}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="mr-1 flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Enabled</span>
+    <li className="space-y-3">
+      <div className={panelListRowClass} style={panelListRowStyle}>
+        <div className="flex flex-wrap items-center gap-1.5 sm:col-start-1 sm:row-start-1">
+          <div className="me-1 flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">مفعّل</span>
             <Switch
               checked={site.enabled}
               disabled={busy}
@@ -470,28 +453,28 @@ function SiteRow({
             onSaved={onSaved}
             trigger={
               <Button variant="outline" size="sm" disabled={busy}>
-                Edit
+                تعديل
               </Button>
             }
           />
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" disabled={busy} title="Rotate key">
+              <Button variant="outline" size="sm" disabled={busy} title="تدوير المفتاح">
                 <KeyRound className="h-3.5 w-3.5" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Rotate this site&apos;s key?</AlertDialogTitle>
+                <AlertDialogTitle>تدوير مفتاح هذا الموقع؟</AlertDialogTitle>
                 <AlertDialogDescription>
-                  The current embed snippet for <strong>{site.name}</strong> will
-                  stop scoping answers until you replace it with the new one.
+                  سيتوقف مقتطف التضمين الحالي لـ <strong>{site.name}</strong> عن
+                  تحديد نطاق الإجابات حتى تستبدله بالجديد.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>إلغاء</AlertDialogCancel>
                 <AlertDialogAction onClick={onRotate}>
-                  Rotate key
+                  تدوير المفتاح
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -503,7 +486,7 @@ function SiteRow({
                 size="sm"
                 disabled={busy}
                 className="text-destructive hover:text-destructive"
-                title="Delete site"
+                title="حذف الموقع"
               >
                 {busy ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -514,28 +497,49 @@ function SiteRow({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete {site.name}?</AlertDialogTitle>
+                <AlertDialogTitle>حذف {site.name}؟</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This only works once no sources are assigned to it. Reassign or
-                  remove its web sources, files and Q&amp;A pairs first.
+                  يعمل هذا فقط بعد إلغاء تعيين جميع المصادر منه. أعد تعيين أو
+                  أزل مصادر الويب والملفات وأزواج السؤال والجواب أولاً.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>إلغاء</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={onDelete}
                   className="bg-destructive text-white hover:bg-destructive/90"
                 >
-                  Delete
+                  حذف
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </div>
+        <div className="min-w-0 text-right sm:col-start-2 sm:row-start-1" dir="rtl">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <span className="truncate font-medium text-foreground">
+              {site.name}
+            </span>
+            {!site.enabled && (
+              <Badge variant="outline" className="text-[10px]">
+                معطّل
+              </Badge>
+            )}
+            {site.domains.length > 0 && (
+              <Badge variant="outline" className="text-[10px]">
+                {site.domains.length} نطاق
+              </Badge>
+            )}
+          </div>
+          {site.domains.length > 0 && (
+            <p className="mt-0.5 truncate text-xs text-muted-foreground" dir="ltr">
+              {site.domains.join(", ")}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Embed snippet for this site */}
-      <SnippetRow code={snippet} label="Snippet" />
+      <SnippetRow code={snippet} label="المقتطف" />
     </li>
   );
 }

@@ -26,7 +26,7 @@ export async function scheduleMeeting(
 ): Promise<ApiResponse<Meeting>> {
   try {
     const session = await requirePermissionOrThrow("meetings.manage", {
-      message: "Forbidden: Meetings manage access required",
+      message: "ممنوع: يلزم صلاحية إدارة الاجتماعات",
     });
     const userId = session.user.id;
 
@@ -39,7 +39,7 @@ export async function scheduleMeeting(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "Ticket not found",
+        error: "مفيش تذكرة",
       };
     }
 
@@ -233,7 +233,7 @@ export async function scheduleMeeting(
     return {
       success: true,
       data: serializedMeeting as unknown as Meeting,
-      message: "Meeting scheduled successfully",
+      message: "الاجتماع اتجدول",
     };
   } catch (error) {
     console.error(
@@ -243,7 +243,7 @@ export async function scheduleMeeting(
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "Failed to scheduled meeting",
+        error instanceof Error ? error.message : "تعذّر جدولة الاجتماع",
     };
   }
 }
@@ -267,7 +267,7 @@ export async function getTicketMeetings(
     if (!request) {
       return {
         success: false,
-        error: "Ticket not found",
+        error: "مفيش تذكرة",
       };
     }
 
@@ -277,7 +277,7 @@ export async function getTicketMeetings(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to view these meetings",
+        error: "مش مسموح لك تشوف الاجتماعات دي",
       };
     }
 
@@ -302,7 +302,7 @@ export async function getTicketMeetings(
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "Failed to fetch meetings",
+        error instanceof Error ? error.message : "تعذّر جلب الاجتماعات",
     };
   }
 }
@@ -320,7 +320,7 @@ export async function updateMeeting(
   try {
     // Only admin/support can update meetings
     const session = await requirePermissionOrThrow("meetings.manage", {
-      message: "Forbidden: Meetings manage access required",
+      message: "ممنوع: يلزم صلاحية إدارة الاجتماعات",
     });
     const userId = session.user.id;
 
@@ -336,7 +336,7 @@ export async function updateMeeting(
     if (!meeting) {
       return {
         success: false,
-        error: "Meeting not found",
+        error: "مفيش الاجتماع",
       };
     }
 
@@ -371,7 +371,7 @@ export async function updateMeeting(
     if (!result) {
       return {
         success: false,
-        error: "Failed to update meeting",
+        error: "تعذّر تحديث الاجتماع",
       };
     }
 
@@ -383,7 +383,7 @@ export async function updateMeeting(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "Ticket not found for this meeting",
+        error: "مفيش تذكرة for this meeting",
       };
     }
 
@@ -559,7 +559,7 @@ export async function updateMeeting(
     return {
       success: true,
       data: serializedMeeting as unknown as Meeting,
-      message: "Meeting updated successfully",
+      message: "الاجتماع اتحدّث",
     };
   } catch (error) {
     console.error(
@@ -569,7 +569,7 @@ export async function updateMeeting(
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "Failed to update meeting",
+        error instanceof Error ? error.message : "تعذّر تحديث الاجتماع",
     };
   }
 }
@@ -583,7 +583,7 @@ export async function deleteMeeting(
   try {
     // Only admin/support can delete meetings
     const session = await requirePermissionOrThrow("meetings.manage", {
-      message: "Forbidden: Meetings manage access required",
+      message: "ممنوع: يلزم صلاحية إدارة الاجتماعات",
     });
     const userId = session.user.id;
 
@@ -596,7 +596,7 @@ export async function deleteMeeting(
     if (!meeting) {
       return {
         success: false,
-        error: "Meeting not found",
+        error: "مفيش الاجتماع",
       };
     }
 
@@ -608,7 +608,7 @@ export async function deleteMeeting(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "Ticket not found for this meeting",
+        error: "مفيش تذكرة for this meeting",
       };
     }
 
@@ -651,7 +651,7 @@ export async function deleteMeeting(
 
     return {
       success: true,
-      message: "Meeting deleted successfully",
+      message: "الاجتماع اتمسح",
     };
   } catch (error) {
     console.error(
@@ -661,7 +661,7 @@ export async function deleteMeeting(
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "Failed to delete meeting",
+        error instanceof Error ? error.message : "تعذّر حذف الاجتماع",
     };
   }
 }
@@ -687,7 +687,7 @@ export async function requestMeetingReschedule(
     if (!meeting) {
       return {
         success: false,
-        error: "Meeting not found",
+        error: "مفيش الاجتماع",
       };
     }
 
@@ -695,7 +695,7 @@ export async function requestMeetingReschedule(
     if (meeting.status !== "scheduled") {
       return {
         success: false,
-        error: "Can only request reschedule for scheduled meetings",
+        error: "يمكن طلب إعادة الجدولة للاجتماعات المجدولة فقط",
       };
     }
 
@@ -721,7 +721,7 @@ export async function requestMeetingReschedule(
     if (!result) {
       return {
         success: false,
-        error: "Failed to update meeting",
+        error: "تعذّر تحديث الاجتماع",
       };
     }
 
@@ -779,7 +779,7 @@ export async function requestMeetingReschedule(
     return {
       success: true,
       data: serializedMeeting as unknown as Meeting,
-      message: "Reschedule request submitted successfully",
+      message: "طلب إعادة الجدولة اتبعت",
     };
   } catch (error) {
     console.error(
@@ -791,7 +791,7 @@ export async function requestMeetingReschedule(
       error:
         error instanceof Error
           ? error.message
-          : "Failed to request meeting reschedule",
+          : "تعذّر طلب إعادة جدولة الاجتماع",
     };
   }
 }
@@ -812,13 +812,13 @@ export async function confirmMeetingAttendance(
     });
 
     if (!meeting) {
-      return { success: false, error: "Meeting not found" };
+      return { success: false, error: "مفيش الاجتماع" };
     }
 
     if (meeting.status !== "scheduled") {
       return {
         success: false,
-        error: "Can only confirm scheduled meetings",
+        error: "يمكن تأكيد الاجتماعات المجدولة فقط",
       };
     }
 
@@ -839,7 +839,7 @@ export async function confirmMeetingAttendance(
     );
 
     if (!result) {
-      return { success: false, error: "Failed to confirm meeting" };
+      return { success: false, error: "تعذّر تأكيد الاجتماع" };
     }
 
     // Resolve parent ticket/request
@@ -900,7 +900,7 @@ export async function confirmMeetingAttendance(
     return {
       success: true,
       data: serializedMeeting as unknown as Meeting,
-      message: "Meeting attendance confirmed successfully",
+      message: "حضور الاجتماع اتأكد",
     };
   } catch (error) {
     console.error(
@@ -912,7 +912,7 @@ export async function confirmMeetingAttendance(
       error:
         error instanceof Error
           ? error.message
-          : "Failed to confirm meeting attendance",
+          : "تعذّر تأكيد حضور الاجتماع",
     };
   }
 }

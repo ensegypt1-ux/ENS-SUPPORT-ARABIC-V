@@ -25,16 +25,16 @@ function slugify(value: string) {
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new Error("مش مسموح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("Forbidden: Admin access required");
+  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
   return session;
 }
 
 // ─── Zod Schemas ─────────────────────────────────────────────────────────────
 
 const categorySchema = z.object({
-  title: z.string().min(1, "Title is required").max(100),
+  title: z.string().min(1, "العنوان مطلوب").max(100),
   description: z.string().max(500).optional(),
   icon: z.string().max(10).optional(),
   coverImage: z.string().url().optional().or(z.literal("")),
@@ -45,7 +45,7 @@ const categorySchema = z.object({
 const articleSchema = z.object({
   categoryId: z.string().min(1),
   categorySlug: z.string().min(1),
-  title: z.string().min(1, "Title is required").max(200),
+  title: z.string().min(1, "العنوان مطلوب").max(200),
   content: z.string().default(""),
   excerpt: z.string().max(300).optional(),
   sortOrder: z.number().int().default(0),
@@ -108,7 +108,7 @@ export async function getPublishedKBArticle(
       slug: articleSlug,
       isPublished: true,
     });
-    if (!article) return { success: false, error: "Article not found" };
+    if (!article) return { success: false, error: "مفيش المقال" };
     return { success: true, data: article };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -172,7 +172,7 @@ export async function getKBCategoryAdmin(
     if (ObjectId.isValid(categoryId)) {
       category = await col.findOne({ _id: new ObjectId(categoryId) });
     }
-    if (!category) return { success: false, error: "Category not found" };
+    if (!category) return { success: false, error: "مفيش الفئة" };
     return { success: true, data: category };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -205,7 +205,7 @@ export async function getKBArticleAdmin(
     if (ObjectId.isValid(articleId)) {
       article = await col.findOne({ _id: new ObjectId(articleId) });
     }
-    if (!article) return { success: false, error: "Article not found" };
+    if (!article) return { success: false, error: "مفيش المقال" };
     return { success: true, data: article };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -266,7 +266,7 @@ export async function updateKBCategory(
       return { success: false, error: parsed.error.issues[0]?.message };
 
     if (!ObjectId.isValid(id))
-      return { success: false, error: "Invalid category ID" };
+      return { success: false, error: "معرّف الفئة مش صح" };
 
     const col = await getCollection<KBCategory>("kb_categories");
 
@@ -297,7 +297,7 @@ export async function deleteKBCategory(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "Invalid category ID" };
+      return { success: false, error: "معرّف الفئة مش صح" };
 
     const col = await getCollection<KBCategory>("kb_categories");
     const articleCol = await getCollection<KBArticle>("kb_articles");
@@ -379,7 +379,7 @@ export async function updateKBArticle(
       return { success: false, error: parsed.error.issues[0]?.message };
 
     if (!ObjectId.isValid(id))
-      return { success: false, error: "Invalid article ID" };
+      return { success: false, error: "معرّف المقال مش صح" };
 
     const col = await getCollection<KBArticle>("kb_articles");
 
@@ -421,7 +421,7 @@ export async function deleteKBArticle(id: string): Promise<ApiResponse<void>> {
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "Invalid article ID" };
+      return { success: false, error: "معرّف المقال مش صح" };
 
     const col = await getCollection<KBArticle>("kb_articles");
     await col.deleteOne({ _id: new ObjectId(id) });
@@ -441,18 +441,18 @@ export async function uploadKBImage(
 ): Promise<ApiResponse<{ url: string }>> {
   try {
     if (!isFileUploadsEnabled()) {
-      return { success: false, error: "File uploads are not enabled" };
+      return { success: false, error: "رفع الملفات غير مفعّل" };
     }
 
     const session = await requireAdminOrSupport();
     const file = formData.get("file") as File;
     if (!file) {
-      return { success: false, error: "No file provided" };
+      return { success: false, error: "مفيش ملف مرفوع" };
     }
 
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
-      return { success: false, error: "Only image files are allowed" };
+      return { success: false, error: "مسموح بملفات الصور بس" };
     }
 
     const uploaded = await uploadFile({

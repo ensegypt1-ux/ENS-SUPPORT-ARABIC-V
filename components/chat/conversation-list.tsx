@@ -77,9 +77,9 @@ export function ConversationList({
   }, [conversations, searchQuery, userId, activeTab]);
 
   const tabs: { key: FilterTab; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "unread", label: "Unread" },
-    { key: "groups", label: "Groups" },
+    { key: "all", label: "الكل" },
+    { key: "unread", label: "غير مقروء" },
+    { key: "groups", label: "المجموعات" },
   ];
 
   if (loading) {
@@ -102,13 +102,13 @@ export function ConversationList({
     <div className="space-y-2">
       {/* Search Input */}
       <div className="relative px-2">
-        <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute start-4.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Search Messenger"
+          placeholder="البحث في المحادثات"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9 h-9 bg-muted/50 border-none rounded-full text-sm placeholder:text-muted-foreground/70"
+          className="ps-9 h-9 bg-muted/50 border-none rounded-full text-sm placeholder:text-muted-foreground/70"
         />
       </div>
 
@@ -136,17 +136,17 @@ export function ConversationList({
         <div className="flex flex-col items-center justify-center py-12 text-center px-4">
           <p className="text-sm text-muted-foreground">
             {searchQuery
-              ? "No conversations found"
+              ? "ملقيناش محادثات"
               : activeTab === "unread"
-                ? "No unread messages"
+                ? "مفيش رسائل غير مقروءة"
                 : activeTab === "groups"
-                  ? "No group conversations"
-                  : "No conversations yet"}
+                  ? "مفيش محادثات جماعية"
+                  : "مفيش محادثات بعد"}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
             {searchQuery
-              ? "Try a different search term"
-              : "Start a new conversation to get started"}
+              ? "جرّب مصطلح بحث مختلفاً"
+              : "ابدأ محادثة جديدة للبدء"}
           </p>
         </div>
       ) : (
@@ -186,7 +186,7 @@ export function ConversationList({
                     // Direct message - show user avatar
                     <AvatarImage
                       src={firstParticipant.user_image}
-                      alt={firstParticipant.user_name || "User"}
+                      alt={firstParticipant.user_name || "مستخدم"}
                     />
                   ) : null}
                   {otherParticipants.length === 1 && (
@@ -199,7 +199,7 @@ export function ConversationList({
                 {otherParticipants.length === 1 && (
                   <span
                     className={cn(
-                      "absolute bottom-0 right-0 block h-3 w-3 rounded-full ring-2 ring-card",
+                      "absolute bottom-0 end-0 block h-3 w-3 rounded-full ring-2 ring-card",
                       isOnline ? "bg-green-500" : "bg-gray-400"
                     )}
                   />
@@ -219,7 +219,7 @@ export function ConversationList({
                       ? otherParticipants
                           .map((p) => p.user_name || p.user_id)
                           .join(", ")
-                      : "Unnamed Conversation"}
+                      : "محادثة بدون اسم"}
                   </p>
                 </div>
 
@@ -235,19 +235,19 @@ export function ConversationList({
                   >
                     {conversation.lastMessage ? (
                       conversation.lastMessage.is_deleted ? (
-                        <span className="italic">[Message deleted]</span>
+                        <span className="italic">[اتمسح الرسالة]</span>
                       ) : (
                         <>
                           {conversation.lastMessage.sender_id === userId && (
-                            <span className="font-medium">You: </span>
+                            <span className="font-medium">أنت: </span>
                           )}
                           {conversation.lastMessage.content || (
-                            <span className="italic">Attachment</span>
+                            <span className="italic">مرفق</span>
                           )}
                         </>
                       )
                     ) : (
-                      <span className="italic">No messages yet</span>
+                      <span className="italic">مفيش رسائل بعد</span>
                     )}
                   </p>
                   {conversation.last_message_at && (

@@ -6,13 +6,8 @@ import {
   Globe2,
 } from "lucide-react";
 import { StatsGrid } from "@/components/shared/stats-grid";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PanelCardHeading } from "@/components/ui/panel-form";
 import {
   Table,
   TableBody,
@@ -31,7 +26,7 @@ import {
 
 function formatDate(d: Date | string): string {
   const date = typeof d === "string" ? new Date(d) : d;
-  return date.toLocaleString();
+  return date.toLocaleString("ar-SA");
 }
 
 function formatPercent(value: number | null): string {
@@ -50,7 +45,7 @@ export async function ChatLogsPanel() {
   if (!analyticsResult.success || !analyticsResult.data) {
     return (
       <p className="text-sm text-destructive">
-        {analyticsResult.error ?? "Failed to load chat analytics"}
+        {analyticsResult.error ?? "تعذّر التحميل تحليلات المحادثة"}
       </p>
     );
   }
@@ -58,39 +53,39 @@ export async function ChatLogsPanel() {
   const a = analyticsResult.data;
   const stats = [
     {
-      title: "Total Conversations",
+      title: "إجمالي المحادثات",
       value: a.total,
       icon: MessageSquare,
       iconColor: "text-info",
       iconBgColor: "bg-info/15",
-      description: `${a.last24h} in last 24h`,
+      description: `${a.last24h} خلال آخر 24 ساعة`,
     },
     {
-      title: "Match Rate",
+      title: "معدل المطابقة",
       value: `${a.matchRate}%`,
       icon: TrendingUp,
       iconColor: "text-primary",
       iconBgColor: "bg-primary/15",
-      description: `${a.matched} answered`,
+      description: `${a.matched} تمت الإجابة عليها`,
     },
     {
-      title: "Feedback Accuracy",
+      title: "دقة التقييم",
       value: formatPercent(a.feedbackAccuracy),
       icon: ThumbsUp,
       iconColor: "text-success",
       iconBgColor: "bg-success/15",
       description:
         a.feedbackTotal === 0
-          ? "No rated answers yet"
-          : `${a.positiveFeedback}/${a.feedbackTotal} helpful`,
+          ? "مفيش إجابات مُقيّمة بعد"
+          : `${a.positiveFeedback}/${a.feedbackTotal} مفيدة`,
     },
     {
-      title: "Escalated",
+      title: "اتصعّد",
       value: a.escalated,
       icon: XCircle,
       iconColor: "text-destructive",
       iconBgColor: "bg-destructive/15",
-      description: `${a.unmatched} not answered · handoff requested`,
+      description: `${a.unmatched} بلا إجابة · طُلب التحويل`,
     },
   ];
 
@@ -99,35 +94,32 @@ export async function ChatLogsPanel() {
   const domains = domainResult.success ? domainResult.data ?? [] : [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <StatsGrid stats={stats} />
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Globe2 className="h-4 w-4" />
-            Domain Response Accuracy
-          </CardTitle>
-          <CardDescription>
-            Match rate plus customer feedback, grouped by the resolved site and
-            host origin.
-          </CardDescription>
+          <PanelCardHeading
+            title="دقة الرد حسب النطاق"
+            icon={<Globe2 className="h-4 w-4 text-primary" />}
+            description="معدل المطابقة مع تقييم العملاء، مجمّعاً حسب الموقع المُحدّد والنطاق المضيف."
+          />
         </CardHeader>
         <CardContent>
           {domains.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Domain accuracy appears once visitors use the widget.
+              تظهر دقة النطاق بمجرد أن يبدأ الزوار باستخدام الأداة.
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Site / Domain</TableHead>
-                  <TableHead className="w-24 text-right">Chats</TableHead>
-                  <TableHead className="w-28 text-right">Match</TableHead>
-                  <TableHead className="w-32 text-right">Accuracy</TableHead>
-                  <TableHead className="w-28 text-right">Escalated</TableHead>
-                  <TableHead className="w-44">Last Seen</TableHead>
+                  <TableHead>الموقع / النطاق</TableHead>
+                  <TableHead className="w-24 text-end">المحادثات</TableHead>
+                  <TableHead className="w-28 text-end">المطابقة</TableHead>
+                  <TableHead className="w-32 text-end">الدقة</TableHead>
+                  <TableHead className="w-28 text-end">المُصعَّد</TableHead>
+                  <TableHead className="w-44">آخر ظهور</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -137,20 +129,20 @@ export async function ChatLogsPanel() {
                       <p className="truncate text-sm font-medium">
                         {d.siteName}
                       </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {d.host ?? "No host recorded"}
+                      <p className="truncate text-xs text-muted-foreground" dir="ltr">
+                        {d.host ?? "لم يُسجَّل مضيف"}
                       </p>
                     </TableCell>
-                    <TableCell className="text-right text-sm">
+                    <TableCell className="text-end text-sm">
                       {d.total}
                     </TableCell>
-                    <TableCell className="text-right text-sm">
+                    <TableCell className="text-end text-sm">
                       {d.matchRate}%
                     </TableCell>
-                    <TableCell className="text-right text-sm">
+                    <TableCell className="text-end text-sm">
                       {formatPercent(d.feedbackAccuracy)}
                     </TableCell>
-                    <TableCell className="text-right text-sm">
+                    <TableCell className="text-end text-sm">
                       {d.escalated}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
@@ -166,25 +158,24 @@ export async function ChatLogsPanel() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Top Unanswered Questions</CardTitle>
-          <CardDescription>
-            Questions visitors asked that did not match any trained pair. Use
-            these to grow your knowledge base.
-          </CardDescription>
+          <PanelCardHeading
+            title="أبرز الأسئلة بلا إجابة"
+            description="أسئلة طرحها الزوار ولم تطابق أي زوج تدريب. استخدمها لتوسيع قاعدة المعرفة."
+          />
         </CardHeader>
         <CardContent>
           {unanswered.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Nothing here yet — unanswered questions will appear once visitors
-              start chatting.
+              لا شيء هنا بعد — ستظهر الأسئلة غير المُجاب عليها بمجرد أن يبدأ
+              الزوار بالمحادثة.
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Question</TableHead>
-                  <TableHead className="w-20 text-right">Count</TableHead>
-                  <TableHead className="w-44">Last Seen</TableHead>
+                  <TableHead>السؤال</TableHead>
+                  <TableHead className="w-20 text-end">العدد</TableHead>
+                  <TableHead className="w-44">آخر ظهور</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -193,7 +184,7 @@ export async function ChatLogsPanel() {
                     <TableCell className="max-w-md truncate text-sm">
                       {u.question}
                     </TableCell>
-                    <TableCell className="text-right text-sm font-medium">
+                    <TableCell className="text-end text-sm font-medium">
                       {u.count}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
@@ -209,24 +200,26 @@ export async function ChatLogsPanel() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Recent Conversations</CardTitle>
-          <CardDescription>
-            The latest 30 chatbot interactions.
-          </CardDescription>
+          <PanelCardHeading
+            title="المحادثات الأخيرة"
+            description="آخر 30 تفاعل مع روبوت المحادثة."
+          />
         </CardHeader>
         <CardContent>
           {recent.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No chat logs yet.</p>
+            <p className="text-sm text-muted-foreground">
+              مفيش سجلات محادثة بعد.
+            </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Question</TableHead>
-                  <TableHead className="w-40">Domain</TableHead>
-                  <TableHead className="w-40">Outcome</TableHead>
-                  <TableHead className="w-28">Feedback</TableHead>
-                  <TableHead className="w-20 text-right">Steps</TableHead>
-                  <TableHead className="w-44">When</TableHead>
+                  <TableHead>السؤال</TableHead>
+                  <TableHead className="w-40">النطاق</TableHead>
+                  <TableHead className="w-40">النتيجة</TableHead>
+                  <TableHead className="w-28">التقييم</TableHead>
+                  <TableHead className="w-20 text-end">الخطوات</TableHead>
+                  <TableHead className="w-44">الوقت</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -236,7 +229,7 @@ export async function ChatLogsPanel() {
                       {r.question}
                     </TableCell>
                     <TableCell className="max-w-40 truncate text-xs text-muted-foreground">
-                      {r.host ?? (r.siteId ? "Site-scoped" : "Global / app")}
+                      {r.host ?? (r.siteId ? "مقيّد بالموقع" : "عام / التطبيق")}
                     </TableCell>
                     <TableCell>
                       <Badge
@@ -262,13 +255,13 @@ export async function ChatLogsPanel() {
                               : "border-destructive/40 bg-destructive/10 text-destructive"
                           }
                         >
-                          {r.feedback === "up" ? "Helpful" : "Not helpful"}
+                          {r.feedback === "up" ? "مفيد" : "غير مفيد"}
                         </Badge>
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right text-sm">
+                    <TableCell className="text-end text-sm">
                       {r.iterations ?? "—"}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">

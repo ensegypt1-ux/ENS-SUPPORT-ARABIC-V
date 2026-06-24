@@ -46,17 +46,17 @@ const SETTINGS_COLLECTION = "ai_settings";
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new Error("مش مسموح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("Forbidden: Admin access required");
+  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
   return session;
 }
 
 // ─── Zod Schemas ─────────────────────────────────────────────────────────────
 
 const pairSchema = z.object({
-  question: z.string().min(1, "Question is required").max(1000),
-  answer: z.string().min(1, "Answer is required").max(5000),
+  question: z.string().min(1, "السؤال مطلوب").max(1000),
+  answer: z.string().min(1, "الإجابة مطلوبة").max(5000),
   category: z.string().max(100).optional().default("General"),
   isActive: z.boolean().optional().default(true),
   /** Owning site id (absent/"" ⇒ Global). */
@@ -286,7 +286,7 @@ export async function updateAISettings(
       if (!isLikelyValidApiKey(apiKey.trim())) {
         return {
           success: false,
-          error: "API key must start with 'sk-' and be at least 20 characters.",
+          error: "مفتاح API لازم يبدأ بـ 'sk-' وما يقلش عن 20 حرف.",
         };
       }
       updates.apiKeyEncrypted = encryptApiKey(apiKey.trim());
@@ -326,18 +326,18 @@ export async function uploadAIWidgetImage(
   try {
     const session = await requireAdmin();
     if (!isFileUploadsEnabled()) {
-      return { success: false, error: "File uploads are not enabled" };
+      return { success: false, error: "رفع الملفات غير مفعّل" };
     }
     const file = formData.get("file") as File | null;
     if (!file) {
-      return { success: false, error: "No file provided" };
+      return { success: false, error: "مفيش ملف مرفوع" };
     }
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
-      return { success: false, error: "Only image files are allowed" };
+      return { success: false, error: "مسموح بملفات الصور بس" };
     }
     if (file.size > 5 * 1024 * 1024) {
-      return { success: false, error: "Image must be smaller than 5MB" };
+      return { success: false, error: "الصورة لازم تكون أصغر من 5 ميغابايت" };
     }
     const uploaded = await uploadFile({
       file,
@@ -357,7 +357,7 @@ export async function testAISettingsConnection(): Promise<
     await requireAdmin();
     const result = await testEmbeddingConnection();
     if (!result.success) {
-      return { success: false, error: result.error ?? "Connection failed" };
+      return { success: false, error: result.error ?? "تعذّر الاتصال" };
     }
     return { success: true, data: { ok: true } };
   } catch (error: any) {
@@ -372,7 +372,7 @@ export async function testAIChatConnection(): Promise<
     await requireAdmin();
     const result = await testChatConnection();
     if (!result.success) {
-      return { success: false, error: result.error ?? "Connection failed" };
+      return { success: false, error: result.error ?? "تعذّر الاتصال" };
     }
     return { success: true, data: { ok: true } };
   } catch (error: any) {
@@ -461,14 +461,14 @@ export async function getAITrainingPair(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "Invalid pair ID" };
+      return { success: false, error: "معرّف الزوج مش صح" };
 
     const col = await getCollection<AITrainingPair>(PAIRS_COLLECTION);
     const pair = await col.findOne(
       { _id: new ObjectId(id) },
       { projection: { embedding: 0 } }
     );
-    if (!pair) return { success: false, error: "Training pair not found" };
+    if (!pair) return { success: false, error: "مفيش زوج التدريب" };
     return { success: true, data: toPublicAITrainingPair(pair) };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -497,7 +497,7 @@ export async function createAITrainingPair(
     if (duplicate) {
       return {
         success: false,
-        error: "A training pair with this question already exists",
+        error: "يوجد زوج تدريب بهذا السؤال بالفعل",
       };
     }
 
@@ -518,7 +518,7 @@ export async function createAITrainingPair(
       embeddingStatus = "generated";
     } catch (error: any) {
       embeddingStatus = "failed";
-      embeddingError = error?.message ?? "Unknown embedding error";
+      embeddingError = error?.message ?? "خطأ تضمين غير معروف";
     }
 
     const doc: AITrainingPair = {
@@ -561,7 +561,7 @@ export async function updateAITrainingPair(
   try {
     const session = await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "Invalid pair ID" };
+      return { success: false, error: "معرّف الزوج مش صح" };
 
     const parsed = pairSchema.safeParse(input);
     if (!parsed.success)
@@ -569,7 +569,7 @@ export async function updateAITrainingPair(
 
     const col = await getCollection<AITrainingPair>(PAIRS_COLLECTION);
     const existing = await col.findOne({ _id: new ObjectId(id) });
-    if (!existing) return { success: false, error: "Training pair not found" };
+    if (!existing) return { success: false, error: "مفيش زوج التدريب" };
 
     const { question, answer, category, isActive } = parsed.data;
     const trimmedQuestion = question.trim();
@@ -595,7 +595,7 @@ export async function updateAITrainingPair(
         updates.embeddingError = null;
       } catch (error: any) {
         updates.embeddingStatus = "failed";
-        updates.embeddingError = error?.message ?? "Unknown embedding error";
+        updates.embeddingError = error?.message ?? "خطأ تضمين غير معروف";
       }
     }
 
@@ -619,7 +619,7 @@ export async function deleteAITrainingPair(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "Invalid pair ID" };
+      return { success: false, error: "معرّف الزوج مش صح" };
 
     const col = await getCollection<AITrainingPair>(PAIRS_COLLECTION);
     await col.deleteOne({ _id: new ObjectId(id) });
@@ -637,7 +637,7 @@ export async function toggleAITrainingPairActive(
   try {
     const session = await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "Invalid pair ID" };
+      return { success: false, error: "معرّف الزوج مش صح" };
 
     const col = await getCollection<AITrainingPair>(PAIRS_COLLECTION);
     await col.updateOne(
@@ -719,7 +719,7 @@ export async function importAITrainingPairs(
           matchCount: 0,
           lastMatchedAt: null,
           embeddingStatus: emb ? "generated" : "failed",
-          embeddingError: emb ? null : "Batch embedding failed",
+          embeddingError: emb ? null : "تعذّر التضمين الدفعي",
           createdAt: now,
           updatedAt: now,
           createdBy: userId,
@@ -795,7 +795,7 @@ export async function regenerateAIEmbeddings(): Promise<
               {
                 $set: {
                   embeddingStatus: "failed",
-                  embeddingError: error?.message ?? "Batch failed",
+                  embeddingError: error?.message ?? "تعذّر الدفعة",
                   updatedAt: new Date(),
                 },
               }
@@ -891,14 +891,14 @@ export async function syncQdrant(): Promise<
     if (!isQdrantConfigured()) {
       return {
         success: false,
-        error: "QDRANT_URL is not set. Add it to your environment first.",
+        error: "QDRANT_URL غير مُعرَّف. أضفه إلى بيئتك أولاً.",
       };
     }
     const health = await qdrantHealth();
     if (!health.ok) {
       return {
         success: false,
-        error: `Cannot reach Qdrant: ${health.error ?? "unknown error"}`,
+        error: `Cannot reach Qdrant: ${health.error ?? "خطأ غير معروف"}`,
       };
     }
     const result = await syncQdrantFromMongo();
@@ -930,7 +930,7 @@ export async function testAIMatch(
   try {
     await requireAdmin();
     if (!question?.trim())
-      return { success: false, error: "Please enter a question to test" };
+      return { success: false, error: "اكتب سؤال للاختبار" };
 
     const result = await testMatch(question.trim());
     return { success: true, data: result };

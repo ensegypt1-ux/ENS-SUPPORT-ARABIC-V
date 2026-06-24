@@ -28,9 +28,9 @@ import type {
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new Error("مش مسموح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("Forbidden: Admin access required");
+  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
   return session;
 }
 
@@ -96,12 +96,12 @@ export async function handleChatbotQuery(
   try {
     const parsed = handleChatSchema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, error: "Invalid request" };
+      return { success: false, error: "طلب مش صح" };
     }
 
     const settings = await getOrCreateAISettings();
     if (!settings.features.chatbot || !settings.agent.enabled) {
-      return { success: false, error: "Chatbot is disabled" };
+      return { success: false, error: "روبوت المحادثة معطّل" };
     }
 
     const config = getChatbotConfig(settings);
@@ -113,7 +113,7 @@ export async function handleChatbotQuery(
     if (!rate.allowed) {
       return {
         success: false,
-        error: `Too many requests. Try again in ${rate.retryAfter}s.`,
+        error: `عدد كبير جداً من الطلبات. حاول مرة أخرى خلال ${rate.retryAfter} ثانية.`,
       };
     }
 
@@ -185,7 +185,7 @@ export async function handleChatbotQuery(
       },
     };
   } catch (error: any) {
-    return { success: false, error: error.message ?? "Chat failed" };
+    return { success: false, error: error.message ?? "تعذّر المحادثة" };
   }
 }
 
@@ -220,7 +220,7 @@ export async function createGuestTicket(
 
     const settings = await getOrCreateAISettings();
     if (!settings.features.chatbot) {
-      return { success: false, error: "Chatbot is disabled" };
+      return { success: false, error: "روبوت المحادثة معطّل" };
     }
     const config = getChatbotConfig(settings);
 
@@ -232,7 +232,7 @@ export async function createGuestTicket(
     if (!rate.allowed) {
       return {
         success: false,
-        error: `Too many ticket submissions. Try again in ${Math.ceil(rate.retryAfter / 60)} minutes.`,
+        error: `عدد كبير جداً من إرسال التذاكر. حاول مرة أخرى خلال ${Math.ceil(rate.retryAfter / 60)} دقيقة.`,
       };
     }
 
@@ -250,7 +250,7 @@ export async function createGuestTicket(
       tags: ["ai-chatbot", "guest"],
     });
     if (!res.success || !res.data) {
-      return { success: false, error: res.error ?? "Failed to submit" };
+      return { success: false, error: res.error ?? "تعذّر الإرسال" };
     }
 
     return {
@@ -261,7 +261,7 @@ export async function createGuestTicket(
       },
     };
   } catch (error: any) {
-    return { success: false, error: error.message ?? "Failed to submit" };
+    return { success: false, error: error.message ?? "تعذّر الإرسال" };
   }
 }
 
@@ -280,11 +280,11 @@ export async function submitChatFeedback(
   try {
     const parsed = feedbackSchema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, error: "Invalid feedback" };
+      return { success: false, error: "ملاحظات مش صحة" };
     }
     const { logId, visitorId, sessionId, feedback } = parsed.data;
     if (!ObjectId.isValid(logId)) {
-      return { success: false, error: "Invalid feedback target" };
+      return { success: false, error: "هدف الملاحظات مش صح" };
     }
 
     const col = await getCollection<AIChatLog>("ai_chat_logs");
@@ -298,11 +298,11 @@ export async function submitChatFeedback(
     );
 
     if (res.matchedCount === 0) {
-      return { success: false, error: "Conversation not found" };
+      return { success: false, error: "مفيش المحادثة" };
     }
     return { success: true, data: { feedback } };
   } catch (error: any) {
-    return { success: false, error: error.message ?? "Feedback failed" };
+    return { success: false, error: error.message ?? "تعذّر إرسال الملاحظات" };
   }
 }
 

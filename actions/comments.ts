@@ -43,7 +43,7 @@ export async function addComment(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "Ticket not found",
+        error: "مفيش تذكرة",
       };
     }
 
@@ -53,7 +53,7 @@ export async function addComment(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to comment on this ticket",
+        error: "مش مسموح لك تعلّق على التذكرة دي",
       };
     }
 
@@ -61,7 +61,7 @@ export async function addComment(
     if (validatedData.isInternal && userRole === "customer") {
       return {
         success: false,
-        error: "You don't have permission to create internal notes",
+        error: "مش مسموح لك تعمل ملاحظات داخلية",
       };
     }
 
@@ -76,7 +76,7 @@ export async function addComment(
       if (!parentComment) {
         return {
           success: false,
-          error: "Parent comment not found",
+          error: "مفيش التعليق الأصلي",
         };
       }
     }
@@ -332,13 +332,13 @@ export async function addComment(
     return {
       success: true,
       data: serializedComment as unknown as Comment,
-      message: "Comment added successfully",
+      message: "التعليق اتضاف",
     };
   } catch (error: unknown) {
     console.error("Error adding comment:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to add comment",
+      error: error instanceof Error ? error.message : "تعذّر إضافة التعليق",
     };
   }
 }
@@ -360,7 +360,7 @@ export async function getTicketComments(
     if (!request) {
       return {
         success: false,
-        error: "Ticket not found",
+        error: "مفيش تذكرة",
       };
     }
 
@@ -370,7 +370,7 @@ export async function getTicketComments(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "You don't have permission to view these comments",
+        error: "مش مسموح لك تشوف التعليقات دي",
       };
     }
 
@@ -406,7 +406,7 @@ export async function getTicketComments(
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "Failed to fetch comments",
+        error instanceof Error ? error.message : "تعذّر جلب التعليقات",
     };
   }
 }
@@ -425,7 +425,7 @@ export async function deleteComment(
     if (userRole === "customer") {
       return {
         success: false,
-        error: "You don't have permission to delete comments",
+        error: "مش مسموح لك تمسح التعليقات",
       };
     }
 
@@ -437,7 +437,7 @@ export async function deleteComment(
     if (!existingComment) {
       return {
         success: false,
-        error: "Comment not found",
+        error: "مفيش التعليق",
       };
     }
 
@@ -448,7 +448,7 @@ export async function deleteComment(
     if (result.deletedCount === 0) {
       return {
         success: false,
-        error: "Comment not found",
+        error: "مفيش التعليق",
       };
     }
 
@@ -456,14 +456,14 @@ export async function deleteComment(
 
     return {
       success: true,
-      message: "Comment deleted successfully",
+      message: "التعليق اتمسح",
     };
   } catch (error: unknown) {
     console.error("Error deleting comment:", error);
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "Failed to delete comment",
+        error instanceof Error ? error.message : "تعذّر حذف التعليق",
     };
   }
 }
@@ -481,7 +481,7 @@ export async function updateComment(
     // Validate ticket access
     const { request, kind, collectionName } = await findRequestById(ticketId);
     if (!request || !kind || !collectionName) {
-      return { success: false, error: "Ticket not found" };
+      return { success: false, error: "مفيش تذكرة" };
     }
 
     // Validate content using existing rules
@@ -500,14 +500,14 @@ export async function updateComment(
       ticketId,
     });
     if (!existing) {
-      return { success: false, error: "Comment not found" };
+      return { success: false, error: "مفيش التعليق" };
     }
 
     // Authorization: only author can edit own comment
     if (existing.userId !== userId) {
       return {
         success: false,
-        error: "You can only edit your own comments",
+        error: "تقدر تعدّل تعليقاتك بس",
       };
     }
 
@@ -602,14 +602,14 @@ export async function updateComment(
     return {
       success: true,
       data: serialized as unknown as Comment,
-      message: "Comment updated successfully",
+      message: "التعليق اتحدّث",
     };
   } catch (error: unknown) {
     console.error("Error updating comment:", error);
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "Failed to update comment",
+        error instanceof Error ? error.message : "تعذّر تحديث التعليق",
     };
   }
 }

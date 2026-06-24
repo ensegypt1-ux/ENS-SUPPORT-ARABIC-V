@@ -43,15 +43,15 @@ export function InstallationActions({ requestId }: InstallationActionsProps) {
       const result = await deleteTicket(requestId);
 
       if (result.success) {
-        toast.success("Installation request deleted successfully");
+        toast.success("اتمسح طلب التثبيت");
         router.push("/admin/installation");
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to delete installation request");
+        toast.error(result.error || "تعذّر الحذف طلب التثبيت");
       }
     } catch (error: any) {
       console.error("Delete error:", error);
-      toast.error("Failed to delete installation request");
+      toast.error("تعذّر الحذف طلب التثبيت");
     } finally {
       setIsDeleting(false);
       setShowDeleteDialog(false);
@@ -67,15 +67,15 @@ export function InstallationActions({ requestId }: InstallationActionsProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>إجراءات</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link
               href={`/admin/installation/${requestId}/edit`}
               className="cursor-pointer"
             >
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Request
+              <Edit className="me-2 h-4 w-4" />
+              تعديل الطلب
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -83,8 +83,8 @@ export function InstallationActions({ requestId }: InstallationActionsProps) {
             onClick={() => setShowDeleteDialog(true)}
             className="text-destructive focus:text-destructive cursor-pointer"
           >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete Request
+            <Trash2 className="me-2 h-4 w-4" />
+            حذف الطلب
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -92,15 +92,14 @@ export function InstallationActions({ requestId }: InstallationActionsProps) {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>متأكد؟</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              installation request and all associated comments, attachments,
-              and history.
+              مش هينفع الرجوع عن هذا الإجراء. سياتمسح طلب التثبيت وجميع
+              التعليقات والمرفقات وسجل النشاط المرتبط به نهائيًا.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>إلغاء</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
@@ -108,11 +107,11 @@ export function InstallationActions({ requestId }: InstallationActionsProps) {
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                  جاري الحذف...
                 </>
               ) : (
-                "Delete"
+                "حذف"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -121,4 +120,3 @@ export function InstallationActions({ requestId }: InstallationActionsProps) {
     </>
   );
 }
-

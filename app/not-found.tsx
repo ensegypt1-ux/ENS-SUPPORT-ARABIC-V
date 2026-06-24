@@ -6,8 +6,8 @@ import { FileQuestion, Home } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "404 - Page Not Found",
-  description: "The page you're looking for doesn't exist.",
+  title: "404 - الصفحة غير موجودة",
+  description: "الصفحة التي تبحث عنها غير موجودة.",
 };
 
 /**
@@ -22,14 +22,13 @@ export default function NotFound() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
             <FileQuestion className="h-8 w-8 text-muted-foreground" />
           </div>
-          <CardTitle className="text-2xl">Page Not Found</CardTitle>
+          <CardTitle className="text-2xl">الصفحة غير موجودة</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <div className="space-y-2">
             <p className="text-6xl font-bold text-muted-foreground/20">404</p>
             <p className="text-muted-foreground">
-              The page you&apos;re looking for doesn&apos;t exist or has been
-              moved.
+              الصفحة دي مش موجودة أو اتنقلت.
             </p>
           </div>
 
@@ -37,7 +36,7 @@ export default function NotFound() {
             <Button asChild>
               <Link href="/" className="gap-2">
                 <Home className="h-4 w-4" />
-                Go home
+                الذهاب للصفحة الرئيسية
               </Link>
             </Button>
             <BackButton />
@@ -45,12 +44,12 @@ export default function NotFound() {
 
           <div className="pt-4 border-t">
             <p className="text-sm text-muted-foreground">
-              Need help?{" "}
+              تحتاج مساعدة؟{" "}
               <Link
                 href="/dashboard/tickets/new"
                 className="text-primary hover:underline"
               >
-                Contact support
+                تواصل مع الدعم
               </Link>
             </p>
           </div>

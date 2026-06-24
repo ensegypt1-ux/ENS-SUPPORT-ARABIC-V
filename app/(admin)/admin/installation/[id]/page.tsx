@@ -126,7 +126,7 @@ export default async function AdminInstallationDetailPage({
   });
 
   const customer = users[request.customerId] || {
-    name: "Unknown Customer",
+    name: "عميل غير معروف",
     email: "",
     role: "customer",
   };
@@ -150,8 +150,8 @@ export default async function AdminInstallationDetailPage({
           <InstallationActions requestId={id} />
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/installation">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Installations
+              <ArrowLeft className="ms-2 h-4 w-4 rtl:-scale-x-100" />
+              رجوع إلى التثبيت
             </Link>
           </Button>
         </div>
@@ -163,7 +163,7 @@ export default async function AdminInstallationDetailPage({
           {/* Request Description */}
           <Card>
             <CardHeader>
-              <CardTitle>Request Details</CardTitle>
+              <CardTitle>تفاصيل الطلب</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="prose prose-sm max-w-none dark:prose-invert">
@@ -248,15 +248,15 @@ export default async function AdminInstallationDetailPage({
           {/* Request Information */}
           <Card className="gap-2">
             <CardHeader>
-              <CardTitle>Request Information</CardTitle>
+              <CardTitle>معلومات الطلب</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <User className="h-4 w-4" />
-                  <span className="font-medium">Customer</span>
+                  <span className="font-medium">العميل</span>
                 </div>
-                <p className="text-sm">{customer?.name || "Unknown"}</p>
+                <p className="text-sm">{customer?.name || "غير معروف"}</p>
               </div>
 
               <Separator />
@@ -264,7 +264,7 @@ export default async function AdminInstallationDetailPage({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span className="font-medium">Created</span>
+                  <span className="font-medium">تاريخ الإنشاء</span>
                 </div>
                 <p className="text-sm">
                   {request.createdAt &&
@@ -277,7 +277,7 @@ export default async function AdminInstallationDetailPage({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span className="font-medium">Last Updated</span>
+                  <span className="font-medium">آخر تحديث</span>
                 </div>
                 <p className="text-sm">
                   {request.lastActivityAt &&
@@ -291,7 +291,7 @@ export default async function AdminInstallationDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Package className="h-4 w-4" />
-                      <span className="font-medium">Product</span>
+                      <span className="font-medium">المنتج</span>
                     </div>
                     <p className="text-sm">
                       {request.productName}
@@ -307,7 +307,7 @@ export default async function AdminInstallationDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Tag className="h-4 w-4" />
-                      <span className="font-medium">Tags</span>
+                      <span className="font-medium">الوسوم</span>
                     </div>
                     <div className="flex flex-wrap gap-1">
                       {request.tags.map((tag) => (
@@ -329,7 +329,7 @@ export default async function AdminInstallationDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Globe className="h-4 w-4" />
-                      <span className="font-medium">Timezone</span>
+                      <span className="font-medium">المنطقة الزمنية</span>
                     </div>
                     <p className="text-sm">
                       {TIMEZONES.find((tz) => tz.value === request.timezone)
@@ -344,11 +344,11 @@ export default async function AdminInstallationDetailPage({
           {/* Admin Controls */}
           <Card className="gap-2">
             <CardHeader>
-              <CardTitle>Admin Controls</CardTitle>
+              <CardTitle>عناصر تحكم المسؤول</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Status</label>
+                <label className="text-sm font-medium">الحالة</label>
                 <TicketStatusControl
                   ticketId={id}
                   currentStatus={request.status}
@@ -358,7 +358,7 @@ export default async function AdminInstallationDetailPage({
               <Separator />
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Priority</label>
+                <label className="text-sm font-medium">الأولوية</label>
                 <TicketPriorityControl
                   ticketId={id}
                   currentPriority={request.priority}
@@ -368,7 +368,7 @@ export default async function AdminInstallationDetailPage({
               <Separator />
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Assigned To</label>
+                <label className="text-sm font-medium">مُعيَّن إلى</label>
                 <TicketAssignment
                   ticketId={id}
                   currentAssignedToId={

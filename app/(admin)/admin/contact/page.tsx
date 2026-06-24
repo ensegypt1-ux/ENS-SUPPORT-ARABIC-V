@@ -10,6 +10,8 @@ import {
 } from "@/actions/contact";
 import { useFormatDate } from "@/components/providers/settings-provider";
 import { toast } from "sonner";
+import { AdminPageHeader } from "@/components/layout/admin-page-header";
+import { adminTableHeadClass, DetailField, RtlIconText } from "@/components/ui/arabic-ux";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { PageTabsHeader } from "@/components/shared/page-tabs-header";
@@ -54,10 +56,10 @@ import {
 type ContactStatus = ContactSubmission["status"];
 
 const CONTACT_STATUSES: Array<{ value: ContactStatus; label: string }> = [
-  { value: "new", label: "New" },
-  { value: "read", label: "Read" },
-  { value: "replied", label: "Replied" },
-  { value: "archived", label: "Archived" },
+  { value: "new", label: "جديد" },
+  { value: "read", label: "مقروء" },
+  { value: "replied", label: "تم الرد" },
+  { value: "archived", label: "مؤرشف" },
 ];
 
 const CONTACT_TAB_VALUES = ["all", "new", "read", "replied", "archived"] as const;
@@ -97,33 +99,36 @@ function ContactSubmissionsTable({
   if (submissions.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        No contact submissions found
+        مفيش طلبات تواصل
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card/50 backdrop-blur-sm">
+    <div
+      className="overflow-hidden rounded-xl border border-border bg-card/50 backdrop-blur-sm"
+      dir="ltr"
+    >
       <Table>
         <TableHeader>
           <TableRow className="border-b border-border bg-muted/20 hover:bg-muted/20">
-            <TableHead className="h-12 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
-              Name
+            <TableHead className={adminTableHeadClass} dir="rtl">
+              إجراءات
             </TableHead>
-            <TableHead className="h-12 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
-              Email
+            <TableHead className={adminTableHeadClass} dir="rtl">
+              التاريخ
             </TableHead>
-            <TableHead className="h-12 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
-              Subject
+            <TableHead className={adminTableHeadClass} dir="rtl">
+              الحالة
             </TableHead>
-            <TableHead className="h-12 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
-              Status
+            <TableHead className={adminTableHeadClass} dir="rtl">
+              الموضوع
             </TableHead>
-            <TableHead className="h-12 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
-              Date
+            <TableHead className={adminTableHeadClass} dir="rtl">
+              الإيميل
             </TableHead>
-            <TableHead className="h-12 w-[120px] px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
-              Actions
+            <TableHead className={adminTableHeadClass} dir="rtl">
+              الاسم
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -133,33 +138,35 @@ function ContactSubmissionsTable({
               key={submission._id}
               className="group border-b border-border/30 transition-all duration-200 hover:bg-muted/30"
             >
-              <TableCell className="px-4 py-3.5 font-medium">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  {submission.name}
-                </div>
-              </TableCell>
-              <TableCell className="px-4 py-3.5">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <a
-                    href={`mailto:${submission.email}`}
-                    className="truncate text-foreground/90 hover:underline"
+              <TableCell className="px-4 py-3.5" dir="rtl">
+                <div className="flex items-center justify-start gap-1.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onOpenDetail(submission)}
+                    className="h-8 w-8 transition-colors hover:bg-muted/60"
                   >
-                    {submission.email}
-                  </a>
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(submission._id!)}
+                    className="h-8 w-8 text-destructive transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </TableCell>
-              <TableCell className="max-w-[300px] px-4 py-3.5">
-                <div className="flex items-center gap-2 truncate">
-                  <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span className="truncate text-foreground/90">
-                    {submission.subject}
+              <TableCell className="px-4 py-3.5" dir="rtl">
+                <RtlIconText icon={<Calendar className="h-4 w-4" />}>
+                  <span className="text-sm text-muted-foreground/80">
+                    {formatDate(submission.createdAt)}
                   </span>
-                </div>
+                </RtlIconText>
               </TableCell>
-              <TableCell className="px-4 py-3.5">
-                  <Select
+              <TableCell className="px-4 py-3.5" dir="rtl">
+                <Select
                   value={submission.status}
                   onValueChange={(value) =>
                     onStatusChange(submission._id!, value as ContactStatus)
@@ -183,31 +190,26 @@ function ContactSubmissionsTable({
                   </SelectContent>
                 </Select>
               </TableCell>
-              <TableCell className="px-4 py-3.5">
-                <div className="flex items-center gap-2 text-muted-foreground/80">
-                  <Calendar className="h-4 w-4" />
-                  <span className="text-sm">{formatDate(submission.createdAt)}</span>
-                </div>
+              <TableCell className="max-w-[300px] px-4 py-3.5" dir="rtl">
+                <RtlIconText icon={<FileText className="h-4 w-4" />}>
+                  <span className="text-foreground/90">{submission.subject}</span>
+                </RtlIconText>
               </TableCell>
-              <TableCell className="px-4 py-3.5">
-                <div className="flex items-center gap-1.5">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onOpenDetail(submission)}
-                    className="h-8 w-8 transition-colors hover:bg-muted/60"
+              <TableCell className="px-4 py-3.5" dir="rtl">
+                <RtlIconText icon={<Mail className="h-4 w-4" />}>
+                  <a
+                    href={`mailto:${submission.email}`}
+                    className="truncate text-foreground/90 hover:underline"
+                    dir="ltr"
                   >
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDelete(submission._id!)}
-                    className="h-8 w-8 text-destructive transition-colors hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                    {submission.email}
+                  </a>
+                </RtlIconText>
+              </TableCell>
+              <TableCell className="px-4 py-3.5 font-medium" dir="rtl">
+                <RtlIconText icon={<User className="h-4 w-4" />}>
+                  {submission.name}
+                </RtlIconText>
               </TableCell>
             </TableRow>
           ))}
@@ -222,7 +224,7 @@ function ContactSubmissionsTable({
         endItem={endItem}
         onPageChange={goToPage}
         onPageSizeChange={updatePageSize}
-        resultsLabel="messages"
+        resultsLabel="رسائل"
       />
     </div>
   );
@@ -267,7 +269,7 @@ export default function ContactPage() {
       const data = await getContactSubmissions();
       setSubmissions(data);
     } catch {
-      toast.error("Failed to load submissions");
+      toast.error("مقدرناش نحمّل الطلبات");
     } finally {
       setIsLoading(false);
     }
@@ -284,7 +286,7 @@ export default function ContactPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this submission?")) return;
+    if (!confirm("متأكد إنك عايز تمسح الطلب ده؟")) return;
 
     const result = await deleteContactSubmission(id);
     if (result.success) {
@@ -335,11 +337,11 @@ export default function ContactPage() {
   );
 
   const tabItems = [
-    { value: "all", label: "All", count: searchedSubmissions.length },
-    { value: "new", label: "New", count: newSubmissions.length },
-    { value: "read", label: "Read", count: readSubmissions.length },
-    { value: "replied", label: "Replied", count: repliedSubmissions.length },
-    { value: "archived", label: "Archived", count: archivedSubmissions.length },
+    { value: "all", label: "الكل", count: searchedSubmissions.length },
+    { value: "new", label: "جديد", count: newSubmissions.length },
+    { value: "read", label: "مقروء", count: readSubmissions.length },
+    { value: "replied", label: "تم الرد", count: repliedSubmissions.length },
+    { value: "archived", label: "مؤرشف", count: archivedSubmissions.length },
   ];
 
   if (isLoading) {
@@ -351,20 +353,18 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Contact Submissions</h1>
-        <p className="mt-2 text-muted-foreground">
-          Review and manage incoming contact form messages
-        </p>
-      </div>
+    <div className="space-y-6 text-right" dir="rtl">
+      <AdminPageHeader
+        title="طلبات التواصل"
+        description="مراجعة وإدارة رسائل نموذج التواصل الواردة"
+      />
 
       <Card className="border-border p-4 shadow-none">
         <Tabs value={activeTab} onValueChange={(value) => updateQueryParam("status", value)}>
           <PageTabsHeader
             tabs={tabItems}
             showSearch
-            searchPlaceholder="Search messages..."
+            searchPlaceholder="بحث في الرسائل..."
             searchDefaultValue={searchValue}
           />
 
@@ -372,7 +372,7 @@ export default function ContactPage() {
             {searchedSubmissions.length === 0 ? (
               <EmptySearchResults
                 searchQuery={searchValue}
-                entityName="contact submissions"
+                entityName="طلبات التواصل"
               />
             ) : (
               <ContactSubmissionsTable
@@ -428,63 +428,57 @@ export default function ContactPage() {
       </Card>
 
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              Contact Message Details
+        <DialogContent className="max-w-2xl text-right" dir="rtl">
+          <DialogHeader className="text-right">
+            <DialogTitle className="inline-flex w-full items-center justify-end gap-2" dir="ltr">
+              <span>تفاصيل رسالة التواصل</span>
+              <MessageSquare className="h-5 w-5 text-primary" />
             </DialogTitle>
-            <DialogDescription>
-              Submitted on {selectedSubmission && formatDate(selectedSubmission.createdAt)}
+            <DialogDescription dir="rtl">
+              تم الإرسال في {selectedSubmission && formatDate(selectedSubmission.createdAt)}
             </DialogDescription>
           </DialogHeader>
           {selectedSubmission && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">From</p>
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
+                <DetailField label="من">
+                  <RtlIconText icon={<User className="h-4 w-4" />}>
                     <span className="font-medium">{selectedSubmission.name}</span>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
+                  </RtlIconText>
+                </DetailField>
+                <DetailField label="الإيميل">
+                  <RtlIconText icon={<Mail className="h-4 w-4" />}>
                     <a
                       href={`mailto:${selectedSubmission.email}`}
                       className="hover:underline"
+                      dir="ltr"
                     >
                       {selectedSubmission.email}
                     </a>
-                  </div>
-                </div>
+                  </RtlIconText>
+                </DetailField>
               </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Subject</p>
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
+              <DetailField label="الموضوع">
+                <RtlIconText icon={<FileText className="h-4 w-4" />}>
                   <span className="font-medium">{selectedSubmission.subject}</span>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Message</p>
-                <div className="rounded-lg bg-muted/30 p-4">
+                </RtlIconText>
+              </DetailField>
+              <DetailField label="الرسالة">
+                <div className="rounded-lg bg-muted/30 p-4 text-right">
                   <p className="whitespace-pre-wrap">{selectedSubmission.message}</p>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-muted-foreground">Status:</p>
+              </DetailField>
+              <div className="flex items-center justify-end gap-2">
+                <p className="text-sm text-muted-foreground">الحالة:</p>
                 {getStatusBadge(selectedSubmission.status)}
               </div>
-              <div className="flex gap-2 pt-4">
+              <div className="flex justify-end gap-2 pt-4">
                 <a
                   href={`mailto:${selectedSubmission.email}?subject=Re: ${selectedSubmission.subject}`}
                 >
-                  <Button className="flex items-center gap-2">
+                  <Button className="gap-2">
+                    <span>الرد عبر البريد</span>
                     <Mail className="h-4 w-4" />
-                    Reply via Email
                   </Button>
                 </a>
               </div>

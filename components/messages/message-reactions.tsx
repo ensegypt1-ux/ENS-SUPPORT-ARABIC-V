@@ -33,7 +33,7 @@ export function MessageReactions({
   const handleReaction = async (emoji: string) => {
     const result = await toggleMessageReaction(messageId, emoji);
     if (!result.success) {
-      toast.error(result.error || "Failed to add reaction");
+      toast.error(result.error || "تعذّر الإضافة التفاعل");
     }
   };
 
@@ -65,7 +65,7 @@ export function MessageReactions({
                 onClick={() => handleReaction(emoji)}
                 title={reactions.map((r) => r.user_name).join(", ")}
               >
-                <span className="mr-1">{emoji}</span>
+                <span className="me-1">{emoji}</span>
                 <span className="text-xs">{count}</span>
               </Button>
             );
@@ -80,7 +80,7 @@ export function MessageReactions({
             variant="ghost"
             size="sm"
             className="h-7 w-7 p-0"
-            title="Add reaction"
+            title="إضافة تفاعل"
           >
             <Smile className="h-4 w-4" />
           </Button>

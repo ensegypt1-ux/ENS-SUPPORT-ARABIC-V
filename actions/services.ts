@@ -23,14 +23,14 @@ function slugify(value: string) {
 
 async function requireSignedIn() {
   const session = await getSession();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new Error("مش مسموح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
   return { session, role };
 }
 
 async function requireStaff() {
   const session = await requirePermissionOrThrow("services.manage", {
-    message: "Forbidden: Services manage access required",
+    message: "ممنوع: يلزم صلاحية إدارة الخدمات",
   });
   const role = ((session.user as { role?: UserRole })?.role ?? "customer") as UserRole;
   return { session, role };
@@ -38,7 +38,7 @@ async function requireStaff() {
 
 async function requireAdmin() {
   const { session, role } = await requireStaff();
-  if (role !== "admin") throw new Error("Forbidden: Admin access required");
+  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
   return session;
 }
 
@@ -47,6 +47,14 @@ async function ensureDefaultServices() {
   const count = await servicesCollection.countDocuments();
   if (count > 0) {
     await servicesCollection.updateMany({}, { $addToSet: { roles: "customer" } });
+    await servicesCollection.updateMany(
+      { slug: "customization" },
+      { $set: { name: "التخصيص", updatedAt: new Date() } },
+    );
+    await servicesCollection.updateMany(
+      { slug: "installation" },
+      { $set: { name: "التثبيت", updatedAt: new Date() } },
+    );
     await servicesCollection.updateMany(
       { slug: "customization", href: { $ne: "/admin/services/customization" } },
       { $set: { href: "/admin/services/customization" } },
@@ -61,7 +69,7 @@ async function ensureDefaultServices() {
   const now = new Date();
   await servicesCollection.insertMany([
     {
-      name: "Customization",
+      name: "التخصيص",
       slug: "customization",
       href: "/admin/services/customization",
       iconKey: "wrench",
@@ -74,7 +82,7 @@ async function ensureDefaultServices() {
       updatedBy: "system",
     } as any,
     {
-      name: "Installation",
+      name: "التثبيت",
       slug: "installation",
       href: "/admin/services/installation",
       iconKey: "download",
@@ -90,7 +98,7 @@ async function ensureDefaultServices() {
 }
 
 const createServiceSchema = z.object({
-  name: z.string().min(1, "Service name is required"),
+  name: z.string().min(1, "اسم الخدمة مطلوب"),
   slug: z.string().optional(),
   description: z.string().optional(),
   iconKey: z.string().optional(),
@@ -134,7 +142,7 @@ export async function getServicesForNav(): Promise<
     console.error("Get services for nav error:", error);
     return {
       success: false,
-      error: error.message || "Failed to load services",
+      error: error.message || "تعذّر التحميل الخدمات",
     };
   }
 }
@@ -182,7 +190,7 @@ export async function getAllServices(): Promise<
     console.error("Get all services error:", error);
     return {
       success: false,
-      error: error.message || "Failed to load services",
+      error: error.message || "تعذّر التحميل الخدمات",
     };
   }
 }
@@ -204,7 +212,7 @@ export async function getServiceBySlug(slug: string): Promise<
     const servicesCollection = await getCollection<Service>("services");
     const service = await servicesCollection.findOne({ slug, isActive: true });
     if (!service) {
-      return { success: false, error: "Service not found" };
+      return { success: false, error: "مفيش خدمة" };
     }
 
     return {
@@ -222,7 +230,7 @@ export async function getServiceBySlug(slug: string): Promise<
     console.error("Get service by slug error:", error);
     return {
       success: false,
-      error: error.message || "Failed to load service",
+      error: error.message || "تعذّر التحميل الخدمة",
     };
   }
 }
@@ -239,14 +247,14 @@ export async function createService(input: z.infer<typeof createServiceSchema>) 
 
     const rawSlug = parsed.data.slug?.trim() || slugify(parsed.data.name);
     if (!rawSlug) {
-      return { success: false, error: "Invalid slug" };
+      return { success: false, error: "المعرّف مش صح" };
     }
 
     const servicesCollection = await getCollection<Service>("services");
 
     const existing = await servicesCollection.findOne({ slug: rawSlug });
     if (existing) {
-      return { success: false, error: "A service with this slug already exists" };
+      return { success: false, error: "توجد خدمة بهذا المعرّف بالفعل" };
     }
 
     const now = new Date();
@@ -289,7 +297,7 @@ export async function createService(input: z.infer<typeof createServiceSchema>) 
     return { success: true };
   } catch (error: any) {
     console.error("Create service error:", error);
-    return { success: false, error: error.message || "Failed to create service" };
+    return { success: false, error: error.message || "تعذّر إنشاء الخدمة" };
   }
 }
 
@@ -315,13 +323,13 @@ export async function updateService(input: z.infer<typeof updateServiceSchema>) 
     }
 
     if (!ObjectId.isValid(parsed.data.id)) {
-      return { success: false, error: "Invalid service id" };
+      return { success: false, error: "معرّف الخدمة مش صح" };
     }
 
     const servicesCollection = await getCollection<Service>("services");
     const objectId = new ObjectId(parsed.data.id);
     const existing = await servicesCollection.findOne({ _id: objectId });
-    if (!existing) return { success: false, error: "Service not found" };
+    if (!existing) return { success: false, error: "مفيش خدمة" };
 
     const updateDoc: Partial<Service> & Record<string, any> = {
       updatedAt: new Date(),
@@ -341,11 +349,11 @@ export async function updateService(input: z.infer<typeof updateServiceSchema>) 
 
     if (typeof parsed.data.slug === "string") {
       const nextSlug = slugify(parsed.data.slug);
-      if (!nextSlug) return { success: false, error: "Invalid slug" };
+      if (!nextSlug) return { success: false, error: "المعرّف مش صح" };
       if (nextSlug !== existing.slug) {
         const slugExists = await servicesCollection.findOne({ slug: nextSlug });
         if (slugExists) {
-          return { success: false, error: "A service with this slug already exists" };
+          return { success: false, error: "توجد خدمة بهذا المعرّف بالفعل" };
         }
         updateDoc.slug = nextSlug;
       }
@@ -377,7 +385,7 @@ export async function updateService(input: z.infer<typeof updateServiceSchema>) 
     return { success: true };
   } catch (error: any) {
     console.error("Update service error:", error);
-    return { success: false, error: error.message || "Failed to update service" };
+    return { success: false, error: error.message || "تعذّر تحديث الخدمة" };
   }
 }
 
@@ -386,7 +394,7 @@ export async function deleteService(id: string) {
     await requireAdmin();
 
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid service id" };
+      return { success: false, error: "معرّف الخدمة مش صح" };
     }
 
     const servicesCollection = await getCollection<Service>("services");
@@ -400,6 +408,6 @@ export async function deleteService(id: string) {
     return { success: true };
   } catch (error: any) {
     console.error("Delete service error:", error);
-    return { success: false, error: error.message || "Failed to delete service" };
+    return { success: false, error: error.message || "تعذّر حذف الخدمة" };
   }
 }

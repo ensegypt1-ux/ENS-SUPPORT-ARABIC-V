@@ -25,24 +25,24 @@ export async function editMessage(
     });
 
     if (!session?.user) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     if (!newContent.trim()) {
-      return { success: false, error: "Message content cannot be empty" };
+      return { success: false, error: "محتوى الرسالة ما ينفعش يكون فاضي" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "Message not found" };
+      return { success: false, error: "مفيش الرسالة" };
     }
 
     if (message.senderId !== session.user.id) {
-      return { success: false, error: "You can only edit your own messages" };
+      return { success: false, error: "تقدر تعدّل رسائلك بس" };
     }
 
     if (message.isDeleted) {
-      return { success: false, error: "Cannot edit deleted message" };
+      return { success: false, error: "مش ينفع تعدّل رسالة اتمسحت" };
     }
 
     const now = new Date().toISOString();
@@ -75,7 +75,7 @@ export async function editMessage(
     return { success: true, message: serialized || undefined };
   } catch (error) {
     console.error("Error editing message:", error);
-    return { success: false, error: "Failed to edit message" };
+    return { success: false, error: "تعذّر تعديل الرسالة" };
   }
 }
 
@@ -88,12 +88,12 @@ export async function getMessageEditHistory(
     });
 
     if (!session?.user) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "Message not found" };
+      return { success: false, error: "مفيش الرسالة" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -101,7 +101,7 @@ export async function getMessageEditHistory(
       session.user.id
     );
     if (!conversation) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     return {
@@ -112,7 +112,7 @@ export async function getMessageEditHistory(
     };
   } catch (error) {
     console.error("Error fetching edit history:", error);
-    return { success: false, error: "Failed to fetch edit history" };
+    return { success: false, error: "تعذّر جلب سجل التعديل" };
   }
 }
 
@@ -125,20 +125,20 @@ export async function deleteMessage(
     });
 
     if (!session?.user) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "Message not found" };
+      return { success: false, error: "مفيش الرسالة" };
     }
 
     if (message.senderId !== session.user.id) {
-      return { success: false, error: "You can only delete your own messages" };
+      return { success: false, error: "تقدر تمسح رسائلك بس" };
     }
 
     if (message.isDeleted) {
-      return { success: false, error: "Message already deleted" };
+      return { success: false, error: "الرسالة اتمسحت أصلاً" };
     }
 
     message.isDeleted = true;
@@ -162,6 +162,6 @@ export async function deleteMessage(
     return { success: true };
   } catch (error) {
     console.error("Error deleting message:", error);
-    return { success: false, error: "Failed to delete message" };
+    return { success: false, error: "تعذّر حذف الرسالة" };
   }
 }

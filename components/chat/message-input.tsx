@@ -84,7 +84,7 @@ export function MessageInput({
     const maxSize = 20 * 1024 * 1024;
     const validFiles = files.filter((file) => {
       if (file.size > maxSize) {
-        toast.error(`${file.name} is too large. Max size is 20MB.`);
+        toast.error(`${file.name} كبير جداً. الحد الأقصى للحجم 20 ميجابايت.`);
         return false;
       }
       return true;
@@ -132,7 +132,7 @@ export function MessageInput({
             );
             if (!uploadResult.success) {
               toast.error(
-                `Failed to upload ${file.name}: ${uploadResult.error}`
+                `تعذّر رفع ${file.name}: ${uploadResult.error}`
               );
             }
           }
@@ -146,11 +146,11 @@ export function MessageInput({
         // Focus back on textarea
         textareaRef.current?.focus();
       } else {
-        toast.error(result.error || "Failed to send message");
+        toast.error(result.error || "تعذّر الإرسال الرسالة");
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      toast.error("An unexpected error occurred");
+      toast.error("حصل خطأ مش متوقع");
     } finally {
       setSending(false);
       setUploading(false);
@@ -172,7 +172,7 @@ export function MessageInput({
         <div className="flex items-start justify-between gap-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 px-3 py-2 text-xs">
           <div className="flex-1 min-w-0">
             <p className="font-medium text-blue-900 dark:text-blue-100 text-xs">
-              Replying to {replyToMessage.sender_name || "User"}
+              الرد على {replyToMessage.sender_name || "مستخدم"}
             </p>
             {replyToMessage.content && (
               <p className="mt-0.5 line-clamp-2 text-blue-700 dark:text-blue-300 text-[11px]">
@@ -183,7 +183,7 @@ export function MessageInput({
           <button
             type="button"
             onClick={onCancelReply}
-            className="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+            className="ms-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -223,8 +223,8 @@ export function MessageInput({
               handleTyping();
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            className="min-h-[44px] max-h-[200px] resize-none pr-20 rounded-xl border-border/50 bg-background text-sm"
+            placeholder="اكتب رسالة..."
+            className="min-h-[44px] max-h-[200px] resize-none pe-20 rounded-xl border-border/50 bg-background text-sm"
             disabled={sending || uploading}
           />
 
@@ -233,7 +233,7 @@ export function MessageInput({
             type="button"
             size="icon"
             variant="ghost"
-            className="absolute right-2 bottom-2 h-7 w-7 rounded-full hover:bg-accent"
+            className="absolute end-2 bottom-2 h-7 w-7 rounded-full hover:bg-accent"
             onClick={() => fileInputRef.current?.click()}
             disabled={sending || uploading}
           >

@@ -47,26 +47,26 @@ export async function uploadMessageAttachment(
     });
 
     if (!session?.user) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "Message not found" };
+      return { success: false, error: "مفيش الرسالة" };
     }
 
     if (message.senderId !== session.user.id) {
-      return { success: false, error: "You can only attach files to your own messages" };
+      return { success: false, error: "تقدر ترفق ملفات برسائلك بس" };
     }
 
     const file = formData.get("file") as File | null;
     if (!file) {
-      return { success: false, error: "No file provided" };
+      return { success: false, error: "مفيش ملف مرفوع" };
     }
 
     const maxSize = 20 * 1024 * 1024;
     if (file.size > maxSize) {
-      return { success: false, error: "File size exceeds 20MB limit" };
+      return { success: false, error: "حجم الملف يتجاوز الحد الأقصى 20 ميغابايت" };
     }
 
     const allowedTypes = [
@@ -81,7 +81,7 @@ export async function uploadMessageAttachment(
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      return { success: false, error: "File type not allowed" };
+      return { success: false, error: "نوع الملف غير مسموح" };
     }
 
     const uploadedFile = await uploadFile({
@@ -119,7 +119,7 @@ export async function uploadMessageAttachment(
     console.error("Error uploading attachment:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to upload file",
+      error: error instanceof Error ? error.message : "تعذّر رفع الملف",
     };
   }
 }
@@ -128,7 +128,7 @@ export async function getMessageAttachments(messageId: string) {
   try {
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "Message not found" };
+      return { success: false, error: "مفيش الرسالة" };
     }
 
     return {
@@ -139,7 +139,7 @@ export async function getMessageAttachments(messageId: string) {
     };
   } catch (error) {
     console.error("Error fetching attachments:", error);
-    return { success: false, error: "Failed to fetch attachments" };
+    return { success: false, error: "تعذّر جلب المرفقات" };
   }
 }
 
@@ -152,7 +152,7 @@ export async function deleteMessageAttachment(
     });
 
     if (!session?.user) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const messagesCollection = await getCollection<MessageDocument>("messages");
@@ -161,7 +161,7 @@ export async function deleteMessageAttachment(
     });
 
     if (!message) {
-      return { success: false, error: "Attachment not found" };
+      return { success: false, error: "مفيش المرفق" };
     }
 
     const attachment = (message.attachments || []).find(
@@ -169,7 +169,7 @@ export async function deleteMessageAttachment(
     );
 
     if (!attachment || attachment.uploaded_by !== session.user.id) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     if (attachment.thumbnail_url) {
@@ -195,6 +195,6 @@ export async function deleteMessageAttachment(
     return { success: true };
   } catch (error) {
     console.error("Error deleting attachment:", error);
-    return { success: false, error: "Failed to delete attachment" };
+    return { success: false, error: "تعذّر حذف المرفق" };
   }
 }

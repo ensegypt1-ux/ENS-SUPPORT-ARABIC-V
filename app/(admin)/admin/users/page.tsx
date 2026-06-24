@@ -10,6 +10,7 @@ import { ViewToggle } from "@/components/tickets/view-toggle";
 import { getTicketDepartments } from "@/actions/ticket-departments";
 import { Users, Headset, ShieldAlert, UserCog } from "lucide-react";
 import { PageTabsHeader } from "@/components/shared/page-tabs-header";
+import { AdminPageHeader } from "@/components/layout/admin-page-header";
 import { CreateUserButton } from "@/components/admin/create-user-button";
 import { EmptySearchResults } from "@/components/shared/empty-search-results";
 
@@ -85,7 +86,7 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
   const teamMembers = enrichedUsers.filter((u) => u.role !== "customer");
 
   // Mutually exclusive buckets so counts sum to the total. A user assigned a
-  // custom role is grouped under "Custom Roles"; default admins/support keep
+  // custom role is grouped under "أدوار مخصصة"; default admins/support keep
   // their base-role bucket.
   const customRoleUsers = teamMembers.filter((u) => u.isCustomRole);
   const adminUsers = teamMembers.filter(
@@ -97,58 +98,53 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
 
   const userStats = [
     {
-      title: "Team Members",
+      title: "أعضاء الفريق",
       value: teamMembers.length,
       icon: Users,
       iconColor: "text-slate-600",
       iconBgColor: "bg-slate-50 dark:bg-slate-950",
-      description: "Admins, support, and custom roles",
+      description: "المسؤولون ووكلاء الدعم والأدوار المخصصة",
     },
     {
-      title: "Admins",
+      title: "المسؤولون",
       value: adminUsers.length,
       icon: ShieldAlert,
       iconColor: "text-rose-600",
       iconBgColor: "bg-rose-50 dark:bg-rose-950",
-      description: "System administrators",
+      description: "مسؤولو النظام",
     },
     {
-      title: "Support Staff",
+      title: "فريق الدعم",
       value: supportUsers.length,
       icon: Headset,
       iconColor: "text-indigo-600",
       iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "Support agents",
+      description: "وكلاء الدعم",
     },
     {
-      title: "Custom Roles",
+      title: "أدوار مخصصة",
       value: customRoleUsers.length,
       icon: UserCog,
       iconColor: "text-violet-600",
       iconBgColor: "bg-violet-50 dark:bg-violet-950",
-      description: "Custom permission roles",
+      description: "أدوار صلاحيات مخصصة",
     },
   ];
 
   const tabItems = [
-    { value: "all", label: "All Team Members", count: teamMembers.length },
-    { value: "admin", label: "Admins", count: adminUsers.length },
-    { value: "support", label: "Support Staff", count: supportUsers.length },
-    { value: "custom", label: "Custom Roles", count: customRoleUsers.length },
+    { value: "all", label: "جميع أعضاء الفريق", count: teamMembers.length },
+    { value: "admin", label: "المسؤولون", count: adminUsers.length },
+    { value: "support", label: "فريق الدعم", count: supportUsers.length },
+    { value: "custom", label: "أدوار مخصصة", count: customRoleUsers.length },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Team Members</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage admin, support, and custom-role accounts
-          </p>
-        </div>
-        <CreateUserButton />
-      </div>
+    <div className="space-y-6 text-right" dir="rtl">
+      <AdminPageHeader
+        title="أعضاء الفريق"
+        description="إدارة حسابات المسؤولين ووكلاء الدعم والأدوار المخصصة"
+        actions={<CreateUserButton />}
+      />
 
       {/* Statistics */}
       <StatsGrid stats={userStats} />
@@ -159,7 +155,7 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
           <PageTabsHeader
             tabs={tabItems}
             showSearch
-            searchPlaceholder="Search team members..."
+            searchPlaceholder="بحث في أعضاء الفريق..."
             searchDefaultValue={filters.search}
             rightActions={<ViewToggle />}
           />
@@ -175,7 +171,7 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
             {teamMembers.length === 0 ? (
               <EmptySearchResults
                 searchQuery={filters.search}
-                entityName="team members"
+                entityName="أعضاء الفريق"
               />
             ) : viewMode === "table" ? (
               <UsersTable users={teamMembers} />
@@ -196,7 +192,7 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
           >
             {adminUsers.length === 0 ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
-                No admins found
+                مفيش مسؤولين
               </div>
             ) : viewMode === "table" ? (
               <UsersTable users={adminUsers} />
@@ -217,7 +213,7 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
           >
             {supportUsers.length === 0 ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
-                No support staff found
+                مفيش فريق دعم
               </div>
             ) : viewMode === "table" ? (
               <UsersTable users={supportUsers} />
@@ -238,7 +234,7 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
           >
             {customRoleUsers.length === 0 ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
-                No custom-role members found
+                مفيش أعضاء بأدوار مخصصة
               </div>
             ) : viewMode === "table" ? (
               <UsersTable users={customRoleUsers} />

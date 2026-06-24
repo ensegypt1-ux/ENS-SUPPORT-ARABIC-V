@@ -111,10 +111,10 @@ export default async function ArticlePage({ params }: PageProps) {
         {/* Breadcrumb */}
         <nav
           className="flex flex-wrap items-center gap-2 text-sm font-medium text-muted-foreground"
-          aria-label="Breadcrumb"
+          aria-label="مسار التنقل"
         >
           <Link href="/docs" className="hover:text-foreground transition-colors">
-            Docs
+            الوثائق
           </Link>
           <ChevronRight className="size-3 shrink-0 text-muted-foreground/40" />
           {category && (
@@ -149,7 +149,7 @@ export default async function ArticlePage({ params }: PageProps) {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-medium text-muted-foreground">
-              Chapter {chapterNo}
+              الفصل {chapterNo}
               {category ? ` · ${category.title}` : ""}
             </p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
@@ -168,7 +168,7 @@ export default async function ArticlePage({ params }: PageProps) {
         <div className="mt-6 mb-10 flex items-center gap-2 border-b border-border pb-8 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/60 px-2.5 py-1">
             <Calendar className="size-3.5 shrink-0" />
-            Last updated {format(new Date(article.updatedAt), "MMM d, yyyy")}
+            آخر تحديث {format(new Date(article.updatedAt), "MMM d, yyyy")}
           </span>
         </div>
 
@@ -184,7 +184,7 @@ export default async function ArticlePage({ params }: PageProps) {
             prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md
             prose-code:text-[13px] prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
             prose-pre:bg-slate-950 prose-pre:text-slate-100 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl prose-pre:shadow-sm
-            prose-blockquote:border-l-4 prose-blockquote:border-primary/50 prose-blockquote:bg-muted/30 prose-blockquote:rounded-r-lg prose-blockquote:py-0.5 prose-blockquote:text-muted-foreground prose-blockquote:not-italic
+            prose-blockquote:border-s-4 prose-blockquote:border-primary/50 prose-blockquote:bg-muted/30 prose-blockquote:rounded-e-lg prose-blockquote:py-0.5 prose-blockquote:text-muted-foreground prose-blockquote:not-italic
             prose-ul:my-4 prose-li:my-1
             prose-img:rounded-xl prose-img:border prose-img:border-border prose-img:shadow-sm"
           dangerouslySetInnerHTML={{ __html: content }}
@@ -202,7 +202,7 @@ export default async function ArticlePage({ params }: PageProps) {
                   <ArrowLeft className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5 group-hover:text-foreground" />
                   <div className="min-w-0">
                     <p className="text-[11px] font-medium text-muted-foreground">
-                      Previous
+                      السابق
                     </p>
                     <p className="line-clamp-2 text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
                       {prevArticle.title}
@@ -215,11 +215,11 @@ export default async function ArticlePage({ params }: PageProps) {
               {nextArticle && (
                 <Link
                   href={`/docs/${categorySlug}/${nextArticle.slug}`}
-                  className="group flex items-center justify-end gap-3 rounded-xl border border-border bg-card p-4 text-right transition-all hover:border-foreground/20 hover:shadow-sm"
+                  className="group flex items-center justify-end gap-3 rounded-xl border border-border bg-card p-4 text-end transition-all hover:border-foreground/20 hover:shadow-sm"
                 >
                   <div className="min-w-0">
                     <p className="text-[11px] font-medium text-muted-foreground">
-                      Next
+                      التالي
                     </p>
                     <p className="line-clamp-2 text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
                       {nextArticle.title}

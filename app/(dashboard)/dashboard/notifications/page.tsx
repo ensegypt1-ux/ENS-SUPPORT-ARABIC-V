@@ -9,8 +9,8 @@ import { getSession } from "@/lib/auth-utils";
 import { EnhancedNotificationList } from "@/components/notifications/enhanced-notification-list";
 
 export const metadata = {
-  title: "Notifications | Support App",
-  description: "View and manage your notifications",
+  title: "الإشعارات | تطبيق الدعم",
+  description: "عرض وإدارة إشعاراتك",
 };
 
 export default async function NotificationsPage() {

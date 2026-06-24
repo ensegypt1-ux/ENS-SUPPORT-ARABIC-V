@@ -40,16 +40,16 @@ interface NotificationFiltersProps {
 
 const notificationTypes: { value: NotificationType | "all"; label: string }[] =
   [
-    { value: "all", label: "All Types" },
-    { value: "new_message", label: "New Messages" },
-    { value: "new_ticket", label: "New Tickets" },
-    { value: "ticket_status", label: "Ticket Status" },
-    { value: "ticket_assignment", label: "Ticket Assignment" },
-    { value: "meeting_scheduled", label: "Meeting Scheduled" },
-    { value: "meeting_cancelled", label: "Meeting Cancelled" },
-    { value: "installation_status", label: "Installation Status" },
-    { value: "customization_status", label: "Customization Status" },
-    { value: "comment", label: "Comments" },
+    { value: "all", label: "جميع الأنواع" },
+    { value: "new_message", label: "رسائل جديدة" },
+    { value: "new_ticket", label: "تذاكر جديدة" },
+    { value: "ticket_status", label: "حالة التذكرة" },
+    { value: "ticket_assignment", label: "إسناد التذكرة" },
+    { value: "meeting_scheduled", label: "اجتماع مجدول" },
+    { value: "meeting_cancelled", label: "اجتماع ملغى" },
+    { value: "installation_status", label: "حالة التثبيت" },
+    { value: "customization_status", label: "حالة التخصيص" },
+    { value: "comment", label: "تعليقات" },
   ];
 
 export function NotificationFilters({
@@ -117,12 +117,12 @@ export function NotificationFilters({
       {/* Search and Filter Toggle */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search notifications..."
+            placeholder="البحث في الإشعارات..."
             value={filters.search}
             onChange={(e) => updateFilter("search", e.target.value)}
-            className="pl-10"
+            className="ps-10"
           />
         </div>
         <Button
@@ -130,12 +130,12 @@ export function NotificationFilters({
           onClick={() => setShowFilters(!showFilters)}
           className="relative"
         >
-          <Filter className="mr-2 h-4 w-4" />
-          Filters
+          <Filter className="me-2 h-4 w-4" />
+          تصفية
           {activeFiltersCount > 0 && (
             <Badge
               variant="default"
-              className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center"
+              className="ms-2 h-5 w-5 rounded-full p-0 flex items-center justify-center"
             >
               {activeFiltersCount}
             </Badge>
@@ -143,8 +143,8 @@ export function NotificationFilters({
         </Button>
         {activeFiltersCount > 0 && (
           <Button variant="ghost" onClick={resetFilters}>
-            <X className="mr-2 h-4 w-4" />
-            Clear
+            <X className="me-2 h-4 w-4" />
+            مسح
           </Button>
         )}
       </div>
@@ -154,7 +154,7 @@ export function NotificationFilters({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50">
           {/* Type Filter */}
           <div className="space-y-2">
-            <Label>Type</Label>
+            <Label>النوع</Label>
             <Select
               value={filters.type}
               onValueChange={(value) => updateFilter("type", value)}
@@ -174,7 +174,7 @@ export function NotificationFilters({
 
           {/* Read Status Filter */}
           <div className="space-y-2">
-            <Label>Status</Label>
+            <Label>الحالة</Label>
             <Select
               value={filters.read}
               onValueChange={(value) => updateFilter("read", value)}
@@ -183,16 +183,16 @@ export function NotificationFilters({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="unread">Unread</SelectItem>
-                <SelectItem value="read">Read</SelectItem>
+                <SelectItem value="all">الكل</SelectItem>
+                <SelectItem value="unread">غير مقروء</SelectItem>
+                <SelectItem value="read">مقروء</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Date Range Filter */}
           <div className="space-y-2">
-            <Label>Date Range</Label>
+            <Label>النطاق الزمني</Label>
             <Select
               value={filters.dateRange}
               onValueChange={handleDateRangeChange}
@@ -201,18 +201,18 @@ export function NotificationFilters({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Time</SelectItem>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="week">Last 7 Days</SelectItem>
-                <SelectItem value="month">Last 30 Days</SelectItem>
-                <SelectItem value="custom">Custom Range</SelectItem>
+                <SelectItem value="all">كل الوقت</SelectItem>
+                <SelectItem value="today">اليوم</SelectItem>
+                <SelectItem value="week">آخر 7 أيام</SelectItem>
+                <SelectItem value="month">آخر 30 يوماً</SelectItem>
+                <SelectItem value="custom">نطاق مخصص</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Sort Options */}
           <div className="space-y-2">
-            <Label>Sort By</Label>
+            <Label>ترتيب حسب</Label>
             <div className="flex gap-2">
               <Select
                 value={filters.sortBy}
@@ -222,8 +222,8 @@ export function NotificationFilters({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="date">Date</SelectItem>
-                  <SelectItem value="read">Status</SelectItem>
+                  <SelectItem value="date">التاريخ</SelectItem>
+                  <SelectItem value="read">الحالة</SelectItem>
                 </SelectContent>
               </Select>
               <Select
@@ -244,18 +244,18 @@ export function NotificationFilters({
           {/* Custom Date Range Picker */}
           {filters.dateRange === "custom" && (
             <div className="col-span-full space-y-2">
-              <Label>Custom Date Range</Label>
+              <Label>نطاق تاريخ مخصص</Label>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="justify-start text-left font-normal"
+                      className="justify-start text-start font-normal"
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <CalendarIcon className="me-2 h-4 w-4" />
                       {filters.dateFrom
                         ? format(filters.dateFrom, "PPP")
-                        : "From date"}
+                        : "من تاريخ"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -271,12 +271,12 @@ export function NotificationFilters({
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="justify-start text-left font-normal"
+                      className="justify-start text-start font-normal"
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <CalendarIcon className="me-2 h-4 w-4" />
                       {filters.dateTo
                         ? format(filters.dateTo, "PPP")
-                        : "To date"}
+                        : "إلى تاريخ"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">

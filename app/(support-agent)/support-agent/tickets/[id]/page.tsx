@@ -34,6 +34,7 @@ import {
   CheckCircle2,
   Globe,
 } from "lucide-react";
+import { FALLBACKS, TICKET_UI, CATEGORY_LABELS } from "@/lib/strings";
 import { formatDate } from "@/lib/settings-utils";
 import type { User as UserType } from "@/types";
 import type { SessionUser } from "@/lib/auth";
@@ -143,7 +144,7 @@ export default async function SupportAgentTicketDetailPage({
   const customer = users[ticket?.customerId] || {
     // Guest tickets (AI chatbot widget) have no user record — fall back to the
     // name/email the visitor entered in the contact form.
-    name: ticket?.guestName || "Unknown Customer",
+    name: ticket?.guestName || "عميل غير معروف",
     email: ticket?.guestEmail || "",
     role: "customer",
   };
@@ -164,8 +165,8 @@ export default async function SupportAgentTicketDetailPage({
         </div>
         <Button variant="outline" size="sm" asChild>
           <Link href="/support-agent/tickets">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Tickets
+            <ArrowLeft className="me-2 h-4 w-4" />
+            رجوع إلى التذاكر
           </Link>
         </Button>
       </div>
@@ -176,7 +177,7 @@ export default async function SupportAgentTicketDetailPage({
           {/* Description */}
           <Card>
             <CardHeader>
-              <CardTitle>Description</CardTitle>
+              <CardTitle>الوصف</CardTitle>
             </CardHeader>
             <CardContent>
               <TicketDescription description={ticket?.description} />
@@ -187,18 +188,18 @@ export default async function SupportAgentTicketDetailPage({
           <Tabs defaultValue="comments" className="space-y-4">
             <TabsList>
               <TabsTrigger value="comments">
-                Comments ({comments?.length})
+                {TICKET_UI.comments} ({comments?.length})
               </TabsTrigger>
               <TabsTrigger value="meetings">
-                Meetings ({meetings?.length})
+                {TICKET_UI.meetings} ({meetings?.length})
               </TabsTrigger>
               {fileUploadsEnabled && (
                 <TabsTrigger value="attachments">
-                  Attachments ({attachments?.length})
+                  {TICKET_UI.attachments} ({attachments?.length})
                 </TabsTrigger>
               )}
               <TabsTrigger value="history">
-                History ({history?.length})
+                {TICKET_UI.history} ({history?.length})
               </TabsTrigger>
             </TabsList>
 
@@ -218,7 +219,7 @@ export default async function SupportAgentTicketDetailPage({
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-2 rounded-lg border bg-card p-3">
                   <p className="text-sm text-muted-foreground">
-                    Schedule a Zoom or Google Meet with the customer.
+                    {TICKET_UI.scheduleMeetingHint}
                   </p>
                   <MeetingScheduler ticketId={id} />
                 </div>
@@ -259,7 +260,7 @@ export default async function SupportAgentTicketDetailPage({
           {/* Status Control */}
           <Card>
             <CardHeader>
-              <CardTitle>Status</CardTitle>
+              <CardTitle>الحالة</CardTitle>
             </CardHeader>
             <CardContent>
               <TicketStatusControl
@@ -272,7 +273,7 @@ export default async function SupportAgentTicketDetailPage({
           {/* Priority Control */}
           <Card>
             <CardHeader>
-              <CardTitle>Priority</CardTitle>
+              <CardTitle>الأولوية</CardTitle>
             </CardHeader>
             <CardContent>
               <TicketPriorityControl
@@ -285,13 +286,13 @@ export default async function SupportAgentTicketDetailPage({
           {/* Ticket Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Ticket Information</CardTitle>
+              <CardTitle>معلومات التذكرة</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <User className="h-4 w-4" />
-                  <span className="font-medium">Customer</span>
+                  <span className="font-medium">العميل</span>
                 </div>
                 <p className="text-sm">
                   <NameWithRole
@@ -311,7 +312,7 @@ export default async function SupportAgentTicketDetailPage({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span className="font-medium">Created</span>
+                  <span className="font-medium">تاريخ الإنشاء</span>
                 </div>
                 <p className="text-sm">
                   {ticket?.createdAt &&
@@ -325,10 +326,11 @@ export default async function SupportAgentTicketDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Tag className="h-4 w-4" />
-                      <span className="font-medium">Category</span>
+                      <span className="font-medium">الفئة</span>
                     </div>
-                    <p className="text-sm capitalize">
-                      {ticket?.category?.replace(/_/g, " ")}
+                    <p className="text-sm">
+                      {CATEGORY_LABELS[ticket.category] ??
+                        ticket.category.replace(/_/g, " ")}
                     </p>
                   </div>
                 </>
@@ -340,12 +342,12 @@ export default async function SupportAgentTicketDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Package className="h-4 w-4" />
-                      <span className="font-medium">Product</span>
+                      <span className="font-medium">المنتج</span>
                     </div>
                     <p className="text-sm">{ticket?.productName}</p>
                     {ticket?.productVersion && (
                       <p className="text-xs text-muted-foreground">
-                        Version: {ticket?.productVersion}
+                        {TICKET_UI.version}: {ticket?.productVersion}
                       </p>
                     )}
                   </div>
@@ -358,10 +360,11 @@ export default async function SupportAgentTicketDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-success">
                       <CheckCircle2 className="h-4 w-4" />
-                      <span className="font-medium">Purchase Verified</span>
+                      <span className="font-medium">تم التحقق من الشراء</span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      License: {ticket?.purchaseVerification?.licenseType}
+                      {TICKET_UI.license}:{" "}
+                      {ticket?.purchaseVerification?.licenseType}
                     </p>
                   </div>
                 </>
@@ -373,7 +376,7 @@ export default async function SupportAgentTicketDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Globe className="h-4 w-4" />
-                      <span className="font-medium">Country</span>
+                      <span className="font-medium">البلد</span>
                     </div>
                     <p className="text-sm">{customer.country}</p>
                   </div>

@@ -22,9 +22,9 @@ export function MeetingList({
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
           <p className="text-muted-foreground text-center">
-            No meetings scheduled yet.
+            مفيش اجتماعات مجدولة بعد.
             {currentUserRole !== "customer" &&
-              " Click 'Schedule Meeting' to create one."}
+              " انقر «جدولة اجتماع» لإنشاء واحد."}
           </p>
         </CardContent>
       </Card>

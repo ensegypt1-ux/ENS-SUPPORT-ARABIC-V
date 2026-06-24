@@ -23,7 +23,7 @@ export interface SearchInputProps {
 }
 
 export function SearchInput({
-  placeholder = "Search...",
+  placeholder = "دور...",
   defaultValue = "",
   paramName = "search",
   debounceMs = 300,
@@ -81,29 +81,29 @@ export function SearchInput({
 
   return (
     <div className={cn("relative flex-1 md:flex-none", className)}>
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+      <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
       <Input
         type="text"
         placeholder={placeholder}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className={cn(
-          "pl-10 pr-8 h-9 w-full md:w-[220px] border-border/60 bg-background text-sm",
+          "ps-10 pe-8 h-9 w-full md:w-[220px] border-border/60 bg-background text-sm",
           inputClassName
         )}
       />
       {isPending ? (
-        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
+        <Loader2 className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
       ) : value ? (
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 hover:bg-transparent"
+          className="absolute end-1 top-1/2 -translate-y-1/2 h-6 w-6 hover:bg-transparent"
           onClick={handleClear}
         >
           <X className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="sr-only">Clear search</span>
+          <span className="sr-only">امسح</span>
         </Button>
       ) : null}
     </div>

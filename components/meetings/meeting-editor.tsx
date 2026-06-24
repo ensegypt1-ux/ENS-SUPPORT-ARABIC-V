@@ -75,12 +75,12 @@ export function MeetingEditor({
     const result = await updateMeeting(meeting._id.toString(), data);
 
     if (result.success) {
-      toast.success("Meeting updated successfully");
+      toast.success("اتحدّث الاجتماع");
       onOpenChange(false);
       router.refresh();
     } else {
-      setError(result.error || "Failed to update meeting");
-      toast.error(result.error || "Failed to update meeting");
+      setError(result.error || "تعذّر التحديث الاجتماع");
+      toast.error(result.error || "تعذّر التحديث الاجتماع");
     }
 
     setIsSubmitting(false);
@@ -101,9 +101,9 @@ export function MeetingEditor({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Edit Meeting</DialogTitle>
+          <DialogTitle>تعديل الاجتماع</DialogTitle>
           <DialogDescription>
-            Update the meeting details below.
+            حدّث تفاصيل الاجتماع أدناه.
           </DialogDescription>
         </DialogHeader>
 
@@ -116,7 +116,7 @@ export function MeetingEditor({
 
           {/* Platform Selection */}
           <div className="space-y-2">
-            <Label htmlFor="platform">Meeting Platform</Label>
+            <Label htmlFor="platform">منصة الاجتماع</Label>
             <Select
               defaultValue={meeting.platform}
               onValueChange={(value) =>
@@ -130,13 +130,13 @@ export function MeetingEditor({
               <SelectContent>
                 <SelectItem value="zoom">
                   <div className="flex items-center">
-                    <Video className="mr-2 h-4 w-4" />
+                    <Video className="me-2 h-4 w-4" />
                     Zoom
                   </div>
                 </SelectItem>
                 <SelectItem value="google_meet">
                   <div className="flex items-center">
-                    <Video className="mr-2 h-4 w-4" />
+                    <Video className="me-2 h-4 w-4" />
                     Google Meet
                   </div>
                 </SelectItem>
@@ -151,10 +151,10 @@ export function MeetingEditor({
 
           {/* Meeting Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">Meeting Title</Label>
+            <Label htmlFor="title">عنوان الاجتماع</Label>
             <Input
               id="title"
-              placeholder="e.g., Customization Requirements Discussion"
+              placeholder="مثال: مناقشة متطلبات التخصيص"
               {...register("title")}
               disabled={isSubmitting}
             />
@@ -167,10 +167,10 @@ export function MeetingEditor({
 
           {/* Meeting Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Meeting Agenda (Optional)</Label>
+            <Label htmlFor="description">جدول أعمال الاجتماع (اختياري)</Label>
             <Textarea
               id="description"
-              placeholder="Add meeting agenda or topics to discuss..."
+              placeholder="أضف جدول أعمال الاجتماع أو الموضوعات للمناقشة..."
               rows={3}
               {...register("description")}
               disabled={isSubmitting}
@@ -185,7 +185,7 @@ export function MeetingEditor({
           {/* Date and Time */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="scheduledAt">Date & Time</Label>
+              <Label htmlFor="scheduledAt">التاريخ والوقت</Label>
               <Input
                 id="scheduledAt"
                 type="datetime-local"
@@ -203,7 +203,7 @@ export function MeetingEditor({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="duration">Duration (minutes)</Label>
+              <Label htmlFor="duration">المدة (بالدقائق)</Label>
               <Input
                 id="duration"
                 type="number"
@@ -223,12 +223,12 @@ export function MeetingEditor({
 
           {/* Timezone */}
           <div className="space-y-2">
-            <Label htmlFor="timezone">Timezone (Optional)</Label>
+            <Label htmlFor="timezone">المنطقة الزمنية (اختياري)</Label>
             <TimezoneSelect
               value={timezone}
               onValueChange={(value) => setValue("timezone", value)}
               disabled={isSubmitting}
-              placeholder="Select timezone"
+              placeholder="اختر المنطقة الزمنية"
             />
             {errors.timezone && (
               <p className="text-sm text-destructive">
@@ -236,13 +236,13 @@ export function MeetingEditor({
               </p>
             )}
             <p className="text-xs text-muted-foreground">
-              Select the timezone for the meeting to avoid confusion
+              اختر المنطقة الزمنية للاجتماع لتجنب الالتباس
             </p>
           </div>
 
           {/* Meeting Link */}
           <div className="space-y-2">
-            <Label htmlFor="meetingLink">Meeting Link (Optional)</Label>
+            <Label htmlFor="meetingLink">رابط الاجتماع (اختياري)</Label>
             <Input
               id="meetingLink"
               type="url"
@@ -268,18 +268,18 @@ export function MeetingEditor({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              إلغاء
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                  جاري الحفظ...
                 </>
               ) : (
                 <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Changes
+                  <Save className="me-2 h-4 w-4" />
+                  حفظ التغييرات
                 </>
               )}
             </Button>

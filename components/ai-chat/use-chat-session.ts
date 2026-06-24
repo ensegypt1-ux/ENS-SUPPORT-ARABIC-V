@@ -27,7 +27,7 @@ interface PersistedSession {
 export const CHAT_SESSION_STORAGE_KEY = "solvio-ai-chat-session-v1";
 
 /**
- * The embed widget always runs inside a same-origin iframe (the Solvio app), so
+ * The embed widget always runs inside a same-origin iframe (the ENS portal app), so
  * a fixed localStorage key would be shared by every third-party site that
  * embeds it — making all of them show the same conversation. Namespacing the
  * key by the host site's origin keeps each site's chat (and its visitor/session

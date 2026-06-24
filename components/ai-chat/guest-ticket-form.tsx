@@ -43,7 +43,7 @@ export function GuestTicketForm({
       message.trim().length < 5
     ) {
       setError(
-        "Please fill in all fields (subject ≥ 3 chars, message ≥ 5 chars)."
+        " ملء جميع الحقول (الموضوع 3 أحرف على الأقل، الرسالة 5 أحرف على الأقل)."
       );
       return;
     }
@@ -65,12 +65,12 @@ export function GuestTicketForm({
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        setError(data.error ?? "Failed to submit ticket");
+        setError(data.error ?? "تعذّر الإرسال التذكرة");
         return;
       }
       onSubmitted(data.data.ticketNumber);
     } catch {
-      setError("Network error — please try again");
+      setError("خطأ في الشبكة —  المحاولة مرة أخرى");
     } finally {
       setIsLoading(false);
     }
@@ -82,26 +82,26 @@ export function GuestTicketForm({
       className="space-y-3 rounded-2xl border border-border bg-card p-3 shadow-sm"
     >
       <p className="text-xs font-medium text-muted-foreground">
-        Talk to a human — we&apos;ll get back to you by email.
+        التحدث مع موظف — سنتواصل معك عبر الإيميل.
       </p>
 
       <div className="space-y-1">
         <Label htmlFor="guest-name" className="text-[11px]">
-          Your name
+          اسمك
         </Label>
         <Input
           id="guest-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="h-8 text-sm"
-          placeholder="Jane Doe"
+          placeholder="أحمد محمد"
           disabled={isLoading}
         />
       </div>
 
       <div className="space-y-1">
         <Label htmlFor="guest-email" className="text-[11px]">
-          Email
+          الإيميل
         </Label>
         <Input
           id="guest-email"
@@ -109,28 +109,28 @@ export function GuestTicketForm({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="h-8 text-sm"
-          placeholder="jane@example.com"
+          placeholder="your@email.com"
           disabled={isLoading}
         />
       </div>
 
       <div className="space-y-1">
         <Label htmlFor="guest-subject" className="text-[11px]">
-          Subject
+          الموضوع
         </Label>
         <Input
           id="guest-subject"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           className="h-8 text-sm"
-          placeholder="Brief summary of your issue"
+          placeholder="ملخص مختصر لمشكلتك"
           disabled={isLoading}
         />
       </div>
 
       <div className="space-y-1">
         <Label htmlFor="guest-message" className="text-[11px]">
-          Message
+          الرسالة
         </Label>
         <Textarea
           id="guest-message"
@@ -138,7 +138,7 @@ export function GuestTicketForm({
           onChange={(e) => setMessage(e.target.value)}
           rows={3}
           className="resize-none text-sm"
-          placeholder="How can we help?"
+          placeholder="كيف يمكننا مساعدتك؟"
           disabled={isLoading}
         />
       </div>
@@ -153,11 +153,11 @@ export function GuestTicketForm({
           disabled={isLoading}
         >
           {isLoading ? (
-            <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
           ) : (
-            <Send className="mr-1.5 h-3.5 w-3.5" />
+            <Send className="me-1.5 h-3.5 w-3.5" />
           )}
-          Send
+          إرسال
         </Button>
         <Button
           type="button"
@@ -166,7 +166,7 @@ export function GuestTicketForm({
           onClick={onCancel}
           disabled={isLoading}
         >
-          Cancel
+          إلغاء
         </Button>
       </div>
     </form>

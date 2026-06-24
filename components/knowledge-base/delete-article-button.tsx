@@ -33,10 +33,10 @@ export function DeleteArticleButton({
     try {
       const result = await deleteKBArticle(id);
       if (result.success) {
-        toast.success("Article deleted");
+        toast.success("اتمسح المقال");
         router.refresh();
       } else {
-        toast.error(result.error ?? "Failed to delete");
+        toast.error(result.error ?? "تعذّر الحذف");
       }
     } finally {
       setIsLoading(false);
@@ -52,20 +52,19 @@ export function DeleteArticleButton({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Article</AlertDialogTitle>
+          <AlertDialogTitle>حذف المقال</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete <strong>{title}</strong>? This
-            action cannot be undone.
+            متأكد من مسح <strong>{title}</strong>؟ مش هينفع ترجع عن الإجراء ده.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>إلغاء</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isLoading}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete
+            حذف
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

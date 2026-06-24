@@ -87,7 +87,7 @@ export default function EditCustomizationPage({
         setIsLoading(false);
       } catch (error) {
         console.error("Error loading ticket:", error);
-        setError("Failed to load customization request");
+        setError("تعذّر التحميل طلب التخصيص");
         setIsLoading(false);
       }
     }
@@ -103,18 +103,18 @@ export default function EditCustomizationPage({
       const result = await updateCustomizationContent(ticketId, data);
 
       if (!result.success) {
-        setError(result.error || "Failed to update customization request");
-        toast.error(result.error || "Failed to update customization request");
+        setError(result.error || "تعذّر التحديث طلب التخصيص");
+        toast.error(result.error || "تعذّر التحديث طلب التخصيص");
         setIsSubmitting(false);
         return;
       }
 
-      toast.success("Customization request updated successfully!");
+      toast.success("اتحدّث طلب التخصيص!");
       router.push(`/dashboard/customization/${ticketId}`);
       router.refresh();
     } catch (error: any) {
-      setError(error.message || "An unexpected error occurred");
-      toast.error(error.message || "An unexpected error occurred");
+      setError(error.message || "حصل خطأ مش متوقع");
+      toast.error(error.message || "حصل خطأ مش متوقع");
       setIsSubmitting(false);
     }
   };
@@ -133,16 +133,16 @@ export default function EditCustomizationPage({
       <div className="flex justify-between items-center">
         <div>
           <div className="mb-2">
-            <h1 className="text-3xl font-bold">Edit Customization Request</h1>
+            <h1 className="text-3xl font-bold">تعديل طلب التخصيص</h1>
           </div>
           <p className="text-muted-foreground mt-1">
-            Update your customization request details
+            تحديث تفاصيل طلب التخصيص الخاص بك
           </p>
         </div>
         <Button variant="outline" size="sm" asChild>
           <Link href={`/dashboard/customization/${ticketId}`}>
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Details
+            <ArrowLeft className="h-4 w-4 me-1" />
+            رجوع إلى التفاصيل
           </Link>
         </Button>
       </div>
@@ -150,7 +150,7 @@ export default function EditCustomizationPage({
       {/* Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Customization Details</CardTitle>
+          <CardTitle>تفاصيل التخصيص</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -163,11 +163,11 @@ export default function EditCustomizationPage({
             {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title">
-                Customization Title <span className="text-destructive">*</span>
+                التخصيص العنوان <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="title"
-                placeholder="e.g., Add dark mode support, Custom payment gateway integration"
+                placeholder="مثال: إضافة الوضع الداكن، تكامل بوابة دفع مخصصة"
                 {...register("title")}
                 disabled={isSubmitting}
               />
@@ -181,11 +181,11 @@ export default function EditCustomizationPage({
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">
-                Detailed Description <span className="text-destructive">*</span>
+                Detailed الوصف <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="description"
-                placeholder="Please provide detailed information about your customization needs..."
+                placeholder=" تقديم معلومات مفصلة عن احتياجات التخصيص..."
                 rows={10}
                 {...register("description")}
                 disabled={isSubmitting}
@@ -204,7 +204,7 @@ export default function EditCustomizationPage({
             {/* Priority */}
             <div className="space-y-2">
               <Label htmlFor="priority">
-                Priority <span className="text-destructive">*</span>
+                الأولوية <span className="text-destructive">*</span>
               </Label>
               <Select
                 value={priority}
@@ -212,16 +212,16 @@ export default function EditCustomizationPage({
                 disabled={isSubmitting}
               >
                 <SelectTrigger id="priority">
-                  <SelectValue placeholder="Select priority" />
+                  <SelectValue placeholder="اختر الأولوية" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low - No rush</SelectItem>
+                  <SelectItem value="low">منخفضة - بدون استعجال</SelectItem>
                   <SelectItem value="medium">
-                    Medium - Standard timeline
+                    متوسطة - جدول زمني قياسي
                   </SelectItem>
-                  <SelectItem value="high">High - Need it soon</SelectItem>
+                  <SelectItem value="high">عالية - مطلوب قريبًا</SelectItem>
                   <SelectItem value="urgent">
-                    Urgent - Critical for business
+                    عاجلة - Critical for business
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -234,24 +234,24 @@ export default function EditCustomizationPage({
 
             {/* Product Information */}
             <div className="space-y-4 border-t pt-6">
-              <h3 className="font-semibold">Product Information (Optional)</h3>
+              <h3 className="font-semibold">معلومات المنتج (اختياري)</h3>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="productName">Product Name</Label>
+                  <Label htmlFor="productName">اسم المنتج</Label>
                   <Input
                     id="productName"
-                    placeholder="e.g., My Awesome Plugin"
+                    placeholder="مثال: إضافتي الرائعة"
                     {...register("productName")}
                     disabled={isSubmitting}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="productVersion">Product Version</Label>
+                  <Label htmlFor="productVersion">إصدار المنتج</Label>
                   <Input
                     id="productVersion"
-                    placeholder="e.g., 1.0.0"
+                    placeholder="مثال: 1.0.0"
                     {...register("productVersion")}
                     disabled={isSubmitting}
                   />
@@ -267,18 +267,18 @@ export default function EditCustomizationPage({
                 onClick={() => router.back()}
                 disabled={isSubmitting}
               >
-                Cancel
+                إلغاء
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    جاري الحفظ...
                   </>
                 ) : (
                   <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Changes
+                    <Save className="me-2 h-4 w-4" />
+                    حفظ التغييرات
                   </>
                 )}
               </Button>

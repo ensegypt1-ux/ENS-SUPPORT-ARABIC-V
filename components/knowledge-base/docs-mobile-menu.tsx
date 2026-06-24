@@ -18,7 +18,7 @@ export function DocsMobileMenu({ categories, articles }: DocsMobileMenuProps) {
       <button
         onClick={() => setOpen(true)}
         className="lg:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-        aria-label="Open navigation"
+        aria-label="فتح التنقل"
       >
         <Menu className="h-5 w-5" />
       </button>
@@ -32,11 +32,11 @@ export function DocsMobileMenu({ categories, articles }: DocsMobileMenuProps) {
           />
 
           {/* Drawer */}
-          <div className="absolute left-0 top-0 bottom-0 w-72 bg-background border-r border-border flex flex-col shadow-xl">
+          <div className="absolute start-0 top-0 bottom-0 w-72 bg-background border-e border-border flex flex-col shadow-xl">
             <div className="flex items-center justify-between px-4 h-14 border-b border-border shrink-0">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-primary" />
-                <span className="font-semibold text-sm">Documentation</span>
+                <span className="font-semibold text-sm">الوثائق</span>
               </div>
               <button
                 onClick={() => setOpen(false)}

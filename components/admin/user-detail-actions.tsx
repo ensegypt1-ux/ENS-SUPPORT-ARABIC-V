@@ -27,8 +27,8 @@ export function UserDetailActions({ user, isAdmin }: UserDetailActionsProps) {
     <div className="flex items-center gap-2">
       {isAdmin && (
         <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
-          <Edit className="h-4 w-4 mr-2" />
-          Edit User
+          <Edit className="h-4 w-4 me-2" />
+          تعديل المستخدم
         </Button>
       )}
       {isAdmin && (
@@ -37,8 +37,8 @@ export function UserDetailActions({ user, isAdmin }: UserDetailActionsProps) {
           onClick={() => setDeleteDialogOpen(true)}
           className="text-destructive hover:text-destructive hover:bg-destructive/10"
         >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete User
+          <Trash2 className="h-4 w-4 me-2" />
+          حذف المستخدم
         </Button>
       )}
 
@@ -49,7 +49,7 @@ export function UserDetailActions({ user, isAdmin }: UserDetailActionsProps) {
           onOpenChange={setEditDialogOpen}
           user={user}
           mode="edit"
-          entityLabel="Team Member"
+          entityLabel="عضو الفريق"
           audience="team"
         />
       )}
@@ -66,6 +66,7 @@ export function UserDetailActions({ user, isAdmin }: UserDetailActionsProps) {
             }
           }}
           user={user}
+          entityLabel="عضو الفريق"
         />
       )}
     </div>

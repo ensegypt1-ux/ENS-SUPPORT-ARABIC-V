@@ -12,6 +12,7 @@ import {
   DEFAULT_WIDGET_HEIGHT,
   DEFAULT_WIDGET_WIDTH,
 } from "@/lib/ai/widget-theme";
+import { ENS_BRAND } from "@/lib/ens-brand";
 
 const COLLECTION = "ai_settings";
 
@@ -22,15 +23,15 @@ const DEFAULT_FEATURES: AIFeatureFlags = {
 };
 
 export const DEFAULT_CHATBOT_CONFIG: AIChatbotConfig = {
-  welcomeMessage: "Hi! Ask me anything — I'm here to help.",
+  welcomeMessage: ENS_BRAND.aiWelcome,
   fallbackMessage:
-    "I couldn't find an answer for that. Would you like to talk to a human?",
-  placeholder: "Type your question...",
+    "لم أجد إجابة على ذلك في قاعدة معرفة ENS. هل تود التحدث مع فريق الدعم؟",
+  placeholder: ENS_BRAND.aiPlaceholder,
   position: "bottom-left",
   primaryColor: "",
   accentColor: "",
-  headerTitle: "",
-  footerText: "Powered by AI",
+  headerTitle: ENS_BRAND.aiAssistantName,
+  footerText: ENS_BRAND.aiFooter,
   headerAvatarUrl: "",
   widgetWidth: DEFAULT_WIDGET_WIDTH,
   widgetHeight: DEFAULT_WIDGET_HEIGHT,
@@ -40,7 +41,7 @@ export const DEFAULT_CHATBOT_CONFIG: AIChatbotConfig = {
 };
 
 export const DEFAULT_SYSTEM_PROMPT =
-  "You are a helpful customer support assistant. Answer based only on the provided context. If you cannot find a relevant answer, politely tell the customer you will connect them with a human agent.";
+  "أنت مساعد دعم ENS لعملاء الشركة. أجب بناءً على قاعدة معرفة ENS والسياق المقدم فقط. ساعد العملاء على فتح التذاكر ومتابعة الطلبات والعثور على الإجابات. إذا لم تجد إجابة مناسبة، أخبر العميل بلطف أنك ستوصله بفريق ENS. رد دائماً باللغة العربية.";
 
 export const DEFAULT_OLLAMA_BASE_URL =
   process.env.OLLAMA_BASE_URL || "http://localhost:11434/v1";

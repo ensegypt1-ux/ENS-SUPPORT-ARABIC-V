@@ -31,22 +31,22 @@ export default async function NewsletterPage() {
   return (
     <div className="flex-1 space-y-4 p-0 sm:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Newsletter</h2>
+        <h2 className="text-3xl font-bold tracking-tight">النشرة البريدية</h2>
       </div>
       <Card className="gap-2">
         <CardHeader>
-          <CardTitle>Subscribers</CardTitle>
+          <CardTitle>المشتركون</CardTitle>
           <CardDescription>
-            Manage your newsletter subscribers ({subscribers.length} total)
+            إدارة مشتركي النشرة البريدية ({subscribers.length} إجمالي)
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader className="bg-muted/30">
               <TableRow className="border-border/60">
-                <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Subscribed At</TableHead>
+                <TableHead>الإيميل</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead>تاريخ الاشتراك</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

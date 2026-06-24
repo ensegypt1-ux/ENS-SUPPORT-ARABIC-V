@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import { getCollection } from "@/lib/db";
+import { FALLBACKS } from "@/lib/strings";
 import type { User as UserType, UserRole } from "@/types";
 
 /**
@@ -27,7 +28,7 @@ export async function fetchUsersByIds(
 
   usersData.forEach((user) => {
     users[user.id] = {
-      name: user.name || "Unknown User",
+      name: user.name || FALLBACKS.unknownUser,
       email: user.email || "",
       role: user.role || "customer",
     };
@@ -50,7 +51,7 @@ export async function fetchUsersByIds(
         missingUsers.forEach((user) => {
           const userId = user._id.toString();
           users[userId] = {
-            name: user.name || "Unknown User",
+            name: user.name || FALLBACKS.unknownUser,
             email: user.email || "",
             role: user.role || "customer",
           };

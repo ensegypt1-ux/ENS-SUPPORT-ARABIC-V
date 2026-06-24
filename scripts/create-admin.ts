@@ -8,7 +8,11 @@ import { MongoClient } from "mongodb";
 async function updateUserRoles() {
   console.log("🔧 Updating user roles...\n");
 
-  const uri = process.env.MONGODB_URI || "mongodb://137.74.41.20:27017";
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.error("Error: MONGODB_URI environment variable is not set.");
+    process.exit(1);
+  }
   const dbName = process.env.DATABASE_NAME || "support-app";
 
   const client = new MongoClient(uri);

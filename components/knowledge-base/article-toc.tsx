@@ -42,9 +42,9 @@ export function ArticleToc({ headings }: ArticleTocProps) {
   if (headings.length === 0) return null;
 
   return (
-    <div className="pl-4 border-l border-border/60">
+    <div className="ps-4 border-s border-border/60">
       <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/70 mb-4">
-        On this page
+        في هذه الصفحة
       </p>
 
       <ul className="space-y-1">
@@ -61,7 +61,7 @@ export function ArticleToc({ headings }: ArticleTocProps) {
               }}
               className={cn(
                 "block text-[13px] leading-relaxed transition-colors hover:text-foreground py-0.5",
-                h.level === 3 && "pl-3",
+                h.level === 3 && "ps-3",
                 activeId === h.id
                   ? "text-primary font-medium"
                   : "text-muted-foreground"
@@ -91,7 +91,7 @@ export function ArticleToc({ headings }: ArticleTocProps) {
               d="M5 10l7-7m0 0l7 7m-7-7v18"
             />
           </svg>
-          Back to top
+          العودة إلى الأعلى
         </button>
       </div>
     </div>

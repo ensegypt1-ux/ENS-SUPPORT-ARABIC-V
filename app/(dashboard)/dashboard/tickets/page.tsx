@@ -17,6 +17,7 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react";
+import { STATUS_LABELS, UI } from "@/lib/strings";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 interface TicketsPageProps {
   searchParams: Promise<{
@@ -54,59 +55,59 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
 
   const ticketStats = [
     {
-      title: "Open",
+      title: STATUS_LABELS.open,
       value: openTickets.length,
       icon: AlertCircle,
       iconColor: "text-blue-600",
       iconBgColor: "bg-blue-50 dark:bg-blue-950",
-      description: "Active tickets",
+      description: "تذاكر نشطة",
     },
     {
-      title: "In Progress",
+      title: STATUS_LABELS.in_progress,
       value: inProgressTickets.length,
       icon: Clock,
       iconColor: "text-amber-600",
       iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "Being worked on",
+      description: STATUS_LABELS.in_progress,
     },
     {
-      title: "Resolved",
+      title: STATUS_LABELS.resolved,
       value: resolvedTickets.length,
       icon: CheckCircle2,
       iconColor: "text-green-600",
       iconBgColor: "bg-green-50 dark:bg-green-950",
-      description: "Successfully fixed",
+      description: "اتحلّت",
     },
     {
-      title: "Closed",
+      title: STATUS_LABELS.closed,
       value: closedTickets.length,
       icon: XCircle,
       iconColor: "text-slate-600",
       iconBgColor: "bg-slate-50 dark:bg-slate-950",
-      description: "Completed tickets",
+      description: "مكتملة",
     },
   ];
 
   const tabItems = [
-    { value: "all", label: "All", count: tickets.length },
-    { value: "open", label: "Open", count: openTickets.length },
+    { value: "all", label: UI.all, count: tickets.length },
+    { value: "open", label: STATUS_LABELS.open, count: openTickets.length },
     {
       value: "scheduled_meeting",
-      label: "Scheduled Meeting",
+      label: STATUS_LABELS.scheduled_meeting,
       count: scheduledMeetingTickets.length,
     },
     {
       value: "waiting_on_customer",
-      label: "Waiting",
+      label: STATUS_LABELS.waiting_on_customer,
       count: waitingTickets.length,
     },
     {
       value: "in_progress",
-      label: "In Progress",
+      label: STATUS_LABELS.in_progress,
       count: inProgressTickets.length,
     },
-    { value: "resolved", label: "Resolved", count: resolvedTickets.length },
-    { value: "closed", label: "Closed", count: closedTickets.length },
+    { value: "resolved", label: STATUS_LABELS.resolved, count: resolvedTickets.length },
+    { value: "closed", label: STATUS_LABELS.closed, count: closedTickets.length },
   ];
 
   return (
@@ -114,16 +115,16 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">My Tickets</h1>
+          <h1 className="text-2xl font-bold">طلباتي</h1>
           <p className="text-muted-foreground">
-            View and manage all your support tickets
+            شوف وتابع كل تذاكر الدعم بتاعتك
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button asChild>
             <Link href="/dashboard/tickets/new">
               <Plus className="h-4 w-4" />
-              New Ticket
+              افتح تذكرة
             </Link>
           </Button>
         </div>
@@ -137,14 +138,14 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
         <Card>
           <CardContent className="py-12 text-center">
             <TicketIcon className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-semibold">No tickets yet</h3>
+            <h3 className="mt-4 text-lg font-semibold">مفيش تذاكر لسه</h3>
             <p className="text-muted-foreground mt-2">
-              Get started by creating your first support ticket
+              افتح أول تذكرة دعم
             </p>
             <Button asChild className="mt-4">
               <Link href="/dashboard/tickets/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Ticket
+                <Plus className="me-2 h-4 w-4" />
+                افتح تذكرة
               </Link>
             </Button>
           </CardContent>
@@ -156,7 +157,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
             <PageTabsHeader
               tabs={tabItems}
               showSearch
-              searchPlaceholder="Search..."
+              searchPlaceholder={`${UI.search}...`}
               searchDefaultValue={filters.search}
               showPriorityFilter
               priorityDefaultValue={filters.priority}
@@ -169,7 +170,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {tickets.length === 0 ? (
                 <EmptySearchResults
                   searchQuery={filters.search}
-                  entityName="tickets"
+                  entityName={UI.tickets}
                 />
               ) : viewMode === "table" ? (
                 <TicketsTable tickets={tickets} />
@@ -189,7 +190,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {openTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No open tickets
+                    مفيش تذاكر مفتوحة
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -210,7 +211,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {scheduledMeetingTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No scheduled meeting tickets
+                    مفيش تذاكر {STATUS_LABELS.scheduled_meeting}
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -231,7 +232,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {waitingTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No waiting tickets
+                    مفيش تذاكر {STATUS_LABELS.waiting_on_customer}
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -252,7 +253,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {inProgressTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No in progress tickets
+                    مفيش تذاكر {STATUS_LABELS.in_progress}
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -273,7 +274,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {resolvedTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No resolved tickets
+                    مفيش تذاكر {STATUS_LABELS.resolved}
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -294,7 +295,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {closedTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    No closed tickets
+                    مفيش تذاكر {STATUS_LABELS.closed}
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (

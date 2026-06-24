@@ -70,51 +70,51 @@ export default async function AdminServicePage({
 
   const stats = [
     {
-      title: "Total Requests",
+      title: "إجمالي الطلبات",
       value: requests.length,
       icon: Icon,
       iconColor: "text-slate-600",
       iconBgColor: "bg-slate-50 dark:bg-slate-950",
-      description: `All ${service.name.toLowerCase()} tickets`,
+      description: `جميع تذاكر ${service.name}`,
     },
     {
-      title: "Open",
+      title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
       iconColor: "text-amber-600",
       iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "Awaiting action",
+      description: "في انتظار الإجراء",
     },
     {
-      title: "In Progress",
+      title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
       iconColor: "text-indigo-600",
       iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "Being worked on",
+      description: "قيد العمل",
     },
     {
-      title: "Completed",
+      title: "مكتملة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
       iconColor: "text-emerald-600",
       iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "Resolved or closed",
+      description: "محلولة أو مغلقة",
     },
   ];
 
   const tabItems = [
-    { value: "all", label: "All", count: requests.length },
-    { value: "open", label: "Open", count: openRequests.length },
+    { value: "all", label: "الكل", count: requests.length },
+    { value: "open", label: "مفتوحة", count: openRequests.length },
     {
       value: "scheduled_meeting",
-      label: "Scheduled Meeting",
+      label: "اجتماع مجدول",
       count: scheduledMeetingRequests.length,
     },
-    { value: "waiting_on_customer", label: "Waiting", count: waitingRequests.length },
-    { value: "in_progress", label: "In Progress", count: inProgressRequests.length },
-    { value: "resolved", label: "Resolved", count: resolvedRequests.length },
-    { value: "closed", label: "Closed", count: closedRequests.length },
+    { value: "waiting_on_customer", label: "في الانتظار", count: waitingRequests.length },
+    { value: "in_progress", label: "قيد المعالجة", count: inProgressRequests.length },
+    { value: "resolved", label: "محلولة", count: resolvedRequests.length },
+    { value: "closed", label: "مغلقة", count: closedRequests.length },
   ];
 
   return (
@@ -127,13 +127,13 @@ export default async function AdminServicePage({
             </h1>
           </div>
           <p className="text-muted-foreground mt-2">
-            Manage all customer {service.name.toLowerCase()} requests
+            إدارة جميع طلبات {service.name.toLowerCase()} للعملاء
           </p>
         </div>
         <Button asChild className="w-full sm:w-auto">
           <Link href={`/admin/services/${slug}/new`}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Request
+            <Plus className="h-4 w-4 me-2" />
+            طلب جديد
           </Link>
         </Button>
       </div>
@@ -145,7 +145,7 @@ export default async function AdminServicePage({
           <PageTabsHeader
             tabs={tabItems}
             showSearch
-            searchPlaceholder="Search requests..."
+            searchPlaceholder="بحث في الطلبات..."
             searchDefaultValue={filters.search}
             showPriorityFilter
             priorityDefaultValue={filters.priority}
@@ -154,7 +154,7 @@ export default async function AdminServicePage({
 
           <TabsContent value="all" className={viewMode === "card" ? "space-y-3" : ""}>
             {requests.length === 0 ? (
-              <EmptySearchResults searchQuery={filters.search} entityName="requests" />
+              <EmptySearchResults searchQuery={filters.search} entityName="طلبات" />
             ) : viewMode === "table" ? (
               <TicketsTable tickets={requests} hrefBase={`/admin/services/${slug}`} />
             ) : (
@@ -170,7 +170,7 @@ export default async function AdminServicePage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No open requests
+                  مفيش طلبات مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -191,7 +191,7 @@ export default async function AdminServicePage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No scheduled meeting requests
+                  مفيش طلبات باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -215,7 +215,7 @@ export default async function AdminServicePage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No waiting requests
+                  مفيش طلبات في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -233,7 +233,7 @@ export default async function AdminServicePage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No in-progress requests
+                  مفيش طلبات قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -254,7 +254,7 @@ export default async function AdminServicePage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No resolved requests
+                  مفيش طلبات محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -272,7 +272,7 @@ export default async function AdminServicePage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No closed requests
+                  مفيش طلبات مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

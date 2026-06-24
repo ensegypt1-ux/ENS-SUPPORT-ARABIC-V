@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -38,17 +39,20 @@ import {
   getPublicTicketProducts,
   verifyPublicPurchaseCode,
 } from "@/actions/public-tickets";
+import { FORM_UI, PRIORITY_LABELS, TICKET_UI, UI } from "@/lib/strings";
 
 type PublicTicketFormData = z.infer<typeof createPublicTicketSchema>;
 
 const priorities = [
-  { value: "low", label: "Low", color: "bg-slate-400" },
-  { value: "medium", label: "Medium", color: "bg-blue-500" },
-  { value: "high", label: "High", color: "bg-amber-500" },
-  { value: "urgent", label: "Urgent", color: "bg-red-500" },
+  { value: "low", label: PRIORITY_LABELS.low, color: "bg-slate-400" },
+  { value: "medium", label: PRIORITY_LABELS.medium, color: "bg-blue-500" },
+  { value: "high", label: PRIORITY_LABELS.high, color: "bg-amber-500" },
+  { value: "urgent", label: PRIORITY_LABELS.urgent, color: "bg-red-500" },
 ];
 
 export function PublicTicketForm() {
+  const searchParams = useSearchParams();
+  const productParam = searchParams.get("product");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [successTicketNumber, setSuccessTicketNumber] = useState<string | null>(
@@ -168,6 +172,14 @@ export function PublicTicketForm() {
     void loadProducts();
   }, []);
 
+  useEffect(() => {
+    if (!productParam || products.length === 0) return;
+    const match = products.find((p) => p.value === productParam);
+    if (match) {
+      setValue("productSlug", match.value);
+    }
+  }, [productParam, products, setValue]);
+
   // Reset verification state whenever the code changes.
   useEffect(() => {
     setPurchaseCodeVerified(false);
@@ -177,7 +189,7 @@ export function PublicTicketForm() {
   const handleVerifyPurchaseCode = async () => {
     const code = purchaseCode?.trim();
     if (!code) {
-      setPurchaseCodeError("Please enter a purchase code");
+      setPurchaseCodeError("اكتب كود الشراء");
       setPurchaseCodeVerified(false);
       return;
     }
@@ -191,16 +203,16 @@ export function PublicTicketForm() {
       if (result.success) {
         setPurchaseCodeVerified(true);
         setPurchaseCodeError("");
-        toast.success("Purchase code verified!");
+        toast.success("كود الشراء متأكد!");
       } else {
         setPurchaseCodeVerified(false);
-        setPurchaseCodeError(result.error || "Verification failed");
-        toast.error(result.error || "Verification failed");
+        setPurchaseCodeError(result.error || "التحقق مش ناجح");
+        toast.error(result.error || "التحقق مش ناجح");
       }
     } catch {
       setPurchaseCodeVerified(false);
-      setPurchaseCodeError("Verification error");
-      toast.error("Verification error");
+      setPurchaseCodeError("حصل خطأ في التحقق");
+      toast.error("حصل خطأ في التحقق");
     } finally {
       setIsVerifyingPurchaseCode(false);
     }
@@ -213,20 +225,20 @@ export function PublicTicketForm() {
     try {
       const result = await createPublicTicket(data);
       if (!result.success || !result.data) {
-        setError(result.error || "Failed to create ticket");
-        toast.error(result.error || "Failed to create ticket");
+        setError(result.error || "مقدرناش نعمل التذكرة");
+        toast.error(result.error || "مقدرناش نعمل التذكرة");
         setIsSubmitting(false);
         return;
       }
 
       setSuccessTicketNumber(result.data.ticketNumber);
-      toast.success("Ticket submitted successfully!");
+      toast.success("التذكرة اتبعت!");
       if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "An unexpected error occurred";
+        err instanceof Error ? err.message : FORM_UI.unexpectedError;
       setError(message);
       toast.error(message);
       setIsSubmitting(false);
@@ -272,7 +284,7 @@ export function PublicTicketForm() {
                 type="button"
                 onClick={handleCopy}
                 className="text-muted-foreground transition-colors hover:text-foreground"
-                aria-label="Copy ticket number"
+                aria-label="نسخ رقم التذكرة"
               >
                 {copied ? (
                   <Check className="h-4 w-4 text-green-500" />
@@ -295,7 +307,7 @@ export function PublicTicketForm() {
               Submit another ticket
             </Button>
             <Button asChild className="h-11">
-              <Link href="/">Back to home</Link>
+              <Link href="/">العودة للرئيسية</Link>
             </Button>
           </div>
         </div>
@@ -335,7 +347,7 @@ export function PublicTicketForm() {
           <div className="space-y-6 lg:col-span-2">
             {/* Your Details */}
             <div className="space-y-6 rounded-2xl border border-border/60 bg-background shadow-sm p-6">
-              <h2 className="text-lg font-semibold">Your Details</h2>
+              <h2 className="text-lg font-semibold">بياناتك</h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="name">
@@ -343,7 +355,7 @@ export function PublicTicketForm() {
                   </Label>
                   <Input
                     id="name"
-                    placeholder="Jane Doe"
+                    placeholder="محمد أحمد"
                     {...register("name")}
                     disabled={isSubmitting}
                     className="h-11 placeholder:text-muted-foreground/50"
@@ -361,7 +373,7 @@ export function PublicTicketForm() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="jane@example.com"
+                    placeholder="name@company.com"
                     {...register("email")}
                     disabled={isSubmitting}
                     className="h-11 placeholder:text-muted-foreground/50"
@@ -377,14 +389,14 @@ export function PublicTicketForm() {
 
             {/* General */}
             <div className="space-y-6 rounded-2xl border border-border/60 bg-background shadow-sm p-6">
-              <h2 className="text-lg font-semibold">General</h2>
+              <h2 className="text-lg font-semibold">عام</h2>
               <div className="space-y-2">
                 <Label htmlFor="title">
                   Ticket Title <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="title"
-                  placeholder="Brief summary of your issue"
+                  placeholder="ملخص موجز لمشكلتك"
                   {...register("title")}
                   disabled={isSubmitting}
                   className="h-11 placeholder:text-muted-foreground/50"
@@ -401,7 +413,7 @@ export function PublicTicketForm() {
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="Describe your issue or request in detail..."
+                  placeholder="صِف مشكلتك أو طلبك بالتفصيل..."
                   {...register("description")}
                   disabled={isSubmitting}
                   className="min-h-[140px] resize-none placeholder:text-muted-foreground/50"
@@ -421,7 +433,7 @@ export function PublicTicketForm() {
                   <h2 className="text-lg font-semibold">
                     Product Verification
                     {envatoSettings.requirePurchaseCode && (
-                      <span className="ml-1 text-destructive">*</span>
+                      <span className="ms-1 text-destructive">*</span>
                     )}
                   </h2>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -433,7 +445,7 @@ export function PublicTicketForm() {
                   <Label htmlFor="purchaseCode">
                     Purchase Code
                     {envatoSettings.requirePurchaseCode && (
-                      <span className="ml-1 text-destructive">*</span>
+                      <span className="ms-1 text-destructive">*</span>
                     )}
                   </Label>
                   <div className="flex gap-3">
@@ -444,17 +456,17 @@ export function PublicTicketForm() {
                         {...register("purchaseCode")}
                         disabled={isSubmitting || isVerifyingPurchaseCode}
                         className={cn(
-                          "h-11 pr-10 font-mono",
+                          "h-11 pe-10 font-mono",
                           purchaseCodeVerified &&
                             "border-green-500 focus-visible:ring-green-500",
                           purchaseCodeError && "border-destructive"
                         )}
                       />
                       {purchaseCodeVerified && (
-                        <CheckCircle2 className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-green-500" />
+                        <CheckCircle2 className="absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-green-500" />
                       )}
                       {purchaseCodeError && !purchaseCodeVerified && (
-                        <XCircle className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-destructive" />
+                        <XCircle className="absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-destructive" />
                       )}
                     </div>
                     <Button
@@ -477,11 +489,11 @@ export function PublicTicketForm() {
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : purchaseCodeVerified ? (
                         <>
-                          <CheckCircle2 className="mr-2 h-4 w-4" />
+                          <CheckCircle2 className="me-2 h-4 w-4" />
                           Verified
                         </>
                       ) : (
-                        "Verify"
+                        "تحقق"
                       )}
                     </Button>
                   </div>
@@ -530,7 +542,7 @@ export function PublicTicketForm() {
                   disabled={isSubmitting}
                 >
                   <SelectTrigger className="h-10 w-full">
-                    <SelectValue placeholder="Select priority" />
+                    <SelectValue placeholder={FORM_UI.selectPriority} />
                   </SelectTrigger>
                   <SelectContent>
                     {priorities.map((p) => (
@@ -563,7 +575,7 @@ export function PublicTicketForm() {
                   disabled={isSubmitting}
                 >
                   <SelectTrigger className="h-10 w-full">
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="اختر الفئة" />
                   </SelectTrigger>
                   <SelectContent>
                     {loadingCategories ? (
@@ -596,7 +608,7 @@ export function PublicTicketForm() {
                   disabled={isSubmitting || loadingDepartments}
                 >
                   <SelectTrigger className="h-10 w-full">
-                    <SelectValue placeholder="Select department" />
+                    <SelectValue placeholder="اختر القسم" />
                   </SelectTrigger>
                   <SelectContent>
                     {loadingDepartments ? (
@@ -629,7 +641,7 @@ export function PublicTicketForm() {
                   disabled={isSubmitting || loadingProducts}
                 >
                   <SelectTrigger className="h-10 w-full">
-                    <SelectValue placeholder="Pick a product" />
+                    <SelectValue placeholder="اختر منتجاً" />
                   </SelectTrigger>
                   <SelectContent>
                     {loadingProducts ? (
@@ -660,7 +672,7 @@ export function PublicTicketForm() {
                   value={timezone}
                   onValueChange={(value) => setValue("timezone", value)}
                   disabled={isSubmitting}
-                  placeholder="Select timezone"
+                  placeholder={FORM_UI.selectTimezone}
                 />
               </div>
             </div>
@@ -677,15 +689,15 @@ export function PublicTicketForm() {
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
                     Submitting...
                   </>
                 ) : (
-                  "Submit Ticket"
+                  UI.submit
                 )}
               </Button>
               <Button asChild type="button" variant="outline" className="h-11 w-full">
-                <Link href="/">Cancel</Link>
+                <Link href="/">{UI.cancel}</Link>
               </Button>
             </div>
           </div>

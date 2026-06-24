@@ -50,7 +50,7 @@ export default function NewDashboardServiceRequestPage({
 }) {
   const router = useRouter();
   const [slug, setSlug] = useState("");
-  const [serviceName, setServiceName] = useState("Service");
+  const [serviceName, setServiceName] = useState("خدمة");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -96,8 +96,8 @@ export default function NewDashboardServiceRequestPage({
       const result = await createServiceRequest(slug, data);
 
       if (!result.success || !result.data) {
-        setError(result.error || "Failed to create request");
-        toast.error(result.error || "Failed to create request");
+        setError(result.error || "تعذّر الإنشاء الطلب");
+        toast.error(result.error || "تعذّر الإنشاء الطلب");
         setIsSubmitting(false);
         return;
       }
@@ -114,16 +114,16 @@ export default function NewDashboardServiceRequestPage({
         const uploadResult = await uploadTicketAttachments(ticketId, formData);
         if (!uploadResult.success) {
           toast.warning(
-            `Request created but some files failed to upload: ${uploadResult.error}`
+            `اتعمل الطلب لكن تعذّر رفع بعض الملفات: ${uploadResult.error}`
           );
         }
       }
 
-      toast.success("Request created successfully!");
+      toast.success("اتعمل الطلب!");
       router.push(`/dashboard/services/${slug}/${ticketId}`);
       router.refresh();
     } catch (e) {
-      const message = e instanceof Error ? e.message : "An unexpected error occurred";
+      const message = e instanceof Error ? e.message : "حصل خطأ مش متوقع";
       setError(message);
       toast.error(message);
       setIsSubmitting(false);
@@ -131,10 +131,10 @@ export default function NewDashboardServiceRequestPage({
   };
 
   const priorities = [
-    { value: "low", label: "Low - No rush", color: "bg-slate-400" },
-    { value: "medium", label: "Medium - Standard timeline", color: "bg-blue-500" },
-    { value: "high", label: "High - Need it soon", color: "bg-amber-500" },
-    { value: "urgent", label: "Urgent - Critical, ASAP", color: "bg-red-500" },
+    { value: "low", label: "منخفضة - بدون استعجال", color: "bg-slate-400" },
+    { value: "medium", label: "متوسطة - جدول زمني قياسي", color: "bg-blue-500" },
+    { value: "high", label: "عالية - مطلوب قريبًا", color: "bg-amber-500" },
+    { value: "urgent", label: "عاجلة - حرجة، في أقرب وقت", color: "bg-red-500" },
   ];
 
   return (
@@ -144,7 +144,7 @@ export default function NewDashboardServiceRequestPage({
           <div className="space-y-1.5 py-5">
             <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <Link href="/dashboard" className="hover:text-foreground transition-colors">
-                Dashboard
+                لوحة التحكم
               </Link>
               <ChevronRight className="h-3.5 w-3.5 shrink-0" />
               <Link
@@ -154,7 +154,7 @@ export default function NewDashboardServiceRequestPage({
                 {serviceName}
               </Link>
               <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-medium text-foreground">New Request</span>
+              <span className="font-medium text-foreground">طلب جديد</span>
             </nav>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               New {serviceName} Request
@@ -175,15 +175,15 @@ export default function NewDashboardServiceRequestPage({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               <div className="bg-background rounded-xl border p-6 space-y-6">
-                <h2 className="text-lg font-semibold">Request Details</h2>
+                <h2 className="text-lg font-semibold">تفاصيل الطلب</h2>
 
                 <div className="space-y-2">
                   <Label htmlFor="title">
-                    Title <span className="text-destructive">*</span>
+                    العنوان <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="title"
-                    placeholder="Enter request title"
+                    placeholder="أدخل عنوان الطلب"
                     {...register("title")}
                     disabled={isSubmitting}
                     className="h-11 placeholder:text-muted-foreground/50"
@@ -195,11 +195,11 @@ export default function NewDashboardServiceRequestPage({
 
                 <div className="space-y-2">
                   <Label htmlFor="description">
-                    Description <span className="text-destructive">*</span>
+                    الوصف <span className="text-destructive">*</span>
                   </Label>
                   <Textarea
                     id="description"
-                    placeholder="Describe what you need..."
+                    placeholder="صف ما تحتاجه..."
                     {...register("description")}
                     disabled={isSubmitting}
                     className="resize-none placeholder:text-muted-foreground/50 min-h-[120px]"
@@ -212,10 +212,10 @@ export default function NewDashboardServiceRequestPage({
                 {shouldShowProductFields && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="productName">Product Name</Label>
+                      <Label htmlFor="productName">اسم المنتج</Label>
                       <Input
                         id="productName"
-                        placeholder="e.g. Solvio"
+                        placeholder="مثال: ENS"
                         {...register("productName")}
                         disabled={isSubmitting}
                         className="h-11 placeholder:text-muted-foreground/50"
@@ -223,10 +223,10 @@ export default function NewDashboardServiceRequestPage({
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="productVersion">Product Version</Label>
+                      <Label htmlFor="productVersion">إصدار المنتج</Label>
                       <Input
                         id="productVersion"
-                        placeholder="e.g. 1.0.0"
+                        placeholder="مثال: 1.0.0"
                         {...register("productVersion")}
                         disabled={isSubmitting}
                         className="h-11 placeholder:text-muted-foreground/50"
@@ -234,10 +234,10 @@ export default function NewDashboardServiceRequestPage({
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="purchaseCode">Purchase Code</Label>
+                      <Label htmlFor="purchaseCode">رمز الشراء</Label>
                       <Input
                         id="purchaseCode"
-                        placeholder="Optional"
+                        placeholder="اختياري"
                         {...register("purchaseCode")}
                         disabled={isSubmitting}
                         className="h-11 placeholder:text-muted-foreground/50"
@@ -248,14 +248,14 @@ export default function NewDashboardServiceRequestPage({
               </div>
 
               <div className="bg-background rounded-xl border p-6 space-y-4">
-                <h2 className="text-lg font-semibold">Attachments</h2>
+                <h2 className="text-lg font-semibold">المرفقات</h2>
                 <FileUploadPreview onFilesChange={handleFilesChange} />
               </div>
             </div>
 
             <div className="space-y-6">
               <div className="bg-background rounded-xl border p-6 space-y-4">
-                <h2 className="text-lg font-semibold">Priority</h2>
+                <h2 className="text-lg font-semibold">الأولوية</h2>
                 <Select
                   value={priority}
                   onValueChange={(value) =>
@@ -264,7 +264,7 @@ export default function NewDashboardServiceRequestPage({
                   disabled={isSubmitting}
                 >
                   <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Select priority" />
+                    <SelectValue placeholder="اختر الأولوية" />
                   </SelectTrigger>
                   <SelectContent>
                     {priorities.map((p) => (
@@ -283,7 +283,7 @@ export default function NewDashboardServiceRequestPage({
               </div>
 
               <div className="bg-background rounded-xl border p-6 space-y-4">
-                <h2 className="text-lg font-semibold">Timezone</h2>
+                <h2 className="text-lg font-semibold">المنطقة الزمنية</h2>
                 <TimezoneSelect
                   value={timezone}
                   onValueChange={(value) => setValue("timezone", value)}
@@ -293,9 +293,9 @@ export default function NewDashboardServiceRequestPage({
               <div className="flex flex-col gap-3">
                 <Button type="submit" disabled={isSubmitting} className="h-11">
                   {isSubmitting ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-4 w-4 me-2 animate-spin" />
                   ) : (
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="h-4 w-4 me-2" />
                   )}
                   Create Request
                 </Button>
@@ -306,7 +306,7 @@ export default function NewDashboardServiceRequestPage({
                   asChild
                   className="h-11"
                 >
-                  <Link href={`/dashboard/services/${slug}`}>Cancel</Link>
+                  <Link href={`/dashboard/services/${slug}`}>إلغاء</Link>
                 </Button>
               </div>
             </div>

@@ -23,6 +23,13 @@ import {
   AlertTriangle,
   DatabaseZap,
 } from "lucide-react";
+import {
+  PanelActionRow,
+  PanelCardHeading,
+  PanelFormActions,
+  PanelFormLayout,
+  PanelSwitchField,
+} from "@/components/ui/panel-form";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,9 +46,7 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   updateAISettings,
@@ -111,13 +116,13 @@ const OLLAMA_MODE_OPTIONS = [
     value: "cloud",
     label: "Ollama Cloud",
     icon: Cloud,
-    desc: "Hosted by Ollama · API key required",
+    desc: "مستضاف من Ollama · مفتاح API مطلوب",
   },
   {
     value: "local",
-    label: "Local / Self-hosted",
+    label: "محلي / ذاتي الاستضافة",
     icon: HardDrive,
-    desc: "Runs on your machine · no key needed",
+    desc: "يعمل على جهازك · لا حاجة لمفتاح",
   },
 ] as const;
 
@@ -132,12 +137,12 @@ function ollamaModeFromUrl(url: string | undefined): OllamaMode {
 }
 
 const SECTIONS = [
-  { id: "providers", label: "Providers" },
-  { id: "tuning", label: "Response Tuning" },
-  { id: "business", label: "Business Context" },
-  { id: "agent", label: "Autonomous Agent" },
-  { id: "search", label: "Search & Features" },
-  { id: "widget", label: "Messages & Limits" },
+  { id: "providers", label: "المزوّدون" },
+  { id: "tuning", label: "ضبط الردود" },
+  { id: "business", label: "سياق النشاط" },
+  { id: "agent", label: "الوكيل المستقل" },
+  { id: "search", label: "البحث والميزات" },
+  { id: "widget", label: "الرسائل والحدود" },
 ] as const;
 
 const SECTION_IDS = SECTIONS.map((s) => s.id);
@@ -170,9 +175,9 @@ function useActiveSection(ids: readonly string[]) {
 function SectionNav() {
   const active = useActiveSection(SECTION_IDS);
   return (
-    <nav className="sticky top-52 hidden w-44 shrink-0 lg:block">
-      <p className="mb-2 px-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        On this page
+    <nav className="sticky top-52 w-44 shrink-0 text-right" dir="rtl">
+      <p className="mb-2 px-3 text-xs font-medium text-muted-foreground">
+        في هذه الصفحة
       </p>
       <ul className="space-y-0.5">
         {SECTIONS.map((s) => (
@@ -185,7 +190,7 @@ function SectionNav() {
                   ?.scrollIntoView({ behavior: "smooth", block: "start" })
               }
               className={cn(
-                "w-full rounded-md px-3 py-1.5 text-left text-sm transition-colors",
+                "w-full rounded-md px-3 py-1.5 text-right text-sm transition-colors",
                 active === s.id
                   ? "bg-primary/10 font-medium text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -227,9 +232,10 @@ function ProviderToggle({
                 ? "border-primary bg-primary/10 text-primary shadow-xs"
                 : "border-border bg-background text-muted-foreground hover:border-foreground/20 hover:text-foreground"
             )}
+            dir="ltr"
           >
+            <span>{opt.label}</span>
             <Icon className="h-4 w-4" />
-            {opt.label}
           </button>
         );
       })}
@@ -258,16 +264,20 @@ function OllamaModeToggle({
             aria-checked={active}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "flex flex-col items-start gap-1 rounded-lg border px-3 py-2.5 text-left transition-all",
+              "flex w-full flex-col items-end gap-1 rounded-lg border px-3 py-2.5 text-right transition-all",
               "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
               active
                 ? "border-primary bg-primary/10 text-primary shadow-xs"
                 : "border-border bg-background text-muted-foreground hover:border-foreground/20 hover:text-foreground"
             )}
+            dir="rtl"
           >
-            <span className="flex items-center gap-2 text-sm font-medium">
+            <span
+              className="inline-flex w-full items-center justify-end gap-2 text-sm font-medium"
+              dir="ltr"
+            >
+              <span>{opt.label}</span>
               <Icon className="h-4 w-4" />
-              {opt.label}
             </span>
             <span className="text-xs font-normal text-muted-foreground">
               {opt.desc}
@@ -409,13 +419,13 @@ export function AISettingsForm({
       if (result.success) {
         if (result.data?.reindexRequired) {
           toast.warning(
-            "Embedding model changed — click Reindex to rebuild the index."
+            "تغيّر نموذج التضمين — انقر إعادة الفهرسة لإعادة بناء الفهرس."
           );
         } else {
-          toast.success("AI settings saved");
+          toast.success("اتحفظت إعدادات الذكاء الاصطناعي");
         }
       } else {
-        toast.error(result.error ?? "Failed to save");
+        toast.error(result.error ?? "تعذّر الحفظ");
       }
     } finally {
       setIsSaving(false);
@@ -423,7 +433,7 @@ export function AISettingsForm({
   };
 
   const onInvalid = () => {
-    toast.error("Please fix the highlighted fields before saving.");
+    toast.error("صلّح الحقول المعلّمة قبل ما تحفظ.");
   };
 
   const handleReindex = async () => {
@@ -434,12 +444,12 @@ export function AISettingsForm({
         const { kb, services, resolvedTickets, web, files, failed } =
           result.data;
         toast.success(
-          `Reindexed: ${kb} KB · ${services} services · ` +
-            `${resolvedTickets} resolved tickets · ${web} web pages · ` +
-            `${files} file chunks${failed ? ` · ${failed} failed` : ""}`
+          `أُعيدت الفهرسة: ${kb} قاعدة معرفة · ${services} خدمة · ` +
+            `${resolvedTickets} تذكرة محلولة · ${web} صفحة ويب · ` +
+            `${files} جزء ملف${failed ? ` · ${failed}` : ""}`
         );
       } else {
-        toast.error(result.error ?? "Reindex failed");
+        toast.error(result.error ?? "تعذّرت إعادة الفهرسة");
       }
     } finally {
       setIsReindexing(false);
@@ -451,9 +461,9 @@ export function AISettingsForm({
     try {
       const result = await syncQdrant();
       if (result.success && result.data) {
-        toast.success(`Synced ${result.data.synced} vectors to Qdrant`);
+        toast.success(`اتمت مزامنة ${result.data.synced} متجهًا مع Qdrant`);
       } else {
-        toast.error(result.error ?? "Qdrant sync failed");
+        toast.error(result.error ?? "تعذّرت مزامنة Qdrant");
       }
     } finally {
       setIsSyncingQdrant(false);
@@ -465,9 +475,9 @@ export function AISettingsForm({
     try {
       const result = await testAISettingsConnection();
       if (result.success) {
-        toast.success("Embedding provider OK");
+        toast.success("مزوّد التضمين يعمل");
       } else {
-        toast.error(result.error ?? "Connection failed");
+        toast.error(result.error ?? "تعذّر الاتصال");
       }
     } finally {
       setIsTesting(false);
@@ -479,9 +489,9 @@ export function AISettingsForm({
     try {
       const result = await testAIChatConnection();
       if (result.success) {
-        toast.success("Chat provider OK");
+        toast.success("مزوّد المحادثة يعمل");
       } else {
-        toast.error(result.error ?? "Connection failed");
+        toast.error(result.error ?? "تعذّر الاتصال");
       }
     } finally {
       setIsTestingChat(false);
@@ -489,55 +499,51 @@ export function AISettingsForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
-        <SectionNav />
-        <div className="min-w-0 flex-1 space-y-6">
-      {/* Providers */}
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} dir="rtl" className="text-right">
+      <PanelFormLayout nav={<SectionNav />}>
       <Card id="providers" className="scroll-mt-52">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <PlugZap className="h-4 w-4" />
-            Providers
-          </CardTitle>
-          <CardDescription>
-            Pick where chat and embeddings run — OpenAI or a local Ollama
-            server. Ollama uses its OpenAI-compatible /v1 endpoint. Credentials
-            and model names for the selected providers appear below.
-          </CardDescription>
+          <PanelCardHeading
+            title="المزوّدون"
+            icon={<PlugZap className="h-4 w-4 text-primary" />}
+            description="اختر أين تعمل المحادثة والتضمينات — OpenAI أو خادم Ollama محلي. يستخدم Ollama نقطة النهاية /v1 المتوافقة مع OpenAI. تظهر بيانات الاعتماد وأسماء النماذج للمزوّدين المختارين أدناه."
+          />
         </CardHeader>
         <CardContent className="space-y-6">
           {settings.reindexRequired && (
-            <div className="flex flex-col gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-700 sm:flex-row sm:items-center sm:justify-between dark:text-amber-400">
-              <span>
-                Embedding model/provider changed. The knowledge index is stale
-                — rebuild it to apply the change.
-              </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleReindex}
-                disabled={isReindexing}
-                className="shrink-0 border-amber-500/40 bg-background"
-              >
-                {isReindexing ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <RefreshCcw className="h-3.5 w-3.5" />
-                )}
-                <span className="ml-1.5">Reindex now</span>
-              </Button>
-            </div>
+            <PanelActionRow
+              className="border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400"
+              label="تغيّر نموذج/مزوّد التضمين. فهرس المعرفة قديم — أعد بناءه لتطبيق التغيير."
+              actions={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReindex}
+                  disabled={isReindexing}
+                  className="shrink-0 border-amber-500/40 bg-background"
+                >
+                  {isReindexing ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <RefreshCcw className="h-3.5 w-3.5" />
+                  )}
+                  <span className="ms-1.5">إعادة الفهرسة الآن</span>
+                </Button>
+              }
+            />
           )}
           {/* Provider selection */}
           <div className="space-y-4">
             {splitProviders ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <div className="flex items-center gap-1.5">
+                  <div
+                    className="inline-flex items-center justify-end gap-1.5"
+                    dir="ltr"
+                  >
+                    <Label className="text-sm font-medium">مزوّد المحادثة</Label>
                     <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                    <Label className="text-sm font-medium">Chat Provider</Label>
                   </div>
                   <ProviderToggle
                     value={chatProvider}
@@ -548,15 +554,16 @@ export function AISettingsForm({
                     }}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Generates chatbot and agent replies.
+                    يولّد ردود روبوت المحادثة والوكيل.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center gap-1.5">
+                  <div
+                    className="inline-flex items-center justify-end gap-1.5"
+                    dir="ltr"
+                  >
+                    <Label className="text-sm font-medium">مزوّد التضمين</Label>
                     <Search className="h-3.5 w-3.5 text-muted-foreground" />
-                    <Label className="text-sm font-medium">
-                      Embedding Provider
-                    </Label>
                   </div>
                   <ProviderToggle
                     value={embeddingProvider}
@@ -567,56 +574,60 @@ export function AISettingsForm({
                     }}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Powers knowledge-base search and matching.
+                    يشغّل بحث قاعدة المعرفة والمطابقة.
                   </p>
                 </div>
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="flex items-center gap-1.5">
+                <div
+                  className="inline-flex items-center justify-end gap-1.5"
+                  dir="ltr"
+                >
+                  <Label className="text-sm font-medium">المزوّد</Label>
                   <PlugZap className="h-3.5 w-3.5 text-muted-foreground" />
-                  <Label className="text-sm font-medium">Provider</Label>
                 </div>
                 <ProviderToggle
                   value={chatProvider}
                   onChange={setUnifiedProvider}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Used for both chat replies and knowledge-base search.
+                  يُستخدم لردود المحادثة وبحث قاعدة المعرفة معًا.
                 </p>
               </div>
             )}
 
             {/* Advanced: configure chat and embeddings separately */}
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-dashed border-border px-3 py-2.5">
-              <div>
-                <p className="text-sm font-medium">
-                  Use different providers for chat and embeddings
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Advanced — e.g. OpenAI for chat, local Ollama for embeddings.
-                </p>
-              </div>
-              <Switch
-                checked={splitProviders}
-                onCheckedChange={toggleSplitProviders}
-              />
-            </div>
+            <PanelSwitchField
+              label="استخدام مزوّدين مختلفين للمحادثة والتضمين"
+              description="متقدّم — مثل OpenAI للمحادثة وOllama محلي للتضمين."
+              className="border-dashed bg-transparent"
+              control={
+                <Switch
+                  checked={splitProviders}
+                  onCheckedChange={toggleSplitProviders}
+                />
+              }
+            />
           </div>
 
           {/* OpenAI config — only when OpenAI is selected */}
           {usesOpenAI && (
-            <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
-              <div className="flex items-center gap-2">
-                <KeyRound className="h-4 w-4 text-muted-foreground" />
+            <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4 text-right">
+              <div
+                className="inline-flex items-center justify-end gap-2"
+                dir="ltr"
+              >
                 <p className="text-sm font-medium">OpenAI</p>
+                <KeyRound className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium">API Key</Label>
+                <Label className="text-sm font-medium">مفتاح API</Label>
                 <Input
                   type="password"
                   placeholder="sk-..."
                   className="h-9 font-mono text-xs"
+                  dir="ltr"
                   autoComplete="new-password"
                   data-1p-ignore
                   data-lpignore="true"
@@ -624,16 +635,17 @@ export function AISettingsForm({
                 />
                 <p className="text-xs text-muted-foreground">
                   {settings.hasApiKey
-                    ? "Stored encrypted. Leave unchanged to keep the existing key."
-                    : "No key saved yet. Paste your OpenAI secret key, then save."}
+                    ? "مخزّن مشفّرًا. اتركه دون تغيير للإبقاء على المفتاح الحالي."
+                    : "مفيش مفتاح محفوظ بعد. الصق مفتاح OpenAI السري ثم احفظ."}
                 </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 {chatProvider === "openai" && (
                   <div className="space-y-1.5">
-                    <Label className="text-sm font-medium">Chat Model</Label>
+                    <Label className="text-sm font-medium">نموذج المحادثة</Label>
                     <Input
                       className="h-9 font-mono text-xs"
+                      dir="ltr"
                       placeholder="gpt-4o-mini"
                       autoComplete="off"
                       data-1p-ignore
@@ -645,10 +657,11 @@ export function AISettingsForm({
                 {embeddingProvider === "openai" && (
                   <div className="space-y-1.5">
                     <Label className="text-sm font-medium">
-                      Embedding Model
+                      نموذج التضمين
                     </Label>
                     <Input
                       className="h-9 font-mono text-xs"
+                      dir="ltr"
                       placeholder="text-embedding-3-small"
                       autoComplete="off"
                       data-1p-ignore
@@ -663,40 +676,42 @@ export function AISettingsForm({
 
           {/* Ollama config — only when Ollama is selected */}
           {usesOllama && (
-            <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
-              <div className="flex items-center gap-2">
-                <Server className="h-4 w-4 text-muted-foreground" />
+            <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4 text-right">
+              <div
+                className="inline-flex items-center justify-end gap-2"
+                dir="ltr"
+              >
                 <p className="text-sm font-medium">Ollama</p>
+                <Server className="h-4 w-4 text-muted-foreground" />
               </div>
 
               {/* Cloud vs Local — the key choice, made explicit */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
-                  How are you running Ollama?
+                  كيف تشغّل Ollama؟
                 </Label>
                 <OllamaModeToggle value={ollamaMode} onChange={setOllamaMode} />
                 {ollamaMode === "cloud" ? (
                   <p className="text-xs text-muted-foreground">
-                    Models run on Ollama&apos;s servers — nothing to install.
-                    Create a key under your Ollama account&apos;s{" "}
+                    النماذج تعمل على خوادم Ollama — لا حاجة للتثبيت. أنشئ مفتاحًا
+                    في صفحة{" "}
                     <a
                       href="https://ollama.com/settings/keys"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-0.5 font-medium text-primary hover:underline"
                     >
-                      Keys
+                      المفاتيح
                       <ExternalLink className="h-3 w-3" />
                     </a>{" "}
-                    page, then use a cloud model such as{" "}
+                    في حسابك، ثم استخدم نموذجًا سحابيًا مثل{" "}
                     <code className="text-[11px]">gpt-oss:20b-cloud</code>.
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    Ollama runs on your own machine or server. Install it, run{" "}
-                    <code className="text-[11px]">ollama pull llama3.1</code>,
-                    and no API key is needed. The app server must be able to
-                    reach this URL.
+                    يعمل Ollama على جهازك أو خادمك. ثبّته وشغّل{" "}
+                    <code className="text-[11px]">ollama pull llama3.1</code>،
+                    ولا حاجة لمفتاح API. لازم السيرفر يوصل للرابط ده.
                   </p>
                 )}
               </div>
@@ -704,13 +719,14 @@ export function AISettingsForm({
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Base URL: fixed/managed for Cloud, editable for Local */}
                 <div className="space-y-1.5 sm:col-span-2">
-                  <Label className="text-sm font-medium">Base URL</Label>
+                  <Label className="text-sm font-medium">الرابط الأساسي</Label>
                   <Input
                     className={cn(
                       "h-9 font-mono text-xs",
                       ollamaMode === "cloud" &&
                         "cursor-not-allowed bg-muted text-muted-foreground"
                     )}
+                    dir="ltr"
                     placeholder={
                       ollamaMode === "cloud" ? OLLAMA_CLOUD_URL : OLLAMA_LOCAL_URL
                     }
@@ -722,15 +738,16 @@ export function AISettingsForm({
                   />
                   <p className="text-xs text-muted-foreground">
                     {ollamaMode === "cloud"
-                      ? "Managed Ollama Cloud endpoint — set automatically."
-                      : "e.g. http://localhost:11434/v1, or your self-hosted server URL."}
+                      ? "نقطة نهاية Ollama Cloud المُدارة — تُعيَّن تلقائيًا."
+                      : "مثال: http://localhost:11434/v1، أو رابط خادمك الذاتي."}
                   </p>
                 </div>
                 {chatProvider === "ollama" && (
                   <div className="space-y-1.5">
-                    <Label className="text-sm font-medium">Chat Model</Label>
+                    <Label className="text-sm font-medium">نموذج المحادثة</Label>
                     <Input
                       className="h-9 font-mono text-xs"
+                      dir="ltr"
                       placeholder={
                         ollamaMode === "cloud" ? "gpt-oss:20b-cloud" : "llama3.1"
                       }
@@ -744,10 +761,11 @@ export function AISettingsForm({
                 {embeddingProvider === "ollama" && ollamaMode === "local" && (
                   <div className="space-y-1.5">
                     <Label className="text-sm font-medium">
-                      Embedding Model
+                      نموذج التضمين
                     </Label>
                     <Input
                       className="h-9 font-mono text-xs"
+                      dir="ltr"
                       placeholder="nomic-embed-text"
                       autoComplete="off"
                       data-1p-ignore
@@ -762,12 +780,12 @@ export function AISettingsForm({
                       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
                       <div className="space-y-1">
                         <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-                          Ollama Cloud can&apos;t generate embeddings
+                          Ollama Cloud لا يولّد تضمينات
                         </p>
                         <p className="text-xs text-amber-700/90 dark:text-amber-400/90">
-                          Cloud hosts chat models only, so knowledge-base search
-                          can&apos;t run here. Keep chat on Ollama Cloud and
-                          generate embeddings with OpenAI instead.
+                          السحابة تستضيف نماذج المحادثة فقط، مش ينفع تشغيل
+                          بحث قاعدة المعرفة هنا. أبقِ المحادثة على Ollama Cloud
+                          وولّد التضمينات عبر OpenAI بدلًا من ذلك.
                         </p>
                       </div>
                     </div>
@@ -779,21 +797,22 @@ export function AISettingsForm({
                       className="border-amber-500/40 bg-background"
                     >
                       <Sparkles className="h-3.5 w-3.5" />
-                      <span className="ml-1.5">Use OpenAI for embeddings</span>
+                      <span className="ms-1.5">استخدام OpenAI للتضمين</span>
                     </Button>
                   </div>
                 )}
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label className="text-sm font-medium">
-                    {ollamaMode === "cloud" ? "API Key" : "API Key (optional)"}
+                    {ollamaMode === "cloud" ? "مفتاح API" : "مفتاح API (اختياري)"}
                   </Label>
                   <Input
                     type="password"
                     className="h-9 font-mono text-xs"
+                    dir="ltr"
                     placeholder={
                       ollamaMode === "cloud"
-                        ? "Paste your Ollama Cloud API key"
-                        : "leave blank for local Ollama"
+                        ? "الصق مفتاح Ollama Cloud"
+                        : "اتركه فارغًا لـ Ollama المحلي"
                     }
                     autoComplete="new-password"
                     data-1p-ignore
@@ -803,8 +822,8 @@ export function AISettingsForm({
                   {ollamaMode === "cloud" && (
                     <p className="text-xs text-muted-foreground">
                       {settings.hasOllamaApiKey
-                        ? "Stored encrypted. Leave unchanged to keep the existing key."
-                        : "Required for Ollama Cloud."}
+                        ? "مخزّن مشفّرًا. اتركه دون تغيير للإبقاء على المفتاح الحالي."
+                        : "مطلوب لـ Ollama Cloud."}
                     </p>
                   )}
                 </div>
@@ -813,9 +832,9 @@ export function AISettingsForm({
           )}
 
           {/* Connection tests */}
-          <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
-            <span className="text-xs font-medium text-muted-foreground">
-              Test connection:
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border pt-4">
+            <span className="w-full text-xs font-medium text-muted-foreground sm:w-auto">
+              اختبار الاتصال:
             </span>
             <Button
               type="button"
@@ -832,7 +851,7 @@ export function AISettingsForm({
               ) : (
                 <MessageCircle className="h-3.5 w-3.5" />
               )}
-              <span className="ml-1.5">Chat</span>
+              <span className="ms-1.5">المحادثة</span>
             </Button>
             <Button
               type="button"
@@ -849,58 +868,49 @@ export function AISettingsForm({
               ) : (
                 <Search className="h-3.5 w-3.5" />
               )}
-              <span className="ml-1.5">Embeddings</span>
+              <span className="ms-1.5">التضمينات</span>
             </Button>
           </div>
 
           {/* Knowledge index — lives with the embedding settings that invalidate it */}
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 p-4">
-            <div>
-              <p className="text-sm font-medium">Knowledge Index</p>
-              <p className="text-xs text-muted-foreground">
-                Rebuild embeddings from Q&amp;A, KB articles, services and
-                resolved tickets. Run after changing the embedding model.
-              </p>
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleReindex}
-              disabled={isReindexing}
-            >
-              {isReindexing ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <RefreshCcw className="h-3.5 w-3.5" />
-              )}
-              <span className="ml-1.5">Reindex</span>
-            </Button>
-          </div>
+          <PanelActionRow
+            label="فهرس المعرفة"
+            description="أعد بناء التضمينات من أزواج السؤال والجواب ومقالات قاعدة المعرفة والخدمات والتذاكر المحلولة. شغّله بعد تغيير نموذج التضمين."
+            actions={
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleReindex}
+                disabled={isReindexing}
+              >
+                {isReindexing ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <RefreshCcw className="h-3.5 w-3.5" />
+                )}
+                <span className="ms-1.5">إعادة الفهرسة</span>
+              </Button>
+            }
+          />
         </CardContent>
       </Card>
 
-      {/* Response tuning */}
       <Card id="tuning" className="scroll-mt-52">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <SlidersHorizontal className="h-4 w-4" />
-            Response Tuning
-          </CardTitle>
-          <CardDescription>
-            How the assistant generates and matches answers. Applies to
-            whichever provider is active above.
-          </CardDescription>
+          <PanelCardHeading
+            title="ضبط الردود"
+            icon={<SlidersHorizontal className="h-4 w-4 text-primary" />}
+            description="كيف يولّد المساعد الإجابات ويطابقها. ينطبق على أي مزوّد مفعّل أعلاه."
+          />
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">
-                Confidence Threshold
-              </Label>
+            <div className="flex items-center justify-between gap-3">
               <span className="text-xs font-medium text-primary">
                 {Math.round(threshold * 100)}%
               </span>
+              <Label className="w-auto shrink-0 text-sm font-medium">عتبة الثقة</Label>
             </div>
             <Input
               type="range"
@@ -915,20 +925,19 @@ export function AISettingsForm({
               <span>95%</span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Minimum similarity for the lookup_faq tool to treat a match as
-              confident.
+              الحد الأدنى للتشابه لاعتبار مطابقة أداة lookup_faq واثقة.
             </p>
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Max Tokens</Label>
+            <Label className="text-sm font-medium">الحد الأقصى للرموز</Label>
             <Input
               type="number"
               className="h-9"
               {...register("maxTokens", { valueAsNumber: true })}
             />
             <p className="text-xs text-muted-foreground">
-              Upper bound on the length of each generated reply.
+              الحد الأعلى لطول كل رد مُولَّد.
             </p>
             {errors.maxTokens && (
               <p className="text-xs text-destructive">
@@ -938,7 +947,7 @@ export function AISettingsForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Temperature</Label>
+            <Label className="text-sm font-medium">درجة الحرارة</Label>
             <Input
               type="number"
               step={0.05}
@@ -946,86 +955,78 @@ export function AISettingsForm({
               {...register("temperature", { valueAsNumber: true })}
             />
             <p className="text-xs text-muted-foreground">
-              Lower is more focused and deterministic; higher is more creative.
+              الأقل أكثر تركيزًا وحتمية؛ الأعلى أكثر إبداعًا.
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Business context */}
       <Card id="business" className="scroll-mt-52">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Building2 className="h-4 w-4" />
-            Business Context
-          </CardTitle>
-          <CardDescription>
-            Used as grounding when the AI generates responses.
-          </CardDescription>
+          <PanelCardHeading
+            title="سياق النشاط"
+            icon={<Building2 className="h-4 w-4 text-primary" />}
+            description="يُستخدم كأساس عند توليد الذكاء الاصطناعي للردود."
+          />
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Business Name</Label>
+            <Label className="text-sm font-medium">اسم النشاط</Label>
             <Input
               className="h-9"
-              placeholder="Acme Inc."
+              placeholder="شركة أكمي"
               {...register("businessName")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Business Description</Label>
+            <Label className="text-sm font-medium">وصف النشاط</Label>
             <Textarea
               rows={3}
               className="resize-none text-sm"
-              placeholder="A short description of what your business does..."
+              placeholder="وصف قصير لما يقدّمه نشاطك التجاري..."
               {...register("businessDescription")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium">System Prompt</Label>
+            <Label className="text-sm font-medium">موجّه النظام</Label>
             <Textarea
               rows={5}
               className="resize-none text-sm font-mono"
+              dir="rtl"
               {...register("systemPrompt")}
             />
           </div>
         </CardContent>
       </Card>
 
-      {/* Agent */}
       <Card id="agent" className="scroll-mt-52">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Sparkles className="h-4 w-4" />
-            Autonomous Agent
-          </CardTitle>
-          <CardDescription>
-            The agent reasons over Q&amp;A, documentation and resolved tickets,
-            and can auto-create + auto-assign an escalation ticket.
-          </CardDescription>
+          <PanelCardHeading
+            title="الوكيل المستقل"
+            icon={<Sparkles className="h-4 w-4 text-primary" />}
+            description="يفكّر الوكيل في أزواج السؤال والجواب والوثائق والتذاكر المحلولة، ويمكنه افتح تذكرة تصعيد وتعيينها تلقائياً."
+          />
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium">Agent enabled</p>
-              <p className="text-xs text-muted-foreground">
-                When off, the chatbot is disabled entirely.
-              </p>
-            </div>
-            <Switch
-              checked={agent.enabled}
-              onCheckedChange={(v) =>
-                setValue("agent.enabled", v, { shouldDirty: true })
-              }
-            />
-          </div>
+          <PanelSwitchField
+            label="الوكيل مفعّل"
+            description="عند الإيقاف، يُعطّل روبوت المحادثة بالكامل."
+            control={
+              <Switch
+                checked={agent.enabled}
+                onCheckedChange={(v) =>
+                  setValue("agent.enabled", v, { shouldDirty: true })
+                }
+              />
+            }
+          />
 
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">Max tool iterations</Label>
+            <div className="flex items-center justify-between gap-3">
               <span className="text-xs font-medium text-primary">
                 {agent.maxIterations}
               </span>
+              <Label className="w-auto shrink-0 text-sm font-medium">الحد الأقصى لتكرارات الأدوات</Label>
             </div>
             <Input
               type="range"
@@ -1040,40 +1041,35 @@ export function AISettingsForm({
               <span>8</span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Max reasoning/tool steps before the agent must answer or
-              escalate.
+              أقصى خطوات تفكير/أدوات قبل أن يجيب الوكيل أو يُصعّد.
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium">Index resolved tickets</p>
-              <p className="text-xs text-muted-foreground">
-                Make resolved ticket threads (public comments only) searchable.
-                Contains customer content — disable if not desired.
-              </p>
-            </div>
-            <Switch
-              checked={agent.indexResolvedTickets}
-              onCheckedChange={(v) =>
-                setValue("agent.indexResolvedTickets", v, { shouldDirty: true })
-              }
-            />
-          </div>
+          <PanelSwitchField
+            label="فهرسة التذاكر المحلولة"
+            description="جعل محادثات التذاكر المحلولة (التعليقات العامة فقط) قابلة للبحث. تحتوي على محتوى العملاء — عطّلها إن لم ترغب بذلك."
+            control={
+              <Switch
+                checked={agent.indexResolvedTickets}
+                onCheckedChange={(v) =>
+                  setValue("agent.indexResolvedTickets", v, { shouldDirty: true })
+                }
+              />
+            }
+          />
         </CardContent>
       </Card>
 
-      {/* Vector search + features */}
       <Card id="search" className="scroll-mt-52">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <LayoutGrid className="h-4 w-4" />
-            Search &amp; Features
-          </CardTitle>
+          <PanelCardHeading
+            title="البحث والميزات"
+            icon={<LayoutGrid className="h-4 w-4 text-primary" />}
+          />
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Vector Search Method</Label>
+            <Label className="text-sm font-medium">طريقة البحث المتجهي</Label>
             <Select
               value={vectorMethod}
               onValueChange={(v) =>
@@ -1088,26 +1084,27 @@ export function AISettingsForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="local">Local cosine (default)</SelectItem>
-                <SelectItem value="qdrant">Qdrant (recommended)</SelectItem>
+                <SelectItem value="local">جيب التمام المحلي (افتراضي)</SelectItem>
+                <SelectItem value="qdrant">Qdrant (موصى به)</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              <strong>Local</strong> scans all vectors in memory — fine for
-              small sets. <strong>Qdrant</strong> offloads vector search to a
-              self-hosted Qdrant for scale; set <code className="text-[11px]">QDRANT_URL</code>{" "}
-              in your environment, then click <em>Sync to Qdrant</em> below to
-              backfill. If Qdrant is unreachable, search falls back to Local.
+              <strong>المحلي</strong> يفحص كل المتجهات في الذاكرة — مناسب
+              للمجموعات الصغيرة. <strong>Qdrant</strong> يفوّض البحث المتجهي
+              إلى Qdrant ذاتي الاستضافة للتوسّع؛ عيّن{" "}
+              <code className="text-[11px]">QDRANT_URL</code> في بيئتك، ثم
+              انقر <em>مزامنة مع Qdrant</em> أدناه للتعبئة. إن تعذّر الوصول
+              إلى Qdrant، يعود البحث إلى المحلي.
             </p>
             {health?.recommendQdrant && (
               <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-400">
-                Your knowledge index has{" "}
-                <strong>{health.vectorCount.toLocaleString()}</strong> vectors —
-                past the ~{health.warnThreshold.toLocaleString()} where local
-                cosine (which loads every vector into memory on each query) gets
-                slow and RAM-hungry. Move to <strong>Qdrant</strong>: set{" "}
-                <code className="text-[11px]">QDRANT_URL</code>, switch the method
-                above, then <em>Sync to Qdrant</em>.
+                فهرس المعرفة لديك{" "}
+                <strong>{health.vectorCount.toLocaleString()}</strong> متجهًا —
+                تجاوز ~{health.warnThreshold.toLocaleString()} حيث يصبح جيب
+                التمام المحلي (الذي يحمّل كل متجه في الذاكرة عند كل استعلام)
+                بطيئًا ويستهلك ذاكرة. انتقل إلى <strong>Qdrant</strong>: عيّن{" "}
+                <code className="text-[11px]">QDRANT_URL</code>، بدّل الطريقة
+                أعلاه، ثم <em>مزامنة مع Qdrant</em>.
               </div>
             )}
             {vectorMethod === "qdrant" && (
@@ -1120,18 +1117,18 @@ export function AISettingsForm({
                   disabled={isSyncingQdrant}
                 >
                   {isSyncingQdrant ? (
-                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
                   ) : (
-                    <DatabaseZap className="mr-1.5 h-3.5 w-3.5" />
+                    <DatabaseZap className="me-1.5 h-3.5 w-3.5" />
                   )}
-                  Sync to Qdrant
+                  مزامنة مع Qdrant
                 </Button>
               </div>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Retrieval Mode</Label>
+            <Label className="text-sm font-medium">وضع الاسترجاع</Label>
             <Select
               value={searchMode}
               onValueChange={(v) =>
@@ -1145,128 +1142,125 @@ export function AISettingsForm({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="hybrid">
-                  Hybrid (semantic + keyword)
+                  هجين (دلالي + كلمات مفتاحية)
                 </SelectItem>
-                <SelectItem value="vector">Vector only (semantic)</SelectItem>
+                <SelectItem value="vector">متجهي فقط (دلالي)</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Hybrid fuses vector similarity with keyword matching (Reciprocal
-              Rank Fusion) — better at exact terms like error codes and product
-              names. Recommended.
+              يدمج الوضع الهجين التشابه المتجهي مع مطابقة الكلمات المفتاحية
+              (دمج الرتبة المتبادل) — أفضل للمصطلحات الدقيقة مثل رموز الأخطاء
+              وأسماء المنتجات. موصى به.
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 p-4">
-            <div>
-              <p className="text-sm font-medium">Re-rank results</p>
-              <p className="text-xs text-muted-foreground">
-                Reorder top candidates with the chat model for higher precision.
-                Adds a small latency/cost per query.
-              </p>
-            </div>
-            <Switch
-              checked={rerankEnabled}
-              onCheckedChange={(v) =>
-                setValue("rerankEnabled", v, { shouldDirty: true })
-              }
-            />
-          </div>
+          <PanelSwitchField
+            label="إعادة ترتيب النتائج"
+            description="إعادة ترتيب أفضل المرشحين بنموذج المحادثة لدقة أعلى. يضيف زمنًا/تكلفة صغيرة لكل استعلام."
+            control={
+              <Switch
+                checked={rerankEnabled}
+                onCheckedChange={(v) =>
+                  setValue("rerankEnabled", v, { shouldDirty: true })
+                }
+              />
+            }
+          />
 
-          <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Feature Toggles
+          <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-4 text-right">
+            <p className="text-xs font-medium text-muted-foreground">
+              مفاتيح الميزات
             </p>
             {(
               [
                 {
                   key: "chatbot",
-                  label: "Customer Chatbot",
-                  desc: "Auto-reply to customers with matched answers",
+                  label: "روبوت محادثة العملاء",
+                  desc: "رد تلقائي على العملاء بإجابات مطابقة",
                 },
                 {
                   key: "agentSuggest",
-                  label: "Agent Suggestions",
-                  desc: "Suggest replies to support agents",
+                  label: "اقتراحات للوكلاء",
+                  desc: "اقتراح ردود لوكلاء الدعم",
                 },
                 {
                   key: "ticketClassify",
-                  label: "Ticket Classification",
-                  desc: "Auto-tag tickets by topic",
+                  label: "تصنيف التذاكر",
+                  desc: "وسم التذاكر تلقائياً حسب الموضوع",
                 },
               ] as const
             ).map((item) => (
-              <div
+              <PanelSwitchField
                 key={item.key}
-                className="flex items-center justify-between gap-3"
-              >
-                <div>
-                  <p className="text-sm font-medium">{item.label}</p>
-                  <p className="text-xs text-muted-foreground">{item.desc}</p>
-                </div>
-                <Switch
-                  checked={features[item.key]}
-                  onCheckedChange={(v) =>
-                    setValue(`features.${item.key}`, v, { shouldDirty: true })
-                  }
-                />
-              </div>
+                className="border-0 bg-transparent p-0"
+                label={item.label}
+                description={item.desc}
+                control={
+                  <Switch
+                    checked={features[item.key]}
+                    onCheckedChange={(v) =>
+                      setValue(`features.${item.key}`, v, { shouldDirty: true })
+                    }
+                  />
+                }
+              />
             ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* Chatbot messages & limits */}
       <Card id="widget" className="scroll-mt-52">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <MessageCircle className="h-4 w-4" />
-            Messages &amp; Limits
-          </CardTitle>
-          <CardDescription>
-            What the chat widget says and how often visitors can use it. For
-            appearance — colors, position, header and avatar — see the{" "}
-            <strong>Widget</strong> tab.
-          </CardDescription>
+          <PanelCardHeading
+            title="الرسائل والحدود"
+            icon={<MessageCircle className="h-4 w-4 text-primary" />}
+            description={
+              <>
+                ما تقوله أداة المحادثة ومدى تكرار استخدام الزوار لها. للمظهر —
+                الألوان والموضع والرأس والصورة — راجع تبويب{" "}
+                <strong>الأداة</strong>.
+              </>
+            }
+          />
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Welcome Message</Label>
+            <Label className="text-sm font-medium">رسالة الترحيب</Label>
             <Textarea
               rows={2}
               className="resize-none text-sm"
-              placeholder="Hi! How can I help you today?"
+              placeholder="مرحبًا! كيف يمكنني مساعدتك اليوم؟"
               {...register("chatbot.welcomeMessage")}
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Fallback Message</Label>
+            <Label className="text-sm font-medium">رسالة بديلة</Label>
             <Textarea
               rows={2}
               className="resize-none text-sm"
-              placeholder="I couldn't find an answer. Would you like to contact support?"
+              placeholder="لم أجد إجابة. هل تريد التواصل مع الدعم؟"
               {...register("chatbot.fallbackMessage")}
             />
             <p className="text-xs text-muted-foreground">
-              Shown when no matching answer is found. The ticket form appears
-              right after.
+              تُعرض عند عدم العثور على إجابة مطابقة. يظهر نموذج التذكرة مباشرة
+              بعدها.
             </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
-              <Label className="text-sm font-medium">Input Placeholder</Label>
+              <Label className="text-sm font-medium">نص الحقل البديل</Label>
               <Input
                 className="h-9"
-                placeholder="Ask a question..."
+                placeholder="اطرح سؤالًا..."
                 {...register("chatbot.placeholder")}
               />
             </div>
 
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">
-                Rate Limit / minute
+                حد المعدل / دقيقة
               </Label>
               <Input
                 type="number"
@@ -1276,13 +1270,13 @@ export function AISettingsForm({
                 })}
               />
               <p className="text-xs text-muted-foreground">
-                Max messages a single visitor can send each minute.
+                أقصى رسائل يمكن لزائر واحد إرسالها كل دقيقة.
               </p>
             </div>
 
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">
-                Ticket Rate Limit / hour
+                حد التذاكر / ساعة
               </Label>
               <Input
                 type="number"
@@ -1292,26 +1286,25 @@ export function AISettingsForm({
                 })}
               />
               <p className="text-xs text-muted-foreground">
-                Max support tickets a visitor can open each hour.
+                أقصى تذاكر دعم يمكن للزائر فتحها كل ساعة.
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="sticky bottom-4 z-10 flex items-center justify-between gap-3 rounded-lg border border-border bg-background/90 px-4 py-3 shadow-lg backdrop-blur supports-backdrop-filter:bg-background/75">
-            <p className="text-xs text-muted-foreground">
+      <PanelFormActions className="sticky bottom-4 z-10 rounded-lg border border-border bg-background/90 px-4 py-3 shadow-lg backdrop-blur supports-backdrop-filter:bg-background/75">
+            <p className="text-right text-xs text-muted-foreground" dir="rtl">
               {isDirty
-                ? "You have unsaved changes."
-                : "Changes take effect after saving."}
+                ? "لديك تغييرات غير محفوظة."
+                : "تُطبَّق التغييرات بعد الحفظ."}
             </p>
             <Button type="submit" disabled={isSaving || !isDirty}>
-              {isSaving && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
-              Save Settings
+              {isSaving && <Loader2 className="me-2 h-3.5 w-3.5 animate-spin" />}
+              حفظ
             </Button>
-          </div>
-        </div>
-      </div>
+          </PanelFormActions>
+      </PanelFormLayout>
     </form>
   );
 }

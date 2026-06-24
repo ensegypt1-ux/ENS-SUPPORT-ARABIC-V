@@ -88,16 +88,16 @@ export function AppHeader({
 
         const banner = showMaintenance
           ? {
-              title: "Maintenance Mode",
+              title: "وضع الصيانة",
               message:
                 settings.maintenance?.message ||
-                "We’re performing maintenance right now. Please check back soon.",
+                "بنعمل صيانة دلوقتي. جرّب تاني بعد شوية.",
               variant: "maintenance" as const,
               dismissible: false,
             }
           : showAnnouncement
             ? {
-                title: announcements.title || "What’s new",
+                title: announcements.title || "جديد",
                 message: announcements.message,
                 variant: announcements.variant || ("info" as const),
                 dismissible: announcements.dismissible,
@@ -159,9 +159,9 @@ export function AppHeader({
           size="icon"
           className="h-9 w-9 shrink-0"
           onClick={toggleSidebarEvent}
-          aria-label="Toggle sidebar"
+          aria-label="فتح وقفل القائمة"
         >
-          <PanelLeft className="h-5 w-5 text-muted-foreground" />
+          <PanelLeft className="h-5 w-5 text-muted-foreground rtl:-scale-x-100" />
         </Button>
 
         {/* Search Trigger */}
@@ -177,28 +177,28 @@ export function AppHeader({
         </button>
 
         {/* Right Section */}
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ms-auto flex items-center gap-1">
           {/* Theme Toggle */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9">
                 <Sun className="h-[1.1rem] w-[1.1rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-[1.1rem] w-[1.1rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span className="sr-only">Toggle theme</span>
+                <span className="sr-only">غيّر المظهر</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="start">
               <DropdownMenuItem onClick={() => setTheme("light")}>
-                <Sun className="mr-2 h-4 w-4" />
-                <span>Light</span>
+                <Sun className="h-4 w-4" />
+                <span>فاتح</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme("dark")}>
-                <Moon className="mr-2 h-4 w-4" />
-                <span>Dark</span>
+                <Moon className="h-4 w-4" />
+                <span>داكن</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme("system")}>
-                <span className="mr-2 h-4 w-4">&#128187;</span>
-                <span>System</span>
+                <span className="h-4 w-4">&#128187;</span>
+                <span>النظام</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

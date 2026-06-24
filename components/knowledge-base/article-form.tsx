@@ -17,7 +17,7 @@ import { createKBArticle, updateKBArticle } from "@/actions/knowledge-base";
 import type { KBArticle } from "@/types";
 
 const schema = z.object({
-  title: z.string().min(1, "Title is required").max(200),
+  title: z.string().min(1, "العنوان مطلوب").max(200),
   content: z.string(),
   excerpt: z.string().max(300).optional(),
   sortOrder: z.number().int(),
@@ -76,10 +76,10 @@ export function ArticleForm({
       }
 
       if (result.success) {
-        toast.success(isEditing ? "Article updated" : "Article created");
+        toast.success(isEditing ? "اتحدّث المقال" : "اتعمل المقال");
         router.push(`/admin/knowledge-base/${categoryId}`);
       } else {
-        toast.error(result.error ?? "Something went wrong");
+        toast.error(result.error ?? "حصل خطأ");
       }
     } finally {
       setIsLoading(false);
@@ -92,11 +92,11 @@ export function ArticleForm({
       <div className="grid gap-4 sm:grid-cols-4">
         <div className="sm:col-span-3 space-y-1.5">
           <Label htmlFor="title" className="text-xs font-medium">
-            Title <span className="text-destructive">*</span>
+            العنوان <span className="text-destructive">*</span>
           </Label>
           <Input
             id="title"
-            placeholder="e.g. How to get started"
+            placeholder="مثال: كيفية البدء"
             className="h-9"
             {...register("title")}
           />
@@ -106,7 +106,7 @@ export function ArticleForm({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="sortOrder" className="text-xs font-medium">
-            Sort Order
+            ترتيب العرض
           </Label>
           <Input
             id="sortOrder"
@@ -121,12 +121,12 @@ export function ArticleForm({
       {/* Excerpt */}
       <div className="space-y-1.5">
         <Label htmlFor="excerpt" className="text-xs font-medium">
-          Excerpt{" "}
-          <span className="text-muted-foreground font-normal">(optional)</span>
+          الملخص{" "}
+          <span className="text-muted-foreground font-normal">(اختياري)</span>
         </Label>
         <Textarea
           id="excerpt"
-          placeholder="Short summary shown in article lists and search results..."
+          placeholder="ملخص قصير يظهر في قوائم المقالات ونتائج البحث..."
           rows={2}
           className="resize-none text-sm"
           {...register("excerpt")}
@@ -138,7 +138,7 @@ export function ArticleForm({
 
       {/* Content editor */}
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Content</Label>
+        <Label className="text-xs font-medium">المحتوى</Label>
         <div className="rounded-lg border border-border overflow-hidden">
           <Controller
             name="content"
@@ -147,7 +147,7 @@ export function ArticleForm({
               <TiptapEditor
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="Write your article content here..."
+                placeholder="اكتب محتوى المقال هنا..."
               />
             )}
           />
@@ -164,12 +164,12 @@ export function ArticleForm({
           )}
           <div>
             <p className="text-sm font-medium">
-              {isPublished ? "Published" : "Draft"}
+              {isPublished ? "منشور" : "مسودة"}
             </p>
             <p className="text-xs text-muted-foreground">
               {isPublished
-                ? "Visible on public docs"
-                : "Hidden from public docs"}
+                ? "مرئي في الوثائق العامة"
+                : "مخفي عن الوثائق العامة"}
             </p>
           </div>
         </div>
@@ -183,15 +183,15 @@ export function ArticleForm({
       {/* Actions */}
       <div className="flex gap-2 pt-1">
         <Button type="submit" disabled={isLoading}>
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isEditing ? "Save Changes" : "Create Article"}
+          {isLoading && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+          {isEditing ? "حفظ" : "إنشاء مقال"}
         </Button>
         <Button
           type="button"
           variant="outline"
           onClick={() => router.push(`/admin/knowledge-base/${categoryId}`)}
         >
-          Cancel
+          إلغاء
         </Button>
       </div>
     </form>

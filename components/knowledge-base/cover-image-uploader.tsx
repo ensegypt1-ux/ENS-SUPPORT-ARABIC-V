@@ -19,11 +19,11 @@ export function CoverImageUploader({ value, onChange }: CoverImageUploaderProps)
 
   const handleFile = async (file: File) => {
     if (!allowedTypes.includes(file.type)) {
-      toast.error("Only image files are allowed (JPEG, PNG, GIF, WebP)");
+      toast.error("مسموح بس صور (JPEG, PNG, GIF, WebP)");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be smaller than 5MB");
+      toast.error("لازم يكون حجم الصورة أقل من 5 ميجابايت");
       return;
     }
 
@@ -34,9 +34,9 @@ export function CoverImageUploader({ value, onChange }: CoverImageUploaderProps)
       const result = await uploadKBImage(formData);
       if (result.success && result.data) {
         onChange(result.data.url);
-        toast.success("Image uploaded");
+        toast.success("تم رفع الصورة");
       } else {
-        toast.error(result.error ?? "Upload failed");
+        toast.error(result.error ?? "تعذّر الرفع");
       }
     } finally {
       setIsUploading(false);
@@ -77,7 +77,7 @@ export function CoverImageUploader({ value, onChange }: CoverImageUploaderProps)
         <div className="relative rounded-xl overflow-hidden border border-border/40 bg-muted/20 group">
           <img
             src={value}
-            alt="Cover"
+            alt="الغلاف"
             className="w-full h-36 object-cover"
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -92,7 +92,7 @@ export function CoverImageUploader({ value, onChange }: CoverImageUploaderProps)
               ) : (
                 <Upload className="h-3.5 w-3.5" />
               )}
-              Replace
+              استبدال
             </button>
             <button
               type="button"
@@ -101,7 +101,7 @@ export function CoverImageUploader({ value, onChange }: CoverImageUploaderProps)
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-red-500/60 text-white text-xs font-medium backdrop-blur-sm transition-colors"
             >
               <X className="h-3.5 w-3.5" />
-              Remove
+              إزالة
             </button>
           </div>
         </div>
@@ -126,17 +126,17 @@ export function CoverImageUploader({ value, onChange }: CoverImageUploaderProps)
             <Upload className="mx-auto h-6 w-6 text-muted-foreground mb-2" />
           )}
           <p className="text-sm text-muted-foreground">
-            {isUploading ? "Uploading..." : "Click to select or drag and drop"}
+            {isUploading ? "جارٍ الرفع..." : "انقر للاختيار أو اسحب وأفلت"}
           </p>
           <p className="text-xs text-muted-foreground/60 mt-1">
-            Max size: 5MB
+            الحجم الأقصى: 5 ميجابايت
           </p>
         </button>
       )}
 
       <p className="text-xs text-muted-foreground/60 flex items-center gap-1">
         <ImageIcon className="h-3 w-3" />
-        Allowed: JPEG, PNG, GIF, WebP
+        المسموح: JPEG, PNG, GIF, WebP
       </p>
     </div>
   );

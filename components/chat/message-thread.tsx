@@ -94,11 +94,11 @@ export function MessageThread({
     setIsDeleting(true);
     const result = await deleteMessage(pendingDeleteMessageId);
     if (result.success) {
-      toast.success("Message deleted");
+      toast.success("اتمسح الرسالة");
       setDeleteDialogOpen(false);
       setPendingDeleteMessageId(null);
     } else {
-      toast.error(result.error || "Failed to delete message");
+      toast.error(result.error || "تعذّر الحذف الرسالة");
     }
     setIsDeleting(false);
   };
@@ -123,7 +123,7 @@ export function MessageThread({
     return (
       <div className="flex-1 flex items-center justify-center p-4">
         <p className="text-muted-foreground text-center">
-          No messages yet. Start the conversation!
+          مفيش رسائل بعد. ابدأ المحادثة!
         </p>
       </div>
     );
@@ -166,7 +166,7 @@ export function MessageThread({
                     {senderImage ? (
                       <AvatarImage
                         src={senderImage}
-                        alt={senderDisplayName || "User"}
+                        alt={senderDisplayName || "مستخدم"}
                       />
                     ) : (
                       <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-xs font-semibold">
@@ -191,24 +191,24 @@ export function MessageThread({
                   className={cn(
                     "rounded-2xl px-3.5 py-2 wrap-break-word shadow-sm",
                     isOwnMessage
-                      ? "bg-blue-600 text-white rounded-br-md"
-                      : "bg-card border border-border/50 rounded-bl-md",
+                      ? "bg-blue-600 text-white rounded-be-md"
+                      : "bg-card border border-border/50 rounded-bs-md",
                     message.is_deleted && "opacity-60"
                   )}
                 >
                   {!message.is_deleted && repliedToMessage && (
-                    <div className="mb-1.5 px-2.5 py-1.5 rounded-lg text-xs bg-background/40 border-l-2 border-border/70">
+                    <div className="mb-1.5 px-2.5 py-1.5 rounded-lg text-xs bg-background/40 border-s-2 border-border/70">
                       <p className="font-medium text-[10px] text-muted-foreground line-clamp-1">
-                        {repliedToMessage.sender_name || "User"}
+                        {repliedToMessage.sender_name || "مستخدم"}
                       </p>
                       <p className="line-clamp-2 text-[11px] text-muted-foreground/80">
-                        {repliedToMessage.content || "[Attachment]"}
+                        {repliedToMessage.content || "[مرفق]"}
                       </p>
                     </div>
                   )}
 
                   {message.is_deleted ? (
-                    <p className="italic text-xs">[Message deleted]</p>
+                    <p className="italic text-xs">[اتمسح الرسالة]</p>
                   ) : (
                     <>
                       {message.content && (
@@ -217,8 +217,8 @@ export function MessageThread({
                         </p>
                       )}
                       {message.is_edited && (
-                        <span className="text-[10px] opacity-60 ml-1">
-                          (edited)
+                        <span className="text-[10px] opacity-60 ms-1">
+                          (معدّلة)
                         </span>
                       )}
                     </>
@@ -234,8 +234,8 @@ export function MessageThread({
                         ? "opacity-100"
                         : "opacity-0 group-hover/message:opacity-100",
                       isOwnMessage
-                        ? "left-0 -translate-x-full mr-1.5 flex-row-reverse"
-                        : "right-0 translate-x-full ml-1.5 flex-row"
+                        ? "start-0 -translate-x-full me-1.5 flex-row-reverse"
+                        : "end-0 translate-x-full ms-1.5 flex-row"
                     )}
                   >
                     <MessageReactions
@@ -251,7 +251,7 @@ export function MessageThread({
                         size="icon"
                         className="h-6 w-6 p-0 hover:bg-accent rounded-full"
                         onClick={() => onReplyToMessage(message)}
-                        title="Reply to message"
+                        title="الرد على الرسالة"
                       >
                         <Reply className="h-3.5 w-3.5" />
                       </Button>
@@ -272,8 +272,8 @@ export function MessageThread({
                           <DropdownMenuItem
                             onClick={() => setEditingMessage(message)}
                           >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
+                            <Edit className="h-4 w-4 me-2" />
+                            تعديل
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
@@ -282,8 +282,8 @@ export function MessageThread({
                             }}
                             className="text-destructive"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
+                            <Trash2 className="h-4 w-4 me-2" />
+                            حذف
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -309,7 +309,7 @@ export function MessageThread({
                   {isOwnMessage &&
                     message.read_by &&
                     message.read_by.length > 1 && (
-                      <span className="ml-1.5 text-blue-600 dark:text-blue-400 font-medium">
+                      <span className="ms-1.5 text-blue-600 dark:text-blue-400 font-medium">
                         SA
                       </span>
                     )}
@@ -328,7 +328,7 @@ export function MessageThread({
               {typingUsers[0].user_name?.[0]?.toUpperCase() || "?"}
             </div>
           </Avatar>
-          <div className="bg-card border border-border/50 rounded-2xl rounded-bl-md px-3.5 py-2 shadow-sm">
+          <div className="bg-card border border-border/50 rounded-2xl rounded-bs-md px-3.5 py-2 shadow-sm">
             <div className="flex gap-1 text-muted-foreground">
               <span className="animate-bounce delay-0 text-xs">●</span>
               <span className="animate-bounce delay-100 text-xs">●</span>
@@ -359,19 +359,19 @@ export function MessageThread({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete message</AlertDialogTitle>
+            <AlertDialogTitle>حذف الرسالة</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this message? This action cannot
-              be undone.
+              متأكد إنك تريد حذف هذه الرسالة؟ مش هينفع الرجوع عن هذا
+              الإجراء.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>إلغاء</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteMessageConfirm}
               disabled={isDeleting}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "جارٍ الحذف..." : "حذف"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -12,6 +12,8 @@ import { Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { TicketPriority, TicketStatus } from "@/types";
+import { PRIORITY_LABELS, STATUS_LABELS } from "@/lib/strings";
 
 interface FilterOption {
   value: string;
@@ -31,27 +33,36 @@ interface GlobalFiltersProps {
   priorityOptions?: FilterOption[];
 }
 
+const STATUS_ORDER: TicketStatus[] = [
+  "open",
+  "scheduled_meeting",
+  "in_progress",
+  "waiting_on_customer",
+  "resolved",
+  "closed",
+];
+
+const PRIORITY_ORDER: TicketPriority[] = ["low", "medium", "high", "urgent"];
+
 const DEFAULT_STATUS_OPTIONS: FilterOption[] = [
-  { value: "all", label: "All Statuses" },
-  { value: "open", label: "Open" },
-  { value: "scheduled_meeting", label: "Scheduled Meeting" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "waiting_on_customer", label: "Waiting for Customer" },
-  { value: "resolved", label: "Resolved" },
-  { value: "closed", label: "Closed" },
+  { value: "all", label: "كل الحالات" },
+  ...STATUS_ORDER.map((value) => ({
+    value,
+    label: STATUS_LABELS[value],
+  })),
 ];
 
 const DEFAULT_PRIORITY_OPTIONS: FilterOption[] = [
-  { value: "all", label: "All Priorities" },
-  { value: "low", label: "Low" },
-  { value: "medium", label: "Medium" },
-  { value: "high", label: "High" },
-  { value: "urgent", label: "Urgent" },
+  { value: "all", label: "كل الأولويات" },
+  ...PRIORITY_ORDER.map((value) => ({
+    value,
+    label: PRIORITY_LABELS[value],
+  })),
 ];
 
 export function GlobalFilters({
   defaultValues,
-  searchPlaceholder = "Search...",
+  searchPlaceholder = "دور...",
   showStatus = true,
   showPriority = true,
   statusOptions = DEFAULT_STATUS_OPTIONS,
@@ -79,7 +90,7 @@ export function GlobalFilters({
       <CardHeader>
         <CardTitle className="flex items-center gap-1">
           <Filter className="h-4 w-4" />
-          Filters
+          فلتر
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -90,12 +101,12 @@ export function GlobalFilters({
           {/* Search */}
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 name="search"
                 placeholder={searchPlaceholder}
                 defaultValue={defaultValues?.search}
-                className="pl-10"
+                className="ps-10"
               />
             </div>
           </div>
@@ -145,7 +156,7 @@ export function GlobalFilters({
           {/* Filter Button */}
           <div className="w-full sm:w-auto">
             <Button type="submit" className="w-full sm:w-auto">
-              Apply Filters
+              طبّق
             </Button>
           </div>
         </form>
@@ -158,5 +169,5 @@ export function GlobalFilters({
 export function TicketFilters(
   props: Omit<GlobalFiltersProps, "searchPlaceholder">
 ) {
-  return <GlobalFilters {...props} searchPlaceholder="Search tickets..." />;
+  return <GlobalFilters {...props} searchPlaceholder="دور في التذاكر..." />;
 }

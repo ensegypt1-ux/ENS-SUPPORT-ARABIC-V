@@ -49,7 +49,7 @@ export function DataTableBulkActions({
                     onClick={onClear}
                     className="h-7 px-2 text-muted-foreground hover:text-foreground"
                 >
-                    <X className="mr-1 h-3.5 w-3.5" />
+                    <X className="me-1 h-3.5 w-3.5" />
                     Clear
                 </Button>
             </div>

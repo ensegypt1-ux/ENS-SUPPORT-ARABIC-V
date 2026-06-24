@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { WifiOff } from "lucide-react";
 
 import { OfflineRetryButton } from "@/components/pwa/offline-retry-button";
+import { ENS_BRAND } from "@/lib/ens-brand";
 
 export const metadata: Metadata = {
-  title: "Offline",
-  description: "This page is available when your connection drops.",
+  title: "غير متصل",
+  description: "تظهر هذه الصفحة عند انقطاع الاتصال بالإنترنت.",
 };
 
 export default function OfflinePage() {
@@ -20,11 +21,11 @@ export default function OfflinePage() {
           <WifiOff className="h-8 w-8" />
         </div>
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          You&apos;re Offline
+          أنت غير متصل
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
-          Solvio needs an internet connection. Please check your connection and
-          try again.
+          تحتاج {ENS_BRAND.portalTitle} إلى اتصال بالإنترنت.  التحقق من
+          اتصالك والمحاولة مرة أخرى.
         </p>
         <div className="mt-8 flex justify-center">
           <OfflineRetryButton />

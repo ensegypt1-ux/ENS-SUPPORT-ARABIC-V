@@ -79,7 +79,7 @@ export function FloatingChatButton({ className }: FloatingChatButtonProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 transition-all duration-500",
+        "fixed bottom-6 end-6 z-50 flex flex-col items-end gap-3 transition-all duration-500",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10",
         className
       )}
@@ -94,8 +94,8 @@ export function FloatingChatButton({ className }: FloatingChatButtonProps) {
         <Button
           onClick={() => setShowAiChat(true)}
           size="lg"
-          aria-label="Chat with our AI assistant"
-          title="Chat with our AI assistant"
+          aria-label="المحادثة مع المساعد الذكي"
+          title="المحادثة مع المساعد الذكي"
           className={cn(
             "relative h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300",
             "bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105 active:scale-95"
@@ -103,7 +103,7 @@ export function FloatingChatButton({ className }: FloatingChatButtonProps) {
         >
           <MessageCircle className="h-6 w-6" />
           {/* Online indicator */}
-          <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
+          <span className="absolute -end-0.5 -top-0.5 flex h-3.5 w-3.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:hidden" />
             <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-background bg-emerald-500" />
           </span>

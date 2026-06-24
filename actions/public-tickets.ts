@@ -77,7 +77,7 @@ export async function getPublicTicketCategories(): Promise<
     };
   } catch (error) {
     console.error("Get public ticket categories error:", error);
-    return { success: false, error: "Failed to load categories" };
+    return { success: false, error: "تعذّر التحميل الفئات" };
   }
 }
 
@@ -99,7 +99,7 @@ export async function getPublicTicketDepartments(): Promise<
     };
   } catch (error) {
     console.error("Get public ticket departments error:", error);
-    return { success: false, error: "Failed to load departments" };
+    return { success: false, error: "تعذّر التحميل الأقسام" };
   }
 }
 
@@ -120,7 +120,7 @@ export async function getPublicTicketProducts(): Promise<
     };
   } catch (error) {
     console.error("Get public ticket products error:", error);
-    return { success: false, error: "Failed to load products" };
+    return { success: false, error: "تعذّر التحميل المنتجات" };
   }
 }
 
@@ -132,23 +132,23 @@ export async function verifyPublicPurchaseCode(
   try {
     const trimmedCode = purchaseCode?.trim();
     if (!trimmedCode) {
-      return { success: false, error: "Purchase code is required" };
+      return { success: false, error: "رمز الشراء مطلوب" };
     }
     const result = await verifyPurchaseCode(trimmedCode);
     if (!result.success) {
       return {
         success: false,
-        error: result.error || "Failed to verify purchase code",
+        error: result.error || "تعذّر التحقق من رمز الشراء",
       };
     }
     return {
       success: true,
       data: result.data,
-      message: "Purchase code verified successfully",
+      message: "رمز الشراء اتتحقق منه",
     };
   } catch (error) {
     console.error("Public purchase code verification error:", error);
-    return { success: false, error: "Failed to verify purchase code" };
+    return { success: false, error: "تعذّر التحقق من رمز الشراء" };
   }
 }
 
@@ -172,7 +172,7 @@ export async function createPublicTicket(
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.issues[0]?.message || "Invalid submission",
+        error: parsed.error.issues[0]?.message || "إرسال مش صح",
       };
     }
     const data = parsed.data;
@@ -194,9 +194,7 @@ export async function createPublicTicket(
     if (!rate.allowed) {
       return {
         success: false,
-        error: `Too many ticket submissions. Try again in ${Math.ceil(
-          rate.retryAfter / 60
-        )} minutes.`,
+        error: `عدد كبير جداً من إرسال التذاكر. حاول مرة أخرى خلال ${Math.ceil(rate.retryAfter / 60)} دقيقة.`,
       };
     }
 
@@ -222,14 +220,14 @@ export async function createPublicTicket(
       if (!data.purchaseCode) {
         return {
           success: false,
-          error: "Purchase code is required to create a support ticket",
+          error: "رمز الشراء مطلوب لافتح تذكرة دعم",
         };
       }
       const verification = await verifyPurchaseCode(data.purchaseCode);
       if (!verification.success) {
         return {
           success: false,
-          error: verification.error || "Invalid purchase code",
+          error: verification.error || "رمز شراء مش صح",
         };
       }
       purchaseVerification = verification.data;
@@ -258,7 +256,7 @@ export async function createPublicTicket(
     });
 
     if (!res.success || !res.data) {
-      return { success: false, error: res.error ?? "Failed to create ticket" };
+      return { success: false, error: res.error ?? "تعذّر إنشاء التذكرة" };
     }
 
     return {
@@ -267,13 +265,13 @@ export async function createPublicTicket(
     };
   } catch (error) {
     console.error("Create public ticket error:", error);
-    return { success: false, error: "Failed to create ticket" };
+    return { success: false, error: "تعذّر إنشاء التذكرة" };
   }
 }
 
 // ─── Guest ticket portal (token-authed, no login) ──────────────────────────
 
-const NOT_FOUND = "This ticket link is invalid or has expired.";
+const NOT_FOUND = "رابط التذكرة هذا مش صح أو منتهي الصلاحية.";
 
 /** Resolve a guest ticket by its bearer token. Guest tickets always live in
  * the `tickets` collection (see createAgentTicket). */
@@ -359,7 +357,7 @@ export async function addGuestTicketComment(
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.issues[0]?.message || "Invalid message",
+        error: parsed.error.issues[0]?.message || "رسالة مش صحة",
       };
     }
 
@@ -372,9 +370,7 @@ export async function addGuestTicketComment(
     if (!rate.allowed) {
       return {
         success: false,
-        error: `Too many replies. Try again in ${Math.ceil(
-          rate.retryAfter / 60
-        )} minutes.`,
+        error: `عدد كبير جداً من الردود. حاول مرة أخرى خلال ${Math.ceil(rate.retryAfter / 60)} دقيقة.`,
       };
     }
 
@@ -457,6 +453,6 @@ export async function addGuestTicketComment(
     };
   } catch (error) {
     console.error("Add guest comment error:", error);
-    return { success: false, error: "Failed to send your reply" };
+    return { success: false, error: "تعذّر إرسال ردك" };
   }
 }

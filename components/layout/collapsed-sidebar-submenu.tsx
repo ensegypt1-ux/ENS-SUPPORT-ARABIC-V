@@ -24,6 +24,8 @@ interface CollapsedSidebarSubmenuProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const FLYOUT_WIDTH = 192; // w-48
+
 export function CollapsedSidebarSubmenu({
   label,
   icon: Icon,
@@ -35,9 +37,9 @@ export function CollapsedSidebarSubmenu({
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const [position, setPosition] = useState<{ top: number; left: number }>({
+  const [position, setPosition] = useState<{ top: number; insetInlineStart: number }>({
     top: 0,
-    left: 0,
+    insetInlineStart: 0,
   });
 
   const clearCloseTimer = useCallback(() => {
@@ -51,7 +53,13 @@ export function CollapsedSidebarSubmenu({
     clearCloseTimer();
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      setPosition({ top: rect.top, left: rect.right + 10 });
+      const isRtl = document.documentElement.dir === "rtl";
+      setPosition({
+        top: rect.top,
+        insetInlineStart: isRtl
+          ? rect.left - FLYOUT_WIDTH - 10
+          : rect.right + 10,
+      });
     }
     onOpenChange(true);
   }, [clearCloseTimer, onOpenChange]);
@@ -137,7 +145,7 @@ export function CollapsedSidebarSubmenu({
         </span>
         <ChevronRight
           className={cn(
-            "pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 shrink-0 -translate-y-1/2 transition-colors",
+            "pointer-events-none absolute end-1.5 top-1/2 h-3 w-3 shrink-0 -translate-y-1/2 rtl:-scale-x-100 transition-colors",
             active
               ? "text-primary dark:text-primary-foreground"
               : "text-slate-400 dark:text-slate-500"
@@ -149,7 +157,7 @@ export function CollapsedSidebarSubmenu({
           <div
             ref={contentRef}
             data-collapsed-sidebar-submenu-content="true"
-            style={{ top: position.top, left: position.left }}
+            style={{ top: position.top, insetInlineStart: position.insetInlineStart }}
             className="fixed z-50 w-48 rounded-[1.125rem] border border-border bg-popover/95 p-1.5 shadow-[0_22px_48px_-24px_rgba(15,23,42,0.3)] backdrop-blur-md"
             onPointerEnter={() => {
               clearCloseTimer();

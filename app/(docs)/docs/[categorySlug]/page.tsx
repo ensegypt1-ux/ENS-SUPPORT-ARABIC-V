@@ -40,10 +40,10 @@ export default async function CategoryPage({ params }: PageProps) {
         {/* Breadcrumb */}
         <nav
           className="flex items-center gap-2 text-sm font-medium text-muted-foreground"
-          aria-label="Breadcrumb"
+          aria-label="مسار التنقل"
         >
           <Link href="/docs" className="hover:text-foreground transition-colors">
-            Docs
+            الوثائق
           </Link>
           <ChevronRight className="size-3 text-muted-foreground/40" />
           <span className="text-foreground">{category.title}</span>
@@ -64,7 +64,7 @@ export default async function CategoryPage({ params }: PageProps) {
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-muted-foreground">Category</p>
+            <p className="text-xs font-medium text-muted-foreground">القسم</p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
               {category.title}
             </h1>
@@ -80,7 +80,7 @@ export default async function CategoryPage({ params }: PageProps) {
         {/* Articles */}
         {articles.length === 0 ? (
           <p className="mt-10 text-muted-foreground">
-            No articles in this category yet.
+            مفيش مقالات في هذا القسم بعد.
           </p>
         ) : (
           <ol className="mt-10 space-y-3">

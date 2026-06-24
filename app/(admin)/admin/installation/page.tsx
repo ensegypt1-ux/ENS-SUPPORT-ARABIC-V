@@ -52,59 +52,59 @@ export default async function AdminInstallationPage({
   const closedRequests = requests.filter((r) => r.status === "closed");
 
   const tabItems = [
-    { value: "all", label: "All", count: requests.length },
-    { value: "open", label: "Open", count: openRequests.length },
+    { value: "all", label: "الكل", count: requests.length },
+    { value: "open", label: "مفتوحة", count: openRequests.length },
     {
       value: "scheduled_meeting",
-      label: "Scheduled Meeting",
+      label: "اجتماع مجدول",
       count: scheduledMeetingRequests.length,
     },
     {
       value: "waiting_on_customer",
-      label: "Waiting",
+      label: "في الانتظار",
       count: waitingRequests.length,
     },
     {
       value: "in_progress",
-      label: "In Progress",
+      label: "قيد المعالجة",
       count: inProgressRequests.length,
     },
-    { value: "resolved", label: "Resolved", count: resolvedRequests.length },
-    { value: "closed", label: "Closed", count: closedRequests.length },
+    { value: "resolved", label: "محلولة", count: resolvedRequests.length },
+    { value: "closed", label: "مغلقة", count: closedRequests.length },
   ];
 
   const installationStats = [
     {
-      title: "Total Requests",
+      title: "إجمالي الطلبات",
       value: requests.length,
       icon: Download,
       iconColor: "text-sky-600",
       iconBgColor: "bg-sky-50 dark:bg-sky-950",
-      description: "All installation tickets",
+      description: "جميع تذاكر التثبيت",
     },
     {
-      title: "Open",
+      title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
       iconColor: "text-amber-600",
       iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "Awaiting action",
+      description: "في انتظار الإجراء",
     },
     {
-      title: "In Progress",
+      title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
       iconColor: "text-indigo-600",
       iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "Being installed",
+      description: "قيد التثبيت",
     },
     {
-      title: "Completed",
+      title: "مكتملة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
       iconColor: "text-emerald-600",
       iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "Successfully installed",
+      description: "تم التثبيت",
     },
   ];
 
@@ -115,17 +115,17 @@ export default async function AdminInstallationPage({
         <div>
           <div className="mb-2">
             <h1 className="text-3xl font-bold text-foreground">
-              Installation Requests
+              طلبات التثبيت
             </h1>
           </div>
           <p className="text-muted-foreground mt-2">
-            Manage all customer installation and setup requests
+            إدارة جميع طلبات التثبيت والإعداد للعملاء
           </p>
         </div>
         <Button asChild>
           <Link href="/admin/installation/new">
-            <Plus className="h-4 w-4 mr-2" />
-            New Request
+            <Plus className="h-4 w-4 me-2" />
+            طلب جديد
           </Link>
         </Button>
       </div>
@@ -139,7 +139,7 @@ export default async function AdminInstallationPage({
           <PageTabsHeader
             tabs={tabItems}
             showSearch
-            searchPlaceholder="Search requests..."
+            searchPlaceholder="بحث في الطلبات..."
             searchDefaultValue={filters.search}
             showPriorityFilter
             priorityDefaultValue={filters.priority}
@@ -153,7 +153,7 @@ export default async function AdminInstallationPage({
             {requests.length === 0 ? (
               <EmptySearchResults
                 searchQuery={filters.search}
-                entityName="requests"
+                entityName="طلبات"
               />
             ) : viewMode === "table" ? (
               <TicketsTable tickets={requests} hrefBase="/admin/installation" />
@@ -173,7 +173,7 @@ export default async function AdminInstallationPage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No open requests
+                  مفيش طلبات مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -197,7 +197,7 @@ export default async function AdminInstallationPage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No scheduled meeting requests
+                  مفيش طلبات باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -221,7 +221,7 @@ export default async function AdminInstallationPage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No waiting requests
+                  مفيش طلبات في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -245,7 +245,7 @@ export default async function AdminInstallationPage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No in-progress requests
+                  مفيش طلبات قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -269,7 +269,7 @@ export default async function AdminInstallationPage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No resolved requests
+                  مفيش طلبات محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -293,7 +293,7 @@ export default async function AdminInstallationPage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No closed requests
+                  مفيش طلبات مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

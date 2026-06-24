@@ -151,7 +151,7 @@ export function EnhancedNotificationList({
         setStats(statsResult.stats);
       }
     } catch (error) {
-      toast.error("Failed to load notifications");
+      toast.error("مقدرناش نحمّل الإشعارات");
     } finally {
       setIsLoading(false);
     }
@@ -188,11 +188,11 @@ export function EnhancedNotificationList({
     startTransition(async () => {
       const result = await bulkMarkAsRead(Array.from(selectedIds), userId);
       if (result.success) {
-        toast.success(`Marked ${result.count} notifications as read`);
+        toast.success(`اتعلّم ${result.count} إشعار مقروء`);
         setSelectedIds(new Set());
         loadNotifications(pagination.page);
       } else {
-        toast.error("Failed to mark notifications as read");
+        toast.error("مقدرناش نعلّم الإشعارات مقروءة");
       }
     });
   };
@@ -203,11 +203,11 @@ export function EnhancedNotificationList({
     startTransition(async () => {
       const result = await bulkMarkAsUnread(Array.from(selectedIds), userId);
       if (result.success) {
-        toast.success(`Marked ${result.count} notifications as unread`);
+        toast.success(`اتعلّم ${result.count} إشعار مش مقروء`);
         setSelectedIds(new Set());
         loadNotifications(pagination.page);
       } else {
-        toast.error("Failed to mark notifications as unread");
+        toast.error("مقدرناش نعلّم الإشعارات مش مقروءة");
       }
     });
   };
@@ -221,11 +221,11 @@ export function EnhancedNotificationList({
         userId
       );
       if (result.success) {
-        toast.success(`Deleted ${result.count} notifications`);
+        toast.success(`اتمسح ${result.count} إشعار`);
         setSelectedIds(new Set());
         loadNotifications(pagination.page);
       } else {
-        toast.error("Failed to delete notifications");
+        toast.error("مقدرناش نمسح الإشعارات");
       }
     });
   };
@@ -234,11 +234,11 @@ export function EnhancedNotificationList({
     startTransition(async () => {
       const result = await deleteAllReadNotifications(userId);
       if (result.success) {
-        toast.success(`Deleted ${result.count} read notifications`);
+        toast.success(`اتمسح ${result.count} إشعار مقروء`);
         setShowDeleteAllDialog(false);
         loadNotifications(1);
       } else {
-        toast.error("Failed to delete read notifications");
+        toast.error("مقدرناش نمسح الإشعارات المقروءة");
       }
     });
   };
@@ -266,20 +266,22 @@ export function EnhancedNotificationList({
         {/* Header with Stats */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Notifications</h1>
+            <h1 className="text-3xl font-bold">الإشعارات</h1>
             <p className="text-muted-foreground mt-1">
               {stats.unread > 0 ? (
                 <>
-                  You have{" "}
+                  لديك{" "}
                   <span className="font-semibold text-primary">
                     {stats.unread}
                   </span>{" "}
-                  unread notification{stats.unread !== 1 ? "s" : ""} out of{" "}
-                  {stats.total} total
+                  {stats.unread === 1
+                    ? "إشعار غير مقروء"
+                    : "إشعارات غير مقروءة"}{" "}
+                  من أصل {stats.total}
                 </>
               ) : (
                 <>
-                  You&apos;re all caught up! ({stats.total} total notifications)
+                  خلصت كل الإشعارات! ({stats.total} إشعاراً إجمالاً)
                 </>
               )}
             </p>
@@ -290,8 +292,8 @@ export function EnhancedNotificationList({
               onClick={() => setShowDeleteAllDialog(true)}
               disabled={isPending}
             >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Clear All Read
+              <Trash2 className="me-2 h-4 w-4" />
+              مسح جميع المقروءة
             </Button>
           )}
         </div>
@@ -305,8 +307,8 @@ export function EnhancedNotificationList({
             <CardContent>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">
-                  {selectedIds.size} notification
-                  {selectedIds.size !== 1 ? "s" : ""} selected
+                  {selectedIds.size}{" "}
+                  {selectedIds.size === 1 ? "إشعار" : "إشعارات"} محددة
                 </span>
                 <div className="flex items-center gap-2">
                   <Button
@@ -315,8 +317,8 @@ export function EnhancedNotificationList({
                     onClick={handleBulkMarkAsRead}
                     disabled={isPending}
                   >
-                    <Check className="mr-2 h-4 w-4" />
-                    Mark Read
+                    <Check className="me-2 h-4 w-4" />
+                    تحديد كمقروء
                   </Button>
                   <Button
                     size="sm"
@@ -324,8 +326,8 @@ export function EnhancedNotificationList({
                     onClick={handleBulkMarkAsUnread}
                     disabled={isPending}
                   >
-                    <X className="mr-2 h-4 w-4" />
-                    Mark Unread
+                    <X className="me-2 h-4 w-4" />
+                    تحديد كغير مقروء
                   </Button>
                   <Button
                     size="sm"
@@ -333,15 +335,15 @@ export function EnhancedNotificationList({
                     onClick={handleBulkDelete}
                     disabled={isPending}
                   >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
+                    <Trash2 className="me-2 h-4 w-4" />
+                    حذف
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => setSelectedIds(new Set())}
                   >
-                    Cancel
+                    إلغاء
                   </Button>
                 </div>
               </div>
@@ -371,14 +373,14 @@ export function EnhancedNotificationList({
             <CardContent className="text-center">
               <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">
-                No notifications found
+                مفيش إشعارات
               </h3>
               <p className="text-muted-foreground">
                 {filters.search ||
                 filters.type !== "all" ||
                 filters.read !== "all"
-                  ? "Try adjusting your filters"
-                  : "You don't have any notifications yet"}
+                  ? "جرّب تعديل عوامل التصفية"
+                  : "مفيش إشعارات لسه"}
               </p>
             </CardContent>
           </Card>
@@ -394,7 +396,7 @@ export function EnhancedNotificationList({
                 onCheckedChange={toggleSelectAll}
               />
               <span className="text-sm text-muted-foreground">
-                Select all on this page
+                تحديد الكل في هذه الصفحة
               </span>
             </div>
 
@@ -411,7 +413,7 @@ export function EnhancedNotificationList({
                   <Card
                     key={notification._id.toString()}
                     className={`cursor-pointer transition-colors hover:bg-muted/50 ${
-                      !notification.read ? "border-l-4 border-l-primary" : ""
+                      !notification.read ? "border-s-4 border-s-primary" : ""
                     } ${isSelected ? "bg-muted/50" : ""}`}
                   >
                     <CardContent>
@@ -444,7 +446,7 @@ export function EnhancedNotificationList({
                               </div>
                               {!notification.read && (
                                 <Badge variant="default" className="shrink-0">
-                                  New
+                                  جديد
                                 </Badge>
                               )}
                             </div>
@@ -469,12 +471,12 @@ export function EnhancedNotificationList({
             {pagination.totalPages > 1 && (
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
-                  Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+                  عرض {(pagination.page - 1) * pagination.limit + 1} إلى{" "}
                   {Math.min(
                     pagination.page * pagination.limit,
                     pagination.total
                   )}{" "}
-                  of {pagination.total} notifications
+                  من {pagination.total} إشعار
                 </p>
                 <div className="flex items-center gap-2">
                   <Button
@@ -484,10 +486,10 @@ export function EnhancedNotificationList({
                     disabled={pagination.page === 1 || isPending}
                   >
                     <ChevronLeft className="h-4 w-4" />
-                    Previous
+                    السابق
                   </Button>
                   <span className="text-sm">
-                    Page {pagination.page} of {pagination.totalPages}
+                    صفحة {pagination.page} من {pagination.totalPages}
                   </span>
                   <Button
                     variant="outline"
@@ -497,7 +499,7 @@ export function EnhancedNotificationList({
                       pagination.page === pagination.totalPages || isPending
                     }
                   >
-                    Next
+                    التالي
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -514,14 +516,13 @@ export function EnhancedNotificationList({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete All Read Notifications?</AlertDialogTitle>
+            <AlertDialogTitle>حذف جميع الإشعارات المقروءة؟</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete all {stats.read} read notifications.
-              This action cannot be undone.
+              هيتمسح {stats.read} إشعار مقروء نهائي — مش هتقدر ترجع.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>إلغاء</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAllRead}
               disabled={isPending}
@@ -529,11 +530,11 @@ export function EnhancedNotificationList({
             >
               {isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                  جاري الحذف...
                 </>
               ) : (
-                "Delete All Read"
+                "حذف جميع المقروءة"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

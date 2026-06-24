@@ -54,59 +54,59 @@ export default async function AdminCustomizationPage({
   // Stats for admin-wide customization overview
   const customizationStats = [
     {
-      title: "Total Requests",
+      title: "إجمالي الطلبات",
       value: requests.length,
       icon: Wrench,
       iconColor: "text-slate-600",
       iconBgColor: "bg-slate-50 dark:bg-slate-950",
-      description: "All customization requests",
+      description: "جميع طلبات التخصيص",
     },
     {
-      title: "Open",
+      title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
       iconColor: "text-amber-600",
       iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "Awaiting review",
+      description: "في انتظار المراجعة",
     },
     {
-      title: "In Progress",
+      title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
       iconColor: "text-indigo-600",
       iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "Being worked on",
+      description: "قيد العمل",
     },
     {
-      title: "Completed",
+      title: "مكتملة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
       iconColor: "text-emerald-600",
       iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "Resolved or closed",
+      description: "محلولة أو مغلقة",
     },
   ];
 
   const tabItems = [
-    { value: "all", label: "All", count: requests.length },
-    { value: "open", label: "Open", count: openRequests.length },
+    { value: "all", label: "الكل", count: requests.length },
+    { value: "open", label: "مفتوحة", count: openRequests.length },
     {
       value: "scheduled_meeting",
-      label: "Scheduled Meeting",
+      label: "اجتماع مجدول",
       count: scheduledMeetingRequests.length,
     },
     {
       value: "waiting_on_customer",
-      label: "Waiting",
+      label: "في الانتظار",
       count: waitingRequests.length,
     },
     {
       value: "in_progress",
-      label: "In Progress",
+      label: "قيد المعالجة",
       count: inProgressRequests.length,
     },
-    { value: "resolved", label: "Resolved", count: resolvedRequests.length },
-    { value: "closed", label: "Closed", count: closedRequests.length },
+    { value: "resolved", label: "محلولة", count: resolvedRequests.length },
+    { value: "closed", label: "مغلقة", count: closedRequests.length },
   ];
 
   return (
@@ -116,17 +116,17 @@ export default async function AdminCustomizationPage({
         <div>
           <div className="mb-2">
             <h1 className="text-3xl font-bold text-foreground">
-              Customization Requests
+              طلبات التخصيص
             </h1>
           </div>
           <p className="text-muted-foreground mt-2">
-            Manage customer customization and feature requests
+            إدارة طلبات التخصيص والميزات للعملاء
           </p>
         </div>
         <Button asChild>
           <Link href="/admin/customization/new">
-            <Plus className="h-4 w-4 mr-2" />
-            New Request
+            <Plus className="h-4 w-4 me-2" />
+            طلب جديد
           </Link>
         </Button>
       </div>
@@ -140,7 +140,7 @@ export default async function AdminCustomizationPage({
           <PageTabsHeader
             tabs={tabItems}
             showSearch
-            searchPlaceholder="Search requests..."
+            searchPlaceholder="بحث في الطلبات..."
             searchDefaultValue={filters.search}
             showPriorityFilter
             priorityDefaultValue={filters.priority}
@@ -154,7 +154,7 @@ export default async function AdminCustomizationPage({
             {requests.length === 0 ? (
               <EmptySearchResults
                 searchQuery={filters.search}
-                entityName="requests"
+                entityName="طلبات"
               />
             ) : viewMode === "table" ? (
               <TicketsTable
@@ -180,7 +180,7 @@ export default async function AdminCustomizationPage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No open customization requests
+                  مفيش طلبات تخصيص مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -207,7 +207,7 @@ export default async function AdminCustomizationPage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No scheduled meeting customization requests
+                  مفيش طلبات تخصيص باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -234,7 +234,7 @@ export default async function AdminCustomizationPage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No waiting customization requests
+                  مفيش طلبات تخصيص في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -261,7 +261,7 @@ export default async function AdminCustomizationPage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No in-progress customization requests
+                  مفيش طلبات تخصيص قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -288,7 +288,7 @@ export default async function AdminCustomizationPage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No resolved customization requests
+                  مفيش طلبات تخصيص محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -315,7 +315,7 @@ export default async function AdminCustomizationPage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No closed customization requests
+                  مفيش طلبات تخصيص مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

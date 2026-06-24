@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Copy, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { UI } from "@/lib/strings";
 
 interface TicketDescriptionProps {
   description: string;
@@ -98,7 +99,7 @@ export function TicketDescription({
   return (
     <div className={cn("relative group", className)}>
       {/* Copy Button */}
-      <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute top-2 end-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
         <Button
           variant="outline"
           size="icon-sm"
@@ -116,7 +117,7 @@ export function TicketDescription({
       {/* Content */}
       <div
         className={cn(
-          "rounded-md border border-border bg-card p-4 pr-12 min-h-30",
+          "rounded-md border border-border bg-card p-4 pe-12 min-h-30",
           isLong && !isExpanded && "max-h-[400px]",
           "overflow-auto"
         )}
@@ -148,12 +149,12 @@ export function TicketDescription({
             {isExpanded ? (
               <>
                 <ChevronUp className="h-3.5 w-3.5" />
-                Show Less
+                {UI.showLess}
               </>
             ) : (
               <>
                 <ChevronDown className="h-3.5 w-3.5" />
-                Show More ({lines.length - 15} more lines)
+                {UI.showMore} ({lines.length - 15} سطر)
               </>
             )}
           </Button>

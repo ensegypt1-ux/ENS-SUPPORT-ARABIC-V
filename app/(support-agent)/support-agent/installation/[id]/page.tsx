@@ -125,7 +125,7 @@ export default async function SupportAgentInstallationDetailPage({
   });
 
   const customer = users[request.customerId] || {
-    name: "Unknown Customer",
+    name: "عميل غير معروف",
     email: "",
     role: "customer",
   };
@@ -145,8 +145,8 @@ export default async function SupportAgentInstallationDetailPage({
         </div>
         <Button variant="outline" size="sm" asChild>
           <Link href="/support-agent/installation">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Installations
+            <ArrowLeft className="me-2 h-4 w-4" />
+            رجوع إلى التثبيت
           </Link>
         </Button>
       </div>
@@ -155,7 +155,7 @@ export default async function SupportAgentInstallationDetailPage({
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Description</CardTitle>
+              <CardTitle>الوصف</CardTitle>
             </CardHeader>
             <CardContent>
               <TicketDescription description={request?.description} />
@@ -164,14 +164,14 @@ export default async function SupportAgentInstallationDetailPage({
 
           <Tabs defaultValue="comments" className="space-y-4">
             <TabsList>
-              <TabsTrigger value="comments">Comments ({comments?.length})</TabsTrigger>
-              <TabsTrigger value="meetings">Meetings ({meetings?.length})</TabsTrigger>
+              <TabsTrigger value="comments">التعليقات ({comments?.length})</TabsTrigger>
+              <TabsTrigger value="meetings">الاجتماعات ({meetings?.length})</TabsTrigger>
               {fileUploadsEnabled && (
                 <TabsTrigger value="attachments">
                   Attachments ({attachments?.length})
                 </TabsTrigger>
               )}
-              <TabsTrigger value="history">History ({history?.length})</TabsTrigger>
+              <TabsTrigger value="history">السجل ({history?.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="comments">
@@ -223,7 +223,7 @@ export default async function SupportAgentInstallationDetailPage({
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Status</CardTitle>
+              <CardTitle>الحالة</CardTitle>
             </CardHeader>
             <CardContent>
               <TicketStatusControl ticketId={id} currentStatus={request?.status} />
@@ -232,7 +232,7 @@ export default async function SupportAgentInstallationDetailPage({
 
           <Card>
             <CardHeader>
-              <CardTitle>Priority</CardTitle>
+              <CardTitle>الأولوية</CardTitle>
             </CardHeader>
             <CardContent>
               <TicketPriorityControl
@@ -244,15 +244,15 @@ export default async function SupportAgentInstallationDetailPage({
 
           <Card>
             <CardHeader>
-              <CardTitle>Request Information</CardTitle>
+              <CardTitle>معلومات الطلب</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <User className="h-4 w-4" />
-                  <span className="font-medium">Customer</span>
+                  <span className="font-medium">العميل</span>
                 </div>
-                <p className="text-sm">{customer?.name || "Unknown"}</p>
+                <p className="text-sm">{customer?.name || "غير معروف"}</p>
                 <p className="text-xs text-muted-foreground">{customer?.email}</p>
               </div>
 
@@ -261,7 +261,7 @@ export default async function SupportAgentInstallationDetailPage({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span className="font-medium">Created</span>
+                  <span className="font-medium">تاريخ الإنشاء</span>
                 </div>
                 <p className="text-sm">
                   {request?.createdAt && (await formatDate(new Date(request.createdAt)))}
@@ -274,7 +274,7 @@ export default async function SupportAgentInstallationDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Tag className="h-4 w-4" />
-                      <span className="font-medium">Category</span>
+                      <span className="font-medium">الفئة</span>
                     </div>
                     <p className="text-sm capitalize">
                       {request?.category?.replace(/_/g, " ")}
@@ -289,7 +289,7 @@ export default async function SupportAgentInstallationDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Package className="h-4 w-4" />
-                      <span className="font-medium">Product</span>
+                      <span className="font-medium">المنتج</span>
                     </div>
                     <p className="text-sm">{request?.productName}</p>
                     {request?.productVersion && (
@@ -307,7 +307,7 @@ export default async function SupportAgentInstallationDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-success">
                       <CheckCircle2 className="h-4 w-4" />
-                      <span className="font-medium">Purchase Verified</span>
+                      <span className="font-medium">تم التحقق من الشراء</span>
                     </div>
                     <p className="text-xs text-muted-foreground">
                       License: {request?.purchaseVerification?.licenseType}
@@ -322,7 +322,7 @@ export default async function SupportAgentInstallationDetailPage({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Globe className="h-4 w-4" />
-                      <span className="font-medium">Country</span>
+                      <span className="font-medium">البلد</span>
                     </div>
                     <p className="text-sm">{customer.country}</p>
                   </div>

@@ -5,10 +5,10 @@ import { z } from "zod";
 import { ObjectId } from "mongodb";
 
 const contactSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  subject: z.string().min(5, "Subject must be at least 5 characters"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
+  name: z.string().min(2, "الاسم لازم يكون حرفين على الأقل"),
+  email: z.string().email("اكتب بريد إلكتروني صحيح"),
+  subject: z.string().min(5, "الموضوع لازم يكون 5 أحرف على الأقل"),
+  message: z.string().min(10, "الرسالة لازم تكون 10 أحرف على الأقل"),
 });
 
 export interface ContactSubmission {
@@ -40,7 +40,7 @@ export async function submitContact(formData: {
 
     return {
       success: true,
-      message: "Thank you for your message! We will get back to you soon.",
+      message: "شكراً لرسالتك! سنتواصل معك قريباً.",
       id: result.insertedId.toString(),
     };
   } catch (error) {
@@ -50,7 +50,7 @@ export async function submitContact(formData: {
     console.error("Contact submission error:", error);
     return {
       success: false,
-      message: "Something went wrong. Please try again.",
+      message: "حصل خطأ. جرّب تاني.",
     };
   }
 }
@@ -88,10 +88,10 @@ export async function updateContactStatus(
       { $set: { status, updatedAt: new Date().toISOString() } }
     );
 
-    return { success: true, message: "Status updated successfully" };
+    return { success: true, message: "الحالة اتحدّت" };
   } catch (error) {
     console.error("Update contact status error:", error);
-    return { success: false, message: "Failed to update status" };
+    return { success: false, message: "تعذّر تحديث الحالة" };
   }
 }
 
@@ -101,9 +101,9 @@ export async function deleteContactSubmission(id: string) {
 
     await collection.deleteOne({ _id: new ObjectId(id) } as Record<string, unknown>);
 
-    return { success: true, message: "Submission deleted successfully" };
+    return { success: true, message: "الإرسال اتمسح" };
   } catch (error) {
     console.error("Delete contact submission error:", error);
-    return { success: false, message: "Failed to delete submission" };
+    return { success: false, message: "تعذّر حذف الإرسال" };
   }
 }

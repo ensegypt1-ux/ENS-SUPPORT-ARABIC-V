@@ -28,7 +28,7 @@ export function SiteSelect({
 }: SiteSelectProps) {
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={id}>Site</Label>
+      <Label htmlFor={id}>الموقع</Label>
       <select
         id={id}
         value={value}
@@ -36,18 +36,18 @@ export function SiteSelect({
         onChange={(e) => onChange(e.target.value)}
         className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <option value="">Global — answers on every site</option>
+        <option value="">عام — يجيب على كل المواقع</option>
         {sites.map((s) => (
           <option key={s._id} value={s._id}>
             {s.name}
-            {s.enabled ? "" : " (disabled)"}
+            {s.enabled ? "" : " (معطّل)"}
           </option>
         ))}
       </select>
       {!hideHint && (
         <p className="text-xs text-muted-foreground">
-          Scope this source to one site, or leave Global so it answers on every
-          embedded site.
+          حدّد نطاق هذا المصدر لموقع واحد، أو اتركه عامًا ليُجيب على كل المواقع
+          المضمّنة.
         </p>
       )}
     </div>

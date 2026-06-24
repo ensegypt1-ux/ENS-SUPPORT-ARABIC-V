@@ -22,11 +22,11 @@ export function WidgetAvatarUploader({
 
   const handleFile = async (file: File) => {
     if (!ALLOWED.includes(file.type)) {
-      toast.error("Only JPG, PNG, JPEG or WEBP images are allowed");
+      toast.error("مسموح بس JPG أو PNG أو JPEG أو WEBP");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be smaller than 5MB");
+      toast.error("حجم الصورة لازم يكون أقل من 5 ميجابايت");
       return;
     }
     setIsUploading(true);
@@ -36,9 +36,9 @@ export function WidgetAvatarUploader({
       const result = await uploadAIWidgetImage(formData);
       if (result.success && result.data) {
         onChange(result.data.url);
-        toast.success("Avatar uploaded");
+        toast.success("اترفعت الصورة الرمزية");
       } else {
-        toast.error(result.error ?? "Upload failed");
+        toast.error(result.error ?? "تعذّر الرفع");
       }
     } finally {
       setIsUploading(false);
@@ -65,7 +65,7 @@ export function WidgetAvatarUploader({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
-            alt="Header avatar"
+            alt="صورة رأس المحادثة"
             className="h-16 w-16 rounded-full object-cover ring-1 ring-border"
           />
           <div className="flex gap-2">
@@ -80,7 +80,7 @@ export function WidgetAvatarUploader({
               ) : (
                 <Upload className="h-3.5 w-3.5" />
               )}
-              Replace
+              استبدال
             </button>
             <button
               type="button"
@@ -89,7 +89,7 @@ export function WidgetAvatarUploader({
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
             >
               <X className="h-3.5 w-3.5" />
-              Remove
+              إزالة
             </button>
           </div>
         </div>
@@ -121,13 +121,13 @@ export function WidgetAvatarUploader({
             <Upload className="mb-2 h-6 w-6 text-muted-foreground" />
           )}
           <p className="text-sm font-medium text-foreground">
-            Drag and drop image, or click to browse
+            اسحب الصورة وأفلتها، أو انقر للتصفح
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Image format: JPG, PNG, JPEG, WEBP.
+            صيغ الصور: JPG، PNG، JPEG، WEBP.
           </p>
           <p className="text-xs text-muted-foreground">
-            Recommended size: 256 × 256 px
+            الحجم الموصى به: 256 × 256 بكسل
           </p>
         </button>
       )}

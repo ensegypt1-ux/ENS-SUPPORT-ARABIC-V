@@ -1,6 +1,7 @@
 import { getSystemSettings } from "@/lib/settings-utils";
+import { CATEGORY_LABELS, PRIORITY_LABELS } from "@/lib/strings";
 import type { RequestKind } from "@/lib/request-utils";
-import type { Ticket, UserRole } from "@/types";
+import type { Ticket, TicketPriority, UserRole } from "@/types";
 
 type NewTicketIntegrationPayload = {
   ticket: Ticket;
@@ -16,32 +17,34 @@ type NewTicketIntegrationPayload = {
 
 function formatLabel(value?: string) {
   const normalized = (value || "").trim();
-  if (!normalized) return "Unknown";
+  if (!normalized) return "غير معروف";
 
-  return normalized
-    .replace(/[_-]+/g, " ")
-    .split(" ")
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+  if (normalized in PRIORITY_LABELS) {
+    return PRIORITY_LABELS[normalized as TicketPriority];
+  }
+  if (normalized in CATEGORY_LABELS) {
+    return CATEGORY_LABELS[normalized];
+  }
+
+  return normalized.replace(/[_-]+/g, " ");
 }
 
 function getRequestLabel(kind: RequestKind, serviceSlug?: string) {
-  if (kind === "installation") return "Installation Request";
-  if (kind === "customization") return "Customization Request";
-  if (kind === "service") return `${formatLabel(serviceSlug || "Service")} Request`;
-  return "Support Ticket";
+  if (kind === "installation") return "طلب تركيب";
+  if (kind === "customization") return "طلب تخصيص";
+  if (kind === "service") return `طلب ${formatLabel(serviceSlug || "service")}`;
+  return "تذكرة دعم";
 }
 
 function getRoleLabel(role: UserRole) {
-  if (role === "admin") return "Admin";
-  if (role === "support") return "Support";
-  return "Customer";
+  if (role === "admin") return "مسؤول";
+  if (role === "support") return "دعم";
+  return "عميل";
 }
 
 function trimText(value?: string, maxLength = 280) {
   const normalized = (value || "").trim();
-  if (!normalized) return "No description provided.";
+  if (!normalized) return "مفيش وصف.";
   if (normalized.length <= maxLength) return normalized;
   return `${normalized.slice(0, maxLength - 1)}…`;
 }
@@ -66,38 +69,41 @@ async function postWebhook(url: string, payload: unknown) {
 
 function buildDetails(payload: NewTicketIntegrationPayload) {
   const requestLabel = getRequestLabel(payload.kind, payload.ticket.serviceSlug);
-  const createdAt = payload.ticket.createdAt.toLocaleString("en-US", {
+  const createdAt = payload.ticket.createdAt.toLocaleString("ar-SA", {
     dateStyle: "medium",
     timeStyle: "short",
   });
 
   const details = [
-    { label: "Type", value: requestLabel },
-    { label: "Priority", value: formatLabel(payload.ticket.priority) },
-    { label: "Category", value: formatLabel(payload.ticket.category) },
-    { label: "Customer", value: payload.customerName || "Unknown" },
-    { label: "Created By", value: `${payload.actorName} (${getRoleLabel(payload.actorRole)})` },
-    { label: "Created At", value: createdAt },
+    { label: "النوع", value: requestLabel },
+    { label: "الأولوية", value: formatLabel(payload.ticket.priority) },
+    { label: "الفئة", value: formatLabel(payload.ticket.category) },
+    { label: "العميل", value: payload.customerName || "غير معروف" },
+    {
+      label: "أُنشئت بواسطة",
+      value: `${payload.actorName} (${getRoleLabel(payload.actorRole)})`,
+    },
+    { label: "تاريخ الإنشاء", value: createdAt },
   ];
 
   if (payload.customerEmail) {
-    details.push({ label: "Email", value: payload.customerEmail });
+    details.push({ label: "الإيميل", value: payload.customerEmail });
   }
 
   if (payload.customerCountry) {
-    details.push({ label: "Country", value: payload.customerCountry });
+    details.push({ label: "الدولة", value: payload.customerCountry });
   }
 
   if (payload.ticket.productName) {
-    details.push({ label: "Product", value: payload.ticket.productName });
+    details.push({ label: "المنتج", value: payload.ticket.productName });
   }
 
   if (payload.ticket.productVersion) {
-    details.push({ label: "Version", value: payload.ticket.productVersion });
+    details.push({ label: "الإصدار", value: payload.ticket.productVersion });
   }
 
   if (payload.ticket.purchaseCode) {
-    details.push({ label: "Purchase Code", value: payload.ticket.purchaseCode });
+    details.push({ label: "رمز الشراء", value: payload.ticket.purchaseCode });
   }
 
   return { requestLabel, createdAt, details };
@@ -111,13 +117,13 @@ function buildSlackPayload(payload: NewTicketIntegrationPayload) {
     .join("\n");
 
   return {
-    text: `New ${requestLabel}: ${payload.ticket.ticketNumber} - ${payload.ticket.title}`,
+    text: `${requestLabel} جديد: ${payload.ticket.ticketNumber} - ${payload.ticket.title}`,
     blocks: [
       {
         type: "header",
         text: {
           type: "plain_text",
-          text: `🎫 New ${requestLabel}`,
+          text: `🎫 ${requestLabel} جديد`,
         },
       },
       {
@@ -138,8 +144,8 @@ function buildSlackPayload(payload: NewTicketIntegrationPayload) {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `<${payload.adminUrl}|Open in admin panel>${
-            payload.dashboardUrl ? ` • <${payload.dashboardUrl}|Open customer view>` : ""
+          text: `<${payload.adminUrl}|فتح في لوحة الإدارة>${
+            payload.dashboardUrl ? ` • <${payload.dashboardUrl}|فتح عرض العميل>` : ""
           }`,
         },
       },
@@ -151,7 +157,7 @@ function buildDiscordPayload(payload: NewTicketIntegrationPayload) {
   const { requestLabel, details } = buildDetails(payload);
 
   return {
-    content: `🎫 New ${requestLabel}: ${payload.ticket.ticketNumber}`,
+    content: `🎫 ${requestLabel} جديد: ${payload.ticket.ticketNumber}`,
     embeds: [
       {
         title: `${payload.ticket.ticketNumber} — ${payload.ticket.title}`,
@@ -161,7 +167,7 @@ function buildDiscordPayload(payload: NewTicketIntegrationPayload) {
         fields: details.map((detail) => ({
           name: detail.label,
           value: detail.value,
-          inline: detail.label !== "Created At",
+          inline: detail.label !== "تاريخ الإنشاء",
         })),
         footer: {
           text: requestLabel,
@@ -174,13 +180,13 @@ function buildDiscordPayload(payload: NewTicketIntegrationPayload) {
 
 export async function sendSlackTestNotification(webhookUrl: string) {
   return postWebhook(webhookUrl, {
-    text: "Slack integration test successful!",
+    text: "نجح اختبار تكامل Slack!",
     blocks: [
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "*Slack Integration Test*\n\nYour ticket notification webhook is connected successfully.",
+          text: "*اختبار تكامل Slack*\n\nتم ربط webhook إشعارات التذاكر.",
         },
       },
     ],
@@ -189,12 +195,11 @@ export async function sendSlackTestNotification(webhookUrl: string) {
 
 export async function sendDiscordTestNotification(webhookUrl: string) {
   return postWebhook(webhookUrl, {
-    content: "Discord integration test successful!",
+    content: "نجح اختبار تكامل Discord!",
     embeds: [
       {
-        title: "Discord Integration Test",
-        description:
-          "Your ticket notification webhook is connected successfully.",
+        title: "اختبار تكامل Discord",
+        description: "تم ربط webhook إشعارات التذاكر.",
         color: 5793266,
         timestamp: new Date().toISOString(),
       },

@@ -1,48 +1,42 @@
 import { z } from "zod";
 
-// =============================================================================
-// AUTH VALIDATIONS
-// =============================================================================
+const emailMsg = "دخل إيميل صح";
+const passwordMin6 = "كلمة المرور لازم تكون 6 حروف على الأقل";
+const passwordMin8 = "كلمة المرور لازم تكون 8 حروف على الأقل";
+const passwordComplex =
+  "لازم فيه حرف كبير وحرف صغير ورقم";
+const passwordMismatch = "كلمتا المرور مش متطابقين";
+const nameMin2 = "الاسم لازم يكون حرفين على الأقل";
 
 export const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email(emailMsg),
+  password: z.string().min(6, passwordMin6),
 });
 
 export const registerSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    country: z.string().min(1, "Please select a country"),
+    name: z.string().min(2, nameMin2),
+    email: z.string().email(emailMsg),
+    country: z.string().min(1, "اختار الدولة"),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
+      .min(8, passwordMin8)
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, passwordComplex),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: passwordMismatch,
     path: ["confirmPassword"],
   });
 
-// =============================================================================
-// USER MANAGEMENT VALIDATIONS (Admin)
-// =============================================================================
-
 export const createUserSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
+    name: z.string().min(2, nameMin2),
+    email: z.string().email(emailMsg),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
+      .min(8, passwordMin8)
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, passwordComplex),
     confirmPassword: z.string(),
     role: z.enum(["customer", "support", "admin"]),
     rbacRoleId: z.string().optional().or(z.literal("")),
@@ -50,7 +44,7 @@ export const createUserSchema = z
     departmentSlugs: z.array(z.string().max(80)).max(20).optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: passwordMismatch,
     path: ["confirmPassword"],
   })
   .refine(
@@ -58,40 +52,36 @@ export const createUserSchema = z
       data.role !== "support" ||
       (!!data.departmentSlugs && data.departmentSlugs.length > 0),
     {
-      message: "Select at least one department for a support agent",
+      message: "اختار قسم واحد على الأقل",
       path: ["departmentSlugs"],
     }
   );
 
 export const updateUserSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
+    name: z.string().min(2, nameMin2),
+    email: z.string().email(emailMsg),
     role: z.enum(["customer", "support", "admin"]),
     rbacRoleId: z.string().optional().or(z.literal("")),
     country: z.string().optional(),
     departmentSlugs: z.array(z.string().max(80)).max(20).optional(),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      )
+      .min(8, passwordMin8)
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, passwordComplex)
       .optional()
       .or(z.literal("")),
     confirmPassword: z.string().optional().or(z.literal("")),
   })
   .refine(
     (data) => {
-      // If password is provided, confirmPassword must match
       if (data.password && data.password.length > 0) {
         return data.password === data.confirmPassword;
       }
       return true;
     },
     {
-      message: "Passwords don't match",
+      message: passwordMismatch,
       path: ["confirmPassword"],
     }
   )
@@ -100,65 +90,46 @@ export const updateUserSchema = z
       data.role !== "support" ||
       (!!data.departmentSlugs && data.departmentSlugs.length > 0),
     {
-      message: "Select at least one department for a support agent",
+      message: "اختار قسم واحد على الأقل",
       path: ["departmentSlugs"],
     }
   );
 
-// =============================================================================
-// PROFILE VALIDATIONS
-// =============================================================================
-
 export const updateProfileSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
+  name: z.string().min(2, nameMin2),
+  email: z.string().email(emailMsg),
   phone: z
     .string()
-    .min(7, "Phone number must be at least 7 characters")
-    .max(20, "Phone number must be at most 20 characters")
-    .regex(/^[+]?[\d\s\-()]+$/, "Invalid phone number")
+    .min(7, "رقم التليفون قصير أوي")
+    .max(20, "رقم التليفون طويل أوي")
+    .regex(/^[+]?[\d\s\-()]+$/, "رقم التليفون مش صح")
     .optional()
     .or(z.literal("")),
   envatoUsername: z
     .string()
-    .min(3, "Envato username must be at least 3 characters")
-    .max(30, "Envato username must be at most 30 characters")
-    .regex(
-      /^[A-Za-z0-9_]+$/,
-      "Only letters, numbers and underscores are allowed"
-    )
+    .min(3, "يوزر Envato لازم يكون 3 حروف على الأقل")
+    .max(30, "يوزر Envato طويل أوي")
+    .regex(/^[A-Za-z0-9_]+$/, "حروف وأرقام و _ بس")
     .optional()
     .or(z.literal("")),
   country: z.string().optional().or(z.literal("")),
-  image: z
-    .string()
-    .url("Please enter a valid URL")
-    .optional()
-    .or(z.literal("")),
+  image: z.string().url("اللينك مش صح").optional().or(z.literal("")),
 });
 
 export const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, "Current password is required"),
+    currentPassword: z.string().min(1, "اكتب كلمة المرور الحالية"),
     newPassword: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
+      .min(8, passwordMin8)
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, passwordComplex),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: passwordMismatch,
     path: ["confirmPassword"],
   });
 
-// =============================================================================
-// TICKET VALIDATIONS
-// =============================================================================
-
-// Shared primitives
 const purchaseCodeField = z
   .string()
   .optional()
@@ -170,31 +141,24 @@ const purchaseCodeField = z
       return purchaseCodeRegex.test(val);
     },
     {
-      message:
-        "Invalid purchase code format. Must be a valid Envato purchase code (UUID format).",
+      message: "كود الشراء مش صح. لازم يكون كود Envato (UUID).",
     }
   );
 
-// Common fields on tickets + installation + customization
 const commonRequestFields = {
   title: z
     .string()
-    .min(5, "Title must be at least 5 characters")
-    .max(200, "Title must not exceed 200 characters"),
+    .min(5, "العنوان لازم يكون 5 حروف على الأقل")
+    .max(200, "العنوان طويل أوي"),
   description: z
     .string()
-    .min(20, "Description must be at least 20 characters")
-    .max(5000, "Description must not exceed 5000 characters"),
+    .min(20, "الوصف لازم يكون 20 حرف على الأقل")
+    .max(5000, "الوصف طويل أوي"),
   priority: z.enum(["low", "medium", "high", "urgent"]),
   purchaseCode: purchaseCodeField,
   timezone: z.string().optional(),
 };
 
-// Unified base — `createTicket` server action is shared across tickets,
-// installation, and customization. Generic tickets use `productSlug` (wired to
-// the admin-managed `ticket_products` catalog); installation/customization use
-// the free-text `productName`/`productVersion` fields. Fields not relevant to
-// a given kind are simply left empty by the form.
 const ticketBaseSchema = z.object({
   ...commonRequestFields,
   departmentSlug: z.string().max(50).optional().or(z.literal("")),
@@ -203,53 +167,44 @@ const ticketBaseSchema = z.object({
   productVersion: z.string().optional(),
 });
 
-// Customer-created support tickets (generic tickets collection)
 export const createTicketSchema = ticketBaseSchema.extend({
   category: z
     .string()
-    .min(1, "Category is required")
-    .max(50, "Category must not exceed 50 characters")
+    .min(1, "اختار النوع")
+    .max(50, "النوع طويل أوي")
     .refine((val) => val !== "service", {
-      message: "Invalid category",
+      message: "نوع مش صح",
     }),
 });
 
-// Public (un-authenticated) support tickets created from /support/new. Same
-// shape as `createTicketSchema` plus the guest's name + email.
 export const createPublicTicketSchema = createTicketSchema.extend({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .max(100, "Name must not exceed 100 characters"),
+  name: z.string().min(1, "الاسم مطلوب").max(100, "الاسم طويل أوي"),
   email: z
     .string()
-    .min(1, "Email is required")
-    .email("Enter a valid email address")
-    .max(200, "Email must not exceed 200 characters"),
+    .min(1, "الإيميل مطلوب")
+    .email(emailMsg)
+    .max(200, "الإيميل طويل أوي"),
 });
 
-// Guest reply posted from the public ticket portal (/support/ticket/<token>).
 export const guestCommentSchema = z.object({
   content: z
     .string()
-    .min(1, "Message is required")
-    .max(5000, "Message must not exceed 5000 characters"),
+    .min(1, "اكتب رسالة")
+    .max(5000, "الرسالة طويلة أوي"),
 });
 
-// Customer-created installation requests (separate collection)
 export const createInstallationRequestSchema = ticketBaseSchema;
 
-// Customer-created customization requests (separate collection)
 export const createCustomizationRequestSchema = ticketBaseSchema;
 
 export const adminCreateTicketSchema = ticketBaseSchema.extend({
-  customerId: z.string().min(1, "Customer is required"),
+  customerId: z.string().min(1, "اختار العميل"),
   category: z
     .string()
-    .min(1, "Category is required")
-    .max(50, "Category must not exceed 50 characters")
+    .min(1, "اختار النوع")
+    .max(50, "النوع طويل أوي")
     .refine((val) => val !== "service", {
-      message: "Invalid category",
+      message: "نوع مش صح",
     }),
 });
 
@@ -272,12 +227,12 @@ export const updateTicketSchema = z.object({
 export const updateCustomizationSchema = z.object({
   title: z
     .string()
-    .min(5, "Title must be at least 5 characters")
-    .max(200, "Title must not exceed 200 characters"),
+    .min(5, "العنوان لازم يكون 5 حروف على الأقل")
+    .max(200, "العنوان طويل أوي"),
   description: z
     .string()
-    .min(20, "Description must be at least 20 characters")
-    .max(5000, "Description must not exceed 5000 characters"),
+    .min(20, "الوصف لازم يكون 20 حرف على الأقل")
+    .max(5000, "الوصف طويل أوي"),
   priority: z.enum(["low", "medium", "high", "urgent"]),
   productName: z.string().optional(),
   productVersion: z.string().optional(),
@@ -286,58 +241,43 @@ export const updateCustomizationSchema = z.object({
 export const updateInstallationSchema = z.object({
   title: z
     .string()
-    .min(5, "Title must be at least 5 characters")
-    .max(200, "Title must not exceed 200 characters"),
+    .min(5, "العنوان لازم يكون 5 حروف على الأقل")
+    .max(200, "العنوان طويل أوي"),
   description: z
     .string()
-    .min(20, "Description must be at least 20 characters")
-    .max(5000, "Description must not exceed 5000 characters"),
+    .min(20, "الوصف لازم يكون 20 حرف على الأقل")
+    .max(5000, "الوصف طويل أوي"),
   priority: z.enum(["low", "medium", "high", "urgent"]),
   productName: z.string().optional(),
   productVersion: z.string().optional(),
 });
 
-// =============================================================================
-// COMMENT VALIDATIONS
-// =============================================================================
-
 export const createCommentSchema = z.object({
   content: z
     .string()
-    .min(1, "Comment cannot be empty")
-    .max(2000, "Comment must not exceed 2000 characters"),
+    .min(1, "اكتب تعليق")
+    .max(2000, "التعليق طويل أوي"),
   isInternal: z.boolean().optional().default(false),
   parentCommentId: z.string().optional(),
   attachmentIds: z.array(z.string()).optional(),
 });
 
-// =============================================================================
-// MEETING VALIDATIONS
-// =============================================================================
-
 export const createMeetingSchema = z.object({
   platform: z.enum(["zoom", "google_meet"], {
-    message: "Please select a meeting platform",
+    message: "اختار منصة الاجتماع",
   }),
   title: z
     .string()
-    .min(3, "Title must be at least 3 characters")
-    .max(200, "Title must not exceed 200 characters"),
-  description: z
-    .string()
-    .max(1000, "Description must not exceed 1000 characters")
-    .optional(),
+    .min(3, "العنوان لازم يكون 3 حروف على الأقل")
+    .max(200, "العنوان طويل أوي"),
+  description: z.string().max(1000, "الوصف طويل أوي").optional(),
   scheduledAt: z.coerce.date(),
   duration: z
     .number()
-    .min(15, "Duration must be at least 15 minutes")
-    .max(480, "Duration must not exceed 8 hours")
+    .min(15, "المدة 15 دقيقة على الأقل")
+    .max(480, "المدة 8 ساعات كحد أقصى")
     .optional(),
-  meetingLink: z
-    .string()
-    .url("Please enter a valid URL")
-    .optional()
-    .or(z.literal("")),
+  meetingLink: z.string().url("اللينك مش صح").optional().or(z.literal("")),
   timezone: z.string().optional(),
 });
 
@@ -345,32 +285,21 @@ export const updateMeetingSchema = z.object({
   platform: z.enum(["zoom", "google_meet"]).optional(),
   title: z
     .string()
-    .min(3, "Title must be at least 3 characters")
-    .max(200, "Title must not exceed 200 characters")
+    .min(3, "العنوان لازم يكون 3 حروف على الأقل")
+    .max(200, "العنوان طويل أوي")
     .optional(),
-  description: z
-    .string()
-    .max(1000, "Description must not exceed 1000 characters")
-    .optional(),
+  description: z.string().max(1000, "الوصف طويل أوي").optional(),
   scheduledAt: z.coerce.date().optional(),
   duration: z
     .number()
-    .min(15, "Duration must be at least 15 minutes")
-    .max(480, "Duration must not exceed 8 hours")
+    .min(15, "المدة 15 دقيقة على الأقل")
+    .max(480, "المدة 8 ساعات كحد أقصى")
     .optional(),
-  meetingLink: z
-    .string()
-    .url("Please enter a valid URL")
-    .optional()
-    .or(z.literal("")),
+  meetingLink: z.string().url("اللينك مش صح").optional().or(z.literal("")),
   timezone: z.string().optional(),
   status: z.enum(["scheduled", "completed", "cancelled"]).optional(),
   cancellationReason: z.string().max(500).optional(),
 });
-
-// =============================================================================
-// FILTER VALIDATIONS
-// =============================================================================
 
 export const ticketFiltersSchema = z.object({
   status: z

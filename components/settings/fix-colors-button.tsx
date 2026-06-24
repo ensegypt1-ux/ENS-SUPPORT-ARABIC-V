@@ -20,22 +20,20 @@ export function FixColorsButton() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to fix colors");
+        throw new Error(data.error || "تعذّر إصلاح الألوان");
       }
 
       if (data.changes && data.changes.length > 0) {
-        toast.success("Colors fixed successfully!", {
+        toast.success("اتصلحت الألوان", {
           description: data.changes.join(", "),
         });
-        // Refresh the page to show updated colors
         router.refresh();
-        // Force reload to apply CSS variables
         setTimeout(() => window.location.reload(), 500);
       } else {
-        toast.info("All colors are already set correctly");
+        toast.info("جميع الألوان مضبوطة بالفعل بشكل صحيح");
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to fix colors");
+      toast.error(error.message || "تعذّر إصلاح الألوان");
     } finally {
       setIsLoading(false);
     }
@@ -50,8 +48,7 @@ export function FixColorsButton() {
       className="gap-2"
     >
       <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-      {isLoading ? "Fixing Colors..." : "Fix Black Colors"}
+      {isLoading ? "جاري إصلاح الألوان..." : "إصلاح الألوان السوداء"}
     </Button>
   );
 }
-

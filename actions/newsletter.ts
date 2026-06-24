@@ -5,7 +5,7 @@ import { NewsletterSubscriber } from "@/types/newsletter";
 import { z } from "zod";
 
 const emailSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z.string().email("اكتب بريد إلكتروني صحيح"),
 });
 
 export async function subscribeToNewsletter(email: string) {
@@ -21,9 +21,9 @@ export async function subscribeToNewsletter(email: string) {
           { _id: existingSubscriber._id },
           { $set: { status: "subscribed", subscribedAt: new Date() } }
         );
-        return { success: true, message: "Welcome back! You have been resubscribed." };
+        return { success: true, message: "أهلاً بيك تاني! اتعمل اشتراكك من جديد." };
       }
-      return { success: true, message: "You are already subscribed." };
+      return { success: true, message: "أنت مشترك بالفعل." };
     }
 
     await collection.insertOne({
@@ -32,13 +32,13 @@ export async function subscribeToNewsletter(email: string) {
       status: "subscribed",
     });
 
-    return { success: true, message: "Thank you for subscribing!" };
+    return { success: true, message: "شكراً لاشتراكك!" };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, message: error.issues[0].message };
     }
     console.error("Newsletter subscription error:", error);
-    return { success: false, message: "Something went wrong. Please try again." };
+    return { success: false, message: "حصل خطأ. جرّب تاني." };
   }
 }
 

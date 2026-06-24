@@ -21,6 +21,7 @@ import {
   type GuestTicketComment,
 } from "@/actions/public-tickets";
 import type { TicketStatus } from "@/types";
+import { STATUS_LABELS, UI } from "@/lib/strings";
 
 function formatDate(iso: string): string {
   try {
@@ -50,7 +51,7 @@ export function GuestTicketView({ token }: { token: string }) {
       if (result.success && result.data) {
         setTicket(result.data);
       } else {
-        setError(result.error || "This ticket link is invalid or has expired.");
+        setError(result.error || "لينك التذكرة مش شغّال أو انتهى.");
       }
       setLoading(false);
     })();
@@ -75,9 +76,9 @@ export function GuestTicketView({ token }: { token: string }) {
           : prev
       );
       setReply("");
-      toast.success("Reply sent");
+      toast.success("الرد اتبعت");
     } else {
-      toast.error(result.error || "Failed to send your reply");
+      toast.error(result.error || "مقدرناش نبعت ردّك");
     }
     setIsSending(false);
   };
@@ -105,10 +106,10 @@ export function GuestTicketView({ token }: { token: string }) {
           <p className="mt-2 text-muted-foreground">{error}</p>
           <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Button asChild variant="outline" className="h-11">
-              <Link href="/support/new">Create a new ticket</Link>
+              <Link href="/support/new">افتح تذكرة جديدة</Link>
             </Button>
             <Button asChild className="h-11">
-              <Link href="/">Back to home</Link>
+              <Link href="/">{UI.goHome}</Link>
             </Button>
           </div>
         </div>
@@ -198,23 +199,23 @@ export function GuestTicketView({ token }: { token: string }) {
       <div className="mt-6 rounded-2xl border border-border/60 bg-background p-6 shadow-sm">
         {isClosed ? (
           <p className="text-sm text-muted-foreground">
-            This ticket is {ticket.status.replace(/-/g, "_") === "resolved" ? "resolved" : "closed"}.
-            If you still need help,{" "}
+            هذه التذكرة {STATUS_LABELS[ticket.status.replace(/-/g, "_") as TicketStatus] || ticket.status}.
+            إذا لسه محتاج مساعدة،{" "}
             <Link
               href="/support/new"
               className="font-medium text-primary hover:underline"
             >
-              create a new ticket
+              افتح تذكرة جديدة
             </Link>
             .
           </p>
         ) : (
           <>
-            <h2 className="mb-3 text-lg font-semibold">Add a reply</h2>
+            <h2 className="mb-3 text-lg font-semibold">ضيف رد</h2>
             <Textarea
               value={reply}
               onChange={(e) => setReply(e.target.value)}
-              placeholder="Type your message..."
+              placeholder="اكتب رسالتك..."
               disabled={isSending}
               className="min-h-[120px] resize-none placeholder:text-muted-foreground/50"
             />
@@ -226,12 +227,12 @@ export function GuestTicketView({ token }: { token: string }) {
               >
                 {isSending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <Send className="mr-2 h-4 w-4" />
+                    <Send className="me-2 h-4 w-4" />
                     Send Reply
                   </>
                 )}

@@ -22,7 +22,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z.string().email("ادخل إيميل صح"),
 });
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
@@ -51,16 +51,16 @@ export default function ForgotPasswordPage() {
       });
 
       if (result?.error) {
-        setError(result.error.message || "Failed to send reset email");
+        setError(result.error.message || "تعذّر إرسال الإيميل");
         setIsLoading(false);
         return;
       }
 
       setSuccess(true);
-      toast.success("Reset email sent successfully");
+      toast.success("اتبعتلك الإيميل");
       setIsLoading(false);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
+      const message = err instanceof Error ? err.message : "حصل خطأ. جرّب تاني.";
       setError(message);
       setIsLoading(false);
     }
@@ -73,16 +73,16 @@ export default function ForgotPasswordPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center">
-                Check your email
+                اتحقق من الإيميل
               </CardTitle>
               <CardDescription className="text-center">
-                We have sent a password reset link to your email address.
+                بعتنا لك لينك تغيير كلمة المرور على الإيميل.
               </CardDescription>
             </CardHeader>
             <CardFooter className="flex justify-center">
               <Link href="/login">
                 <Button variant="outline" className="w-full">
-                  Return to Login
+                  رجوع للدخول
                 </Button>
               </Link>
             </CardFooter>
@@ -98,11 +98,10 @@ export default function ForgotPasswordPage() {
         <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
-              Forgot Password
+              نسيت كلمة المرور
             </CardTitle>
             <CardDescription className="text-center">
-              Enter your email address and we&apos;ll send you a link to reset
-              your password
+              ادخل إيميلك وهنبعتلك لينك لتغيير كلمة المرور
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -113,11 +112,11 @@ export default function ForgotPasswordPage() {
                 </Alert>
               )}
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">الإيميل</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="your@email.com"
                   {...register("email")}
                   disabled={isLoading}
                 />
@@ -132,11 +131,11 @@ export default function ForgotPasswordPage() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending Link...
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    بيتبعت...
                   </>
                 ) : (
-                  "Send Reset Link"
+                  "ابعت لينك التغيير"
                 )}
               </Button>
 
@@ -145,8 +144,8 @@ export default function ForgotPasswordPage() {
                   href="/login"
                   className="flex items-center text-sm text-muted-foreground hover:text-primary"
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Login
+                  <ArrowLeft className="me-2 h-4 w-4" />
+                  رجوع للدخول
                 </Link>
               </div>
             </CardFooter>

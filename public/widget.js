@@ -61,12 +61,13 @@
       "/embed?host=" +
       encodeURIComponent(window.location.origin) +
       (siteKey ? "&key=" + encodeURIComponent(siteKey) : "");
-    iframe.title = "Live chat";
+    iframe.title = "دردشة مباشرة";
     iframe.setAttribute("allow", "clipboard-write");
     var s = iframe.style;
     s.position = "fixed";
     s.bottom = "0";
-    s.right = "0";
+    s.left = "0";
+    s.right = "auto";
     s.width = CLOSED.w;
     s.height = CLOSED.h;
     s.maxWidth = "100vw";

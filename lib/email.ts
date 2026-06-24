@@ -1,5 +1,12 @@
 import nodemailer from "nodemailer";
 import type { SystemSettings } from "@/types/settings";
+import {
+  CATEGORY_LABELS,
+  PRIORITY_LABELS,
+  STATUS_LABELS,
+} from "@/lib/strings";
+import { ENS_BRAND } from "@/lib/ens-brand";
+import type { TicketPriority } from "@/types";
 
 interface SendEmailOptions {
   to: string;
@@ -113,24 +120,24 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions) {
 // Email templates
 export const emailTemplates = {
   ticketCreated: (ticketNumber: string, title: string, viewUrl?: string) => ({
-    subject: `Ticket Created: ${ticketNumber} - ${title}`,
+    subject: `تذكرة جديدة: ${ticketNumber} - ${title}`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Your Support Ticket Has Been Created Successfully</h2>
-        <p>Thank you for contacting us. Your support ticket has been created successfully.</p>
+      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">تذكرتك اتعملت</h2>
+        <p>شكراً على تواصلك — تذكرة الدعم جاهزة وهنراجعها ونرجعلك في أقرب وقت.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>Ticket Number:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>Title:</strong> ${escapeHtml(title)}</p>
-          <p style="margin: 5px 0;"><strong>Status:</strong> <span style="color: #10b981;">Open</span></p>
+          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
+          <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
+          <p style="margin: 5px 0;"><strong>الحالة:</strong> <span style="color: #10b981;">${STATUS_LABELS.open}</span></p>
         </div>
-        <p>We'll review your ticket and get back to you as soon as possible.${
+        <p>سنراجع تذكرتك ونعود إليك في أقرب وقت.${
           viewUrl
-            ? " Use the button below to view its status and reply at any time — no account needed."
-            : " You can track the status of your ticket by logging into your account."
+            ? " استخدم الزر تحت عشان تشوف الحالة وترد في أي وقت — من غير حساب."
+            : " تقدر تتابع التذكرة من حسابك."
         }</p>
-        ${ticketLinkButton(viewUrl, "View Your Ticket")}
+        ${ticketLinkButton(viewUrl, "عرض تذكرتك")}
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          This is an automated message. Please do not reply to this email.
+          رسالة تلقائية — متردّش على الإيميل ده.
         </p>
       </div>
     `,
@@ -144,35 +151,35 @@ export const emailTemplates = {
     message?: string,
     viewUrl?: string
   ) => ({
-    subject: `Ticket Status Updated: ${ticketNumber}`,
+    subject: `تحدّثت حالة التذكرة: ${ticketNumber}`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Ticket Status Updated</h2>
-        <p>The status of your support ticket has been updated.</p>
+      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">حالة التذكرة اتحدّثت</h2>
+        <p>حالة تذكرة الدعم بتاعتك اتغيّرت.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>Ticket Number:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>Title:</strong> ${escapeHtml(title)}</p>
-          <p style="margin: 5px 0;"><strong>Previous Status:</strong> ${escapeHtml(oldStatus)}</p>
-          <p style="margin: 5px 0;"><strong>New Status:</strong> <span style="color: #0070f3;">${escapeHtml(newStatus)}</span></p>
+          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
+          <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
+          <p style="margin: 5px 0;"><strong>الحالة السابقة:</strong> ${escapeHtml(oldStatus)}</p>
+          <p style="margin: 5px 0;"><strong>الحالة الجديدة:</strong> <span style="color: #0070f3;">${escapeHtml(newStatus)}</span></p>
         </div>
         ${
           message
             ? `
-        <div style="background-color: #f0f9ff; border-left: 4px solid #0070f3; padding: 15px; margin: 20px 0;">
-          <p style="margin: 0 0 5px 0; font-weight: bold; color: #0070f3;">Message from Support:</p>
+        <div style="background-color: #f0f9ff; border-right: 4px solid #0070f3; padding: 15px; margin: 20px 0;">
+          <p style="margin: 0 0 5px 0; font-weight: bold; color: #0070f3;">رسالة من الدعم:</p>
           <p style="margin: 0; white-space: pre-wrap;">${escapeHtml(message)}</p>
         </div>
         `
             : ""
         }
-        ${ticketLinkButton(viewUrl, "View Your Ticket")}
+        ${ticketLinkButton(viewUrl, "عرض تذكرتك")}
         <p>${
           viewUrl
-            ? "Use the button above to view the latest details and reply."
-            : "You can view your ticket details by logging into your account."
+            ? "استخدم الزر فوق عشان تشوف آخر التفاصيل وترد."
+            : "سجّل دخولك عشان تشوف تفاصيل التذكرة."
         }</p>
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          This is an automated message. Please do not reply to this email.
+          رسالة تلقائية — متردّش على الإيميل ده.
         </p>
       </div>
     `,
@@ -185,27 +192,27 @@ export const emailTemplates = {
     commentContent: string,
     viewUrl?: string
   ) => ({
-    subject: `New Comment on Ticket: ${ticketNumber}`,
+    subject: `تعليق جديد على التذكرة: ${ticketNumber}`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">New Comment on Your Ticket</h2>
-        <p>${escapeHtml(commenterName)} has added a new comment to your support ticket.</p>
+      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">تعليق جديد على تذكرتك</h2>
+        <p>أضاف ${escapeHtml(commenterName)} تعليق على تذكرتك.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>Ticket Number:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>Title:</strong> ${escapeHtml(title)}</p>
+          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
+          <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
         </div>
-        <div style="background-color: #f0f9ff; border-left: 4px solid #0070f3; padding: 15px; margin: 20px 0;">
-          <p style="margin: 0 0 10px 0; font-weight: bold; color: #0070f3;">Comment from ${escapeHtml(commenterName)}:</p>
+        <div style="background-color: #f0f9ff; border-right: 4px solid #0070f3; padding: 15px; margin: 20px 0;">
+          <p style="margin: 0 0 10px 0; font-weight: bold; color: #0070f3;">تعليق من ${escapeHtml(commenterName)}:</p>
           <p style="margin: 0; white-space: pre-wrap; color: #333;">${escapeHtml(commentContent)}</p>
         </div>
-        ${ticketLinkButton(viewUrl, "View & Reply")}
+        ${ticketLinkButton(viewUrl, "عرض والرد")}
         <p>${
           viewUrl
-            ? "Use the button above to view the conversation and reply — no account needed."
-            : "You can log in to your account to respond to this comment."
+            ? "استخدم الزر فوق عشان تشوف المحادثة وترد — من غير حساب."
+            : "سجّل دخولك عشان ترد على التعليق."
         }</p>
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          This is an automated message. Please do not reply to this email.
+          رسالة تلقائية — متردّش على الإيميل ده.
         </p>
       </div>
     `,
@@ -217,27 +224,27 @@ export const emailTemplates = {
     assigneeName: string,
     ticketUrl?: string
   ) => ({
-    subject: `Ticket Assigned: ${ticketNumber}`,
+    subject: `اتعيّنتلك تذكرة: ${ticketNumber}`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Ticket Assigned</h2>
-        <p>A support ticket has been assigned to you.</p>
+      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">تذكرة جديدة معيّنة ليك</h2>
+        <p>اتعيّنتلك تذكرة دعم.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>Ticket Number:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>Title:</strong> ${escapeHtml(title)}</p>
-          <p style="margin: 5px 0;"><strong>Assigned To:</strong> ${escapeHtml(assigneeName)}</p>
+          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
+          <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
+          <p style="margin: 5px 0;"><strong>معيّنة إلى:</strong> ${escapeHtml(assigneeName)}</p>
         </div>
         ${
           ticketUrl
             ? `
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${escapeHtml(ticketUrl)}" style="display: inline-block; background-color: #0070f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">View Ticket</a>
+          <a href="${escapeHtml(ticketUrl)}" style="display: inline-block; background-color: #0070f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">عرض التذكرة</a>
         </div>
         `
             : ""
         }
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          This is an automated message. Please do not reply to this email.
+          رسالة تلقائية — متردّش على الإيميل ده.
         </p>
       </div>
     `,
@@ -254,31 +261,31 @@ export const emailTemplates = {
     timezone?: string,
     description?: string
   ) => ({
-    subject: `Meeting Scheduled for Ticket: ${ticketNumber}`,
+    subject: `اجتماع مجدول للتذكرة: ${ticketNumber}`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Meeting Scheduled for Your Support Ticket</h2>
-        <p>A meeting has been scheduled to discuss your support ticket.</p>
+      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">اتجدول اجتماع لتذكرتك</h2>
+        <p>اتجدول اجتماع لمناقشة تذكرتك.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>Ticket Number:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>Ticket Title:</strong> ${escapeHtml(title)}</p>
+          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
+          <p style="margin: 5px 0;"><strong>عنوان التذكرة:</strong> ${escapeHtml(title)}</p>
         </div>
-        <div style="background-color: #f0f9ff; border-left: 4px solid #9333ea; padding: 15px; margin: 20px 0;">
-          <h3 style="margin: 0 0 10px 0; color: #9333ea;">Meeting Details</h3>
-          <p style="margin: 5px 0;"><strong>Meeting Title:</strong> ${escapeHtml(meetingTitle)}</p>
-          <p style="margin: 5px 0;"><strong>Date & Time:</strong> ${escapeHtml(scheduledAt)}</p>
-          <p style="margin: 5px 0;"><strong>Duration:</strong> ${escapeHtml(duration)} minutes</p>
-          <p style="margin: 5px 0;"><strong>Platform:</strong> ${
+        <div style="background-color: #f0f9ff; border-right: 4px solid #9333ea; padding: 15px; margin: 20px 0;">
+          <h3 style="margin: 0 0 10px 0; color: #9333ea;">تفاصيل الاجتماع</h3>
+          <p style="margin: 5px 0;"><strong>عنوان الاجتماع:</strong> ${escapeHtml(meetingTitle)}</p>
+          <p style="margin: 5px 0;"><strong>التاريخ والوقت:</strong> ${escapeHtml(scheduledAt)}</p>
+          <p style="margin: 5px 0;"><strong>المدة:</strong> ${escapeHtml(duration)} دقيقة</p>
+          <p style="margin: 5px 0;"><strong>المنصة:</strong> ${
             platform === "zoom" ? "Zoom" : "Google Meet"
           }</p>
           ${
             timezone
-              ? `<p style="margin: 5px 0;"><strong>Timezone:</strong> ${escapeHtml(timezone)}</p>`
+              ? `<p style="margin: 5px 0;"><strong>المنطقة الزمنية:</strong> ${escapeHtml(timezone)}</p>`
               : ""
           }
           ${
             description
-              ? `<p style="margin: 10px 0 5px 0;"><strong>Description:</strong></p><p style="margin: 5px 0; white-space: pre-wrap;">${escapeHtml(description)}</p>`
+              ? `<p style="margin: 10px 0 5px 0;"><strong>الوصف:</strong></p><p style="margin: 5px 0; white-space: pre-wrap;">${escapeHtml(description)}</p>`
               : ""
           }
         </div>
@@ -286,17 +293,17 @@ export const emailTemplates = {
           meetingLink
             ? `
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${escapeHtml(meetingLink)}" style="display: inline-block; background-color: #9333ea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">Join Meeting</a>
+          <a href="${escapeHtml(meetingLink)}" style="display: inline-block; background-color: #9333ea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">انضم إلى الاجتماع</a>
         </div>
         <p style="text-align: center; color: #666; font-size: 14px;">
-          Meeting Link: <a href="${escapeHtml(meetingLink)}" style="color: #9333ea;">${escapeHtml(meetingLink)}</a>
+          رابط الاجتماع: <a href="${escapeHtml(meetingLink)}" style="color: #9333ea;">${escapeHtml(meetingLink)}</a>
         </p>
         `
             : ""
         }
-        <p>Please make sure to join the meeting at the scheduled time. You can view more details by logging into your account.</p>
+        <p>انضم للاجتماع في المعاد. تقدر تشوف التفاصيل من حسابك.</p>
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          This is an automated message. Please do not reply to this email.
+          رسالة تلقائية — متردّش على الإيميل ده.
         </p>
       </div>
     `,
@@ -309,18 +316,18 @@ export const emailTemplates = {
     updatedFields: Record<string, string | number>,
     meetingLink?: string
   ) => ({
-    subject: `Meeting Updated for Ticket: ${ticketNumber}`,
+    subject: `اتحدّث الاجتماع للتذكرة: ${ticketNumber}`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Meeting Details Updated</h2>
-        <p>The meeting associated with your support ticket has been updated.</p>
+      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">تفاصيل الاجتماع اتحدّثت</h2>
+        <p>الاجتماع المرتبط بتذكرتك اتغيّر.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>Ticket Number:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>Ticket Title:</strong> ${escapeHtml(title)}</p>
-          <p style="margin: 5px 0;"><strong>Meeting Title:</strong> ${escapeHtml(meetingTitle)}</p>
+          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
+          <p style="margin: 5px 0;"><strong>عنوان التذكرة:</strong> ${escapeHtml(title)}</p>
+          <p style="margin: 5px 0;"><strong>عنوان الاجتماع:</strong> ${escapeHtml(meetingTitle)}</p>
         </div>
-        <div style="background-color: #f0f9ff; border-left: 4px solid #0070f3; padding: 15px; margin: 20px 0;">
-          <h3 style="margin: 0 0 10px 0; color: #0070f3;">Updated Fields</h3>
+        <div style="background-color: #f0f9ff; border-right: 4px solid #0070f3; padding: 15px; margin: 20px 0;">
+          <h3 style="margin: 0 0 10px 0; color: #0070f3;">الحقول المحدّثة</h3>
           ${Object.entries(updatedFields)
             .map(
               ([key, value]) =>
@@ -334,13 +341,13 @@ export const emailTemplates = {
           meetingLink
             ? `
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${escapeHtml(meetingLink)}" style="display: inline-block; background-color: #0070f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">Open Meeting</a>
+          <a href="${escapeHtml(meetingLink)}" style="display: inline-block; background-color: #0070f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">فتح الاجتماع</a>
         </div>
         `
             : ""
         }
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          This is an automated message. Please do not reply to this email.
+          رسالة تلقائية — متردّش على الإيميل ده.
         </p>
       </div>
     `,
@@ -353,21 +360,21 @@ export const emailTemplates = {
     filename: string,
     ticketUrl: string
   ) => ({
-    subject: `Attachment Uploaded: ${filename} on Ticket ${ticketNumber}`,
+    subject: `تم رفع مرفق: ${filename} على التذكرة ${ticketNumber}`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">New Attachment Uploaded</h2>
-        <p>${escapeHtml(uploaderName)} uploaded a new attachment to your support ticket.</p>
+      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">مرفق جديد على تذكرتك</h2>
+        <p>رفع ${escapeHtml(uploaderName)} ملف على تذكرتك.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>Ticket Number:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>Title:</strong> ${escapeHtml(title)}</p>
-          <p style="margin: 5px 0;"><strong>File:</strong> ${escapeHtml(filename)}</p>
+          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
+          <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
+          <p style="margin: 5px 0;"><strong>الملف:</strong> ${escapeHtml(filename)}</p>
         </div>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${escapeHtml(ticketUrl)}" style="display: inline-block; background-color: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">View Ticket</a>
+          <a href="${escapeHtml(ticketUrl)}" style="display: inline-block; background-color: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">عرض التذكرة</a>
         </div>
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          This is an automated message. Please do not reply to this email.
+          رسالة تلقائية — متردّش على الإيميل ده.
         </p>
       </div>
     `,
@@ -389,34 +396,34 @@ export const emailTemplates = {
     createdAt: string,
     ticketUrl: string
   ) => ({
-    subject: `🎫 New Support Ticket: ${ticketNumber} - ${title}`,
+    subject: `🎫 تذكرة دعم جديدة: ${ticketNumber} - ${title}`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background-color: #ffffff;">
+      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background-color: #ffffff;">
         <!-- Header -->
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">🎫 New Support Ticket Created</h1>
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">🎫 تذكرة دعم جديدة</h1>
         </div>
 
         <!-- Content -->
         <div style="padding: 30px; background-color: #f9fafb;">
           <p style="color: #374151; font-size: 16px; margin-bottom: 20px;">
-            A new support ticket has been submitted and requires your attention.
+            وصلت تذكرة دعم جديدة ومحتاجة متابعة.
           </p>
 
           <!-- Ticket Information -->
-          <div style="background-color: #ffffff; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h2 style="color: #667eea; margin: 0 0 15px 0; font-size: 18px;">Ticket Details</h2>
+          <div style="background-color: #ffffff; border-right: 4px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <h2 style="color: #667eea; margin: 0 0 15px 0; font-size: 18px;">تفاصيل التذكرة</h2>
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 140px;">Ticket Number:</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 140px;">رقم التذكرة:</td>
                 <td style="padding: 8px 0; color: #111827; font-weight: bold;">${escapeHtml(ticketNumber)}</td>
               </tr>
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Title:</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">العنوان:</td>
                 <td style="padding: 8px 0; color: #111827;">${escapeHtml(title)}</td>
               </tr>
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Priority:</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">الأولوية:</td>
                 <td style="padding: 8px 0;">
                   <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; ${
                     priority === "urgent"
@@ -427,40 +434,41 @@ export const emailTemplates = {
                       ? "background-color: #fef3c7; color: #92400e;"
                       : "background-color: #dbeafe; color: #1e40af;"
                   }">
-                    ${escapeHtml(priority.toUpperCase())}
+                    ${escapeHtml(PRIORITY_LABELS[priority as TicketPriority] ?? priority)}
                   </span>
                 </td>
               </tr>
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Category:</td>
-                <td style="padding: 8px 0; color: #111827;">${escapeHtml(category
-                  .replace(/_/g, " ")
-                  .replace(/\b\w/g, (l) => l.toUpperCase()))}</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">الفئة:</td>
+                <td style="padding: 8px 0; color: #111827;">${escapeHtml(
+                  CATEGORY_LABELS[category] ??
+                    category.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+                )}</td>
               </tr>
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Created:</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">تاريخ الإنشاء:</td>
                 <td style="padding: 8px 0; color: #111827;">${escapeHtml(createdAt)}</td>
               </tr>
             </table>
           </div>
 
           <!-- Customer Information -->
-          <div style="background-color: #ffffff; border-left: 4px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h2 style="color: #10b981; margin: 0 0 15px 0; font-size: 18px;">Customer Information</h2>
+          <div style="background-color: #ffffff; border-right: 4px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <h2 style="color: #10b981; margin: 0 0 15px 0; font-size: 18px;">معلومات العميل</h2>
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 140px;">Name:</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 140px;">الاسم:</td>
                 <td style="padding: 8px 0; color: #111827;">${escapeHtml(customerName)}</td>
               </tr>
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Email:</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">الإيميل:</td>
                 <td style="padding: 8px 0;"><a href="mailto:${escapeHtml(customerEmail)}" style="color: #667eea; text-decoration: none;">${escapeHtml(customerEmail)}</a></td>
               </tr>
               ${
                 customerCountry
                   ? `
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Country:</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">الدولة:</td>
                 <td style="padding: 8px 0; color: #111827;">${escapeHtml(customerCountry)}</td>
               </tr>
               `
@@ -473,14 +481,14 @@ export const emailTemplates = {
             productName || productVersion || purchaseCode
               ? `
           <!-- Product Information -->
-          <div style="background-color: #ffffff; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h2 style="color: #f59e0b; margin: 0 0 15px 0; font-size: 18px;">Product Information</h2>
+          <div style="background-color: #ffffff; border-right: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <h2 style="color: #f59e0b; margin: 0 0 15px 0; font-size: 18px;">معلومات المنتج</h2>
             <table style="width: 100%; border-collapse: collapse;">
               ${
                 productName
                   ? `
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 140px;">Product:</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 140px;">المنتج:</td>
                 <td style="padding: 8px 0; color: #111827;">${escapeHtml(productName)}</td>
               </tr>
               `
@@ -490,7 +498,7 @@ export const emailTemplates = {
                 productVersion
                   ? `
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Version:</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">الإصدار:</td>
                 <td style="padding: 8px 0; color: #111827;">${escapeHtml(productVersion)}</td>
               </tr>
               `
@@ -500,7 +508,7 @@ export const emailTemplates = {
                 purchaseCode
                   ? `
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Purchase Code:</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">رمز الشراء:</td>
                 <td style="padding: 8px 0; color: #111827; font-family: monospace; font-size: 12px;">${escapeHtml(purchaseCode)}</td>
               </tr>
               `
@@ -513,30 +521,30 @@ export const emailTemplates = {
           }
 
           <!-- Description -->
-          <div style="background-color: #ffffff; border-left: 4px solid #8b5cf6; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h2 style="color: #8b5cf6; margin: 0 0 15px 0; font-size: 18px;">Description</h2>
+          <div style="background-color: #ffffff; border-right: 4px solid #8b5cf6; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <h2 style="color: #8b5cf6; margin: 0 0 15px 0; font-size: 18px;">الوصف</h2>
             <div style="color: #374151; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;">${escapeHtml(description)}</div>
           </div>
 
           <!-- Action Button -->
           <div style="text-align: center; margin: 30px 0;">
             <a href="${escapeHtml(ticketUrl)}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);">
-              View Ticket
+              عرض التذكرة
             </a>
           </div>
 
           <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 20px;">
-            Click the button above to view and respond to this ticket in the admin panel.
+            اضغط الزر فوق عشان تشوف التذكرة وترد من لوحة الإدارة.
           </p>
         </div>
 
         <!-- Footer -->
         <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
           <p style="color: #6b7280; font-size: 12px; margin: 0;">
-            This is an automated notification from your support ticket system.
+            إشعار تلقائي من ${ENS_BRAND.portalTitle}.
           </p>
           <p style="color: #9ca3af; font-size: 11px; margin: 10px 0 0 0;">
-            Please do not reply to this email.
+            متردّش على الإيميل ده.
           </p>
         </div>
       </div>

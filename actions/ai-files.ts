@@ -28,9 +28,9 @@ const scopeSchema = z.object({
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new Error("مش مسموح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("Forbidden: Admin access required");
+  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
   return session;
 }
 
@@ -81,7 +81,7 @@ export async function uploadAndIndexFile(
 
     const file = formData.get("file");
     if (!(file instanceof File)) {
-      return { success: false, error: "No file provided" };
+      return { success: false, error: "مفيش ملف مرفوع" };
     }
     const rawName = (formData.get("name") as string | null)?.trim();
     const filename = file.name;
@@ -93,16 +93,16 @@ export async function uploadAndIndexFile(
     if (classifyFile(filename) === "unsupported") {
       return {
         success: false,
-        error: `Unsupported type ".${fileExtension(filename)}". Use PDF, Excel/CSV, Word (.docx), or text/markdown.`,
+        error: `نوع غير مدعوم ".${fileExtension(filename)}". استخدم PDF أو Excel/CSV أو Word (.docx) أو نص/markdown.`,
       };
     }
     if (file.size === 0) {
-      return { success: false, error: "File is empty" };
+      return { success: false, error: "الملف فارغ" };
     }
     if (file.size > MAX_FILE_BYTES) {
       return {
         success: false,
-        error: `File too large (max ${Math.round(MAX_FILE_BYTES / 1024 / 1024)}MB)`,
+        error: `الملف كبير جداً (الحد الأقصى ${Math.round(MAX_FILE_BYTES / 1024 / 1024)} ميغابايت)`,
       };
     }
 
@@ -157,12 +157,12 @@ export async function uploadAndIndexFile(
           $set: {
             status: "failed",
             fileType: parsed.kind,
-            error: "No content could be embedded from this file.",
+            error: "تعذّر تضمين أي محتوى من هذا الملف.",
             updatedAt: new Date(),
           },
         }
       );
-      return { success: false, error: "No content could be embedded." };
+      return { success: false, error: "تعذّر تضمين أي محتوى." };
     }
 
     await col.updateOne(
@@ -193,7 +193,7 @@ export async function uploadAndIndexFile(
         {
           $set: {
             status: "failed",
-            error: error.message ?? "Failed to index file",
+            error: error.message ?? "تعذّر فهرسة الملف",
             updatedAt: new Date(),
           },
         }
@@ -208,7 +208,7 @@ export async function deleteFile(id: string): Promise<ApiResponse<void>> {
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid file ID" };
+      return { success: false, error: "معرّف الملف مش صح" };
     }
     const col = await getCollection<AIFile>(COLLECTION);
     await col.deleteOne({ _id: new ObjectId(id) });
@@ -227,7 +227,7 @@ export async function updateFileSite(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid file ID" };
+      return { success: false, error: "معرّف الملف مش صح" };
     }
     const parsed = scopeSchema.safeParse(input);
     if (!parsed.success) {
@@ -236,11 +236,11 @@ export async function updateFileSite(
 
     const col = await getCollection<AIFile>(COLLECTION);
     const existing = await col.findOne({ _id: new ObjectId(id) });
-    if (!existing) return { success: false, error: "File not found" };
+    if (!existing) return { success: false, error: "مفيش الملف" };
     if (existing.status === "processing") {
       return {
         success: false,
-        error: "Wait for processing to finish before changing scope",
+        error: "انتظر حتى تنتهي المعالجة قبل تغيير النطاق",
       };
     }
 
@@ -255,7 +255,7 @@ export async function updateFileSite(
       update,
       { returnDocument: "after" }
     );
-    if (!doc) return { success: false, error: "File not found" };
+    if (!doc) return { success: false, error: "مفيش الملف" };
 
     await updateFileEmbeddingsSiteScope(id, siteId);
     revalidateAI();

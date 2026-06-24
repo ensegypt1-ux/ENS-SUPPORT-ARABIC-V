@@ -42,7 +42,7 @@ export function AppSidebar({
   const faviconUrl = useFaviconUrl();
 
   const asideClasses = cn(
-    "flex shrink-0 flex-col border-r border-sidebar-border/80 bg-sidebar/95 backdrop-blur-xl transition-[width] duration-300",
+    "flex shrink-0 flex-col border-e border-sidebar-border/80 bg-sidebar/95 backdrop-blur-xl transition-[width] duration-300",
     isDashboard ? "h-full" : "sticky top-0 h-dvh overflow-hidden",
     collapsed ? "w-[5.25rem]" : "w-64"
   );

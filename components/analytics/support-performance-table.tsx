@@ -51,13 +51,13 @@ export function SupportPerformanceTable({
           <div className="p-2 rounded-lg bg-info/15">
             <Users className="h-4 w-4 text-info" />
           </div>
-          Team Performance
+          أداء الفريق
         </CardTitle>
       </CardHeader>
       <CardContent>
         {sortedData.length === 0 ? (
           <p className="text-center text-muted-foreground py-8 text-sm">
-            No support staff data available
+            لا تتوفر بيانات فريق الدعم
           </p>
         ) : (
           <div className="space-y-3">
@@ -91,7 +91,7 @@ export function SupportPerformanceTable({
                         </h3>
                         {index === 0 && data.length > 1 && (
                           <span className="text-xs bg-warning/15 text-warning px-1.5 py-0.5 rounded font-medium">
-                            Top
+                            الأفضل
                           </span>
                         )}
                       </div>
@@ -104,23 +104,23 @@ export function SupportPerformanceTable({
                   <div className="flex items-center gap-4 text-sm">
                     <div className="text-center">
                       <p className="font-medium text-foreground">{staff.assignedTickets}</p>
-                      <p className="text-xs text-muted-foreground">Assigned</p>
+                      <p className="text-xs text-muted-foreground">مُسند</p>
                     </div>
                     <div className="text-center">
                       <p className="font-medium text-foreground">{staff.resolvedTickets}</p>
-                      <p className="text-xs text-muted-foreground">Resolved</p>
+                      <p className="text-xs text-muted-foreground">محلول</p>
                     </div>
                     <div className="text-center">
                       <p className="font-medium text-foreground">
                         {formatTime(staff.averageResolutionTime)}
                       </p>
-                      <p className="text-xs text-muted-foreground">Avg Time</p>
+                      <p className="text-xs text-muted-foreground">متوسط الوقت</p>
                     </div>
                     <div className="text-center">
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium ${getPerformanceColor(staff.resolutionRate)}`}>
                         {staff.resolutionRate}%
                       </span>
-                      <p className="text-xs text-muted-foreground mt-1">Rate</p>
+                      <p className="text-xs text-muted-foreground mt-1">المعدل</p>
                     </div>
                   </div>
                 </div>

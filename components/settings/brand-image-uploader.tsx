@@ -46,7 +46,7 @@ export function BrandImageUploader({
   value,
   previewAlt,
   uploadLabel,
-  removeLabel = "Remove",
+  removeLabel = "إزالة",
   onChange,
   uploadAction,
   deleteAction,
@@ -67,7 +67,7 @@ export function BrandImageUploader({
 
   const validateFile = (file: File) => {
     if (!allowedImageTypes.includes(file.type)) {
-      toast.error("Only JPEG, PNG, GIF, WebP, or SVG images are allowed");
+      toast.error("مسموح بس صور JPEG و PNG و GIF و WebP و SVG");
       return false;
     }
 
@@ -98,12 +98,12 @@ export function BrandImageUploader({
       if (result.success && result.data) {
         onChange(result.data.url);
         onSaved?.();
-        toast.success(`${label} uploaded successfully`);
+        toast.success(`${label} اترفع`);
       } else {
-        toast.error(result.error || `Failed to upload ${label.toLowerCase()}`);
+        toast.error(result.error || `تعذّر رفع ${label.toLowerCase()}`);
       }
     } catch {
-      toast.error(`An error occurred while uploading ${label.toLowerCase()}`);
+      toast.error(`حصل خطأ وإحنا رفع ${label.toLowerCase()}`);
     } finally {
       setIsUploading(false);
       resetInput();
@@ -136,46 +136,54 @@ export function BrandImageUploader({
       if (result.success) {
         onChange("");
         onSaved?.();
-        toast.success(`${label} removed`);
+        toast.success(`اتشالت إزالة ${label}`);
       } else {
-        toast.error(result.error || `Failed to remove ${label.toLowerCase()}`);
+        toast.error(result.error || `تعذّر الإزالة ${label.toLowerCase()}`);
       }
     } catch {
-      toast.error(`An error occurred while removing ${label.toLowerCase()}`);
+      toast.error(`حصل خطأ وإحنا إزالة ${label.toLowerCase()}`);
     } finally {
       setIsDeleting(false);
     }
   };
 
   return (
-    <div className="rounded-xl border bg-muted/20 p-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-foreground">{label}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        </div>
-
-        {value && (
+    <div className="rounded-xl border bg-muted/20 p-5 text-right" dir="rtl">
+      <div
+        className="grid gap-4 max-sm:grid-cols-1 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-start"
+        style={{ direction: "ltr" }}
+      >
+        {value ? (
           <Button
             type="button"
             variant="destructive"
             size="sm"
             onClick={handleDelete}
             disabled={isUploading || isDeleting}
-            className="shrink-0"
+            className="shrink-0 gap-2 sm:col-start-1 sm:row-start-1"
           >
+            <span>{removeLabel}</span>
             {isDeleting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <X className="mr-2 h-4 w-4" />
+              <X className="h-4 w-4" />
             )}
-            {removeLabel}
           </Button>
-        )}
+        ) : null}
+        <div
+          className={cn(
+            "min-w-0 text-right",
+            value ? "sm:col-start-2 sm:row-start-1" : "sm:col-span-2"
+          )}
+          dir="rtl"
+        >
+          <p className="text-sm font-semibold text-foreground">{label}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+        </div>
       </div>
 
       {value && (
-        <div className="mt-4 flex h-20 items-center rounded-lg border bg-background/80 px-4">
+        <div className="mt-4 flex h-20 items-center justify-end rounded-lg border bg-background/80 px-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
@@ -206,12 +214,13 @@ export function BrandImageUploader({
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         className={cn(
-          "mt-4 flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed bg-background/60 px-4 py-6 text-center transition-colors",
+          "mt-4 flex min-h-32 cursor-pointer flex-col items-end justify-center rounded-xl border-2 border-dashed bg-background/60 px-4 py-6 text-right transition-colors",
           isDragging
             ? "border-primary bg-primary/5"
             : "border-border hover:border-foreground/30",
           (isUploading || isDeleting) && "pointer-events-none opacity-70"
         )}
+        dir="rtl"
       >
         {isUploading ? (
           <Loader2 className="mb-3 h-7 w-7 animate-spin text-muted-foreground" />
@@ -221,11 +230,11 @@ export function BrandImageUploader({
           <Upload className="mb-3 h-7 w-7 text-muted-foreground" />
         )}
         <span className="text-sm font-medium text-foreground">
-          {isUploading ? "Uploading..." : uploadLabel}
+          {isUploading ? "جاري الرفع..." : uploadLabel}
         </span>
         <span className="mt-1 text-xs text-muted-foreground">
-          PNG, JPG, GIF, WebP, SVG up to{" "}
-          {(maxFileSize / 1024 / 1024).toFixed(0)}MB
+          PNG أو JPG أو GIF أو WebP أو SVG — بحد أقصى{" "}
+          {(maxFileSize / 1024 / 1024).toFixed(0)} ميجابايت
         </span>
       </label>
     </div>

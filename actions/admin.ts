@@ -22,8 +22,10 @@ import type {
   CreateUserFormData,
   UpdateUserFormData,
   AdminCreateTicketFormData,
+  TicketStatus,
 } from "@/types";
 import { getUserIdsByRole } from "@/lib/user-utils";
+import { STATUS_LABELS } from "@/lib/strings";
 import { deleteTicketAttachments } from "@/actions/attachments";
 import {
   findRequestById,
@@ -41,7 +43,7 @@ import { hashPassword as betterAuthHashPassword } from "better-auth/crypto";
 async function requireAdminOrSupport() {
   const session = await requirePermissionOrThrow(
     ["panel.admin.access", "panel.support.access"],
-    { any: true, message: "Forbidden: Staff access required" },
+    { any: true, message: "ممنوع: يلزم صلاحية الموظفين" },
   );
   const user = session.user as User;
   const role = user.role || "customer";
@@ -58,7 +60,7 @@ export async function getAllTickets(filters?: {
 }): Promise<ApiResponse<Ticket[]>> {
   try {
     await requirePermissionOrThrow("tickets.view_all", {
-      message: "Forbidden: Tickets view access required",
+      message: "ممنوع: يلزم صلاحية عرض التذاكر",
     });
     await requireAdminOrSupport();
 
@@ -104,7 +106,7 @@ export async function getAllTickets(filters?: {
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to fetch tickets";
+      error instanceof Error ? error.message : "تعذّر جلب التذاكر";
     console.error("Get all tickets error:", error);
     return {
       success: false,
@@ -123,7 +125,7 @@ export async function getCustomizationRequests(filters?: {
 }): Promise<ApiResponse<Ticket[]>> {
   try {
     await requirePermissionOrThrow("tickets.view_all", {
-      message: "Forbidden: Tickets view access required",
+      message: "ممنوع: يلزم صلاحية عرض التذاكر",
     });
     await requireAdminOrSupport();
 
@@ -179,7 +181,7 @@ export async function getCustomizationRequests(filters?: {
     const errorMessage =
       error instanceof Error
         ? error.message
-        : "Failed to fetch customization requests";
+        : "تعذّر جلب طلبات التخصيص";
     console.error("Get customization requests error:", error);
     return {
       success: false,
@@ -198,7 +200,7 @@ export async function getInstallationRequests(filters?: {
 }): Promise<ApiResponse<Ticket[]>> {
   try {
     await requirePermissionOrThrow("tickets.view_all", {
-      message: "Forbidden: Tickets view access required",
+      message: "ممنوع: يلزم صلاحية عرض التذاكر",
     });
     await requireAdminOrSupport();
 
@@ -254,7 +256,7 @@ export async function getInstallationRequests(filters?: {
     const errorMessage =
       error instanceof Error
         ? error.message
-        : "Failed to fetch installation requests";
+        : "تعذّر جلب طلبات التثبيت";
     console.error("Get installation requests error:", error);
     return {
       success: false,
@@ -270,7 +272,7 @@ export async function getAllUsers(filters?: {
 }): Promise<ApiResponse<User[]>> {
   try {
     await requirePermissionOrThrow("users.view", {
-      message: "Forbidden: Users access required",
+      message: "ممنوع: يلزم صلاحية الوصول للمستخدمين",
     });
 
     const usersCollection = await getCollection<User>("user");
@@ -304,7 +306,7 @@ export async function getAllUsers(filters?: {
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to fetch users";
+      error instanceof Error ? error.message : "تعذّر جلب المستخدمين";
     console.error("Get all users error:", error);
     return {
       success: false,
@@ -430,7 +432,7 @@ export async function getClientUsers(filters?: { search?: string }): Promise<
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to fetch client users";
+      error instanceof Error ? error.message : "تعذّر جلب مستخدمي العملاء";
     console.error("Get client users error:", error);
     return {
       success: false,
@@ -485,46 +487,31 @@ export async function adminCreateTicket(
 
     // Verify the customer exists
     const usersCollection = await getCollection("user");
-    console.log(
-      "[AdminCreateTicket] Looking up customer with id:",
-      validatedData.customerId,
-    );
     let customer = await usersCollection.findOne({
       id: validatedData.customerId,
     });
 
     // Fallback: Try looking up by _id if not found by id
     if (!customer) {
-      console.log(
-        "[AdminCreateTicket] Customer not found by id, trying _id lookup",
-      );
       try {
         if (ObjectId.isValid(validatedData.customerId)) {
           customer = await usersCollection.findOne({
             _id: new ObjectId(validatedData.customerId),
           });
-          if (customer) {
-            console.log(
-              "[AdminCreateTicket] Customer found by _id:",
-              customer.email,
-            );
-          }
         }
       } catch (e) {
         console.error("[AdminCreateTicket] Fallback lookup failed:", e);
       }
-    } else {
-      console.log("[AdminCreateTicket] Customer found by id:", customer.email);
     }
 
     if (!customer) {
       console.error(
-        "[AdminCreateTicket] Customer not found for ID:",
+        "[AdminCreateTicket] مفيش العميل for ID:",
         validatedData.customerId,
       );
       return {
         success: false,
-        error: "Customer not found",
+        error: "مفيش العميل",
       };
     }
 
@@ -649,8 +636,8 @@ export async function adminCreateTicket(
 
     // Send real-time notification to customer
     try {
-      let notificationTitle = "New Support Ticket Created";
-      let notificationBody = `A support ticket has been created for you: ${validatedData.title}`;
+      let notificationTitle = "تذكرة دعم جديدة اتعملت";
+      let notificationBody = `اتعملت لك تذكرة دعم: ${validatedData.title}`;
       let url = `/dashboard/tickets/${idString}`;
       const data: Record<string, string> = {
         ticketId: idString,
@@ -659,14 +646,14 @@ export async function adminCreateTicket(
       };
 
       if (kind === "installation") {
-        notificationTitle = "New Installation Request Created";
-        notificationBody = `An installation request has been created for you: ${validatedData.title}`;
+        notificationTitle = "طلب تثبيت جديد اتعمل";
+        notificationBody = `اتعمل لك طلب تثبيت: ${validatedData.title}`;
         url = `/dashboard/installation/${idString}`;
         data.installationId = idString;
         data.url = url;
       } else if (kind === "customization") {
-        notificationTitle = "New Customization Request Created";
-        notificationBody = `A customization request has been created for you: ${validatedData.title}`;
+        notificationTitle = "طلب تخصيص جديد اتعمل";
+        notificationBody = `اتعمل لك طلب تخصيص: ${validatedData.title}`;
         url = `/dashboard/customization/${idString}`;
         data.customizationId = idString;
         data.url = url;
@@ -689,8 +676,8 @@ export async function adminCreateTicket(
       const otherAdminIds = adminIds.filter((id) => id !== adminUser.id);
 
       if (otherAdminIds.length > 0) {
-        let notificationTitle = "New Support Ticket";
-        let notificationBody = `${adminUser.name} created ticket #${ticketNumber} for ${customer.name}: ${validatedData.title}`;
+        let notificationTitle = "تذكرة دعم جديدة";
+        let notificationBody = `أنشأ ${adminUser.name} التذكرة #${ticketNumber} للعميل ${customer.name}: ${validatedData.title}`;
         let url = `/admin/tickets/${idString}`;
         const data: Record<string, string> = {
           ticketId: idString,
@@ -699,14 +686,14 @@ export async function adminCreateTicket(
         };
 
         if (kind === "installation") {
-          notificationTitle = "New Installation Request";
-          notificationBody = `${adminUser.name} created installation request #${ticketNumber} for ${customer.name}: ${validatedData.title}`;
+          notificationTitle = "طلب تثبيت جديد";
+          notificationBody = `أنشأ ${adminUser.name} طلب التثبيت #${ticketNumber} للعميل ${customer.name}: ${validatedData.title}`;
           url = `/admin/installation/${idString}`;
           data.installationId = idString;
           data.url = url;
         } else if (kind === "customization") {
-          notificationTitle = "New Customization Request";
-          notificationBody = `${adminUser.name} created customization request #${ticketNumber} for ${customer.name}: ${validatedData.title}`;
+          notificationTitle = "طلب تخصيص جديد";
+          notificationBody = `أنشأ ${adminUser.name} طلب التخصيص #${ticketNumber} للعميل ${customer.name}: ${validatedData.title}`;
           url = `/admin/customization/${idString}`;
           data.customizationId = idString;
           data.url = url;
@@ -735,11 +722,11 @@ export async function adminCreateTicket(
     return {
       success: true,
       data: serializedTicket as unknown as Ticket,
-      message: "Ticket created successfully",
+      message: "التذكرة اتعملت",
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to create ticket";
+      error instanceof Error ? error.message : "تعذّر إنشاء التذكرة";
     console.error("Error creating ticket:", error);
     return {
       success: false,
@@ -756,13 +743,13 @@ export async function assignTicket(
   try {
     await requirePermissionOrThrow(["tickets.assign", "tickets.manage"], {
       any: true,
-      message: "Forbidden: Ticket assignment access required",
+      message: "ممنوع: يلزم صلاحية تعيين التذاكر",
     });
     const { user } = await requireAdminOrSupport();
 
     const { request, kind, collectionName } = await findRequestById(ticketId);
     if (!request || !collectionName || !kind) {
-      throw new Error("Ticket not found");
+      throw new Error("مفيش تذكرة");
     }
 
     const ticketsCollection = await getCollection<Ticket>(collectionName);
@@ -783,7 +770,7 @@ export async function assignTicket(
       });
 
       if (!assignedUser) {
-        return { success: false, error: "Assignee not found" };
+        return { success: false, error: "مفيش المُعيَّن" };
       }
 
       normalizedAssignedToId = assignedUser.id || assignedUser._id.toString();
@@ -808,7 +795,7 @@ export async function assignTicket(
     );
 
     if (!updatedTicket) {
-      throw new Error("Failed to update ticket");
+      throw new Error("تعذّر تحديث التذكرة");
     }
 
     await historyCollection.insertOne({
@@ -838,19 +825,17 @@ export async function assignTicket(
         );
         const isTicket = kind === "ticket";
         const isInstallation = kind === "installation";
-        const titlePrefix = isTicket
-          ? "Ticket"
+        const assignmentLabels = isTicket
+          ? { title: "اتعيّنت لك تذكرة", type: "التذكرة" }
           : isInstallation
-            ? "Installation Request"
-            : "Customization Request";
+            ? { title: "اتعيّن لك طلب تثبيت", type: "طلب التثبيت" }
+            : { title: "اتعيّن لك طلب تخصيص", type: "طلب التخصيص" };
 
         await createNotification({
           userId: normalizedAssignedToId,
           type: "ticket_assignment",
-          title: `${titlePrefix} Assigned to You`,
-          body: `You have been assigned to ${titlePrefix.toLowerCase()} #${
-            base.ticketNumber
-          }: ${base.title}`,
+          title: assignmentLabels.title,
+          body: `اتعيّنت على ${assignmentLabels.type} #${base.ticketNumber}: ${base.title}`,
           data: {
             ticketId: ticketId,
             ticketNumber: base.ticketNumber,
@@ -900,7 +885,7 @@ export async function assignTicket(
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to assign ticket";
+      error instanceof Error ? error.message : "تعذّر تعيين التذكرة";
     console.error("Assign ticket error:", error);
     return {
       success: false,
@@ -926,14 +911,14 @@ export async function updateTicketStatus(
       ["tickets.change_status", "tickets.manage"],
       {
         any: true,
-        message: "Forbidden: Ticket status access required",
+        message: "ممنوع: يلزم صلاحية حالة التذكرة",
       },
     );
     const { user } = await requireAdminOrSupport();
 
     const { request, kind, collectionName } = await findRequestById(ticketId);
     if (!request || !collectionName || !kind) {
-      throw new Error("Ticket not found");
+      throw new Error("مفيش تذكرة");
     }
 
     const ticketsCollection = await getCollection<Ticket>(collectionName);
@@ -945,7 +930,7 @@ export async function updateTicketStatus(
       return {
         success: true,
         data: JSON.parse(JSON.stringify(ticket)) as Ticket,
-        message: "Ticket status unchanged",
+        message: "حالة التذكرة ما اتغيّرتش",
       };
     }
 
@@ -1090,41 +1075,37 @@ export async function updateTicketStatus(
     // Send real-time notification to customer
     try {
       if (ticket.customerId) {
-        const formatStatus = (s: string) => {
-          return s
-            .split("_")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(" ");
-        };
+        const formatStatusLabel = (s: string) =>
+          STATUS_LABELS[s as TicketStatus] ?? s;
 
         // Determine notification type based on ticket category
         let notificationType:
           | "ticket_status"
           | "installation_status"
           | "customization_status" = "ticket_status";
-        let notificationTitle = "Ticket Status Updated";
+        let notificationTitle = "حالة التذكرة اتحدّت";
         let notificationUrl = `/dashboard/tickets/${ticketId}`;
-        let requestType = "ticket";
+        let requestTypeLabel = "التذكرة";
 
         if (ticket.category === "technical_support") {
           notificationType = "installation_status";
-          notificationTitle = "Installation Request Status Updated";
+          notificationTitle = "حالة طلب التثبيت اتحدّت";
           notificationUrl = `/dashboard/installation/${ticketId}`;
-          requestType = "installation request";
+          requestTypeLabel = "طلب التثبيت";
         } else if (ticket.category === "feature_request") {
           notificationType = "customization_status";
-          notificationTitle = "Customization Request Status Updated";
+          notificationTitle = "حالة طلب التخصيص اتحدّت";
           notificationUrl = `/dashboard/customization/${ticketId}`;
-          requestType = "customization request";
+          requestTypeLabel = "طلب التخصيص";
         }
 
         await createNotification({
           userId: ticket.customerId,
           type: notificationType,
           title: notificationTitle,
-          body: `Your ${requestType} #${
+          body: `تغيّرت حالة ${requestTypeLabel} #${
             ticket.ticketNumber
-          } status changed from ${formatStatus(oldStatus)} to ${formatStatus(
+          } من ${formatStatusLabel(oldStatus)} إلى ${formatStatusLabel(
             status,
           )}`,
           data: {
@@ -1159,7 +1140,7 @@ export async function updateTicketStatus(
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to update ticket status";
+      error instanceof Error ? error.message : "تعذّر تحديث حالة التذكرة";
     console.error("Update ticket status error:", error);
     return {
       success: false,
@@ -1178,14 +1159,14 @@ export async function updateTicketPriority(
       ["tickets.change_priority", "tickets.manage"],
       {
         any: true,
-        message: "Forbidden: Ticket priority access required",
+        message: "ممنوع: يلزم صلاحية أولوية التذاكر",
       },
     );
     const { user } = await requireAdminOrSupport();
 
     const { request, kind, collectionName } = await findRequestById(ticketId);
     if (!request || !collectionName || !kind) {
-      throw new Error("Ticket not found");
+      throw new Error("مفيش تذكرة");
     }
 
     const ticketsCollection = await getCollection<Ticket>(collectionName);
@@ -1245,7 +1226,7 @@ export async function updateTicketPriority(
     const errorMessage =
       error instanceof Error
         ? error.message
-        : "Failed to update ticket priority";
+        : "تعذّر تحديث أولوية التذكرة";
     console.error("Update ticket priority error:", error);
     return {
       success: false,
@@ -1339,7 +1320,7 @@ export async function getDashboardStats(): Promise<
     const errorMessage =
       error instanceof Error
         ? error.message
-        : "Failed to fetch dashboard statistics";
+        : "تعذّر جلب إحصائيات لوحة التحكم";
     console.error("Get dashboard stats error:", error);
     return {
       success: false,
@@ -1375,7 +1356,7 @@ export async function getRecentUsers(
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to fetch recent users";
+      error instanceof Error ? error.message : "تعذّر جلب المستخدمين الأخيرين";
     console.error("Get recent users error:", error);
     return {
       success: false,
@@ -1427,7 +1408,7 @@ export async function getPriorityDistribution(): Promise<
     const errorMessage =
       error instanceof Error
         ? error.message
-        : "Failed to fetch priority distribution";
+        : "تعذّر جلب توزيع الأولويات";
     console.error("Get priority distribution error:", error);
     return {
       success: false,
@@ -1479,7 +1460,7 @@ export async function getStatusDistribution(): Promise<
     const errorMessage =
       error instanceof Error
         ? error.message
-        : "Failed to fetch status distribution";
+        : "تعذّر جلب توزيع الحالات";
     console.error("Get status distribution error:", error);
     return {
       success: false,
@@ -1508,7 +1489,7 @@ export async function createUser(
 ): Promise<ApiResponse<User>> {
   try {
     await requirePermissionOrThrow("users.manage", {
-      message: "Forbidden: Users manage access required",
+      message: "ممنوع: يلزم صلاحية إدارة المستخدمين",
     });
 
     // Validate input
@@ -1524,7 +1505,7 @@ export async function createUser(
     if (existingUser) {
       return {
         success: false,
-        error: "A user with this email already exists",
+        error: "يوجد مستخدم بهذا الإيميل بالفعل",
       };
     }
 
@@ -1583,11 +1564,11 @@ export async function createUser(
     return {
       success: true,
       data: finalUser as User,
-      message: "User created successfully",
+      message: "المستخدم اتعمل",
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to create user";
+      error instanceof Error ? error.message : "تعذّر إنشاء المستخدم";
     console.error("Create user error:", error);
     return {
       success: false,
@@ -1605,7 +1586,7 @@ export async function updateUser(
 ): Promise<ApiResponse<User>> {
   try {
     await requirePermissionOrThrow("users.manage", {
-      message: "Forbidden: Users manage access required",
+      message: "ممنوع: يلزم صلاحية إدارة المستخدمين",
     });
 
     // Validate input
@@ -1618,7 +1599,7 @@ export async function updateUser(
     if (!existingUser) {
       return {
         success: false,
-        error: "User not found",
+        error: "مفيش المستخدم",
       };
     }
 
@@ -1632,7 +1613,7 @@ export async function updateUser(
       if (emailInUse) {
         return {
           success: false,
-          error: "A user with this email already exists",
+          error: "يوجد مستخدم بهذا الإيميل بالفعل",
         };
       }
     }
@@ -1719,11 +1700,11 @@ export async function updateUser(
     return {
       success: true,
       data: updatedUser as User,
-      message: "User updated successfully",
+      message: "المستخدم اتحدّث",
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to update user";
+      error instanceof Error ? error.message : "تعذّر تحديث المستخدم";
     console.error("Update user error:", error);
     return {
       success: false,
@@ -1738,7 +1719,7 @@ export async function updateUser(
 export async function deleteUser(userId: string): Promise<ApiResponse<void>> {
   try {
     const session = await requirePermissionOrThrow("users.manage", {
-      message: "Forbidden: Users manage access required",
+      message: "ممنوع: يلزم صلاحية إدارة المستخدمين",
     });
     const currentUser = session.user as { id: string };
 
@@ -1746,7 +1727,7 @@ export async function deleteUser(userId: string): Promise<ApiResponse<void>> {
     if (currentUser.id === userId) {
       return {
         success: false,
-        error: "You cannot delete your own account",
+        error: "مش ينفع تمسح حسابك",
       };
     }
 
@@ -1757,7 +1738,7 @@ export async function deleteUser(userId: string): Promise<ApiResponse<void>> {
     if (!userToDelete) {
       return {
         success: false,
-        error: "User not found",
+        error: "مفيش المستخدم",
       };
     }
 
@@ -1782,11 +1763,11 @@ export async function deleteUser(userId: string): Promise<ApiResponse<void>> {
 
     return {
       success: true,
-      message: "User deleted successfully",
+      message: "المستخدم اتمسح",
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to delete user";
+      error instanceof Error ? error.message : "تعذّر حذف المستخدم";
     console.error("Delete user error:", error);
     return {
       success: false,
@@ -1815,7 +1796,7 @@ export async function getUserDetails(userId: string) {
     if (!user) {
       return {
         success: false,
-        error: "User not found",
+        error: "مفيش المستخدم",
       };
     }
 
@@ -1930,7 +1911,7 @@ export async function getUserDetails(userId: string) {
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to fetch user details";
+      error instanceof Error ? error.message : "تعذّر جلب تفاصيل المستخدم";
     console.error("Get user details error:", error);
     return {
       success: false,
@@ -1948,7 +1929,7 @@ export async function deleteTicket(
   try {
     const { role } = await requireAdminOrSupport();
     if (role !== "admin") {
-      throw new Error("Forbidden: Admin access required");
+      throw new Error("ممنوع: يلزم صلاحية المسؤول");
     }
 
     const { request, kind, collectionName } = await findRequestById(ticketId);
@@ -1956,7 +1937,7 @@ export async function deleteTicket(
     if (!request || !collectionName || !kind) {
       return {
         success: false,
-        error: "Ticket not found",
+        error: "مفيش تذكرة",
       };
     }
 
@@ -1988,11 +1969,11 @@ export async function deleteTicket(
 
     return {
       success: true,
-      message: "Request deleted successfully",
+      message: "الطلب اتمسح",
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to delete request";
+      error instanceof Error ? error.message : "تعذّر حذف الطلب";
     console.error("Delete ticket error:", error);
     return {
       success: false,
@@ -2022,7 +2003,7 @@ export async function getTicketHistory(
   try {
     const session = await getSession();
     if (!session?.user) {
-      throw new Error("Unauthorized");
+      throw new Error("مش مسموح");
     }
 
     const userId = session.user.id;
@@ -2034,7 +2015,7 @@ export async function getTicketHistory(
     if (!request) {
       return {
         success: false,
-        error: "Ticket not found",
+        error: "مفيش تذكرة",
       };
     }
 
@@ -2042,7 +2023,7 @@ export async function getTicketHistory(
     if (role === "customer" && (request as Ticket).customerId !== userId) {
       return {
         success: false,
-        error: "Forbidden: You can only view your own ticket history",
+        error: "مش مسموح: تقدر تشوف سجل تذاكرك بس",
       };
     }
 
@@ -2106,7 +2087,7 @@ export async function getTicketHistory(
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to fetch ticket history";
+      error instanceof Error ? error.message : "تعذّر جلب سجل التذكرة";
     console.error("Get ticket history error:", error);
     return {
       success: false,
@@ -2143,14 +2124,14 @@ export async function bulkUpdateUserStatus(
   try {
     const permission = scope === "customer" ? "clients.manage" : "users.manage";
     const session = await requirePermissionOrThrow(permission, {
-      message: `Forbidden: ${scope === "customer" ? "Customer" : "User"} manage access required`,
+      message: `ممنوع: ${scope === "customer" ? "Customer" : "User"} manage access required`,
     });
 
     if (!Array.isArray(userIds) || userIds.length === 0) {
-      return { success: false, error: "No users selected" };
+      return { success: false, error: "ما اتحددش مستخدمين" };
     }
     if (!ACCOUNT_STATUSES.includes(status)) {
-      return { success: false, error: "Invalid status" };
+      return { success: false, error: "حالة مش صحة" };
     }
 
     const currentUserId = (session.user as { id: string }).id;
@@ -2159,7 +2140,7 @@ export async function bulkUpdateUserStatus(
     if (targetIds.length === 0) {
       return {
         success: false,
-        error: "You cannot change your own account status",
+        error: "مش ينفع تغيّر حالة حسابك",
       };
     }
 
@@ -2196,22 +2177,18 @@ export async function bulkUpdateUserStatus(
     revalidatePath("/admin/users");
     revalidatePath("/admin/customers");
 
-    const noun = scope === "customer" ? "customer" : "member";
+    const noun = scope === "customer" ? "عميل" : "عضو";
     const verb =
-      status === "active"
-        ? "activated"
-        : status === "disabled"
-          ? "disabled"
-          : "banned";
+      status === "active" ? "تفعيل" : status === "disabled" ? "تعطيل" : "حظر";
 
     return {
       success: true,
       data: { count: result.modifiedCount },
-      message: `${result.modifiedCount} ${noun}${result.modifiedCount === 1 ? "" : "s"} ${verb}`,
+      message: `${result.modifiedCount === 1 ? "تم" : "تم"} ${verb} ${result.modifiedCount} ${noun}`,
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to update status";
+      error instanceof Error ? error.message : "تعذّر تحديث الحالة";
     console.error("Bulk update user status error:", error);
     return { success: false, error: errorMessage };
   }
@@ -2224,7 +2201,7 @@ export async function getAssignableAgents(): Promise<
   try {
     await requirePermissionOrThrow(["tickets.assign", "tickets.manage"], {
       any: true,
-      message: "Forbidden: Ticket assignment access required",
+      message: "ممنوع: يلزم صلاحية تعيين التذاكر",
     });
 
     const usersCollection = await getCollection<User>("user");
@@ -2243,7 +2220,7 @@ export async function getAssignableAgents(): Promise<
     return { success: true, data: JSON.parse(JSON.stringify(data)) };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to fetch agents";
+      error instanceof Error ? error.message : "تعذّر جلب الوكلاء";
     console.error("Get assignable agents error:", error);
     return { success: false, error: errorMessage };
   }
@@ -2259,9 +2236,7 @@ function summarizeBulk(
   return {
     success: failed === 0,
     data: { success, failed },
-    message: `${success} ticket${success === 1 ? "" : "s"} ${verb}${
-      failed > 0 ? `, ${failed} failed` : ""
-    }`,
+    message: `${success} تذكرة ${verb === "تحديث" ? "اتحدّث" : verb === "تعيين" ? "اتعيّن" : "اتغيّر"}${failed > 0 ? `، وتعذّر ${failed}` : ""}`,
   };
 }
 
@@ -2279,10 +2254,10 @@ export async function bulkUpdateTicketStatus(
   try {
     await requirePermissionOrThrow(["tickets.change_status", "tickets.manage"], {
       any: true,
-      message: "Forbidden: Ticket status access required",
+      message: "ممنوع: يلزم صلاحية حالة التذكرة",
     });
     if (!Array.isArray(ticketIds) || ticketIds.length === 0) {
-      return { success: false, error: "No tickets selected" };
+      return { success: false, error: "ما اتحددتش تذاكر" };
     }
 
     let success = 0;
@@ -2292,10 +2267,10 @@ export async function bulkUpdateTicketStatus(
       if (r.success) success++;
       else failed++;
     }
-    return summarizeBulk(success, failed, "updated");
+    return summarizeBulk(success, failed, "تحديث");
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to update tickets";
+      error instanceof Error ? error.message : "تعذّر تحديث التذاكر";
     console.error("Bulk update ticket status error:", error);
     return { success: false, error: errorMessage };
   }
@@ -2309,10 +2284,10 @@ export async function bulkUpdateTicketPriority(
   try {
     await requirePermissionOrThrow(
       ["tickets.change_priority", "tickets.manage"],
-      { any: true, message: "Forbidden: Ticket priority access required" },
+      { any: true, message: "ممنوع: يلزم صلاحية أولوية التذاكر" },
     );
     if (!Array.isArray(ticketIds) || ticketIds.length === 0) {
-      return { success: false, error: "No tickets selected" };
+      return { success: false, error: "ما اتحددتش تذاكر" };
     }
 
     let success = 0;
@@ -2322,10 +2297,10 @@ export async function bulkUpdateTicketPriority(
       if (r.success) success++;
       else failed++;
     }
-    return summarizeBulk(success, failed, "updated");
+    return summarizeBulk(success, failed, "تحديث");
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to update tickets";
+      error instanceof Error ? error.message : "تعذّر تحديث التذاكر";
     console.error("Bulk update ticket priority error:", error);
     return { success: false, error: errorMessage };
   }
@@ -2339,10 +2314,10 @@ export async function bulkAssignTickets(
   try {
     await requirePermissionOrThrow(["tickets.assign", "tickets.manage"], {
       any: true,
-      message: "Forbidden: Ticket assignment access required",
+      message: "ممنوع: يلزم صلاحية تعيين التذاكر",
     });
     if (!Array.isArray(ticketIds) || ticketIds.length === 0) {
-      return { success: false, error: "No tickets selected" };
+      return { success: false, error: "ما اتحددتش تذاكر" };
     }
 
     let success = 0;
@@ -2352,10 +2327,10 @@ export async function bulkAssignTickets(
       if (r.success) success++;
       else failed++;
     }
-    return summarizeBulk(success, failed, assignedToId ? "assigned" : "unassigned");
+    return summarizeBulk(success, failed, assignedToId ? "تعيين" : "إلغاء التعيين");
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to assign tickets";
+      error instanceof Error ? error.message : "تعذّر تعيين التذاكر";
     console.error("Bulk assign tickets error:", error);
     return { success: false, error: errorMessage };
   }

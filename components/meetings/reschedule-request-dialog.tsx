@@ -29,8 +29,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 const rescheduleRequestSchema = z.object({
-  preferredDate: z.string().min(1, "Preferred date is required"),
-  preferredTime: z.string().min(1, "Preferred time is required"),
+  preferredDate: z.string().min(1, "التاريخ المفضل مطلوب"),
+  preferredTime: z.string().min(1, "الوقت المفضل مطلوب"),
   reason: z.string().optional(),
 });
 
@@ -68,7 +68,7 @@ export function RescheduleRequestDialog({
 
       // Check if the date is in the future
       if (preferredDateTime <= new Date()) {
-        toast.error("Preferred time must be in the future");
+        toast.error("لازم يكون الوقت المفضل في المستقبل");
         setIsSubmitting(false);
         return;
       }
@@ -80,16 +80,16 @@ export function RescheduleRequestDialog({
       );
 
       if (result.success) {
-        toast.success("Reschedule request submitted successfully");
+        toast.success("اتبعت طلب إعادة الجدولة");
         form.reset();
         onOpenChange(false);
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to submit reschedule request");
+        toast.error(result.error || "تعذّر الإرسال طلب إعادة الجدولة");
       }
     } catch (error) {
       console.error("Error submitting reschedule request:", error);
-      toast.error("An error occurred while submitting the request");
+      toast.error("حصل خطأ وإنت إرسال الطلب");
     } finally {
       setIsSubmitting(false);
     }
@@ -99,10 +99,10 @@ export function RescheduleRequestDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Request Meeting Reschedule</DialogTitle>
+          <DialogTitle>طلب إعادة جدولة الاجتماع</DialogTitle>
           <DialogDescription>
-            Submit a request to reschedule this meeting with your preferred time.
-            The admin/support team will review your request.
+            أرسل طلباً لإعادة جدولة هذا الاجتماع بالوقت المفضل لديك. سيراجع
+            فريق الدعم طلبك.
           </DialogDescription>
         </DialogHeader>
 
@@ -113,7 +113,7 @@ export function RescheduleRequestDialog({
               name="preferredDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Preferred Date</FormLabel>
+                  <FormLabel>التاريخ المفضل</FormLabel>
                   <FormControl>
                     <Input
                       type="date"
@@ -131,7 +131,7 @@ export function RescheduleRequestDialog({
               name="preferredTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Preferred Time</FormLabel>
+                  <FormLabel>الوقت المفضل</FormLabel>
                   <FormControl>
                     <Input type="time" {...field} />
                   </FormControl>
@@ -145,10 +145,10 @@ export function RescheduleRequestDialog({
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Reason (Optional)</FormLabel>
+                  <FormLabel>السبب (اختياري)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Please explain why you need to reschedule..."
+                      placeholder=" توضيح سبب حاجتك لإعادة الجدولة..."
                       className="resize-none"
                       rows={3}
                       {...field}
@@ -166,16 +166,16 @@ export function RescheduleRequestDialog({
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                إلغاء
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Submitting...
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    جاري الإرسال...
                   </>
                 ) : (
-                  "Submit Request"
+                  "إرسال الطلب"
                 )}
               </Button>
             </DialogFooter>
@@ -185,4 +185,3 @@ export function RescheduleRequestDialog({
     </Dialog>
   );
 }
-

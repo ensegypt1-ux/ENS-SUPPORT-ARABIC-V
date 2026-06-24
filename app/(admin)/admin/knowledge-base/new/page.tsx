@@ -12,10 +12,10 @@ export default function NewCategoryPage() {
           href="/admin/knowledge-base"
           className="hover:text-foreground transition-colors"
         >
-          Knowledge Base
+          قاعدة المعرفة
         </Link>
-        <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-foreground font-medium">New Category</span>
+        <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
+        <span className="text-foreground font-medium">فئة جديدة</span>
       </nav>
 
       {/* Form card */}
@@ -25,9 +25,9 @@ export default function NewCategoryPage() {
             <BookOpen className="h-4.5 w-4.5 text-primary" />
           </div>
           <div>
-            <p className="font-semibold text-sm">New Category</p>
+            <p className="font-semibold text-sm">فئة جديدة</p>
             <p className="text-xs text-muted-foreground">
-              Create a new documentation category
+              إنشاء a new documentation category
             </p>
           </div>
         </div>

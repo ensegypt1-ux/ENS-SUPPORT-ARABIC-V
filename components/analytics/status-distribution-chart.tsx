@@ -18,12 +18,12 @@ const COLORS: Record<string, string> = {
 };
 
 const LABELS: Record<string, string> = {
-  open: "Open",
-  in_progress: "In Progress",
-  waiting_on_customer: "Waiting",
-  resolved: "Resolved",
-  closed: "Closed",
-  scheduled_meeting: "Meeting",
+  open: "مفتوحة",
+  in_progress: "قيد المعالجة",
+  waiting_on_customer: "بانتظار العميل",
+  resolved: "محلولة",
+  closed: "مغلقة",
+  scheduled_meeting: "اجتماع",
 };
 
 export function StatusDistributionChart({
@@ -39,13 +39,13 @@ export function StatusDistributionChart({
           <div className="p-2 rounded-lg bg-success/15">
             <Activity className="h-4 w-4 text-success" />
           </div>
-          Status Distribution
+          توزيع الحالات
         </CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
           <p className="text-center text-muted-foreground py-8 text-sm">
-            No data available
+            لا تتوفر بيانات
           </p>
         ) : (
           <div className="space-y-3">

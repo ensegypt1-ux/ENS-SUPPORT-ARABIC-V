@@ -27,8 +27,8 @@ export function ClientDetailActions({ user, isAdmin }: ClientDetailActionsProps)
     <div className="flex items-center gap-2">
       {isAdmin && (
         <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
-          <Edit className="h-4 w-4 mr-2" />
-          Edit Customer
+          <Edit className="h-4 w-4 me-2" />
+          تعديل العميل
         </Button>
       )}
       {isAdmin && (
@@ -37,8 +37,8 @@ export function ClientDetailActions({ user, isAdmin }: ClientDetailActionsProps)
           onClick={() => setDeleteDialogOpen(true)}
           className="text-destructive hover:text-destructive hover:bg-destructive/10"
         >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete Customer
+          <Trash2 className="h-4 w-4 me-2" />
+          حذف العميل
         </Button>
       )}
 
@@ -49,7 +49,7 @@ export function ClientDetailActions({ user, isAdmin }: ClientDetailActionsProps)
           onOpenChange={setEditDialogOpen}
           user={user}
           mode="edit"
-          entityLabel="Customer"
+          entityLabel="عميل"
         />
       )}
 
@@ -65,7 +65,7 @@ export function ClientDetailActions({ user, isAdmin }: ClientDetailActionsProps)
             }
           }}
           user={user}
-          entityLabel="Customer"
+          entityLabel="عميل"
         />
       )}
     </div>

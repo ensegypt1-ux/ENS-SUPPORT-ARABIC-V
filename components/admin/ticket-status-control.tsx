@@ -75,14 +75,14 @@ export function TicketStatusControl({
       );
 
       if (result.success) {
-        toast.success("Ticket status updated successfully");
+        toast.success("اتحدّث حالة التذكرة");
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update ticket status");
+        toast.error(result.error || "تعذّر التحديث حالة التذكرة");
       }
     } catch (error) {
       console.error("Status update error:", error);
-      toast.error("Failed to update ticket status");
+      toast.error("تعذّر التحديث حالة التذكرة");
     } finally {
       setIsUpdating(false);
       setPendingStatus(null);
@@ -99,17 +99,17 @@ export function TicketStatusControl({
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "open":
-        return "Open";
+        return "مفتوحة";
       case "scheduled_meeting":
-        return "Scheduled Meeting";
+        return "اجتماع مجدول";
       case "in_progress":
-        return "In Progress";
+        return "قيد المعالجة";
       case "waiting_on_customer":
-        return "Waiting for Customer";
+        return "بانتظار العميل";
       case "resolved":
-        return "Resolved";
+        return "محلولة";
       case "closed":
-        return "Closed";
+        return "مغلقة";
       default:
         return status;
     }
@@ -123,46 +123,45 @@ export function TicketStatusControl({
         disabled={isUpdating}
       >
         <SelectTrigger>
-          <SelectValue placeholder="Select status" />
+          <SelectValue placeholder="اختر الحالة" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="open">Open</SelectItem>
-          <SelectItem value="scheduled_meeting">Scheduled Meeting</SelectItem>
-          <SelectItem value="in_progress">In Progress</SelectItem>
+          <SelectItem value="open">مفتوحة</SelectItem>
+          <SelectItem value="scheduled_meeting">اجتماع مجدول</SelectItem>
+          <SelectItem value="in_progress">قيد المعالجة</SelectItem>
           <SelectItem value="waiting_on_customer">
-            Waiting for Customer
+            بانتظار العميل
           </SelectItem>
-          <SelectItem value="resolved">Resolved</SelectItem>
-          <SelectItem value="closed">Closed</SelectItem>
+          <SelectItem value="resolved">محلولة</SelectItem>
+          <SelectItem value="closed">مغلقة</SelectItem>
         </SelectContent>
       </Select>
 
       <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update Ticket Status</DialogTitle>
+            <DialogTitle>تحديث حالة التذكرة</DialogTitle>
             <DialogDescription>
-              You are changing the status to{" "}
+              أنت على وشك تغيير الحالة إلى{" "}
               <strong>{pendingStatus && getStatusLabel(pendingStatus)}</strong>.
-              Optionally add a message to notify the customer.
+              يمكنك إضافة رسالة اختيارية لإبلاغ العميل.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-2">
             <Label htmlFor="status-message">
-              Message to Customer (Optional)
+              رسالة للعميل (اختياري)
             </Label>
             <Textarea
               id="status-message"
-              placeholder="Add a message to include in the email notification..."
+              placeholder="أضف رسالة لتضمينها في إشعار الإيميل..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
               className="resize-none"
             />
             <p className="text-xs text-muted-foreground">
-              This message will be included in the email notification sent to
-              the customer.
+              ستُضمَّن هذه الرسالة في إشعار الإيميل المرسل للعميل.
             </p>
           </div>
 
@@ -172,10 +171,10 @@ export function TicketStatusControl({
               onClick={cancelStatusChange}
               disabled={isUpdating}
             >
-              Cancel
+              إلغاء
             </Button>
             <Button onClick={confirmStatusChange} disabled={isUpdating}>
-              {isUpdating ? "Updating..." : "Update Status"}
+              {isUpdating ? "جاري التحديث..." : "تحديث الحالة"}
             </Button>
           </DialogFooter>
         </DialogContent>

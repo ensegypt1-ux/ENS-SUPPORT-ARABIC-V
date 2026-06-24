@@ -9,7 +9,7 @@ interface EmptySearchResultsProps {
 
 export function EmptySearchResults({
   searchQuery,
-  entityName = "results",
+  entityName = "نتائج",
   className,
 }: EmptySearchResultsProps) {
   return (
@@ -19,22 +19,23 @@ export function EmptySearchResults({
         className
       )}
     >
-      <div className="rounded-full bg-muted p-3 mb-4">
+      <div className="mb-4 rounded-full bg-muted p-3">
         <Search className="h-6 w-6 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-semibold">No {entityName} found</h3>
-      <p className="text-muted-foreground mt-1 max-w-sm">
+      <h3 className="text-lg font-semibold">مفيش {entityName}</h3>
+      <p className="mt-1 max-w-sm text-muted-foreground">
         {searchQuery ? (
           <>
-            No {entityName} match your search for{" "}
-            <span className="font-medium text-foreground">"{searchQuery}"</span>
-            . Try a different search term.
+            مفيش {entityName} مطابق لـ{" "}
+            <span className="font-medium text-foreground">
+              &quot;{searchQuery}&quot;
+            </span>
+            . جرّب كلمة تانية.
           </>
         ) : (
-          <>No {entityName} match your current filters. Try adjusting them.</>
+          <>مفيش {entityName} مطابق للفلتر ده. غيّر الفلتر وجرب.</>
         )}
       </p>
     </div>
   );
 }
-

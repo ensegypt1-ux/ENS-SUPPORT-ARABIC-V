@@ -7,6 +7,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-utils";
 import { getCollection } from "@/lib/db";
+import { FALLBACKS } from "@/lib/strings";
 
 export async function GET() {
   try {
@@ -24,7 +25,7 @@ export async function GET() {
     // Map to simple user objects with only necessary fields
     const simpleUsers = users.map((user: any) => ({
       id: user.id || user._id?.toString(),
-      name: user.name || "Unknown User",
+      name: user.name || FALLBACKS.unknownUser,
       email: user.email,
       role: user.role || "customer",
       image: user.image || null,

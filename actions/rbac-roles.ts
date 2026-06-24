@@ -20,13 +20,13 @@ import { revalidatePath } from "next/cache";
 export async function getRbacRoles(scope?: RbacRoleScope): Promise<ApiResponse<RbacRole[]>> {
   try {
     const session = await requirePermissionOrThrow("rbac.manage", {
-      message: "Forbidden: RBAC manage access required",
+      message: "ممنوع: يلزم صلاحية إدارة RBAC",
     });
     await ensureSystemRbacRoles(session.user.id);
     const roles = await listRbacRoles(scope);
     return { success: true, data: JSON.parse(JSON.stringify(roles)) };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to fetch roles";
+    const message = error instanceof Error ? error.message : "تعذّر جلب الأدوار";
     return { success: false, error: message };
   }
 }
@@ -36,13 +36,13 @@ export async function createRbacRoleAction(
 ): Promise<ApiResponse<RbacRole>> {
   try {
     const session = await requirePermissionOrThrow("rbac.manage", {
-      message: "Forbidden: RBAC manage access required",
+      message: "ممنوع: يلزم صلاحية إدارة RBAC",
     });
     const role = await createRbacRole(input, session.user.id);
     revalidatePath("/admin/settings");
     return { success: true, data: JSON.parse(JSON.stringify(role)) };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to create role";
+    const message = error instanceof Error ? error.message : "تعذّر إنشاء الدور";
     return { success: false, error: message };
   }
 }
@@ -55,7 +55,7 @@ export async function updateRbacRoleAction(options: {
 }): Promise<ApiResponse<RbacRole | null>> {
   try {
     const session = await requirePermissionOrThrow("rbac.manage", {
-      message: "Forbidden: RBAC manage access required",
+      message: "ممنوع: يلزم صلاحية إدارة RBAC",
     });
     const updated = await updateRbacRole(
       options.roleId,
@@ -69,7 +69,7 @@ export async function updateRbacRoleAction(options: {
     revalidatePath("/admin/settings");
     return { success: true, data: updated ? JSON.parse(JSON.stringify(updated)) : null };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to update role";
+    const message = error instanceof Error ? error.message : "تعذّر تحديث الدور";
     return { success: false, error: message };
   }
 }
@@ -77,13 +77,13 @@ export async function updateRbacRoleAction(options: {
 export async function deleteRbacRoleAction(roleId: string): Promise<ApiResponse<{ success: true }>> {
   try {
     const session = await requirePermissionOrThrow("rbac.manage", {
-      message: "Forbidden: RBAC manage access required",
+      message: "ممنوع: يلزم صلاحية إدارة RBAC",
     });
     await deleteRbacRole(roleId, session.user.id);
     revalidatePath("/admin/settings");
     return { success: true, data: { success: true } };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to delete role";
+    const message = error instanceof Error ? error.message : "تعذّر حذف الدور";
     return { success: false, error: message };
   }
 }
@@ -103,7 +103,7 @@ export async function getAssignableRbacRoles(
 > {
   try {
     const session = await requirePermissionOrThrow("users.manage", {
-      message: "Forbidden: Users manage access required",
+      message: "ممنوع: يلزم صلاحية إدارة المستخدمين",
     });
     await ensureSystemRbacRoles(session.user.id);
     const roles = await listRbacRoles(scope);
@@ -118,7 +118,7 @@ export async function getAssignableRbacRoles(
       })),
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to fetch roles";
+    const message = error instanceof Error ? error.message : "تعذّر جلب الأدوار";
     return { success: false, error: message };
   }
 }

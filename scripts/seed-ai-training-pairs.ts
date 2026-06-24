@@ -10,238 +10,112 @@ type SeedPair = {
 
 const TRAINING_PAIRS: SeedPair[] = [
   {
-    category: "solvio-overview",
-    question: "What is Solvio?",
+    category: "ens-portal",
+    question: "ما هي بوابة دعم ENS؟",
     answer:
-      "Solvio is a support ticket and customer support platform that combines ticket tracking, knowledge base, real-time messaging, notifications, and team workflows in one system.",
+      "بوابة دعم ENS هي المركز الرسمي لعملاء ENS. منها يمكنك فتح تذاكر الدعم، متابعة حالة الطلبات، تصفح قاعدة المعرفة، والتواصل مع فريق ENS.",
   },
   {
-    category: "solvio-overview",
-    question: "What does Solvio do?",
+    category: "ens-portal",
+    question: "كيف أستخدم بوابة ENS؟",
     answer:
-      "Solvio helps teams manage customer support with tickets, threaded conversations, attachments, knowledge base content, notifications, and role-based workflows.",
+      "سجّل الدخول إلى البوابة، ثم اختر افتح تذكرة للمشكلات الجديدة، أو تصفح قاعدة المعرفة للإجابات الذاتية، أو استخدم المساعد الذكي للأسئلة السريعة.",
   },
   {
-    category: "solvio-overview",
-    question: "Who is Solvio for?",
+    category: "ens-tickets",
+    question: "كيف أفتح تذكرة دعم؟",
     answer:
-      "Solvio is designed for teams that need a structured support workflow with customers, support staff, and admins working inside the same connected system.",
+      "من لوحة التحكم اختر «افتح تذكرة»، حدّد مسار الدعم (فني، تثبيت، تخصيص، أو إبلاغ عن خلل)، اكتب وصفاً واضحاً للمشكلة، وأرفق أي لقطات شاشة أو ملفات تساعد فريق ENS.",
   },
   {
-    category: "solvio-features",
-    question: "What features does Solvio include?",
+    category: "ens-tickets",
+    question: "هل يمكنني متابعة تذكرتي؟",
     answer:
-      "Solvio includes ticket tracking, threaded comments, file attachments, knowledge base browsing, real-time messaging, notifications, role-based access, analytics, and support workflow tools.",
+      "نعم. كل تذكرة تعرض الحالة والتعليقات والمرفقات وسجل النشاط. ستصلك إشعارات عند أي تحديث من فريق ENS.",
   },
   {
-    category: "solvio-features",
-    question: "Does Solvio have a knowledge base?",
+    category: "ens-tickets",
+    question: "هل يمكنني إرفاق ملفات مع التذكرة؟",
     answer:
-      "Yes. Solvio includes a searchable knowledge base so customers can find setup guides, known issues, and common answers before opening a ticket.",
+      "نعم. يمكنك رفع لقطات الشاشة والسجلات والمستندات مع التذكرة أو في التعليقات لتسريع التشخيص.",
   },
   {
-    category: "solvio-features",
-    question: "Can customers create tickets in Solvio?",
+    category: "ens-kb",
+    question: "ما هي قاعدة المعرفة؟",
     answer:
-      "Yes. Customers can create support tickets, follow updates, comment on their tickets, and upload attachments when enabled.",
+      "قاعدة معرفة ENS تحتوي مقالات الإعداد والتثبيت والمشكلات المعروفة والأسئلة الشائعة. ابدأ بها قبل فتح تذكرة إذا كان سؤالك عاماً.",
   },
   {
-    category: "solvio-features",
-    question: "Does Solvio support live messaging?",
+    category: "ens-kb",
+    question: "هل أستخدم قاعدة المعرفة أم أفتح تذكرة؟",
     answer:
-      "Yes. Solvio includes real-time messaging and notifications so customers and support teams can communicate without losing context.",
+      "ابدأ بقاعدة المعرفة للإعداد والأسئلة المتكررة. إذا لم تجد الحل أو كانت مشكلتك خاصة بحسابك، افتح تذكرة وسيتابعها فريق ENS.",
   },
   {
-    category: "solvio-features",
-    question: "Can I upload files or screenshots in Solvio?",
+    category: "ens-services",
+    question: "ما هي مسارات الدعم المتاحة؟",
     answer:
-      "Yes. Solvio supports file attachments so users can share screenshots, logs, and supporting files during support conversations.",
+      "تتضمن البوابة: الدعم الفني، مساعدة التثبيت، طلبات التخصيص، والإبلاغ عن الأعطال. اختر المسار الأنسب عند إنشاء التذكرة.",
   },
   {
-    category: "solvio-features",
-    question: "Does Solvio support meetings or follow-up discussions?",
+    category: "ens-services",
+    question: "كيف أطلب مساعدة في التثبيت؟",
     answer:
-      "Yes. Solvio supports moving complex issues into deeper follow-up while keeping the request history connected to the same workflow.",
+      "افتح تذكرة جديدة واختر مسار «مساعدة التثبيت». صف بيئتك وخطواتك حتى الآن وأرفق أي رسائل خطأ. سيرشدك فريق ENS في الإعداد.",
   },
   {
-    category: "solvio-roles",
-    question: "What user roles does Solvio have?",
+    category: "ens-services",
+    question: "كيف أطلب تخصيصاً؟",
     answer:
-      "Solvio uses customer, support, and admin roles. Customers manage their own requests, support staff handle operations, and admins have full control.",
+      "افتح تذكرة واختر مسار «طلب تخصيص». اشرح المتطلبات والموعد المتوقع. سيتابع فريق ENS المناقشة والتقدير عبر نفس التذكرة.",
   },
   {
-    category: "solvio-roles",
-    question: "Can support agents see all tickets?",
+    category: "ens-messaging",
+    question: "هل يمكنني مراسلة فريق ENS مباشرة؟",
     answer:
-      "Support users can view and manage tickets according to their role permissions, while admins have full access across the system.",
+      "نعم. تتضمن البوابة الرسائل والتعليقات على التذاكر. استخدم الرسائل للأسئلة السريعة أو تابع المحادثة داخل التذكرة للمشكلات المفتوحة.",
   },
   {
-    category: "solvio-setup",
-    question: "What do I need to run Solvio?",
+    category: "ens-ai",
+    question: "ما هو مساعد دعم ENS؟",
     answer:
-      "To run Solvio you need Node.js 20 or later, MongoDB, Git, and a persistent Node hosting environment for production.",
+      "مساعد دعم ENS هو مساعد ذكي يجيب من قاعدة معرفة ENS. إذا لم يجد إجابة كافية، يمكنه تحويلك لفريق الدعم مع حفظ سياق المحادثة.",
   },
   {
-    category: "solvio-setup",
-    question: "What environment variables are required for Solvio?",
+    category: "ens-ai",
+    question: "ماذا يمكن أن يساعدني فيه المساعد الذكي؟",
     answer:
-      "At minimum Solvio needs MONGODB_URI, BETTER_AUTH_SECRET, BETTER_AUTH_URL, and ADMIN_EMAIL configured in your environment file.",
+      "يمكنه الإجابة عن أسئلة الإعداد والاستخدام الشائعة، وتوجيهك للمقالات المناسبة، ومساعدتك على فهم خطوات فتح تذكرة أو متابعتها.",
   },
   {
-    category: "solvio-setup",
-    question: "How do I install Solvio?",
+    category: "ens-account",
+    question: "نسيت كلمة المرور، ماذا أفعل؟",
     answer:
-      "The basic setup is: install dependencies with pnpm install, copy .env.example to .env.local, add the required environment variables, run pnpm run setup:indexes, then start the app with pnpm run dev.",
+      "استخدم رابط «نسيت كلمة المرور» في صفحة تسجيل الدخول. إذا استمرت المشكلة، افتح تذكرة دعم فني مع البريد المرتبط بحسابك.",
   },
   {
-    category: "solvio-setup",
-    question: "How do I create the first admin account in Solvio?",
+    category: "ens-account",
+    question: "كيف أسجّل الدخول إلى البوابة؟",
     answer:
-      "Set ADMIN_EMAIL in your environment, then sign up using that same email address. That account becomes the admin user.",
-  },
-  {
-    category: "solvio-setup",
-    question: "How do I start Solvio in development?",
-    answer:
-      "After configuring the environment and indexes, start Solvio in development with pnpm run dev.",
-  },
-  {
-    category: "solvio-hosting",
-    question: "Can I deploy Solvio on serverless hosting?",
-    answer:
-      "Solvio's realtime features depend on a long-running Socket.IO server process, so it should be deployed on a persistent Node environment such as a VPS, container, or similar host.",
-  },
-  {
-    category: "solvio-hosting",
-    question: "Why is realtime not working in production?",
-    answer:
-      "Realtime issues usually happen when the app is not running as a long-lived Node process. Solvio's Socket.IO server needs persistent hosting and should be started with the custom app server.",
-  },
-  {
-    category: "solvio-hosting",
-    question: "How do I start Solvio in production?",
-    answer:
-      "Build the app with pnpm run build and start it with pnpm run start on a persistent Node host.",
-  },
-  {
-    category: "solvio-troubleshooting",
-    question: "Why can't Solvio connect to MongoDB?",
-    answer:
-      "If MongoDB connection fails, verify MONGODB_URI and your database configuration in the environment file.",
-  },
-  {
-    category: "propertypro-overview",
-    question: "What is PropertyPro?",
-    answer:
-      "PropertyPro is a complete property management system for managing properties, tenants, leases, invoices, payments, messaging, events, maintenance, and reporting.",
-  },
-  {
-    category: "propertypro-overview",
-    question: "What does PropertyPro include?",
-    answer:
-      "PropertyPro includes property management, tenant management, lease workflows, payment processing, maintenance tools, messaging, event management, analytics, and role-based access.",
-  },
-  {
-    category: "propertypro-overview",
-    question: "Who is PropertyPro built for?",
-    answer:
-      "PropertyPro is designed for property managers, landlords, and real estate professionals who need a scalable and modern management platform.",
-  },
-  {
-    category: "propertypro-features",
-    question: "Can PropertyPro manage multiple properties and units?",
-    answer:
-      "Yes. PropertyPro supports unlimited properties and units with detailed property profiles, tracking, filtering, and management tools.",
-  },
-  {
-    category: "propertypro-features",
-    question: "Does PropertyPro include tenant management?",
-    answer:
-      "Yes. PropertyPro supports tenant applications, screening, communication, document management, and a self-service tenant portal.",
-  },
-  {
-    category: "propertypro-features",
-    question: "Does PropertyPro support lease management?",
-    answer:
-      "Yes. PropertyPro includes lease creation, renewals, automated workflows, digital agreements, and lease tracking.",
-  },
-  {
-    category: "propertypro-features",
-    question: "How does payment processing work in PropertyPro?",
-    answer:
-      "PropertyPro supports secure payment processing with Stripe integration, automated billing, payment tracking, multiple payment methods, and receipt history.",
-  },
-  {
-    category: "propertypro-features",
-    question: "Does PropertyPro have maintenance management?",
-    answer:
-      "Yes. PropertyPro includes maintenance request handling, work order workflows, vendor management, priority tracking, photo documentation, and cost tracking.",
-  },
-  {
-    category: "propertypro-features",
-    question: "Does PropertyPro support messaging and announcements?",
-    answer:
-      "Yes. PropertyPro includes real-time messaging, group chats, one-to-one conversations, announcements, and notification tracking.",
-  },
-  {
-    category: "propertypro-features",
-    question: "Can PropertyPro manage events and appointments?",
-    answer:
-      "Yes. PropertyPro includes event management features such as RSVP tracking, automated reminders, and Google Calendar sync.",
-  },
-  {
-    category: "propertypro-features",
-    question: "Does PropertyPro include reports and analytics?",
-    answer:
-      "Yes. PropertyPro includes real-time dashboards, financial reports, occupancy insights, and performance analytics.",
-  },
-  {
-    category: "propertypro-tech",
-    question: "What tech stack does PropertyPro use?",
-    answer:
-      "PropertyPro is built with Next.js 15, TypeScript, Tailwind CSS, MongoDB, NextAuth, and Stripe, with support for integrations such as Cloudflare R2, Twilio, Nodemailer, and Google Calendar.",
-  },
-  {
-    category: "propertypro-tech",
-    question: "Is PropertyPro mobile responsive?",
-    answer:
-      "Yes. PropertyPro is designed to be fully responsive and usable across desktop and mobile devices.",
-  },
-  {
-    category: "propertypro-tech",
-    question: "What user roles are available in PropertyPro?",
-    answer:
-      "PropertyPro includes admin, manager, and tenant roles with different permissions for operations, reporting, and self-service access.",
-  },
-  {
-    category: "propertypro-customization",
-    question: "Can I customize PropertyPro?",
-    answer:
-      "Yes. PropertyPro includes source code and is designed with a modern, extensible architecture so it can be customized for project needs.",
-  },
-  {
-    category: "propertypro-licensing",
-    question: "Does PropertyPro include source code?",
-    answer:
-      "Yes. PropertyPro includes the full Next.js source code along with the core features and screens.",
+      "انتقل إلى صفحة تسجيل الدخول في بوابة ENS وأدخل بريدك وكلمة المرور. إذا لم يكن لديك حساب، تواصل مع فريق ENS لطلب الوصول.",
   },
   {
     category: "general-scope",
-    question: "What can you help me with?",
+    question: "بماذا يمكنك مساعدتي؟",
     answer:
-      "I can help with Solvio and PropertyPro product information, setup steps, hosting requirements, core features, and common support questions.",
+      "يمكنني مساعدتك في خدمات ENS، فتح ومتابعة التذاكر، قاعدة المعرفة، التثبيت والتخصيص، والأسئلة الشائعة عن البوابة.",
   },
   {
     category: "general-scope",
-    question: "Hello",
+    question: "مرحباً",
     answer:
-      "Hi! I can help with Solvio and PropertyPro features, setup, hosting, and support questions. What would you like to know?",
+      "مرحباً! أنا مساعد دعم ENS. اسأل عن خدماتنا أو قاعدة المعرفة أو كيفية فتح تذكرة — وسأساعدك فوراً.",
   },
   {
     category: "general-scope",
-    question: "Hi",
+    question: "السلام عليكم",
     answer:
-      "Hi! I can help with Solvio and PropertyPro features, setup, hosting, and support questions. What would you like to know?",
+      "وعليكم السلام! أنا مساعد دعم ENS. كيف يمكنني مساعدتك اليوم؟",
   },
 ];
 

@@ -24,10 +24,14 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
+import {
+  PanelCardHeading,
+  PanelSectionHeader,
+  panelListRowClass,
+  panelListRowStyle,
+} from "@/components/ui/panel-form";
 import {
   Dialog,
   DialogContent,
@@ -62,6 +66,12 @@ const VERDICT_STYLES: Record<AIEvalVerdict, string> = {
   fail: "border-destructive/40 bg-destructive/10 text-destructive",
 };
 
+const VERDICT_LABELS: Record<AIEvalVerdict, string> = {
+  pass: "نجاح",
+  partial: "جزئي",
+  fail: "فشل",
+};
+
 function scoreColor(score: number): string {
   if (score >= 70) return "text-success";
   if (score >= 40) return "text-amber-600";
@@ -84,7 +94,7 @@ function AddCaseDialog({
 
   const handleSave = async () => {
     if (!question.trim() || !expectedAnswer.trim()) {
-      toast.error("Question and expected answer are required");
+      toast.error("السؤال والإجابة المتوقعة مطلوبان");
       return;
     }
     setSaving(true);
@@ -96,7 +106,7 @@ function AddCaseDialog({
         siteId: siteId || undefined,
       });
       if (result.success) {
-        toast.success("Case added");
+        toast.success("اتضاف الحالة");
         setQuestion("");
         setExpectedAnswer("");
         setCategory("");
@@ -104,7 +114,7 @@ function AddCaseDialog({
         setOpen(false);
         onAdded();
       } else {
-        toast.error(result.error ?? "Failed to add case");
+        toast.error(result.error ?? "تعذّرت إضافة الحالة");
       }
     } finally {
       setSaving(false);
@@ -115,45 +125,44 @@ function AddCaseDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <Plus className="mr-1.5 h-3.5 w-3.5" />
-          Add case
+          <Plus className="me-1.5 h-3.5 w-3.5" />
+          إضافة حالة
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add an evaluation case</DialogTitle>
+          <DialogTitle>إضافة حالة تقييم</DialogTitle>
           <DialogDescription>
-            A real customer question and the answer the AI should give. Runs are
-            scored by comparing the agent&apos;s answer against this expected
-            answer.
+            سؤال عميل حقيقي والإجابة اللي المفروض الوكيل يديها. تُقيَّم
+            التشغيلات بمقارنة إجابة الوكيل مع الإجابة المتوقعة.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label htmlFor="eval-q">Question</Label>
+            <Label htmlFor="eval-q">السؤال</Label>
             <Textarea
               id="eval-q"
               rows={2}
-              placeholder="e.g. How do I upgrade my plan?"
+              placeholder="مثال: كيف أرقّي خطتي؟"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="eval-a">Expected answer</Label>
+            <Label htmlFor="eval-a">الإجابة المتوقعة</Label>
             <Textarea
               id="eval-a"
               rows={4}
-              placeholder="The correct answer the agent should produce…"
+              placeholder="الإجابة الصحيحة اللي المفروض الوكيل يطلعها…"
               value={expectedAnswer}
               onChange={(e) => setExpectedAnswer(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="eval-cat">Category (optional)</Label>
+            <Label htmlFor="eval-cat">الفئة (اختياري)</Label>
             <Input
               id="eval-cat"
-              placeholder="e.g. Billing"
+              placeholder="مثال: الفوترة"
               value={category}
               maxLength={100}
               onChange={(e) => setCategory(e.target.value)}
@@ -173,11 +182,11 @@ function AddCaseDialog({
             onClick={() => setOpen(false)}
             disabled={saving}
           >
-            Cancel
+            إلغاء
           </Button>
           <Button onClick={handleSave} disabled={saving}>
-            {saving && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
-            Save case
+            {saving && <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />}
+            حفظ الحالة
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -199,44 +208,48 @@ function RunSummary({
   const siteName = useCallback(
     (siteId?: string) =>
       siteId
-        ? (sites.find((s) => s._id === siteId)?.name ?? "Unknown site")
-        : "Global / all",
+        ? (sites.find((s) => s._id === siteId)?.name ?? "موقع غير معروف")
+        : "عام / الكل",
     [sites]
   );
 
   return (
-    <Card>
+    <Card dir="rtl" className="text-right">
       <CardHeader>
-        <CardTitle className="text-base">Latest run</CardTitle>
-        <CardDescription>
-          {run.finishedAt
-            ? `Ran ${new Date(run.finishedAt).toLocaleString()}`
-            : "In progress"}{" "}
-          · pass threshold {run.passThreshold}
-        </CardDescription>
+        <PanelCardHeading
+          title="آخر تشغيل"
+          description={
+            <>
+              {run.finishedAt
+                ? `اتشغّل ${new Date(run.finishedAt).toLocaleString("ar-SA")}`
+                : "قيد التنفيذ"}{" "}
+              · عتبة النجاح {run.passThreshold}
+            </>
+          }
+        />
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-lg border border-border p-3">
-            <p className="text-xs text-muted-foreground">Pass rate</p>
+            <p className="text-xs text-muted-foreground">معدل النجاح</p>
             <p className={`text-2xl font-bold ${scoreColor(passRate)}`}>
               {passRate}%
             </p>
           </div>
           <div className="rounded-lg border border-border p-3">
-            <p className="text-xs text-muted-foreground">Avg score</p>
+            <p className="text-xs text-muted-foreground">متوسط الدرجة</p>
             <p className={`text-2xl font-bold ${scoreColor(run.avgScore)}`}>
               {run.avgScore}
             </p>
           </div>
           <div className="rounded-lg border border-border p-3">
-            <p className="text-xs text-muted-foreground">Cases</p>
+            <p className="text-xs text-muted-foreground">الحالات</p>
             <p className="text-2xl font-bold text-foreground">
               {run.totalCases}
             </p>
           </div>
           <div className="rounded-lg border border-border p-3">
-            <p className="text-xs text-muted-foreground">P / Pt / F</p>
+            <p className="text-xs text-muted-foreground">ن / ج / ف</p>
             <p className="text-2xl font-bold">
               <span className="text-success">{run.passed}</span>
               <span className="text-muted-foreground"> / </span>
@@ -255,7 +268,7 @@ function RunSummary({
                 <button
                   type="button"
                   onClick={() => setExpanded(isOpen ? null : r.caseId)}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/40"
+                  className="flex w-full items-center gap-3 px-4 py-3 text-start hover:bg-muted/40"
                 >
                   <span className={`w-9 text-sm font-bold ${scoreColor(r.score)}`}>
                     {r.score}
@@ -264,7 +277,7 @@ function RunSummary({
                     variant="outline"
                     className={`${VERDICT_STYLES[r.verdict]} shrink-0`}
                   >
-                    {r.verdict}
+                    {VERDICT_LABELS[r.verdict]}
                   </Badge>
                   <span className="min-w-0 flex-1 truncate text-sm text-foreground">
                     {r.question}
@@ -281,7 +294,7 @@ function RunSummary({
                   <div className="space-y-3 border-t border-border bg-muted/20 px-4 py-3 text-sm">
                     <div>
                       <p className="text-xs font-semibold uppercase text-muted-foreground">
-                        Expected
+                        المتوقع
                       </p>
                       <p className="whitespace-pre-wrap text-foreground">
                         {r.expectedAnswer}
@@ -289,7 +302,7 @@ function RunSummary({
                     </div>
                     <div>
                       <p className="text-xs font-semibold uppercase text-muted-foreground">
-                        Agent answer
+                        إجابة الوكيل
                       </p>
                       <p className="whitespace-pre-wrap text-foreground">
                         {r.actualAnswer}
@@ -297,12 +310,12 @@ function RunSummary({
                     </div>
                     <div>
                       <p className="text-xs font-semibold uppercase text-muted-foreground">
-                        Judge reasoning
+                        تعليل المُقيّم
                       </p>
                       <p className="text-muted-foreground">{r.reasoning}</p>
                       {r.toolsUsed.length > 0 && (
                         <p className="mt-1 text-xs text-muted-foreground">
-                          Tools: {r.toolsUsed.join(", ")}
+                          الأدوات: {r.toolsUsed.join(", ")}
                         </p>
                       )}
                     </div>
@@ -344,11 +357,11 @@ export function EvaluationPanel({
       if (result.success && result.data) {
         setLatestRun(result.data);
         toast.success(
-          `Evaluation complete — ${result.data.passed}/${result.data.totalCases} passed`
+          `اكتمل التقييم — نجح ${result.data.passed}/${result.data.totalCases}`
         );
         router.refresh();
       } else {
-        toast.error(result.error ?? "Evaluation failed");
+        toast.error(result.error ?? "تعذّر التقييم");
       }
     } finally {
       setRunning(false);
@@ -362,7 +375,7 @@ export function EvaluationPanel({
       if (result.success) {
         await refresh();
       } else {
-        toast.error(result.error ?? "Failed to delete");
+        toast.error(result.error ?? "تعذّر الحذف");
       }
     } finally {
       setBusyId(null);
@@ -372,54 +385,91 @@ export function EvaluationPanel({
   const siteName = useCallback(
     (siteId?: string) =>
       siteId
-        ? (sites.find((s) => s._id === siteId)?.name ?? "Unknown site")
-        : "Global / all",
+        ? (sites.find((s) => s._id === siteId)?.name ?? "موقع غير معروف")
+        : "عام / الكل",
     [sites]
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
-          <div>
-            <CardTitle className="text-base">Evaluation cases</CardTitle>
-            <CardDescription>
-              {cases.length === 0
-                ? "Add real questions with their correct answers to measure quality."
-                : `${cases.length} case${cases.length === 1 ? "" : "s"} · scored by an LLM judge against the expected answer`}
-            </CardDescription>
-          </div>
-          <div className="flex shrink-0 gap-2">
-            <AddCaseDialog sites={sites} onAdded={refresh} />
-            <Button
-              size="sm"
-              onClick={handleRun}
-              disabled={running || cases.length === 0}
-            >
-              {running ? (
-                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Play className="mr-1.5 h-3.5 w-3.5" />
-              )}
-              {running ? "Running…" : "Run evaluation"}
-            </Button>
-          </div>
+        <CardHeader className="space-y-0">
+          <PanelSectionHeader
+            title="حالات التقييم"
+            description={
+              cases.length === 0
+                ? "أضف أسئلة حقيقية مع إجاباتها الصحيحة لقياس الجودة."
+                : `${cases.length} حالة · تُقيَّم بواسطة مُقيّم LLM مقابل الإجابة المتوقعة`
+            }
+            actions={
+              <>
+                <AddCaseDialog sites={sites} onAdded={refresh} />
+                <Button
+                  size="sm"
+                  onClick={handleRun}
+                  disabled={running || cases.length === 0}
+                >
+                  {running ? (
+                    <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Play className="me-1.5 h-3.5 w-3.5" />
+                  )}
+                  {running ? "جارٍ التشغيل…" : "تشغيل التقييم"}
+                </Button>
+              </>
+            }
+          />
         </CardHeader>
         <CardContent>
           {cases.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
-              No cases yet. Add a few representative questions with their ideal
-              answers, then run an evaluation to get a pass rate and per-answer
-              scores.
+              مفيش حالات بعد. أضف بعض الأسئلة التمثيلية مع إجاباتها
+              المثالية، ثم شغّل التقييم للحصول على معدل نجاح ودرجات لكل إجابة.
             </div>
           ) : (
             <ul className="divide-y divide-border">
               {cases.map((c) => (
                 <li
                   key={c._id}
-                  className="flex items-start justify-between gap-3 py-3"
+                  className={panelListRowClass}
+                  style={panelListRowStyle}
                 >
-                  <div className="min-w-0">
+                  <div className="shrink-0 sm:col-start-1 sm:row-start-1">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="shrink-0 text-destructive hover:text-destructive"
+                          disabled={busyId === c._id}
+                        >
+                          {busyId === c._id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>حذف الحالة</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            حذف حالة التقييم هذه؟ مش هينفع الرجوع عن هذا الإجراء.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(c._id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            حذف
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                  <div className="min-w-0 text-right sm:col-start-2 sm:row-start-1" dir="rtl">
                     <p className="truncate text-sm font-medium text-foreground">
                       {c.question}
                     </p>
@@ -428,39 +478,6 @@ export function EvaluationPanel({
                       {c.expectedAnswer}
                     </p>
                   </div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="shrink-0 text-destructive hover:text-destructive"
-                        disabled={busyId === c._id}
-                      >
-                        {busyId === c._id ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3.5 w-3.5" />
-                        )}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete case</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Delete this evaluation case? This cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(c._id)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
                 </li>
               ))}
             </ul>

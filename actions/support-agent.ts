@@ -54,7 +54,7 @@ async function resolveAssignedToIds(sessionUser: { id: string }) {
  */
 async function requireSupportAgent() {
   const session = await requirePermissionOrThrow("panel.support.access", {
-    message: "Forbidden: Support agent access required",
+    message: "ممنوع: يلزم صلاحية وكيل الدعم",
   });
   const user = session.user;
   const role = (user as { role?: string }).role || "customer";
@@ -153,7 +153,7 @@ export async function getMyAssignedTickets(filters?: {
       error:
         error instanceof Error
           ? error.message
-          : "Failed to fetch assigned tickets",
+          : "تعذّر جلب التذاكر المعيّنة",
     };
   }
 }
@@ -228,7 +228,7 @@ export async function getSupportAgentStats(): Promise<
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "Failed to fetch statistics",
+        error instanceof Error ? error.message : "تعذّر جلب الإحصائيات",
     };
   }
 }
@@ -303,7 +303,7 @@ export async function getMyCustomizationRequests(filters?: {
       error:
         error instanceof Error
           ? error.message
-          : "Failed to fetch assigned customization requests",
+          : "تعذّر جلب طلبات التخصيص المعيّنة",
     };
   }
 }
@@ -378,7 +378,7 @@ export async function getMyInstallationRequests(filters?: {
       error:
         error instanceof Error
           ? error.message
-          : "Failed to fetch assigned installation requests",
+          : "تعذّر جلب طلبات التثبيت المعيّنة",
     };
   }
 }
@@ -531,7 +531,7 @@ export async function getMyServiceRequests(
       error:
         error instanceof Error
           ? error.message
-          : "Failed to fetch assigned service requests",
+          : "تعذّر جلب طلبات الخدمة المعيّنة",
     };
   }
 }

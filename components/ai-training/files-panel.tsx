@@ -22,10 +22,13 @@ import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
+import {
+  PanelSectionHeader,
+  panelListRowClass,
+  panelListRowStyle,
+} from "@/components/ui/panel-form";
 import {
   Dialog,
   DialogContent,
@@ -63,7 +66,7 @@ function formatBytes(n: number): string {
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString();
+  return new Date(iso).toLocaleString("ar-SA");
 }
 
 function FileTypeIcon({ type }: { type: string }) {
@@ -82,8 +85,8 @@ function StatusBadge({ file }: { file: AIFilePublic }) {
         variant="outline"
         className="border-success/40 bg-success/10 text-success"
       >
-        <CheckCircle2 className="mr-1 h-3 w-3" />
-        Ready
+        <CheckCircle2 className="me-1 h-3 w-3" />
+        جاهز
       </Badge>
     );
   }
@@ -93,15 +96,15 @@ function StatusBadge({ file }: { file: AIFilePublic }) {
         variant="outline"
         className="border-destructive/40 bg-destructive/10 text-destructive"
       >
-        <AlertCircle className="mr-1 h-3 w-3" />
-        Failed
+        <AlertCircle className="me-1 h-3 w-3" />
+        فشل
       </Badge>
     );
   }
   return (
     <Badge variant="outline" className="border-info/40 bg-info/10 text-info">
-      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-      Processing
+      <Loader2 className="me-1 h-3 w-3 animate-spin" />
+      قيد المعالجة
     </Badge>
   );
 }
@@ -119,17 +122,17 @@ function ScopeSelect({
 }) {
   return (
     <select
-      aria-label="Knowledge scope"
+      aria-label="نطاق المعرفة"
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
       className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-44"
     >
-      <option value="">Global</option>
+      <option value="">عام</option>
       {sites.map((s) => (
         <option key={s._id} value={s._id}>
           {s.name}
-          {s.enabled ? "" : " (disabled)"}
+          {s.enabled ? "" : " (معطّل)"}
         </option>
       ))}
     </select>
@@ -159,7 +162,7 @@ function UploadDialog({
 
   const handleUpload = async () => {
     if (!file) {
-      toast.error("Choose a file first");
+      toast.error("اختار ملف الأول");
       return;
     }
     setUploading(true);
@@ -170,12 +173,14 @@ function UploadDialog({
       if (siteId) fd.append("siteId", siteId);
       const result = await uploadAndIndexFile(fd);
       if (result.success && result.data) {
-        toast.success(`Indexed “${result.data.name}” (${result.data.chunksIndexed} chunks)`);
+        toast.success(
+          `اتفهرس «${result.data.name}» (${result.data.chunksIndexed} جزء)`
+        );
         reset();
         setOpen(false);
         onUploaded();
       } else {
-        toast.error(result.error ?? "Failed to index file");
+        toast.error(result.error ?? "تعذّرت فهرسة الملف");
       }
     } finally {
       setUploading(false);
@@ -192,22 +197,22 @@ function UploadDialog({
     >
       <DialogTrigger asChild>
         <Button size="sm">
-          <Upload className="mr-1.5 h-3.5 w-3.5" />
-          Upload File
+          <Upload className="me-1.5 h-3.5 w-3.5" />
+          رفع ملف
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Upload a document</DialogTitle>
+          <DialogTitle>رفع مستند</DialogTitle>
           <DialogDescription>
-            PDF, Excel/CSV, Word (.docx), or text/markdown. The file is parsed,
-            chunked, embedded, and added to the knowledge base so the AI can
-            answer from it.
+            PDF أو Excel/CSV أو Word (.docx) أو نص/markdown. يُحلّل الملف
+            ويُقسّم ويُضمّن ويُضاف إلى قاعدة المعرفة ليجيب الذكاء الاصطناعي
+            منه.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label htmlFor="file-input">File</Label>
+            <Label htmlFor="file-input">الملف</Label>
             <Input
               id="file-input"
               ref={inputRef}
@@ -226,10 +231,10 @@ function UploadDialog({
             )}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="file-name">Display name</Label>
+            <Label htmlFor="file-name">اسم العرض</Label>
             <Input
               id="file-name"
-              placeholder="e.g. Pricing Sheet 2026"
+              placeholder="مثال: جدول الأسعار 2026"
               value={name}
               maxLength={80}
               onChange={(e) => setName(e.target.value)}
@@ -249,13 +254,13 @@ function UploadDialog({
             onClick={() => setOpen(false)}
             disabled={uploading}
           >
-            Cancel
+            إلغاء
           </Button>
           <Button onClick={handleUpload} disabled={uploading || !file}>
             {uploading && (
-              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
             )}
-            {uploading ? "Indexing…" : "Upload & index"}
+            {uploading ? "جارٍ الفهرسة…" : "رفع وفهرسة"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -286,11 +291,11 @@ export function FilesPanel({
     try {
       const result = await deleteFile(id);
       if (result.success) {
-        toast.success("File removed");
+        toast.success("اتشالت إزالة الملف");
         await refresh();
         router.refresh();
       } else {
-        toast.error(result.error ?? "Failed to delete");
+        toast.error(result.error ?? "تعذّر الحذف");
       }
     } finally {
       setBusyId(null);
@@ -311,13 +316,13 @@ export function FilesPanel({
         siteId: nextSiteId || undefined,
       });
       if (result.success && result.data) {
-        toast.success("File scope updated");
+        toast.success("اتحدّث نطاق الملف");
         setFiles((prev) =>
           prev.map((f) => (f._id === id ? result.data! : f))
         );
         router.refresh();
       } else {
-        toast.error(result.error ?? "Failed to update scope");
+        toast.error(result.error ?? "تعذّر التحديث النطاق");
         await refresh();
       }
     } finally {
@@ -328,32 +333,30 @@ export function FilesPanel({
   const totalChunks = files.reduce((n, f) => n + f.chunksIndexed, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
-          <div>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <FileText className="h-4 w-4 text-primary" />
-              Files
-            </CardTitle>
-            <CardDescription>
-              {files.length === 0
-                ? "Upload PDFs, spreadsheets or documents to learn from."
-                : `${files.length} file${files.length === 1 ? "" : "s"} · ${totalChunks} chunks embedded`}
-            </CardDescription>
-          </div>
-          <UploadDialog onUploaded={refresh} sites={sites} />
+        <CardHeader className="space-y-0">
+          <PanelSectionHeader
+            title="الملفات"
+            icon={<FileText className="h-4 w-4 text-primary" />}
+            description={
+              files.length === 0
+                ? "ارفع ملفات PDF أو جداول بيانات أو مستندات للتعلّم منها."
+                : `${files.length} ملف · ${totalChunks} جزء مضمّن`
+            }
+            actions={<UploadDialog onUploaded={refresh} sites={sites} />}
+          />
         </CardHeader>
         <CardContent>
           {files.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-12 text-center">
               <Upload className="mb-3 h-8 w-8 text-muted-foreground/60" />
               <p className="text-sm font-medium text-foreground">
-                No files yet
+                مفيش ملفات بعد
               </p>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                Upload a PDF, Excel/CSV, Word doc or text file. It is parsed,
-                embedded, and the AI answers from it automatically.
+                ارفع ملف PDF أو Excel/CSV أو Word أو نص. يُحلّل ويُضمّن ويجيب
+                الذكاء الاصطناعي منه تلقائيًا.
               </p>
             </div>
           ) : (
@@ -361,28 +364,10 @@ export function FilesPanel({
               {files.map((f) => (
                 <li
                   key={f._id}
-                  className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
+                  className={panelListRowClass}
+                  style={panelListRowStyle}
                 >
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <FileTypeIcon type={f.fileType} />
-                      <span className="truncate font-medium text-foreground">
-                        {f.name}
-                      </span>
-                      <StatusBadge file={f} />
-                      <Badge variant="outline" className="text-[10px]">
-                        {siteName(f.siteId) ?? "Global"}
-                      </Badge>
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {f.status === "ready"
-                        ? `${f.filename} · ${formatBytes(f.sizeBytes)} · ${f.chunksIndexed} chunks · ${formatDate(f.createdAt)}`
-                        : f.status === "failed"
-                          ? (f.error ?? "Indexing failed")
-                          : `${f.filename} · ${formatBytes(f.sizeBytes)}`}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
+                  <div className="flex shrink-0 flex-wrap gap-2 sm:col-start-1 sm:row-start-1">
                     <ScopeSelect
                       value={f.siteId ?? ""}
                       sites={sites}
@@ -408,24 +393,43 @@ export function FilesPanel({
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Remove file</AlertDialogTitle>
+                          <AlertDialogTitle>إزالة الملف</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Delete <strong>{f.name}</strong> and its{" "}
-                            {f.chunksIndexed} embedded chunks from the
-                            knowledge base? This cannot be undone.
+                            حذف <strong>{f.name}</strong> و{f.chunksIndexed}{" "}
+                            جزءًا مضمّنًا من قاعدة المعرفة؟ مش هينفع الرجوع عن
+                            هذا الإجراء.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel>إلغاء</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => handleDelete(f._id)}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
-                            Delete
+                            حذف
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
+                  </div>
+                  <div className="min-w-0 text-right sm:col-start-2 sm:row-start-1" dir="rtl">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <FileTypeIcon type={f.fileType} />
+                      <span className="truncate font-medium text-foreground">
+                        {f.name}
+                      </span>
+                      <StatusBadge file={f} />
+                      <Badge variant="outline" className="text-[10px]">
+                        {siteName(f.siteId) ?? "عام"}
+                      </Badge>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground" dir="ltr">
+                      {f.status === "ready"
+                        ? `${f.filename} · ${formatBytes(f.sizeBytes)} · ${f.chunksIndexed} جزء · ${formatDate(f.createdAt)}`
+                        : f.status === "failed"
+                          ? (f.error ?? "تعذّرت الفهرسة")
+                          : `${f.filename} · ${formatBytes(f.sizeBytes)}`}
+                    </p>
                   </div>
                 </li>
               ))}

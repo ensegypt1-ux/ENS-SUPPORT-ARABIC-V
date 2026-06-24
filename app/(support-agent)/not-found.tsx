@@ -6,13 +6,10 @@ import { FileQuestion, Headset } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "404 - Support Agent Page Not Found",
-  description: "The support agent page you're looking for doesn't exist.",
+  title: "404 - صفحة وكيل الدعم غير موجودة",
+  description: "صفحة وكيل الدعم التي تبحث عنها غير موجودة.",
 };
 
-/**
- * Support Agent Routes Not Found Page
- */
 export default function SupportAgentNotFound() {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-8">
@@ -21,14 +18,14 @@ export default function SupportAgentNotFound() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
             <FileQuestion className="h-8 w-8 text-muted-foreground" />
           </div>
-          <CardTitle className="text-2xl">Support Agent Page Not Found</CardTitle>
+          <CardTitle className="text-2xl">صفحة وكيل الدعم غير موجودة</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <div className="space-y-2">
             <p className="text-6xl font-bold text-muted-foreground/20">404</p>
             <p className="text-muted-foreground">
-              The support agent page you&apos;re looking for doesn&apos;t exist or you
-              don&apos;t have permission to access it.
+              صفحة وكيل الدعم التي تبحث عنها غير موجودة أو ليس لديك صلاحية
+              الوصول إليها.
             </p>
           </div>
 
@@ -36,34 +33,34 @@ export default function SupportAgentNotFound() {
             <Button asChild>
               <Link href="/support-agent" className="gap-2">
                 <Headset className="h-4 w-4" />
-                Support Dashboard
+                لوحة وكيل الدعم
               </Link>
             </Button>
             <BackButton />
           </div>
 
           <div className="pt-4 border-t">
-            <p className="text-sm text-muted-foreground">Common support agent pages:</p>
+            <p className="text-sm text-muted-foreground">صفحات شائعة:</p>
             <div className="mt-2 flex flex-wrap justify-center gap-2">
               <Link
                 href="/support-agent/tickets"
                 className="text-xs text-primary hover:underline"
               >
-                Tickets
+                التذاكر
               </Link>
               <span className="text-xs text-muted-foreground">•</span>
               <Link
                 href="/support-agent/customization"
                 className="text-xs text-primary hover:underline"
               >
-                Customization
+                التخصيص
               </Link>
               <span className="text-xs text-muted-foreground">•</span>
               <Link
                 href="/support-agent/installation"
                 className="text-xs text-primary hover:underline"
               >
-                Installation
+                التثبيت
               </Link>
             </div>
           </div>
@@ -72,4 +69,3 @@ export default function SupportAgentNotFound() {
     </div>
   );
 }
-

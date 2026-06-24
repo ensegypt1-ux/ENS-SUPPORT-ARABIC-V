@@ -28,17 +28,17 @@ export default async function NewArticlePage({ params }: PageProps) {
           href="/admin/knowledge-base"
           className="hover:text-foreground transition-colors"
         >
-          Knowledge Base
+          قاعدة المعرفة
         </Link>
-        <ChevronRight className="h-3.5 w-3.5" />
+        <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
         <Link
           href={`/admin/knowledge-base/${categoryId}`}
           className="hover:text-foreground transition-colors"
         >
           {category.title}
         </Link>
-        <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-foreground font-medium">New Article</span>
+        <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
+        <span className="text-foreground font-medium">مقال جديد</span>
       </nav>
 
       {/* Form card */}
@@ -48,7 +48,7 @@ export default async function NewArticlePage({ params }: PageProps) {
             <FilePlus className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <p className="font-semibold text-sm">New Article</p>
+            <p className="font-semibold text-sm">مقال جديد</p>
             <p className="text-xs text-muted-foreground">
               Adding to{" "}
               <span className="font-medium text-foreground">

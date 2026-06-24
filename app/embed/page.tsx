@@ -151,7 +151,7 @@ export default function EmbedPage() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            aria-label="Open chat"
+            aria-label="فتح المحادثة"
             className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-xl"
           >
             <MessageCircle className="h-6 w-6" />

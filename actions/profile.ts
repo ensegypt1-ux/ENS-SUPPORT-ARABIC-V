@@ -79,14 +79,14 @@ export async function getCurrentUserProfile(): Promise<ApiResponse<User>> {
       user = await users.findOne({ _id: new ObjectId(userId) } as any);
     }
     if (!user) {
-      return { success: false, error: "User not found" };
+      return { success: false, error: "مفيش المستخدم" };
     }
     // Serialize to plain object to avoid Date/ObjectId issues
     const serialized = JSON.parse(JSON.stringify(user));
     return { success: true, data: serialized };
   } catch (error: any) {
     console.error("getCurrentUserProfile error:", error);
-    return { success: false, error: error.message || "Failed to load profile" };
+    return { success: false, error: error.message || "تعذّر التحميل الملف الشخصي" };
   }
 }
 
@@ -115,7 +115,7 @@ export async function updateProfile(
       }
     }
     if (!existing) {
-      return { success: false, error: "User not found" };
+      return { success: false, error: "مفيش المستخدم" };
     }
 
     // Ensure email uniqueness if changed
@@ -127,7 +127,7 @@ export async function updateProfile(
       if (emailInUse) {
         return {
           success: false,
-          error: "A user with this email already exists",
+          error: "يوجد مستخدم بهذا الإيميل بالفعل",
         };
       }
     }
@@ -194,12 +194,12 @@ export async function updateProfile(
     revalidatePath("/admin");
     revalidatePath("/dashboard");
 
-    return { success: true, message: "Profile updated successfully" };
+    return { success: true, message: "الملف الشخصي اتحدّث" };
   } catch (error: any) {
     console.error("updateProfile error:", error);
     return {
       success: false,
-      error: error.message || "Failed to update profile",
+      error: error.message || "تعذّر تحديث الملف الشخصي",
     };
   }
 }
@@ -210,7 +210,7 @@ export async function uploadProfileAvatar(
 ): Promise<ApiResponse<{ url: string }>> {
   try {
     if (!isFileUploadsEnabled()) {
-      return { success: false, error: "File uploads are not enabled" };
+      return { success: false, error: "رفع الملفات غير مفعّل" };
     }
 
     const session = await requireAuth();
@@ -218,7 +218,7 @@ export async function uploadProfileAvatar(
 
     const file = formData.get("file");
     if (!(file instanceof File)) {
-      return { success: false, error: "No file provided" };
+      return { success: false, error: "مفيش ملف مرفوع" };
     }
 
     const uploaded = await uploadFile({ file, folder: "avatars", userId });
@@ -243,13 +243,13 @@ export async function uploadProfileAvatar(
     return {
       success: true,
       data: { url: uploaded.url },
-      message: "Avatar updated successfully",
+      message: "الصورة الرمزية اتحدّت",
     };
   } catch (error: any) {
     console.error("uploadProfileAvatar error:", error);
     return {
       success: false,
-      error: error.message || "Failed to upload avatar",
+      error: error.message || "تعذّر رفع الصورة الرمزية",
     };
   }
 }
@@ -322,7 +322,7 @@ export async function changePassword(
             "Password change is not available for your account. Try logging in with email/password.",
         };
       }
-      return { success: false, error: "Current password is incorrect" };
+      return { success: false, error: "كلمة المرور الحالية غير صحيحة" };
     }
 
     const newHashed = await hashPassword(validated.newPassword);
@@ -335,12 +335,12 @@ export async function changePassword(
     revalidatePath("/dashboard/profile");
     revalidatePath("/profile");
 
-    return { success: true, message: "Password updated successfully" };
+    return { success: true, message: "كلمة المرور اتحدّت" };
   } catch (error: any) {
     console.error("changePassword error:", error);
     return {
       success: false,
-      error: error.message || "Failed to update password",
+      error: error.message || "تعذّر تحديث كلمة المرور",
     };
   }
 }

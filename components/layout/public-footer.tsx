@@ -8,23 +8,23 @@ interface PublicFooterProps {
 }
 
 const linkColumns = [
-  { key: "product", title: "Product" },
-  { key: "resources", title: "Resources" },
-  { key: "company", title: "Company" },
-  { key: "legal", title: "Legal" },
+  { key: "product", title: "التذاكر" },
+  { key: "resources", title: "موارد الدعم" },
+  { key: "company", title: "ENSMenu" },
+  { key: "legal", title: "البوابة" },
 ] as const;
 
 export function PublicFooter({ content }: PublicFooterProps) {
   if (!content) return null;
 
   return (
-    <footer className="relative bg-linear-to-b from-transparent via-muted/20 to-muted/40 px-4 pb-8 pt-16 dark:via-muted/10 dark:to-muted/20">
+    <footer className="relative bg-linear-to-b from-transparent via-muted/20 to-muted/40 px-4 pb-6 pt-10 dark:via-muted/10 dark:to-muted/20 sm:px-6 sm:pb-8 sm:pt-12 lg:px-8">
       <div
         aria-hidden
         className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent"
       />
-      <div className="mx-auto max-w-6xl">
-        <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-6">
+      <div className="mx-auto w-full max-w-[36rem] sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:gap-x-8 sm:gap-y-10 md:grid-cols-6">
           {/* Brand */}
           <div className="col-span-2">
             <Link href="/" className="inline-block">
@@ -41,11 +41,11 @@ export function PublicFooter({ content }: PublicFooterProps) {
             <div className="mt-5 flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background px-3 py-1 text-[11px] font-medium text-muted-foreground">
                 <ShieldCheck className="h-3 w-3 text-emerald-500" />
-                Secure customer portal
+                بوابة عملاء آمنة
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background px-3 py-1 text-[11px] font-medium text-muted-foreground">
                 <Clock3 className="h-3 w-3 text-primary" />
-                24/7 self-service
+                خدمة ذاتية على مدار الساعة
               </span>
             </div>
           </div>
@@ -72,7 +72,7 @@ export function PublicFooter({ content }: PublicFooterProps) {
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 sm:flex-row">
+        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-5 text-center sm:mt-10 sm:flex-row sm:pt-6 sm:text-start">
           <p className="text-[12px] text-muted-foreground">
             {content.copyright}
           </p>

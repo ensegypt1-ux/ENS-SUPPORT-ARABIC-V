@@ -14,6 +14,7 @@ import { getSession } from "@/lib/auth-utils";
 import { getCollection } from "@/lib/db";
 import { cache } from "react";
 import { ObjectId } from "mongodb";
+import { FALLBACKS } from "@/lib/strings";
 
 // Cache user data fetching for 5 minutes
 // This significantly reduces database load for frequently accessed users
@@ -56,7 +57,7 @@ const getCachedUsersByIds = cache(async (userIds: string[]) => {
     const userId = user.id || user._id?.toString();
     userMap[userId] = {
       id: userId,
-      name: user.name || "Unknown User",
+      name: user.name || FALLBACKS.unknownUser,
       email: user.email || "",
       role: user.role || "customer",
       image: user.image || undefined,

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -65,8 +65,8 @@ export default function NewInstallationPage() {
       });
 
       if (!result.success) {
-        setError(result.error || "Failed to create installation request");
-        toast.error(result.error || "Failed to create installation request");
+        setError(result.error || "تعذّر الإنشاء طلب التثبيت");
+        toast.error(result.error || "تعذّر الإنشاء طلب التثبيت");
         setIsSubmitting(false);
         return;
       }
@@ -83,24 +83,24 @@ export default function NewInstallationPage() {
 
         if (!uploadResult.success) {
           toast.warning(
-            `Request created but some files failed to upload: ${uploadResult.error}`
+            `اتعمل الطلب لكن تعذّر رفع بعض الملفات: ${uploadResult.error}`
           );
         } else if (uploadResult.data && uploadResult.data.length > 0) {
           toast.success(
-            `Installation request created with ${uploadResult.data.length} attachment(s)!`
+            `اتعمل طلب التثبيت مع ${uploadResult.data.length} مرفق(ات)!`
           );
         } else {
-          toast.success("Installation request created successfully!");
+          toast.success("اتعمل طلب التثبيت!");
         }
       } else {
-        toast.success("Installation request created successfully!");
+        toast.success("اتعمل طلب التثبيت!");
       }
 
       router.push(`/dashboard/installation/${ticketId}`);
       router.refresh();
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : "An unexpected error occurred";
+        error instanceof Error ? error.message : "حصل خطأ مش متوقع";
       setError(errorMessage);
       toast.error(errorMessage);
       setIsSubmitting(false);
@@ -108,18 +108,18 @@ export default function NewInstallationPage() {
   };
 
   const priorities = [
-    { value: "low", label: "Low - Flexible timeline", color: "bg-slate-400" },
+    { value: "low", label: "منخفضة - جدول زمني مرن", color: "bg-slate-400" },
     {
       value: "medium",
-      label: "Medium - Within a few days",
+      label: "متوسطة - خلال أيام قليلة",
       color: "bg-blue-500",
     },
     {
       value: "high",
-      label: "High - Need it within 24 hours",
+      label: "عالية - مطلوب خلال 24 ساعة",
       color: "bg-amber-500",
     },
-    { value: "urgent", label: "Urgent - Critical, ASAP", color: "bg-red-500" },
+    { value: "urgent", label: "عاجلة - حرجة، في أقرب وقت", color: "bg-red-500" },
   ];
 
   return (
@@ -133,20 +133,20 @@ export default function NewInstallationPage() {
                 href="/dashboard"
                 className="hover:text-foreground transition-colors"
               >
-                Dashboard
+                لوحة التحكم
               </Link>
               <ChevronRight className="h-3.5 w-3.5 shrink-0" />
               <Link
                 href="/dashboard/installation"
                 className="hover:text-foreground transition-colors"
               >
-                Installation
+                التثبيت
               </Link>
               <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-medium text-foreground">New Request</span>
+              <span className="font-medium text-foreground">طلب جديد</span>
             </nav>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Request Installation
+              طلب تثبيت
             </h1>
           </div>
         </div>
@@ -167,7 +167,7 @@ export default function NewInstallationPage() {
             <div className="lg:col-span-2 space-y-6">
               {/* General Section */}
               <div className="bg-background rounded-xl border p-6 space-y-6">
-                <h2 className="text-lg font-semibold">Installation Details</h2>
+                <h2 className="text-lg font-semibold">تفاصيل التثبيت</h2>
 
                 {/* Title */}
                 <div className="space-y-2">
@@ -177,13 +177,13 @@ export default function NewInstallationPage() {
                   </Label>
                   <Input
                     id="title"
-                    placeholder="Enter installation request title"
+                    placeholder="أدخل عنوان طلب التثبيت"
                     {...register("title")}
                     disabled={isSubmitting}
                     className="h-11 placeholder:text-muted-foreground/50"
                   />
                   <p className="text-xs text-muted-foreground">
-                    A title is required and recommended to be unique.
+                    العنوان مطلوب ويُفضّل أن يكون فريدًا.
                   </p>
                   {errors.title && (
                     <p className="text-sm text-destructive">
@@ -200,7 +200,7 @@ export default function NewInstallationPage() {
                   </Label>
                   <Textarea
                     id="description"
-                    placeholder="Describe your installation requirements..."
+                    placeholder="صف متطلبات التثبيت..."
                     {...register("description")}
                     disabled={isSubmitting}
                     className="resize-none placeholder:text-muted-foreground/50 min-h-[120px]"
@@ -221,7 +221,7 @@ export default function NewInstallationPage() {
               {/* Attachments Section */}
               {process.env.NEXT_PUBLIC_FILE_UPLOADS_ENABLED === "true" && (
                 <div className="bg-background rounded-xl border p-6 space-y-4">
-                  <h2 className="text-lg font-semibold">Attachments</h2>
+                  <h2 className="text-lg font-semibold">المرفقات</h2>
                   <p className="text-xs text-muted-foreground">
                     Upload server details, configuration files, or screenshots
                     that might help with the installation
@@ -232,7 +232,7 @@ export default function NewInstallationPage() {
                     maxFiles={5}
                     maxFileSize={20971520}
                   />
-                  <p className="text-xs text-muted-foreground">Files :</p>
+                  <p className="text-xs text-muted-foreground">الملفات:</p>
                 </div>
               )}
 
@@ -242,31 +242,30 @@ export default function NewInstallationPage() {
                 <div className="bg-background rounded-xl border p-6 space-y-6">
                   <div>
                     <h2 className="text-lg font-semibold">
-                      Product Information{" "}
+                      معلومات المنتج{" "}
                       <span className="text-destructive">*</span>
                     </h2>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Please provide your product details to verify your
-                      purchase
+                       تقديم تفاصيل منتجك للتحقق من عملية الشراء
                     </p>
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="productName">Product Name</Label>
+                      <Label htmlFor="productName">اسم المنتج</Label>
                       <Input
                         id="productName"
-                        placeholder="e.g., My Awesome Plugin"
+                        placeholder="مثال: إضافتي الرائعة"
                         {...register("productName")}
                         disabled={isSubmitting}
                         className="h-11"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="productVersion">Product Version</Label>
+                      <Label htmlFor="productVersion">إصدار المنتج</Label>
                       <Input
                         id="productVersion"
-                        placeholder="e.g., 1.0.0"
+                        placeholder="مثال: 1.0.0"
                         {...register("productVersion")}
                         disabled={isSubmitting}
                         className="h-11"
@@ -275,16 +274,16 @@ export default function NewInstallationPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="purchaseCode">Purchase Code</Label>
+                    <Label htmlFor="purchaseCode">رمز الشراء</Label>
                     <Input
                       id="purchaseCode"
-                      placeholder="Enter your Envato purchase code"
+                      placeholder="أدخل رمز شراء Envato الخاص بك"
                       {...register("purchaseCode")}
                       disabled={isSubmitting}
                       className="h-11 font-mono"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Enter your Envato purchase code for verification
+                      أدخل رمز شراء Envato للتحقق
                     </p>
                     {errors.purchaseCode && (
                       <p className="text-sm text-destructive">
@@ -301,7 +300,7 @@ export default function NewInstallationPage() {
               {/* Priority */}
               <div className="bg-background rounded-xl border p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Priority</h2>
+                  <h2 className="text-lg font-semibold">الأولوية</h2>
                   <span
                     className={cn(
                       "h-2.5 w-2.5 rounded-full",
@@ -323,7 +322,7 @@ export default function NewInstallationPage() {
                   disabled={isSubmitting}
                 >
                   <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Select priority" />
+                    <SelectValue placeholder="اختر الأولوية" />
                   </SelectTrigger>
                   <SelectContent>
                     {priorities.map((p) => (
@@ -339,7 +338,7 @@ export default function NewInstallationPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Set the installation priority.
+                  حدد أولوية التثبيت.
                 </p>
                 {errors.priority && (
                   <p className="text-sm text-destructive">
@@ -350,15 +349,15 @@ export default function NewInstallationPage() {
 
               {/* Timezone */}
               <div className="bg-background rounded-xl border p-6 space-y-4">
-                <h2 className="text-lg font-semibold">Timezone</h2>
+                <h2 className="text-lg font-semibold">المنطقة الزمنية</h2>
                 <TimezoneSelect
                   value={timezone}
                   onValueChange={(value) => setValue("timezone", value)}
                   disabled={isSubmitting}
-                  placeholder="Select timezone"
+                  placeholder="اختر المنطقة الزمنية"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Set your timezone for scheduling meetings or calls.
+                  حدد منطقتك الزمنية لجدولة الاجتماعات أو المكالمات.
                 </p>
               </div>
 
@@ -371,11 +370,11 @@ export default function NewInstallationPage() {
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Submitting...
+                      <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                      جاري الإرسال...
                     </>
                   ) : (
-                    "Submit Request"
+                    "إرسال الطلب"
                   )}
                 </Button>
                 <Button
@@ -385,7 +384,7 @@ export default function NewInstallationPage() {
                   onClick={() => router.back()}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  إلغاء
                 </Button>
               </div>
             </div>

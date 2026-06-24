@@ -152,8 +152,8 @@ export default async function AdminServiceRequestDetailPage({
           <div className="flex w-full items-center justify-between sm:w-auto">
             <Button variant="outline" size="sm" asChild className="w-full sm:w-auto">
               <Link href={`/admin/services/${slug}`}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                <ArrowLeft className="h-4 w-4 ms-2 rtl:-scale-x-100" />
+                رجوع
               </Link>
             </Button>
           </div>
@@ -164,7 +164,7 @@ export default async function AdminServiceRequestDetailPage({
             <CardHeader>
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <User className="h-4 w-4" />
-                Customer
+                العميل
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -186,7 +186,7 @@ export default async function AdminServiceRequestDetailPage({
             <CardHeader>
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                Created
+                تاريخ الإنشاء
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -206,7 +206,7 @@ export default async function AdminServiceRequestDetailPage({
             <CardHeader>
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <User className="h-4 w-4" />
-                Assigned To
+                مُعيَّن إلى
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -227,7 +227,7 @@ export default async function AdminServiceRequestDetailPage({
             <CardHeader>
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Package className="h-4 w-4" />
-                Product
+                المنتج
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -247,13 +247,13 @@ export default async function AdminServiceRequestDetailPage({
           <Tabs defaultValue="details" className="space-y-4">
             <div className="w-full overflow-x-auto">
               <TabsList className="min-w-max">
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="comments">Comments</TabsTrigger>
+                <TabsTrigger value="details">التفاصيل</TabsTrigger>
+                <TabsTrigger value="comments">التعليقات</TabsTrigger>
                 {fileUploadsEnabled && (
-                  <TabsTrigger value="attachments">Attachments</TabsTrigger>
+                  <TabsTrigger value="attachments">المرفقات</TabsTrigger>
                 )}
-                <TabsTrigger value="history">History</TabsTrigger>
-                <TabsTrigger value="meetings">Meetings</TabsTrigger>
+                <TabsTrigger value="history">السجل</TabsTrigger>
+                <TabsTrigger value="meetings">الاجتماعات</TabsTrigger>
               </TabsList>
             </div>
 
@@ -312,7 +312,7 @@ export default async function AdminServiceRequestDetailPage({
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Controls</CardTitle>
+              <CardTitle className="text-base">عناصر التحكم</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <TicketStatusControl

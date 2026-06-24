@@ -29,9 +29,9 @@ const MAX_PAGES_CEILING = 500;
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new Error("مش مسموح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("Forbidden: Admin access required");
+  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
   return session;
 }
 
@@ -40,11 +40,11 @@ function revalidateAI() {
 }
 
 const createSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(60),
+  name: z.string().trim().min(1, "الاسم مطلوب").max(60),
   url: z
     .string()
     .trim()
-    .url("Enter a valid URL")
+    .url("أدخل عنوان URL صالحاً")
     .refine((u) => /^https?:\/\//i.test(u), "URL must start with http(s)://"),
   maxPages: z.number().int().min(1).max(MAX_PAGES_CEILING).optional(),
   /** Owning site id (absent ⇒ Global). */
@@ -107,7 +107,7 @@ export async function createWebSource(
     try {
       host = new URL(url).host;
     } catch {
-      return { success: false, error: "Enter a valid URL" };
+      return { success: false, error: "أدخل عنوان URL صالحاً" };
     }
     const siteId = await normalizeSiteId(parsed.data.siteId);
 
@@ -148,15 +148,15 @@ export async function reindexWebSource(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid source ID" };
+      return { success: false, error: "معرّف المصدر مش صح" };
     }
     if (isWebSourceCrawling(id)) {
-      return { success: false, error: "This source is already being indexed" };
+      return { success: false, error: "المصدر ده بيتفهرس دلوقتي" };
     }
 
     const col = await getCollection<AIWebSource>(COLLECTION);
     const source = await col.findOne({ _id: new ObjectId(id) });
-    if (!source) return { success: false, error: "Web source not found" };
+    if (!source) return { success: false, error: "مفيش مصدر الويب" };
 
     await col.updateOne(
       { _id: new ObjectId(id) },
@@ -178,7 +178,7 @@ export async function updateWebSourceSite(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid source ID" };
+      return { success: false, error: "معرّف المصدر مش صح" };
     }
     const parsed = scopeSchema.safeParse(input);
     if (!parsed.success) {
@@ -187,17 +187,17 @@ export async function updateWebSourceSite(
     if (isWebSourceCrawling(id)) {
       return {
         success: false,
-        error: "Wait for indexing to finish before changing scope",
+        error: "انتظر حتى تنتهي الفهرسة قبل تغيير النطاق",
       };
     }
 
     const col = await getCollection<AIWebSource>(COLLECTION);
     const source = await col.findOne({ _id: new ObjectId(id) });
-    if (!source) return { success: false, error: "Web source not found" };
+    if (!source) return { success: false, error: "مفيش مصدر الويب" };
     if (source.status === "crawling" || source.status === "queued") {
       return {
         success: false,
-        error: "Wait for indexing to finish before changing scope",
+        error: "انتظر حتى تنتهي الفهرسة قبل تغيير النطاق",
       };
     }
 
@@ -212,7 +212,7 @@ export async function updateWebSourceSite(
       update,
       { returnDocument: "after" }
     );
-    if (!doc) return { success: false, error: "Web source not found" };
+    if (!doc) return { success: false, error: "مفيش مصدر الويب" };
 
     await updateWebSourceEmbeddingsSiteScope(id, siteId);
     revalidateAI();
@@ -226,12 +226,12 @@ export async function deleteWebSource(id: string): Promise<ApiResponse<void>> {
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid source ID" };
+      return { success: false, error: "معرّف المصدر مش صح" };
     }
     if (isWebSourceCrawling(id)) {
       return {
         success: false,
-        error: "Wait for indexing to finish before deleting this source",
+        error: "انتظر حتى ينتهي الفهرسة قبل حذف هذا المصدر",
       };
     }
 

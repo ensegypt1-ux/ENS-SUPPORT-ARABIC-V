@@ -64,36 +64,36 @@ export default async function SupportAgentDashboardPage() {
   const agentStats = stats
     ? [
         {
-          title: "Total Assigned",
+          title: "إجمالي المعيّن",
           value: stats.totalAssigned,
           icon: TicketIcon,
           iconColor: "text-info",
           iconBgColor: "bg-info/15",
-          description: "All assigned tickets",
+          description: "جميع التذاكر المعيّنة",
         },
         {
-          title: "Open Tickets",
+          title: "تذاكر مفتوحة",
           value: stats.openTickets,
           icon: AlertCircle,
           iconColor: "text-warning",
           iconBgColor: "bg-warning/15",
-          description: "Awaiting response",
+          description: "في انتظار الرد",
         },
         {
-          title: "In Progress",
+          title: "قيد المعالجة",
           value: stats.inProgressTickets,
           icon: Clock,
           iconColor: "text-accent",
           iconBgColor: "bg-accent/15",
-          description: "Being worked on",
+          description: "قيد العمل",
         },
         {
-          title: "Resolved",
+          title: "محلولة",
           value: stats.resolvedTickets,
           icon: CheckCircle2,
           iconColor: "text-success",
           iconBgColor: "bg-success/15",
-          description: "Completed tickets",
+          description: "تذاكر مكتملة",
         },
       ]
     : [];
@@ -103,7 +103,7 @@ export default async function SupportAgentDashboardPage() {
       {/* Welcome Section */}
       <div>
         <h1 className="text-2xl font-bold sm:text-3xl">
-          Welcome back,{" "}
+          مرحبًا بعودتك،{" "}
           <NameWithRole
             name={session.user.name}
             role={(session.user as { role?: string })?.role}
@@ -113,7 +113,7 @@ export default async function SupportAgentDashboardPage() {
           !
         </h1>
         <p className="text-muted-foreground mt-1">
-          Here&apos;s an overview of your assigned tickets
+          إليك نظرة عامة على التذاكر المعيّنة لك
         </p>
       </div>
 
@@ -124,11 +124,11 @@ export default async function SupportAgentDashboardPage() {
       <Card className="gap-2">
         <CardHeader>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <CardTitle>Recent Assigned Tickets</CardTitle>
+            <CardTitle>التذاكر المعيّنة الأخيرة</CardTitle>
             <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
               <Link href="/support-agent/tickets">
-                View All
-                <ArrowRight className="ml-2 h-4 w-4" />
+                عرض الكل
+                <ArrowRight className="ms-2 h-4 w-4" />
               </Link>
             </Button>
           </div>
@@ -138,10 +138,10 @@ export default async function SupportAgentDashboardPage() {
             <div className="text-center py-12">
               <TicketIcon className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-semibold">
-                No assigned tickets
+                مفيش تذاكر معيّنة
               </h3>
               <p className="text-muted-foreground mt-2">
-                You don&apos;t have any tickets assigned to you yet
+                ليس لديك أي تذاكر معيّنة لك بعد
               </p>
             </div>
           ) : (
@@ -178,9 +178,9 @@ export default async function SupportAgentDashboardPage() {
                           {ticket.description}
                         </p>
                       </div>
-                      <div className="text-left text-sm text-muted-foreground sm:text-right">
+                      <div className="text-start text-sm text-muted-foreground sm:text-end">
                         <p className="font-medium">
-                          {customer?.name || "Unknown"}
+                          {customer?.name || "غير معروف"}
                         </p>
                         <p className="text-xs">{ticket.formattedCreatedAt}</p>
                       </div>

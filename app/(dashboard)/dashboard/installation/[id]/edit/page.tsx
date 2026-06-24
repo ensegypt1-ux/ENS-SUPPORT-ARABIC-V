@@ -87,7 +87,7 @@ export default function EditInstallationPage({
         setIsLoading(false);
       } catch (error) {
         console.error("Error loading ticket:", error);
-        setError("Failed to load installation request");
+        setError("تعذّر التحميل طلب التثبيت");
         setIsLoading(false);
       }
     }
@@ -103,18 +103,18 @@ export default function EditInstallationPage({
       const result = await updateInstallationContent(ticketId, data);
 
       if (!result.success) {
-        setError(result.error || "Failed to update installation request");
-        toast.error(result.error || "Failed to update installation request");
+        setError(result.error || "تعذّر التحديث طلب التثبيت");
+        toast.error(result.error || "تعذّر التحديث طلب التثبيت");
         setIsSubmitting(false);
         return;
       }
 
-      toast.success("Installation request updated successfully!");
+      toast.success("اتحدّث طلب التثبيت!");
       router.push(`/dashboard/installation/${ticketId}`);
       router.refresh();
     } catch (error: any) {
-      setError(error.message || "An unexpected error occurred");
-      toast.error(error.message || "An unexpected error occurred");
+      setError(error.message || "حصل خطأ مش متوقع");
+      toast.error(error.message || "حصل خطأ مش متوقع");
       setIsSubmitting(false);
     }
   };
@@ -133,16 +133,16 @@ export default function EditInstallationPage({
       <div className="flex justify-between items-center">
         <div>
           <div className="mb-2">
-            <h1 className="text-3xl font-bold">Edit Installation Request</h1>
+            <h1 className="text-3xl font-bold">تعديل طلب التثبيت</h1>
           </div>
           <p className="text-muted-foreground mt-1">
-            Update your installation request details
+            تحديث تفاصيل طلب التثبيت الخاص بك
           </p>
         </div>
         <Button variant="outline" size="sm" asChild>
           <Link href={`/dashboard/installation/${ticketId}`}>
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Details
+            <ArrowLeft className="h-4 w-4 me-1" />
+            رجوع إلى التفاصيل
           </Link>
         </Button>
       </div>
@@ -150,7 +150,7 @@ export default function EditInstallationPage({
       {/* Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Installation Details</CardTitle>
+          <CardTitle>تفاصيل التثبيت</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -168,7 +168,7 @@ export default function EditInstallationPage({
               </Label>
               <Input
                 id="title"
-                placeholder="e.g., Install on shared hosting, Setup on VPS server"
+                placeholder="مثال: التثبيت على استضافة مشتركة، الإعداد على خادم VPS"
                 {...register("title")}
                 disabled={isSubmitting}
               />
@@ -187,7 +187,7 @@ export default function EditInstallationPage({
               </Label>
               <Textarea
                 id="description"
-                placeholder="Please provide detailed information about your installation needs..."
+                placeholder=" تقديم معلومات مفصلة عن احتياجات التثبيت..."
                 rows={10}
                 {...register("description")}
                 disabled={isSubmitting}
@@ -206,7 +206,7 @@ export default function EditInstallationPage({
             {/* Priority */}
             <div className="space-y-2">
               <Label htmlFor="priority">
-                Priority <span className="text-destructive">*</span>
+                الأولوية <span className="text-destructive">*</span>
               </Label>
               <Select
                 value={priority}
@@ -214,18 +214,18 @@ export default function EditInstallationPage({
                 disabled={isSubmitting}
               >
                 <SelectTrigger id="priority">
-                  <SelectValue placeholder="Select priority" />
+                  <SelectValue placeholder="اختر الأولوية" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low - Flexible timeline</SelectItem>
+                  <SelectItem value="low">منخفضة - جدول زمني مرن</SelectItem>
                   <SelectItem value="medium">
-                    Medium - Within a few days
+                    متوسطة - خلال أيام قليلة
                   </SelectItem>
                   <SelectItem value="high">
-                    High - Need it within 24 hours
+                    عالية - مطلوب خلال 24 ساعة
                   </SelectItem>
                   <SelectItem value="urgent">
-                    Urgent - Critical, ASAP
+                    عاجلة - حرجة، في أقرب وقت
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -238,24 +238,24 @@ export default function EditInstallationPage({
 
             {/* Product Information */}
             <div className="space-y-4 border-t pt-6">
-              <h3 className="font-semibold">Product Information (Optional)</h3>
+              <h3 className="font-semibold">معلومات المنتج (اختياري)</h3>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="productName">Product Name</Label>
+                  <Label htmlFor="productName">اسم المنتج</Label>
                   <Input
                     id="productName"
-                    placeholder="e.g., My Awesome Plugin"
+                    placeholder="مثال: إضافتي الرائعة"
                     {...register("productName")}
                     disabled={isSubmitting}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="productVersion">Product Version</Label>
+                  <Label htmlFor="productVersion">إصدار المنتج</Label>
                   <Input
                     id="productVersion"
-                    placeholder="e.g., 1.0.0"
+                    placeholder="مثال: 1.0.0"
                     {...register("productVersion")}
                     disabled={isSubmitting}
                   />
@@ -271,18 +271,18 @@ export default function EditInstallationPage({
                 onClick={() => router.back()}
                 disabled={isSubmitting}
               >
-                Cancel
+                إلغاء
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    جاري الحفظ...
                   </>
                 ) : (
                   <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Changes
+                    <Save className="me-2 h-4 w-4" />
+                    حفظ التغييرات
                   </>
                 )}
               </Button>

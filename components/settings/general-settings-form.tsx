@@ -7,10 +7,10 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { TimezoneSelect } from "@/components/ui/timezone-select";
-import { Loader2, Save, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { SystemSettings } from "@/types/settings";
+import { ENS_BRAND } from "@/lib/ens-brand";
 import {
   deleteLogo,
   deleteLogoDark,
@@ -21,13 +21,12 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BrandImageUploader } from "@/components/settings/brand-image-uploader";
+import { PageSectionLabel } from "@/components/ui/arabic-ux";
+import { getDateFormatLabel } from "@/lib/strings";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  SettingsFormCard,
+  SettingsSaveBar,
+} from "@/components/settings/settings-form-shell";
 import {
   Select,
   SelectContent,
@@ -37,12 +36,15 @@ import {
 } from "@/components/ui/select";
 
 const generalSettingsSchema = z.object({
-  siteName: z.string().min(1, "Site name is required"),
-  siteDescription: z.string().min(1, "Site description is required"),
-  supportEmail: z.string().email("Invalid email address"),
-  companyName: z.string().min(1, "Company name is required"),
-  timezone: z.string().min(1, "Timezone is required"),
-  dateFormat: z.string().min(1, "Date format is required"),
+  siteName: z.string().min(1, "اسم الموقع مطلوب"),
+  siteDescription: z.string().min(1, "وصف الموقع مطلوب"),
+  supportEmail: z.union([
+    z.literal(""),
+    z.string().email("عنوان بريد إلكتروني مش صح"),
+  ]),
+  companyName: z.string().min(1, "اسم الشركة مطلوب"),
+  timezone: z.string().min(1, "المنطقة الزمنية مطلوبة"),
+  dateFormat: z.string().min(1, "تنسيق التاريخ مطلوب"),
   timeFormat: z.enum(["12h", "24h"]),
 });
 
@@ -72,6 +74,7 @@ export function GeneralSettingsForm({ settings }: GeneralSettingsFormProps) {
   });
 
   const timeFormat = watch("timeFormat");
+  const dateFormat = watch("dateFormat");
 
   const onSubmit = async (data: GeneralSettingsFormData) => {
     setIsLoading(true);
@@ -83,262 +86,227 @@ export function GeneralSettingsForm({ settings }: GeneralSettingsFormProps) {
 
       if (result.success) {
         router.refresh();
-        toast.success("General settings updated successfully");
+        toast.success("اتحدّثت الإعدادات");
       } else {
-        toast.error(result.error || "Failed to update settings");
+        toast.error(result.error || "مقدرناش نحدّث الإعدادات");
       }
     } catch {
-      toast.error("An error occurred while updating settings");
+      toast.error("حصل خطأ وإحنا بنحدّث الإعدادات");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="overflow-hidden rounded-md p-0 border-0 shadow-lg bg-gradient-to-br from-card to-card/80">
-      <CardHeader className="border-b p-6 gap-0 bg-white">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-            <Settings className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <CardTitle className="text-xl">General Settings</CardTitle>
-            <CardDescription className="mt-1">
-              Configure basic information about your support system
-            </CardDescription>
+    <SettingsFormCard
+      icon={<Settings className="h-5 w-5 text-primary" />}
+      title="عام"
+      description="اضبط المعلومات الأساسية لبوابة دعم ENS."
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Site Information Section */}
+        <div className="space-y-4">
+          <PageSectionLabel>معلومات الموقع</PageSectionLabel>
+          <div className="rounded-xl border bg-muted/20 p-5 space-y-5">
+            {/* Site Name */}
+            <div className="space-y-2">
+              <Label htmlFor="siteName" className="text-sm font-medium">
+                اسم الموقع
+              </Label>
+              <Input
+                id="siteName"
+                {...register("siteName")}
+                placeholder={ENS_BRAND.portalTitle}
+                className="h-11 bg-background/80 border-input/50 text-right focus:border-primary transition-colors"
+              />
+              {errors.siteName && (
+                <p className="text-sm text-destructive">
+                  {errors.siteName.message}
+                </p>
+              )}
+            </div>
+
+            {/* Site Description */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="siteDescription"
+                className="text-sm font-medium"
+              >
+                وصف الموقع
+              </Label>
+              <Textarea
+                id="siteDescription"
+                {...register("siteDescription")}
+                placeholder={ENS_BRAND.siteDescription}
+                rows={3}
+                className="bg-background/80 border-input/50 text-right focus:border-primary transition-colors resize-none"
+              />
+              {errors.siteDescription && (
+                <p className="text-sm text-destructive">
+                  {errors.siteDescription.message}
+                </p>
+              )}
+            </div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Site Information Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Site Information
-            </h3>
-            <div className="rounded-xl border bg-muted/20 p-5 space-y-5">
-              {/* Site Name */}
+
+        {/* Brand Assets Section */}
+        <div className="space-y-4">
+          <PageSectionLabel>أصول العلامة التجارية</PageSectionLabel>
+          <div className="grid gap-5 xl:grid-cols-2">
+            <BrandImageUploader
+              label="شعار الوضع الفاتح"
+              description="يُستخدم على الخلفيات الفاتحة في الصفحات العامة والشريط الجانبي."
+              value={logoUrl}
+              previewAlt="معاينة شعار الوضع الفاتح"
+              uploadLabel="انقر للرفع أو اسحب وأفلت"
+              uploadAction={uploadLogo}
+              deleteAction={deleteLogo}
+              onChange={setLogoUrl}
+              onSaved={() => router.refresh()}
+            />
+            <BrandImageUploader
+              label="شعار الوضع الداكن"
+              description="يُستخدم تلقائياً عند تفعيل الوضع الداكن."
+              value={logoDarkUrl}
+              previewAlt="معاينة شعار الوضع الداكن"
+              uploadLabel="انقر للرفع أو اسحب وأفلت"
+              uploadAction={uploadLogoDark}
+              deleteAction={deleteLogoDark}
+              onChange={setLogoDarkUrl}
+              onSaved={() => router.refresh()}
+            />
+          </div>
+        </div>
+
+        {/* Company Information Section */}
+        <div className="space-y-4">
+          <PageSectionLabel>معلومات الشركة</PageSectionLabel>
+          <div className="rounded-xl border bg-muted/20 p-5">
+            <div className="grid gap-5 sm:grid-cols-2">
+              {/* Company Name */}
               <div className="space-y-2">
-                <Label htmlFor="siteName" className="text-sm font-medium">
-                  Site Name
+                <Label htmlFor="companyName" className="text-sm font-medium">
+                  اسم الشركة
                 </Label>
                 <Input
-                  id="siteName"
-                  {...register("siteName")}
-                  placeholder="Support Ticket System"
-                  className="h-11 bg-background/80 border-input/50 focus:border-primary transition-colors"
+                  id="companyName"
+                  {...register("companyName")}
+                  placeholder={ENS_BRAND.companyName}
+                  className="h-11 bg-background/80 border-input/50 text-right focus:border-primary transition-colors"
                 />
-                {errors.siteName && (
+                {errors.companyName && (
                   <p className="text-sm text-destructive">
-                    {errors.siteName.message}
+                    {errors.companyName.message}
                   </p>
                 )}
               </div>
 
-              {/* Site Description */}
+              {/* Support Email */}
               <div className="space-y-2">
-                <Label
-                  htmlFor="siteDescription"
-                  className="text-sm font-medium"
-                >
-                  Site Description
+                <Label htmlFor="supportEmail" className="text-sm font-medium">
+                  الإيميل للدعم
                 </Label>
-                <Textarea
-                  id="siteDescription"
-                  {...register("siteDescription")}
-                  placeholder="Customer support and ticket management"
-                  rows={3}
-                  className="bg-background/80 border-input/50 focus:border-primary transition-colors resize-none"
+                <Input
+                  id="supportEmail"
+                  type="email"
+                  dir="ltr"
+                  {...register("supportEmail")}
+                  placeholder="support@ens.eg"
+                  className="input-ltr h-11 bg-background/80 border-input/50 focus:border-primary transition-colors"
                 />
-                {errors.siteDescription && (
+                {errors.supportEmail && (
                   <p className="text-sm text-destructive">
-                    {errors.siteDescription.message}
+                    {errors.supportEmail.message}
                   </p>
                 )}
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Brand Assets Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Brand Assets
-            </h3>
-            <div className="grid gap-5 xl:grid-cols-2">
-              <BrandImageUploader
-                label="Light Mode Logo"
-                description="Used on light backgrounds across public pages and app sidebars."
-                value={logoUrl}
-                previewAlt="Light mode logo preview"
-                uploadLabel="Click to upload or drag and drop"
-                uploadAction={uploadLogo}
-                deleteAction={deleteLogo}
-                onChange={setLogoUrl}
-                onSaved={() => router.refresh()}
+        {/* Regional Settings Section */}
+        <div className="space-y-4 mb-0">
+          <PageSectionLabel>الإعدادات الإقليمية</PageSectionLabel>
+          <div className="rounded-xl border bg-muted/20 p-5 space-y-5">
+            {/* Timezone */}
+            <div className="space-y-2">
+              <Label htmlFor="timezone" className="text-sm font-medium">
+                المنطقة الزمنية
+              </Label>
+              <TimezoneSelect
+                value={watch("timezone")}
+                onValueChange={(value) => setValue("timezone", value)}
               />
-              <BrandImageUploader
-                label="Dark Mode Logo"
-                description="Used automatically when the interface is in dark mode."
-                value={logoDarkUrl}
-                previewAlt="Dark mode logo preview"
-                uploadLabel="Click to upload or drag and drop"
-                uploadAction={uploadLogoDark}
-                deleteAction={deleteLogoDark}
-                onChange={setLogoDarkUrl}
-                onSaved={() => router.refresh()}
-              />
-            </div>
-          </div>
-
-          {/* Company Information Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Company Information
-            </h3>
-            <div className="rounded-xl border bg-muted/20 p-5">
-              <div className="grid gap-5 sm:grid-cols-2">
-                {/* Company Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="companyName" className="text-sm font-medium">
-                    Company Name
-                  </Label>
-                  <Input
-                    id="companyName"
-                    {...register("companyName")}
-                    placeholder="Your Company"
-                    className="h-11 bg-background/80 border-input/50 focus:border-primary transition-colors"
-                  />
-                  {errors.companyName && (
-                    <p className="text-sm text-destructive">
-                      {errors.companyName.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Support Email */}
-                <div className="space-y-2">
-                  <Label htmlFor="supportEmail" className="text-sm font-medium">
-                    Support Email
-                  </Label>
-                  <Input
-                    id="supportEmail"
-                    type="email"
-                    {...register("supportEmail")}
-                    placeholder="support@example.com"
-                    className="h-11 bg-background/80 border-input/50 focus:border-primary transition-colors"
-                  />
-                  {errors.supportEmail && (
-                    <p className="text-sm text-destructive">
-                      {errors.supportEmail.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Regional Settings Section */}
-          <div className="space-y-4 mb-0">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Regional Settings
-            </h3>
-            <div className="rounded-xl border bg-muted/20 p-5 space-y-5">
-              {/* Timezone */}
-              <div className="space-y-2">
-                <Label htmlFor="timezone" className="text-sm font-medium">
-                  Timezone
-                </Label>
-                <TimezoneSelect
-                  value={watch("timezone")}
-                  onValueChange={(value) => setValue("timezone", value)}
-                />
-                {errors.timezone && (
-                  <p className="text-sm text-destructive">
-                    {errors.timezone.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Date & Time Format */}
-              <div className="grid gap-5 sm:grid-cols-2">
-                {/* Date Format */}
-                <div className="space-y-2">
-                  <Label htmlFor="dateFormat" className="text-sm font-medium">
-                    Date Format
-                  </Label>
-                  <Select
-                    value={watch("dateFormat")}
-                    onValueChange={(value) => setValue("dateFormat", value)}
-                  >
-                    <SelectTrigger className="h-11 bg-background/80 border-input/50">
-                      <SelectValue placeholder="Select date format" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="MMM dd, yyyy">Jan 01, 2024</SelectItem>
-                      <SelectItem value="dd/MM/yyyy">01/01/2024</SelectItem>
-                      <SelectItem value="MM/dd/yyyy">01/01/2024</SelectItem>
-                      <SelectItem value="yyyy-MM-dd">2024-01-01</SelectItem>
-                      <SelectItem value="dd MMM yyyy">01 Jan 2024</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.dateFormat && (
-                    <p className="text-sm text-destructive">
-                      {errors.dateFormat.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Time Format */}
-                <div className="space-y-2">
-                  <Label htmlFor="timeFormat" className="text-sm font-medium">
-                    Time Format
-                  </Label>
-                  <Select
-                    value={timeFormat}
-                    onValueChange={(value: "12h" | "24h") =>
-                      setValue("timeFormat", value)
-                    }
-                  >
-                    <SelectTrigger className="h-11 bg-background/80 border-input/50">
-                      <SelectValue placeholder="Select time format" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="12h">12-hour (2:30 PM)</SelectItem>
-                      <SelectItem value="24h">24-hour (14:30)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.timeFormat && (
-                    <p className="text-sm text-destructive">
-                      {errors.timeFormat.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end py-6">
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="h-11 px-6 shadow-md hover:shadow-lg transition-all"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Changes
-                </>
+              {errors.timezone && (
+                <p className="text-sm text-destructive">
+                  {errors.timezone.message}
+                </p>
               )}
-            </Button>
+            </div>
+
+            {/* Date & Time Format */}
+            <div className="grid gap-5 sm:grid-cols-2">
+              {/* Date Format */}
+              <div className="space-y-2">
+                <Label htmlFor="dateFormat" className="text-sm font-medium">
+                  تنسيق التاريخ
+                </Label>
+                <Select
+                  value={watch("dateFormat")}
+                  onValueChange={(value) => setValue("dateFormat", value)}
+                >
+                  <SelectTrigger className="h-11 bg-background/80 border-input/50">
+                    <SelectValue placeholder="اختر تنسيق التاريخ">
+                      {dateFormat ? getDateFormatLabel(dateFormat) : null}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MMM dd, yyyy">٠١ يناير ٢٠٢٤</SelectItem>
+                    <SelectItem value="dd/MM/yyyy">٠١/٠١/٢٠٢٤</SelectItem>
+                    <SelectItem value="MM/dd/yyyy">٠١/٠١/٢٠٢٤</SelectItem>
+                    <SelectItem value="yyyy-MM-dd">٢٠٢٤-٠١-٠١</SelectItem>
+                    <SelectItem value="dd MMM yyyy">٠١ يناير ٢٠٢٤</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.dateFormat && (
+                  <p className="text-sm text-destructive">
+                    {errors.dateFormat.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Time Format */}
+              <div className="space-y-2">
+                <Label htmlFor="timeFormat" className="text-sm font-medium">
+                  تنسيق الوقت
+                </Label>
+                <Select
+                  value={timeFormat}
+                  onValueChange={(value: "12h" | "24h") =>
+                    setValue("timeFormat", value)
+                  }
+                >
+                  <SelectTrigger className="h-11 bg-background/80 border-input/50">
+                    <SelectValue placeholder="اختر تنسيق الوقت" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="12h">12 ساعة (2:30 م)</SelectItem>
+                    <SelectItem value="24h">24 ساعة (14:30)</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.timeFormat && (
+                  <p className="text-sm text-destructive">
+                    {errors.timeFormat.message}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+
+        <SettingsSaveBar isLoading={isLoading} />
+      </form>
+    </SettingsFormCard>
   );
 }

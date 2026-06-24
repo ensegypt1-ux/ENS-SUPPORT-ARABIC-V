@@ -18,18 +18,19 @@ import {
   Wrench,
   Package,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { PanelSectionHeader } from "@/components/ui/panel-form";
+import { PageSectionLabel, RtlIconText, adminTableHeadClass } from "@/components/ui/arabic-ux";
+import {
+  adminTableShellClass,
+  adminTableShellDir,
+} from "@/components/ui/admin-table-shell";
+import { cn } from "@/lib/utils";
+import { SettingsFormCard } from "@/components/settings/settings-form-shell";
 import {
   Table,
   TableBody,
@@ -79,18 +80,18 @@ type ServiceRow = {
 };
 
 const createServiceFormSchema = z.object({
-  name: z.string().min(1, "Service name is required"),
+  name: z.string().min(1, "اسم الخدمة مطلوب"),
   slug: z.string().optional(),
-  iconKey: z.string().min(1, "Icon is required"),
+  iconKey: z.string().min(1, "الأيقونة مطلوبة"),
   description: z.string().optional(),
 });
 
 type CreateServiceFormData = z.infer<typeof createServiceFormSchema>;
 
 const editServiceFormSchema = z.object({
-  name: z.string().min(1, "Service name is required"),
-  slug: z.string().min(1, "Slug is required"),
-  iconKey: z.string().min(1, "Icon is required"),
+  name: z.string().min(1, "اسم الخدمة مطلوب"),
+  slug: z.string().min(1, "المعرّف مطلوب"),
+  iconKey: z.string().min(1, "الأيقونة مطلوبة"),
   description: z.string().optional(),
 });
 
@@ -101,11 +102,11 @@ const ICON_OPTIONS: Array<{
   label: string;
   Icon: React.ElementType;
 }> = [
-  { key: "briefcase", label: "Briefcase", Icon: Briefcase },
-  { key: "wrench", label: "Wrench", Icon: Wrench },
-  { key: "download", label: "Download", Icon: Download },
-  { key: "package", label: "Package", Icon: Package },
-  { key: "bolt", label: "Bolt", Icon: Bolt },
+  { key: "briefcase", label: "حقيبة", Icon: Briefcase },
+  { key: "wrench", label: "مفتاح", Icon: Wrench },
+  { key: "download", label: "تنزيل", Icon: Download },
+  { key: "package", label: "طرد", Icon: Package },
+  { key: "bolt", label: "برق", Icon: Bolt },
 ];
 
 function iconForKey(iconKey: string) {
@@ -171,14 +172,14 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
       });
 
       if (result.success) {
-        toast.success("Service added");
+        toast.success("اتضاف الخدمة");
         createForm.reset({ name: "", slug: "", iconKey: "briefcase", description: "" });
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to add service");
+        toast.error(result.error || "تعذّر الإضافة الخدمة");
       }
     } catch {
-      toast.error("Failed to add service");
+      toast.error("تعذّر الإضافة الخدمة");
     } finally {
       setCreating(false);
     }
@@ -188,9 +189,9 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
     const result = await updateService({ id: service.id, isActive: next });
     if (result.success) {
       router.refresh();
-      toast.success(next ? "Service enabled" : "Service disabled");
+      toast.success(next ? "اتفعّلت الخدمة" : "اتعطّلت الخدمة");
     } else {
-      toast.error(result.error || "Failed to update service");
+      toast.error(result.error || "مقدرناش نحدّث الخدمة");
     }
   };
 
@@ -200,12 +201,12 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
       const result = await deleteService(service.id);
       if (result.success) {
         router.refresh();
-        toast.success("Service deleted");
+        toast.success("اتمسحت الخدمة");
       } else {
-        toast.error(result.error || "Failed to delete service");
+        toast.error(result.error || "تعذّر الحذف الخدمة");
       }
     } catch {
-      toast.error("Failed to delete service");
+      toast.error("تعذّر الحذف الخدمة");
     } finally {
       setDeleting(false);
       setDeleteServiceTarget(null);
@@ -225,14 +226,14 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
       });
 
       if (result.success) {
-        toast.success("Service updated");
+        toast.success("اتحدّثت الخدمة");
         setEditingService(null);
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update service");
+        toast.error(result.error || "مقدرناش نحدّث الخدمة");
       }
     } catch {
-      toast.error("Failed to update service");
+      toast.error("مقدرناش نحدّث الخدمة");
     } finally {
       setSavingEdit(false);
     }
@@ -240,46 +241,45 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
 
   return (
     <>
-      <Card className="overflow-hidden rounded-lg p-0 border-0 shadow-lg bg-gradient-to-br from-card to-card/80">
-        <CardHeader className="border-b p-6 gap-0 bg-white">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <Briefcase className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="text-xl">Services</CardTitle>
-              <CardDescription className="mt-1">
-                Create and manage service pages shown in the sidebar
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-8 pb-6">
-          <form onSubmit={createForm.handleSubmit(handleCreate)} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                Add Service
-              </h3>
-              <Button type="submit" disabled={creating}>
-                {creating ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Plus className="h-4 w-4 mr-2" />
-                )}
-                Add
-              </Button>
-            </div>
+      <SettingsFormCard
+        icon={<Briefcase className="h-5 w-5 text-primary" />}
+        iconWrapperClassName="rounded-lg"
+        title="الخدمات"
+        description="إنشاء وإدارة صفحات الخدمات المعروضة في الشريط الجانبي"
+        contentClassName="space-y-8 pb-6"
+      >
+          <form onSubmit={createForm.handleSubmit(handleCreate)} className="space-y-4" dir="rtl">
+            <PageSectionLabel>إضافة خدمة</PageSectionLabel>
+            <div className="rounded-xl border bg-muted/20 p-5 space-y-5">
+              <PanelSectionHeader
+                title="خدمة جديدة"
+                description="أضف خدمة لتظهر في الشريط الجانبي"
+                actions={
+                  <Button type="submit" disabled={creating} className="gap-2">
+                    {creating ? (
+                      <>
+                        <span>جاري الإضافة...</span>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      </>
+                    ) : (
+                      <>
+                        <span>إضافة</span>
+                        <Plus className="h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                }
+              />
 
-            <div className="rounded-xl border bg-muted/20 p-5">
               <div className="grid gap-5 md:grid-cols-2">
-                <div className="space-y-2">
+                <div className="space-y-2 text-right">
                   <Label htmlFor="serviceName" className="text-sm font-medium">
-                    Service Name
+                    اسم الخدمة
                   </Label>
                   <Input
                     id="serviceName"
-                    placeholder="Installation"
-                    className="h-11 bg-background/80 border-input/50 focus:border-primary transition-colors"
+                    placeholder="التثبيت"
+                    className="h-11 bg-background/80 border-input/50 text-right focus:border-primary transition-colors"
                     {...createForm.register("name")}
                   />
                   {createForm.formState.errors.name && (
@@ -289,26 +289,26 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 text-right">
                   <Label htmlFor="serviceSlug" className="text-sm font-medium">
-                    Slug (optional)
+                    المعرّف (اختياري)
                   </Label>
                   <Input
                     id="serviceSlug"
                     placeholder="installation"
-                    className="h-11 bg-background/80 border-input/50 focus:border-primary transition-colors"
+                    className="h-11 bg-background/80 border-input/50 text-right focus:border-primary transition-colors"
                     {...createForm.register("slug")}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Icon</Label>
+                <div className="space-y-2 text-right">
+                  <Label className="text-sm font-medium">الأيقونة</Label>
                   <Select
                     value={createForm.watch("iconKey")}
                     onValueChange={(value) => createForm.setValue("iconKey", value)}
                   >
-                    <SelectTrigger className="h-11 bg-background/80 border-input/50">
-                      <SelectValue placeholder="Select an icon" />
+                    <SelectTrigger className="h-11 bg-background/80 border-input/50 text-right">
+                      <SelectValue placeholder="اختر أيقونة" />
                     </SelectTrigger>
                     <SelectContent>
                       {ICON_OPTIONS.map(({ key, label, Icon }) => (
@@ -323,47 +323,46 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
                   </Select>
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2 md:col-span-2 text-right">
                   <Label htmlFor="serviceDescription" className="text-sm font-medium">
-                    Description (optional)
+                    الوصف (اختياري)
                   </Label>
                   <Textarea
                     id="serviceDescription"
-                    placeholder="Describe what this service is for..."
+                    placeholder="صِف الغرض من هذه الخدمة..."
                     rows={3}
-                    className="bg-background/80 border-input/50 focus:border-primary transition-colors resize-none"
+                    className="bg-background/80 border-input/50 text-right focus:border-primary transition-colors resize-none"
                     {...createForm.register("description")}
                   />
                 </div>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">
-                New services will open at <span className="font-medium">/admin/services/&lt;slug&gt;</span>.
+              <p className="text-sm text-muted-foreground text-right">
+                ستُفتح الخدمات الجديدة على{" "}
+                <span className="font-medium">/admin/services/&lt;slug&gt;</span>.
               </p>
             </div>
           </form>
 
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Existing Services
-            </h3>
-            <div className="rounded-xl overflow-hidden border border-border bg-card/50 backdrop-blur-sm">
+          <div className="space-y-4" dir="rtl">
+            <PanelSectionHeader title="الخدمات الحالية" />
+            <div className={adminTableShellClass()} style={adminTableShellDir}>
               <Table>
                 <TableHeader>
                   <TableRow className="border-b border-border/50 bg-muted/20 hover:bg-muted/20">
-                    <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                      Service
+                    <TableHead className={cn(adminTableHeadClass, "w-[140px]")} dir="rtl">
+                      الإجراءات
                     </TableHead>
-                    <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                      Slug
+                    <TableHead className={adminTableHeadClass} dir="rtl">
+                      نشط
                     </TableHead>
-                    <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                      Path
+                    <TableHead className={adminTableHeadClass} dir="rtl">
+                      المسار
                     </TableHead>
-                    <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                      Active
+                    <TableHead className={adminTableHeadClass} dir="rtl">
+                      المعرّف
                     </TableHead>
-                    <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider w-[140px]">
-                      Actions
+                    <TableHead className={adminTableHeadClass} dir="rtl">
+                      الخدمة
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -375,55 +374,60 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
                         key={service.id}
                         className="border-b border-border/30 hover:bg-muted/30 transition-all duration-200"
                       >
-                        <TableCell className="py-3.5 px-4">
-                          <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-lg bg-muted/40 flex items-center justify-center">
-                              <Icon className="h-4 w-4 text-muted-foreground" />
-                            </div>
-                            <div className="font-medium">{service.name}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-3.5 px-4 text-muted-foreground">
-                          {service.slug}
-                        </TableCell>
-                        <TableCell className="py-3.5 px-4 text-muted-foreground">
-                          {`/admin/services/${service.slug}`}
-                        </TableCell>
-                        <TableCell className="py-3.5 px-4">
-                          <Switch
-                            checked={service.isActive}
-                            onCheckedChange={(next) => handleToggleActive(service, next)}
-                          />
-                        </TableCell>
-                        <TableCell className="py-3.5 px-4">
+                        <TableCell className="py-3.5 px-4" dir="rtl">
                           <div className="flex items-center gap-2">
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
+                              className="gap-2"
                               onClick={() => openEdit(service)}
                             >
-                              <Pencil className="h-4 w-4 mr-2" />
-                              Edit
+                              <span>تعديل</span>
+                              <Pencil className="h-4 w-4" />
                             </Button>
                             <Button
                               type="button"
                               variant="destructive"
                               size="sm"
+                              className="gap-2"
                               onClick={() => setDeleteServiceTarget(service)}
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
+                              <span>حذف</span>
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
+                        </TableCell>
+                        <TableCell className="py-3.5 px-4" dir="rtl">
+                          <Switch
+                            checked={service.isActive}
+                            onCheckedChange={(next) => handleToggleActive(service, next)}
+                          />
+                        </TableCell>
+                        <TableCell className="py-3.5 px-4 text-muted-foreground" dir="rtl">
+                          {`/admin/services/${service.slug}`}
+                        </TableCell>
+                        <TableCell className="py-3.5 px-4 text-muted-foreground" dir="rtl">
+                          {service.slug}
+                        </TableCell>
+                        <TableCell className="py-3.5 px-4" dir="rtl">
+                          <RtlIconText
+                            icon={
+                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/40">
+                                <Icon className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            }
+                          >
+                            <span className="font-medium">{service.name}</span>
+                          </RtlIconText>
                         </TableCell>
                       </TableRow>
                     );
                   })}
                   {sortedServices.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
-                        No services found
+                      <TableCell colSpan={5} className="py-10 text-center text-muted-foreground" dir="rtl">
+                        مفيش خدمات
                       </TableCell>
                     </TableRow>
                   )}
@@ -431,39 +435,38 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
               </Table>
             </div>
           </div>
-        </CardContent>
-      </Card>
+      </SettingsFormCard>
 
       <Dialog open={!!editingService} onOpenChange={(open) => !open && setEditingService(null)}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Edit Service</DialogTitle>
-            <DialogDescription>Update service info and sidebar link.</DialogDescription>
+            <DialogTitle>تعديل الخدمة</DialogTitle>
+            <DialogDescription>تحديث معلومات الخدمة ورابط الشريط الجانبي.</DialogDescription>
           </DialogHeader>
           <form onSubmit={editForm.handleSubmit(handleSaveEdit)} className="space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Name</Label>
+                <Label className="text-sm font-medium">الاسم</Label>
                 <Input {...editForm.register("name")} className="h-11" />
                 {editForm.formState.errors.name && (
                   <p className="text-sm text-destructive">{editForm.formState.errors.name.message}</p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Slug</Label>
+                <Label className="text-sm font-medium">المعرّف</Label>
                 <Input {...editForm.register("slug")} className="h-11" />
                 {editForm.formState.errors.slug && (
                   <p className="text-sm text-destructive">{editForm.formState.errors.slug.message}</p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Icon</Label>
+                <Label className="text-sm font-medium">الأيقونة</Label>
                 <Select
                   value={editForm.watch("iconKey")}
                   onValueChange={(value) => editForm.setValue("iconKey", value)}
                 >
                   <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Select an icon" />
+                    <SelectValue placeholder="اختر أيقونة" />
                   </SelectTrigger>
                   <SelectContent>
                     {ICON_OPTIONS.map(({ key, label, Icon }) => (
@@ -478,22 +481,27 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
                 </Select>
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label className="text-sm font-medium">Description</Label>
+                <Label className="text-sm font-medium">الوصف</Label>
                 <Textarea rows={4} {...editForm.register("description")} />
               </div>
             </div>
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setEditingService(null)} disabled={savingEdit}>
-                Cancel
+                إلغاء
               </Button>
-              <Button type="submit" disabled={savingEdit}>
+              <Button type="submit" disabled={savingEdit} className="gap-2">
                 {savingEdit ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <>
+                    <span>بيتحفظ...</span>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </>
                 ) : (
-                  <Save className="h-4 w-4 mr-2" />
+                  <>
+                    <span>حفظ</span>
+                    <Save className="h-4 w-4" />
+                  </>
                 )}
-                Save
               </Button>
             </DialogFooter>
           </form>
@@ -508,17 +516,17 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete service?</AlertDialogTitle>
+            <AlertDialogTitle>حذف الخدمة؟</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete{" "}
+              سيؤدي هذا إلى حذف{" "}
               <span className="font-medium text-foreground">
                 {deleteServiceTarget?.name}
-              </span>
-              . This action cannot be undone.
+              </span>{" "}
+              نهائياً. مش هينفع الرجوع عن هذا الإجراء.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>إلغاء</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={deleting || !deleteServiceTarget}
@@ -528,7 +536,7 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
                 void handleDelete(deleteServiceTarget);
               }}
             >
-              {deleting ? "Deleting..." : "Delete"}
+              {deleting ? "جاري الحذف..." : "حذف"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

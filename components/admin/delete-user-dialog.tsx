@@ -28,7 +28,7 @@ export function DeleteUserDialog({
   open,
   onOpenChange,
   user,
-  entityLabel = "User",
+  entityLabel = "مستخدم",
 }: DeleteUserDialogProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -42,14 +42,14 @@ export function DeleteUserDialog({
       const result = await deleteUser(user.id);
 
       if (result.success) {
-        toast.success(result.message || "User deleted successfully");
+        toast.success(result.message || "اتمسح المستخدم");
         onOpenChange(false);
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to delete user");
+        toast.error(result.error || "تعذّر الحذف المستخدم");
       }
     } catch (error: any) {
-      toast.error(error.message || "An unexpected error occurred");
+      toast.error(error.message || "حصل خطأ مش متوقع");
     } finally {
       setIsDeleting(false);
     }
@@ -59,19 +59,18 @@ export function DeleteUserDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>متأكد؟</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the{" "}
-            {entityLabel.toLowerCase()} account for <strong>{user?.name}</strong>{" "}
-            ({user?.email}) and remove their data from the system.
+            مش هينفع الرجوع عن هذا الإجراء. سياتمسح حساب {entityLabel} الخاص
+            بـ <strong>{user?.name}</strong> ({user?.email}) نهائيًا وإزالة
+            بياناته من النظام.
             <br />
             <br />
-            Note: Tickets and comments created by this {entityLabel.toLowerCase()}{" "}
-            will be preserved for data integrity.
+            ملاحظة: التذاكر والتعليقات اللي عملها {entityLabel} ده هتفضل محفوظة عشان سلامة البيانات.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>إلغاء</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isDeleting}
@@ -79,11 +78,11 @@ export function DeleteUserDialog({
           >
             {isDeleting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Deleting...
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                جاري الحذف...
               </>
             ) : (
-              `Delete ${entityLabel}`
+              `حذف ${entityLabel}`
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

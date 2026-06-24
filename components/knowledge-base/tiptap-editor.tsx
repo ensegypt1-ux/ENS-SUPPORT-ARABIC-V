@@ -39,7 +39,7 @@ interface TiptapEditorProps {
 export function TiptapEditor({
   value,
   onChange,
-  placeholder = "Start writing...",
+  placeholder = "ابدأ الكتابة...",
   className,
 }: TiptapEditorProps) {
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -64,6 +64,7 @@ export function TiptapEditor({
       attributes: {
         class:
           "prose prose-sm max-w-none focus:outline-none min-h-[300px] px-4 py-3 dark:prose-invert",
+        dir: "rtl",
       },
     },
   });
@@ -77,7 +78,7 @@ export function TiptapEditor({
   if (!editor) return null;
 
   const addLink = () => {
-    const url = window.prompt("Enter URL");
+    const url = window.prompt("أدخل الرابط");
     if (!url) return;
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
@@ -89,11 +90,11 @@ export function TiptapEditor({
 
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
-      toast.error("Only image files are allowed (JPEG, PNG, GIF, WebP)");
+      toast.error("مسموح بس صور (JPEG, PNG, GIF, WebP)");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be smaller than 5MB");
+      toast.error("حجم الصورة لازم يكون أقل من 5 ميجابايت");
       return;
     }
 
@@ -104,9 +105,9 @@ export function TiptapEditor({
       const result = await uploadKBImage(formData);
       if (result.success && result.data) {
         editor.chain().focus().setImage({ src: result.data.url }).run();
-        toast.success("Image inserted");
+        toast.success("اتضافت الصورة");
       } else {
-        toast.error(result.error ?? "Image upload failed");
+        toast.error(result.error ?? "تعذّر رفع الصورة");
       }
     } finally {
       setIsUploadingImage(false);
@@ -124,34 +125,34 @@ export function TiptapEditor({
   > = [
     {
       icon: Bold,
-      label: "Bold",
+      label: "غامق",
       action: () => editor.chain().focus().toggleBold().run(),
       active: editor.isActive("bold"),
     },
     {
       icon: Italic,
-      label: "Italic",
+      label: "مائل",
       action: () => editor.chain().focus().toggleItalic().run(),
       active: editor.isActive("italic"),
     },
     "divider",
     {
       icon: Heading1,
-      label: "H1",
+      label: "عنوان 1",
       action: () =>
         editor.chain().focus().toggleHeading({ level: 1 }).run(),
       active: editor.isActive("heading", { level: 1 }),
     },
     {
       icon: Heading2,
-      label: "H2",
+      label: "عنوان 2",
       action: () =>
         editor.chain().focus().toggleHeading({ level: 2 }).run(),
       active: editor.isActive("heading", { level: 2 }),
     },
     {
       icon: Heading3,
-      label: "H3",
+      label: "عنوان 3",
       action: () =>
         editor.chain().focus().toggleHeading({ level: 3 }).run(),
       active: editor.isActive("heading", { level: 3 }),
@@ -159,58 +160,59 @@ export function TiptapEditor({
     "divider",
     {
       icon: List,
-      label: "Bullet List",
+      label: "قائمة نقطية",
       action: () => editor.chain().focus().toggleBulletList().run(),
       active: editor.isActive("bulletList"),
     },
     {
       icon: ListOrdered,
-      label: "Ordered List",
+      label: "قائمة مرقمة",
       action: () => editor.chain().focus().toggleOrderedList().run(),
       active: editor.isActive("orderedList"),
     },
     {
       icon: Quote,
-      label: "Blockquote",
+      label: "اقتباس",
       action: () => editor.chain().focus().toggleBlockquote().run(),
       active: editor.isActive("blockquote"),
     },
     "divider",
     {
       icon: Code,
-      label: "Inline Code",
+      label: "كود مضمّن",
       action: () => editor.chain().focus().toggleCode().run(),
       active: editor.isActive("code"),
     },
     {
       icon: Code2,
-      label: "Code Block",
+      label: "كتلة كود",
       action: () => editor.chain().focus().toggleCodeBlock().run(),
       active: editor.isActive("codeBlock"),
     },
     {
       icon: Minus,
-      label: "Horizontal Rule",
+      label: "خط أفقي",
       action: () => editor.chain().focus().setHorizontalRule().run(),
     },
     "divider",
-    { icon: Link2, label: "Link", action: addLink, active: editor.isActive("link") },
-    { icon: isUploadingImage ? Loader2 : ImageIcon, label: "Image", action: () => imageInputRef.current?.click() },
+    { icon: Link2, label: "رابط", action: addLink, active: editor.isActive("link") },
+    { icon: isUploadingImage ? Loader2 : ImageIcon, label: "صورة", action: () => imageInputRef.current?.click() },
     "divider",
     {
       icon: Undo,
-      label: "Undo",
+      label: "تراجع",
       action: () => editor.chain().focus().undo().run(),
     },
     {
       icon: Redo,
-      label: "Redo",
+      label: "إعادة",
       action: () => editor.chain().focus().redo().run(),
     },
   ];
 
   return (
     <div
+      dir="rtl"
       className={cn(
         "rounded-lg border border-input bg-background overflow-hidden",
         className
@@ -235,7 +237,7 @@ export function TiptapEditor({
             );
           }
           const Icon = tool.icon;
-          const isImageTool = tool.label === "Image";
+          const isImageTool = tool.label === "صورة";
           return (
             <Button
               key={tool.label}
@@ -249,7 +251,7 @@ export function TiptapEditor({
               )}
               onClick={tool.action}
               disabled={isImageTool && isUploadingImage}
-              title={isImageTool ? "Upload image" : tool.label}
+              title={isImageTool ? "رفع صورة" : tool.label}
             >
               <Icon className={cn("h-3.5 w-3.5", isImageTool && isUploadingImage && "animate-spin")} />
             </Button>

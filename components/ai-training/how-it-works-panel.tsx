@@ -27,15 +27,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface HowItWorksPanelProps {
-  /** Max agentic tool-calling rounds before a final wrap-up reply. */
   maxIterations: number;
-  /** Chat messages allowed per visitor IP, per minute. */
   rateLimitPerMinute: number;
-  /** Ticket submissions allowed per visitor IP, per hour. */
   ticketRateLimitPerHour: number;
-  /** Whether resolved tickets are part of the agent's knowledge. */
   indexResolvedTickets: boolean;
-  /** Min similarity score for a Q&A match to count as a confident answer. */
   confidenceThreshold: number;
   agentEnabled: boolean;
   chatbotEnabled: boolean;
@@ -67,7 +62,6 @@ const tone: Record<Tone, { text: string; bg: string; ring: string }> = {
   },
 };
 
-/** A single node in a vertical, connected flow. */
 function StepNode({
   index,
   icon: Icon,
@@ -85,21 +79,21 @@ function StepNode({
 }) {
   const t = tone[color];
   return (
-    <div className="relative flex gap-4">
+    <div className="relative flex gap-4" dir="rtl">
       <div className="flex flex-col items-center">
         <div
           className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ${t.bg} ${t.ring}`}
         >
           <Icon className={`h-5 w-5 ${t.text}`} />
           <span
-            className={`absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-background text-[10px] font-bold ring-1 ${t.ring} ${t.text}`}
+            className={`absolute -start-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-background text-[10px] font-bold ring-1 ${t.ring} ${t.text}`}
           >
             {index}
           </span>
         </div>
         {!isLast && <div className="mt-1 w-px flex-1 bg-border" />}
       </div>
-      <div className={isLast ? "pb-1" : "pb-7"}>
+      <div className={`min-w-0 flex-1 text-right ${isLast ? "pb-1" : "pb-7"}`}>
         <h4 className="text-sm font-semibold text-foreground">{title}</h4>
         <div className="mt-1.5 space-y-2 text-sm text-muted-foreground">
           {children}
@@ -109,7 +103,6 @@ function StepNode({
   );
 }
 
-/** One of the agent's read-only retrieval tools. */
 function ToolRow({
   icon: Icon,
   name,
@@ -125,18 +118,21 @@ function ToolRow({
 }) {
   const t = tone[color];
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
+    <div
+      className="flex items-start gap-3 rounded-lg border border-border bg-card p-3 text-right"
+      dir="rtl"
+    >
       <div
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${t.bg}`}
       >
         <Icon className={`h-4 w-4 ${t.text}`} />
       </div>
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-foreground">
             {name}
           </code>
-          <span className="text-xs text-muted-foreground">→ {source}</span>
+          <span className="text-xs text-muted-foreground">← {source}</span>
         </div>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
           {desc}
@@ -146,7 +142,6 @@ function ToolRow({
   );
 }
 
-/** A support agent card used in the distribution worked example. */
 function AgentChip({
   name,
   dept,
@@ -165,14 +160,33 @@ function AgentChip({
   const pct = Math.round((load / maxLoad) * 100);
   return (
     <div
-      className={`rounded-xl border p-3 transition-colors ${
+      className={`rounded-xl border p-3 text-right transition-colors ${
         chosen
           ? "border-success/40 bg-success/5 ring-1 ring-success/30"
           : "border-border bg-card"
       }`}
+      dir="rtl"
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
+          {chosen && (
+            <Badge className="bg-success/15 text-success hover:bg-success/15">
+              اتعيّن
+            </Badge>
+          )}
+          {tied && !chosen && (
+            <Badge variant="secondary" className="text-[11px]">
+              تعادل
+            </Badge>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <div>
+            <p className="text-xs font-semibold leading-none text-foreground">
+              {name}
+            </p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">{dept}</p>
+          </div>
           <div
             className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
               chosen
@@ -182,35 +196,19 @@ function AgentChip({
           >
             {name.charAt(0)}
           </div>
-          <div>
-            <p className="text-xs font-semibold leading-none text-foreground">
-              {name}
-            </p>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">{dept}</p>
-          </div>
         </div>
-        {chosen && (
-          <Badge className="bg-success/15 text-success hover:bg-success/15">
-            Assigned
-          </Badge>
-        )}
-        {tied && !chosen && (
-          <Badge variant="secondary" className="text-[11px]">
-            Tied
-          </Badge>
-        )}
       </div>
       <div className="mt-2.5">
         <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-          <span>Active tickets</span>
           <span className="font-medium text-foreground">{load}</span>
+          <span>تذاكر نشطة</span>
         </div>
         <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div
             className={`h-full rounded-full ${
               chosen ? "bg-success" : "bg-muted-foreground/40"
             }`}
-            style={{ width: `${pct}%` }}
+            style={{ width: `${pct}%`, marginInlineStart: "auto" }}
           />
         </div>
       </div>
@@ -233,18 +231,14 @@ function SectionTitle({
 }) {
   const t = tone[color];
   return (
-    <div className="flex items-start gap-3">
+    <div className="flex items-start gap-3 text-right" dir="rtl">
       <div
         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${t.bg}`}
       >
         <Icon className={`h-5 w-5 ${t.text}`} />
       </div>
-      <div>
-        <p
-          className={`text-[11px] font-semibold uppercase tracking-wider ${t.text}`}
-        >
-          {eyebrow}
-        </p>
+      <div className="min-w-0 flex-1">
+        <p className={`text-[11px] font-semibold ${t.text}`}>{eyebrow}</p>
         <h3 className="text-lg font-semibold text-foreground">{title}</h3>
         <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
       </div>
@@ -264,24 +258,23 @@ export function HowItWorksPanel({
   const live = agentEnabled && chatbotEnabled;
 
   return (
-    <div className="space-y-6">
-      {/* ── Intro / status ─────────────────────────────────────────── */}
+    <div className="space-y-6 text-right" dir="rtl">
       <Card className="overflow-hidden p-0">
         <div className="border-b border-border bg-linear-to-br from-primary/5 via-transparent to-info/5 p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-2xl">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
+                <Sparkles className="h-5 w-5 shrink-0 text-primary" />
                 <h2 className="text-xl font-bold text-foreground">
-                  How the AI Support Agent works
+                  كيف يعمل وكيل الدعم الذكي
                 </h2>
               </div>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                The agent is an autonomous chatbot that answers visitors using{" "}
-                <strong className="text-foreground">only</strong> your own
-                knowledge — never invented facts. When it can&apos;t resolve an
-                issue, it asks permission to hand off to a human and auto-routes
-                a ticket to the least-busy agent in the right department.
+                الوكيل روبوت محادثة مستقل يجيب الزوار باستخدام{" "}
+                <strong className="text-foreground">معرفتكم فقط</strong> — دون
+                اختلاق معلومات. عندما لا يستطيع حل المشكلة، يطلب الإذن لتسليم
+                المحادثة لموظف بشري ويوجّه التذكرة تلقائياً إلى أقل موظف
+                مشغول في القسم المناسب.
               </p>
             </div>
             <Badge
@@ -292,11 +285,11 @@ export function HowItWorksPanel({
               }
             >
               <span
-                className={`mr-1.5 inline-block h-2 w-2 rounded-full ${
+                className={`me-1.5 inline-block h-2 w-2 rounded-full ${
                   live ? "bg-success" : "bg-muted-foreground"
                 }`}
               />
-              {live ? "Agent is live" : "Agent is off"}
+              {live ? "الوكيل يعمل" : "الوكيل متوقف"}
             </Badge>
           </div>
 
@@ -305,25 +298,25 @@ export function HowItWorksPanel({
               {
                 icon: BookOpen,
                 color: "info" as Tone,
-                title: "Answers from your data",
-                desc: "Q&A pairs, knowledge base, services & past tickets",
+                title: "إجابات من بياناتكم",
+                desc: "أزواج أسئلة وأجوبة، قاعدة المعرفة، الخدمات والتذاكر السابقة",
               },
               {
                 icon: LifeBuoy,
                 color: "primary" as Tone,
-                title: "Escalates to humans",
-                desc: "Only with the visitor's consent — never silently",
+                title: "تصعيد للبشر",
+                desc: "فقط بموافقة الزائر — وليس بصمت",
               },
               {
                 icon: Scale,
                 color: "success" as Tone,
-                title: "Balances workload",
-                desc: "Routes new tickets to the least-busy agent",
+                title: "توازن عبء العمل",
+                desc: "يوجّه التذاكر الجديدة إلى أقل موظف مشغول",
               },
             ].map((c) => (
               <div
                 key={c.title}
-                className="rounded-xl border border-border bg-card/60 p-3"
+                className="rounded-xl border border-border bg-card/60 p-3 text-right"
               >
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded-lg ${tone[c.color].bg}`}
@@ -342,30 +335,28 @@ export function HowItWorksPanel({
         </div>
 
         <CardContent className="bg-muted/20 pb-6">
-          <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
+          <p className="flex items-start gap-2 text-right text-xs leading-relaxed text-muted-foreground">
             <SlidersHorizontal className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span>
-              <strong className="text-foreground">Fully configurable —</strong>{" "}
-              not tied to any single model. The agent works with whatever chat
-              &amp; embedding models you connect (a hosted provider or your own
-              self-hosted model), and the rate limits, reasoning depth &amp;
-              confidence threshold described on this page are just your current
-              values. Change any of them anytime under the{" "}
-              <strong className="text-foreground">Settings</strong> tab.
+              <strong className="text-foreground">قابل للضبط بالكامل —</strong>{" "}
+              غير مرتبط بنموذج واحد. يعمل الوكيل مع أي نموذج محادثة وتضمين
+              تربطونه (مزوّد مستضاف أو نموذج ذاتي الاستضافة)، وحدود المعدل
+              وعمق التفكير وعتبة الثقة الموضّحة هنا هي قيمكم الحالية فقط. غيّروا
+              أيّاً منها في أي وقت من تبويب{" "}
+              <strong className="text-foreground">الإعدادات</strong>.
             </span>
           </p>
         </CardContent>
       </Card>
 
-      {/* ── Section 1: Conversation loop ───────────────────────────── */}
       <Card>
         <CardHeader>
           <SectionTitle
             icon={MessageSquare}
             color="info"
-            eyebrow="Stage 1"
-            title="The conversation loop"
-            description="What happens from the moment a visitor sends a message in the widget."
+            eyebrow="المرحلة ١"
+            title="حلقة المحادثة"
+            description="ما يحدث من لحظة إرسال الزائر رسالة في الأداة."
           />
         </CardHeader>
         <CardContent>
@@ -374,12 +365,11 @@ export function HowItWorksPanel({
               index={1}
               icon={MessageSquare}
               color="info"
-              title="Visitor asks a question"
+              title="الزائر يطرح سؤالاً"
             >
               <p>
-                A visitor (guest or signed-in customer) types into the chat
-                widget. Recent conversation history is sent along so the agent
-                has context.
+                الزائر (ضيف أو عميل مسجّل) يكتب في أداة المحادثة. تُرسل سجل
+                المحادثة الأخير ليتمتع الوكيل بالسياق.
               </p>
             </StepNode>
 
@@ -387,18 +377,18 @@ export function HowItWorksPanel({
               index={2}
               icon={ShieldCheck}
               color="muted"
-              title="Guardrails"
+              title="ضوابط الأمان"
             >
               <p>
-                The request is dropped unless the chatbot is enabled and rate
-                limits allow it.
+                تُرفض الطلبات ما لم تكن أداة المحادثة مفعّلة وحدود المعدل
+                تسمح بذلك.
               </p>
-              <div className="flex flex-wrap gap-2 pt-1">
+              <div className="flex flex-wrap justify-end gap-2 pt-1">
                 <Badge variant="secondary">
-                  {rateLimitPerMinute} chats / min per visitor
+                  {rateLimitPerMinute} محادثة / دقيقة لكل زائر
                 </Badge>
                 <Badge variant="secondary">
-                  {ticketRateLimitPerHour} tickets / hour per visitor
+                  {ticketRateLimitPerHour} تذكرة / ساعة لكل زائر
                 </Badge>
               </div>
             </StepNode>
@@ -407,39 +397,38 @@ export function HowItWorksPanel({
               index={3}
               icon={Wrench}
               color="primary"
-              title={`Agentic loop — searches your knowledge first (up to ${maxIterations} rounds)`}
+              title={`حلقة الوكيل — يبحث في معرفتكم أولاً (حتى ${maxIterations} جولات)`}
             >
               <p>
-                Before answering, the agent calls read-only tools to ground its
-                reply in real data. It loops, reading results and searching
-                again until it has enough — or runs out of rounds.
+                قبل الإجابة، يستدعي الوكيل أدوات قراءة فقط ليربط رده ببيانات
+                حقيقية. يكرّر القراءة والبحث حتى يكفي أو تنفد الجولات.
               </p>
               <div className="grid gap-2 pt-1">
                 <ToolRow
                   icon={Sparkles}
                   color="success"
                   name="lookup_faq"
-                  source="approved Q&A pairs"
-                  desc={`Vetted answers. A match scoring ≥ ${confidenceThreshold.toFixed(
+                  source="أزواج أسئلة وأجوبة معتمدة"
+                  desc={`إجابات مدقّقة. التطابق بدرجة ≥ ${confidenceThreshold.toFixed(
                     2,
-                  )} counts as confident and is used almost verbatim.`}
+                  )} يُعد واثقاً ويُستخدم شبه حرفي.`}
                 />
                 <ToolRow
                   icon={Database}
                   color="info"
                   name="search_knowledge"
-                  source="docs, services & Q&A"
-                  desc="Vector search over the knowledge base for product, pricing, feature & how-to questions."
+                  source="مستندات وخدمات وأسئلة"
+                  desc="بحث متجهي في قاعدة المعرفة عن المنتج والأسعار والميزات وكيفية الاستخدام."
                 />
                 <ToolRow
                   icon={Ticket}
                   color="primary"
                   name="search_resolved_tickets"
-                  source="past solved tickets"
+                  source="تذاكر محلولة سابقاً"
                   desc={
                     indexResolvedTickets
-                      ? "Troubleshooting from previously resolved issues. Currently enabled."
-                      : "Disabled — resolved tickets are excluded from the index (PII control)."
+                      ? "استكشاف أخطاء من مشكلات حُلّت من قبل. مفعّل حالياً."
+                      : "معطّل — التذاكر المحلولة مستبعدة من الفهرس (تحكم في البيانات الشخصية)."
                   }
                 />
               </div>
@@ -449,51 +438,48 @@ export function HowItWorksPanel({
               index={4}
               icon={GitBranch}
               color="primary"
-              title="Decision: resolve or hand off"
+              title="القرار: حل أو تصعيد"
               isLast
             >
-              <p>
-                The agent only states facts that came from a tool. It then
-                branches:
-              </p>
+              <p>يذكر الوكيل حقائق جاءت من أداة فقط، ثم يتفرّع:</p>
               <div className="grid gap-2 pt-1 sm:grid-cols-2">
-                <div className="rounded-lg border border-success/30 bg-success/5 p-3">
-                  <div className="flex items-center gap-2 text-sm font-medium text-success">
+                <div className="rounded-lg border border-success/30 bg-success/5 p-3 text-right">
+                  <div className="flex items-center justify-end gap-2 text-sm font-medium text-success">
                     <CheckCircle2 className="h-4 w-4" />
-                    Resolved
+                    اتحلّ
                   </div>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    Replies in 2–5 sentences and logs the outcome:{" "}
+                    يرد في ٢–٥ جمل ويسجّل النتيجة:{" "}
                     <code className="rounded bg-muted px-1 text-foreground">
                       answered_faq
                     </code>
-                    ,{" "}
+                    ،{" "}
                     <code className="rounded bg-muted px-1 text-foreground">
                       answered_kb
                     </code>
-                    ,{" "}
+                    ،{" "}
                     <code className="rounded bg-muted px-1 text-foreground">
                       answered_resolved_ticket
                     </code>{" "}
-                    or{" "}
+                    أو{" "}
                     <code className="rounded bg-muted px-1 text-foreground">
                       answered_general
                     </code>
                     .
                   </p>
                 </div>
-                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-                  <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-right">
+                  <div className="flex items-center justify-end gap-2 text-sm font-medium text-primary">
                     <UserPlus className="h-4 w-4" />
-                    Can&apos;t resolve
+                    مش ينفع الحل
                   </div>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    It does <strong>not</strong> create anything. It asks if the
-                    visitor wants a human. Only after they agree does it call{" "}
+                    <strong>لا</strong> ينشئ شيئاً. يسأل إن كان الزائر يريد
+                    موظفاً. بعد الموافقة فقط يستدعي{" "}
                     <code className="rounded bg-muted px-1 text-foreground">
                       request_human_handoff
                     </code>
-                    , pick the best department, and open the ticket form.
+                    ، يختار أفضل قسم، ويفتح نموذج التذكرة.
                   </p>
                 </div>
               </div>
@@ -502,29 +488,27 @@ export function HowItWorksPanel({
         </CardContent>
       </Card>
 
-      {/* ── Section 2: Auto-assignment pipeline ────────────────────── */}
       <Card>
         <CardHeader>
           <SectionTitle
             icon={Scale}
             color="success"
-            eyebrow="Stage 2"
-            title="Auto ticket assignment"
-            description="When a hand-off ticket is created, this pipeline picks exactly one support agent. It is deterministic logic — not the AI guessing."
+            eyebrow="المرحلة ٢"
+            title="تعيين التذاكر تلقائياً"
+            description="عند افتح تذكرة تصعيد، يختار هذا المسار موظف دعم واحداً بالضبط. منطق حتمي — وليس تخمين الذكاء الاصطناعي."
           />
         </CardHeader>
         <CardContent>
-          <div className="mb-5 flex items-start gap-3 rounded-lg border border-info/20 bg-info/5 p-3">
+          <div className="mb-5 flex items-start gap-3 rounded-lg border border-info/20 bg-info/5 p-3 text-right">
             <UserPlus className="mt-0.5 h-4 w-4 shrink-0 text-info" />
             <p className="text-xs leading-relaxed text-muted-foreground">
-              <strong className="text-foreground">First, the bridge:</strong>{" "}
-              after consent the agent only opens a short contact form. The{" "}
+              <strong className="text-foreground">أولاً، الجسر:</strong> بعد
+              الموافقة يفتح الوكيل نموذج اتصال قصير فقط.{" "}
               <strong className="text-foreground">
-                visitor submits their name, email &amp; details
+                الزائر يُرسل اسمه وبريده وتفاصيله
               </strong>
-              , and that submission — not the AI — is what creates the ticket
-              with the agent&apos;s classified department attached. Only then
-              does the routing below run.
+              ، وهذا الإرسال — وليس الذكاء الاصطناعي — هو ما ينشئ التذكرة مع
+              القسم الذي صنّفه الوكيل. بعدها يعمل التوجيه أدناه.
             </p>
           </div>
           <div className="flex flex-col">
@@ -532,10 +516,10 @@ export function HowItWorksPanel({
               index={1}
               icon={Users}
               color="info"
-              title="Build the candidate pool"
+              title="بناء مجموعة المرشحين"
             >
               <p>
-                Start with every user whose role is{" "}
+                نبدأ بكل مستخدم دوره{" "}
                 <code className="rounded bg-muted px-1 text-foreground">
                   support
                 </code>
@@ -544,9 +528,8 @@ export function HowItWorksPanel({
               <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/40 p-2.5 text-xs">
                 <CircleSlash className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                 <span>
-                  If there are no support agents at all, the ticket is still
-                  created — just <strong>unassigned</strong> — and admins are
-                  notified.
+                  إن لم يوجد موظفو دعم، تُنشأ التذكرة —{" "}
+                  <strong>بدون تعيين</strong> — ويُبلّغ المسؤولون.
                 </span>
               </div>
             </StepNode>
@@ -555,22 +538,21 @@ export function HowItWorksPanel({
               index={2}
               icon={Filter}
               color="info"
-              title="Filter to the matched department"
+              title="تصفية حسب القسم المطابق"
             >
               <p>
-                Keep only agents whose{" "}
+                نُبقي فقط من{" "}
                 <code className="rounded bg-muted px-1 text-foreground">
                   departmentSlugs
                 </code>{" "}
-                include the department the agent classified the issue into.
+                لديه القسم الذي صنّفه الوكيل.
               </p>
               <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/40 p-2.5 text-xs">
                 <RefreshCw className="mt-0.5 h-3.5 w-3.5 shrink-0 text-info" />
                 <span>
-                  <strong>Fallback:</strong> if no department was classified (or
-                  it&apos;s invalid), or no agent covers it, the filter is
-                  skipped and the full support pool is used — a ticket is never
-                  left unassigned just because a department has no staff.
+                  <strong>بديل:</strong> إن لم يُصنَّف قسم (أو كان مش صح)، أو
+                  لا يغطيه أحد، تُتخطى التصفية ويُستخدم مجموعة الدعم كاملة —
+                  لا تُترك تذكرة بدون تعيين لمجرد أن القسم بلا موظفين.
                 </span>
               </div>
             </StepNode>
@@ -579,11 +561,10 @@ export function HowItWorksPanel({
               index={3}
               icon={ArrowRight}
               color="muted"
-              title="Shortcut for a single candidate"
+              title="اختصار لمرشح واحد"
             >
               <p>
-                If exactly one agent remains, it&apos;s assigned immediately —
-                no workload math needed.
+                إن بقي موظف واحد فقط، يُعيَّن فوراً — دون حساب عبء عمل.
               </p>
             </StepNode>
 
@@ -591,14 +572,14 @@ export function HowItWorksPanel({
               index={4}
               icon={Building2}
               color="primary"
-              title="Count each candidate's live workload"
+              title="عدّ عبء كل مرشح الحي"
             >
               <p>
-                For every candidate, count their{" "}
-                <strong className="text-foreground">active</strong> tickets
-                across all four request types:
+                لكل مرشح، نعدّ{" "}
+                <strong className="text-foreground">النشطة</strong> من أربعة
+                أنواع طلبات:
               </p>
-              <div className="flex flex-wrap gap-1.5 pt-1">
+              <div className="flex flex-wrap justify-end gap-1.5 pt-1">
                 {[
                   "tickets",
                   "installation_requests",
@@ -613,10 +594,8 @@ export function HowItWorksPanel({
                   </code>
                 ))}
               </div>
-              <p className="pt-1">
-                &ldquo;Active&rdquo; means status is one of:
-              </p>
-              <div className="flex flex-wrap gap-1.5">
+              <p className="pt-1">&laquo;نشطة&raquo; تعني الحالة:</p>
+              <div className="flex flex-wrap justify-end gap-1.5">
                 {[
                   "open",
                   "scheduled_meeting",
@@ -629,8 +608,8 @@ export function HowItWorksPanel({
                 ))}
               </div>
               <p className="pt-1 text-xs">
-                Resolved &amp; closed tickets don&apos;t count — clearing your
-                queue frees up capacity for new assignments.
+                المحلولة والمغلقة لا تُحسب — إفراغ قائمتكم يحرّر سعة لتعيينات
+                جديدة.
               </p>
             </StepNode>
 
@@ -638,170 +617,162 @@ export function HowItWorksPanel({
               index={5}
               icon={Shuffle}
               color="success"
-              title="Least-loaded wins (random tie-break)"
+              title="الأقل حملاً يفوز (تعادل عشوائي)"
               isLast
             >
               <p>
-                The candidate with the <strong>fewest active tickets</strong>{" "}
-                gets the ticket. If several are tied at the minimum, one is
-                picked <strong>at random</strong> among them.
+                يحصل المرشح بـ<strong>أقل تذاكر نشطة</strong> على التذكرة. إن
+                تعادل عدة مرشحين عند الحد الأدنى، يُختار واحد{" "}
+                <strong>عشوائياً</strong> بينهم.
               </p>
             </StepNode>
           </div>
         </CardContent>
       </Card>
 
-      {/* ── Section 3: Distribution model / ratio ──────────────────── */}
       <Card>
         <CardHeader>
           <SectionTitle
             icon={Scale}
             color="success"
-            eyebrow="The ratio & sequence"
-            title="How tickets get distributed"
-            description="The most common question: is it round-robin or a fixed ratio? Neither."
+            eyebrow="النسبة والتسلسل"
+            title="كيف تُوزَّع التذاكر"
+            description="السؤال الأكثر شيوعاً: هل بالتناوب أم بنسبة ثابتة؟ لا هذا ولا ذاك."
           />
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-success/30 bg-success/5 p-3">
+            <div className="rounded-xl border border-success/30 bg-success/5 p-3 text-right">
               <p className="text-sm font-semibold text-success">
-                ✓ Least-loaded balancing
+                ✓ توازن حسب الأقل حملاً
               </p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Every ticket goes to whoever has the smallest live queue right
-                now.
+                كل تذكرة لمن لديه أصغر قائمة انتظار حية الآن.
               </p>
             </div>
-            <div className="rounded-xl border border-border bg-muted/30 p-3">
+            <div className="rounded-xl border border-border bg-muted/30 p-3 text-right">
               <p className="text-sm font-semibold text-muted-foreground line-through decoration-destructive/60">
-                Fixed ratio (e.g. 60/40)
+                نسبة ثابتة (مثلاً ٦٠/٤٠)
               </p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                No preset percentages. The split emerges from who clears tickets
-                fastest.
+                لا نسب مُحدَّدة مسبقاً. التوزيع يظهر من سرعة إغلاق التذاكر.
               </p>
             </div>
-            <div className="rounded-xl border border-border bg-muted/30 p-3">
+            <div className="rounded-xl border border-border bg-muted/30 p-3 text-right">
               <p className="text-sm font-semibold text-muted-foreground line-through decoration-destructive/60">
-                Round-robin rotation
+                تناوب دائري
               </p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                There&apos;s no &ldquo;next in line&rdquo; pointer — each
-                decision is computed fresh from current load.
+                لا مؤشر &laquo;التالي في الدور&raquo; — كل قرار يُحسب من الحمل
+                الحالي.
               </p>
             </div>
           </div>
 
-          {/* Worked example */}
-          <div className="rounded-xl border border-border bg-muted/20 p-4">
-            <div className="flex items-center gap-2">
+          <div className="rounded-xl border border-border bg-muted/20 p-4 text-right">
+            <div className="flex items-center justify-end gap-2">
               <Building2 className="h-4 w-4 text-primary" />
               <p className="text-sm font-semibold text-foreground">
-                Worked example — a new &ldquo;Billing&rdquo; ticket arrives
+                مثال عملي — تذكرة &laquo;الفوترة&raquo; جديدة
               </p>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Three agents cover the Billing department. The agent with the
-              lowest active count wins; B and C tie at 1, so it&apos;s a coin
-              flip between them.
+              ثلاثة موظفين يغطون الفوترة. الأقل عدّاً نشطاً يفوز؛ ب و ج
+              متعادلان عند ١، فيُختار بينهما بالقرعة.
             </p>
             <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
-              <AgentChip name="Ada" dept="Billing" load={3} maxLoad={3} />
+              <AgentChip name="آدا" dept="الفوترة" load={3} maxLoad={3} />
               <AgentChip
-                name="Bola"
-                dept="Billing"
+                name="بولا"
+                dept="الفوترة"
                 load={1}
                 maxLoad={3}
                 chosen
               />
               <AgentChip
-                name="Chidi"
-                dept="Billing"
+                name="شيدي"
+                dept="الفوترة"
                 load={1}
                 maxLoad={3}
                 tied
               />
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Over many tickets the queues converge toward equal depth, but the
-              balance self-corrects to whoever is actually free — not a static
-              schedule.
+              مع كثرة التذاكر تتقارب القوائم، لكن التوازن يصحّح نفسه لمن هو
+              فعلاً متاح — وليس جدولاً ثابتاً.
             </p>
           </div>
 
-          {/* Caveat */}
-          <div className="flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
+          <div className="flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-right">
             <CircleSlash className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
             <p className="text-xs leading-relaxed text-muted-foreground">
-              <strong className="text-foreground">Concurrency caveat:</strong>{" "}
-              workload is read just before the ticket is inserted, with no lock.
-              If many tickets are created in the same instant, they can all see
-              the same least-loaded agent and pile onto one person. Balancing
-              assumes assignments are reasonably spaced apart.
+              <strong className="text-foreground">تحذير التزامن:</strong> يُقرأ
+              العبء قبل إدراج التذكرة دون قفل. إن اُنشئت عدة تذاكر في لحظة
+              واحدة، قد يرى الجميع نفس الأقل حملاً ويتراكموا على شخص واحد.
+              التوازن يفترض فترات معقولة بين التعيينات.
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* ── Section 4: After assignment ────────────────────────────── */}
       <Card>
         <CardHeader>
           <SectionTitle
             icon={Bell}
             color="primary"
-            eyebrow="Stage 3"
-            title="After a ticket is created"
-            description="Everything that fires automatically once routing is decided."
+            eyebrow="المرحلة ٣"
+            title="بعد إنشاء التذكرة"
+            description="كل ما يُفعَّل تلقائياً بعد اختيار التوجيه."
           />
         </CardHeader>
         <CardContent>
-          <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">
-              The ticket is created with:
-            </span>
+          <div className="mb-3 flex flex-wrap items-center justify-end gap-x-2 gap-y-1 rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+            <span>— يمكن لموظف إعادة الأولوية أو إعادة التعيين في أي وقت.</span>
             <Badge variant="secondary" className="text-[11px]">
-              status: open
+              tag: auto-assigned
             </Badge>
             <Badge variant="secondary" className="text-[11px]">
               priority: medium
             </Badge>
             <Badge variant="secondary" className="text-[11px]">
-              tag: auto-assigned
+              status: open
             </Badge>
-            <span>— a human can re-prioritise or reassign at any time.</span>
+            <span className="font-medium text-foreground">
+              تُنشأ التذكرة بـ:
+            </span>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {[
               {
                 icon: Bell,
-                title: "In-app notifications",
-                desc: "The assigned agent and all admins get a new-ticket notification with a deep link.",
+                title: "إشعارات داخل التطبيق",
+                desc: "الموظف المعيّن وجميع المسؤولين يتلقون إشعار تذكرة جديدة برابط مباشر.",
               },
               {
                 icon: MessageSquare,
-                title: "Confirmation email",
-                desc: "The customer gets a ticket-created email (when email notifications are enabled).",
+                title: "بريد تأكيد",
+                desc: "العميل يتلقى بريد إنشاء التذكرة (عند تفعيل إشعارات البريد).",
               },
               {
                 icon: Ticket,
-                title: "History trail",
-                desc: 'Ticket history records "created" and "assigned" events under the ai-agent actor.',
+                title: "سجل التاريخ",
+                desc: 'سجل التذكرة يسجّل أحداث "created" و"assigned" تحت فاعل ai-agent.',
               },
               {
                 icon: RefreshCw,
-                title: "Integrations",
-                desc: "Standard new-ticket integration notifications (e.g. Slack/webhooks) are sent.",
+                title: "التكاملات",
+                desc: "إشعارات التكامل القياسية للتذكرة الجديدة (مثل Slack/webhooks).",
               },
             ].map((item) => (
               <div
                 key={item.title}
-                className="flex items-start gap-3 rounded-lg border border-border bg-card p-3"
+                className="flex items-start gap-3 rounded-lg border border-border bg-card p-3 text-right"
+                dir="rtl"
               >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                   <item.icon className="h-4 w-4 text-primary" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground">
                     {item.title}
                   </p>
@@ -815,43 +786,42 @@ export function HowItWorksPanel({
         </CardContent>
       </Card>
 
-      {/* ── Section 5: Training loop ───────────────────────────────── */}
       <Card>
         <CardHeader>
           <SectionTitle
             icon={RefreshCw}
             color="info"
-            eyebrow="The feedback loop"
-            title="It gets smarter as you train it"
-            description="How the other tabs on this page feed back into the agent's accuracy."
+            eyebrow="حلقة التغذية الراجعة"
+            title="يتحسّن كلما درّبتموه"
+            description="كيف تغذّي التبويبات الأخرى دقة الوكيل."
           />
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+          <div className="flex flex-col gap-2 sm:flex-row-reverse sm:items-stretch">
             {[
               {
                 icon: MessageSquare,
-                label: "Chat Logs",
-                desc: "Spot questions the agent couldn't answer",
+                label: "سجلات المحادثة",
+                desc: "اكتشف أسئلة لم يستطع الوكيل الإجابة عليها",
               },
               {
                 icon: Sparkles,
-                label: "Q&A Pairs",
-                desc: "Add an approved answer for it",
+                label: "أزواج الأسئلة والأجوبة",
+                desc: "أضف إجابة معتمدة",
               },
               {
                 icon: Database,
-                label: "Regenerate",
-                desc: "Build embeddings so it's searchable",
+                label: "إعادة التوليد",
+                desc: "ابنِ التضمينات لتصبح قابلة للبحث",
               },
               {
                 icon: CheckCircle2,
-                label: "Better answers",
-                desc: "Fewer escalations next time",
+                label: "إجابات أفضل",
+                desc: "تصعيدات أقل في المرة القادمة",
               },
             ].map((s, i, arr) => (
               <Fragment key={s.label}>
-                <div className="flex flex-1 flex-col rounded-xl border border-border bg-card p-3">
+                <div className="flex flex-1 flex-col rounded-xl border border-border bg-card p-3 text-right">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-info/10">
                     <s.icon className="h-4 w-4 text-info" />
                   </div>
@@ -864,7 +834,7 @@ export function HowItWorksPanel({
                 </div>
                 {i < arr.length - 1 && (
                   <div className="flex shrink-0 items-center justify-center text-muted-foreground">
-                    <ArrowRight className="h-4 w-4 rotate-90 sm:rotate-0" />
+                    <ArrowRight className="h-4 w-4 rotate-90 rtl:-scale-x-100 sm:rotate-0" />
                   </div>
                 )}
               </Fragment>

@@ -52,8 +52,8 @@ export function ChatMessageBubble({
         className={cn(
           "flex max-w-[80%] flex-col gap-1.5 rounded-2xl px-3.5 py-2 text-sm leading-relaxed break-words",
           isUser
-            ? "text-white rounded-br-md"
-            : "bg-muted text-foreground rounded-bl-md"
+            ? "text-white rounded-be-md"
+            : "bg-muted text-foreground rounded-bs-md"
         )}
         style={isUser ? { backgroundColor: theme.primary } : undefined}
       >
@@ -66,8 +66,8 @@ export function ChatMessageBubble({
           <div
             className={cn(
               "space-y-2 [&_p]:m-0",
-              "[&_ul]:my-1 [&_ul]:list-disc [&_ul]:pl-4",
-              "[&_ol]:my-1 [&_ol]:list-decimal [&_ol]:pl-4",
+              "[&_ul]:my-1 [&_ul]:list-disc [&_ul]:ps-4",
+              "[&_ol]:my-1 [&_ol]:list-decimal [&_ol]:ps-4",
               "[&_li]:my-0.5 [&_strong]:font-semibold",
               "[&_code]:rounded [&_code]:bg-black/10 [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-[0.85em]"
             )}
@@ -94,7 +94,7 @@ export function ChatMessageBubble({
         {!isUser && message.sources && message.sources.length > 0 && (
           <div className="mt-0.5 flex flex-col gap-0.5 border-t border-border/50 pt-1.5">
             <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground/70">
-              Sources
+              المصادر
             </span>
             {message.sources.map((s, i) => (
               <a
@@ -122,13 +122,13 @@ export function ChatMessageBubble({
                   type="button"
                   title={
                     value === "up"
-                      ? "Mark answer helpful"
-                      : "Mark answer not helpful"
+                      ? "الإجابة مفيدة"
+                      : "الإجابة غير مفيدة"
                   }
                   aria-label={
                     value === "up"
-                      ? "Mark answer helpful"
-                      : "Mark answer not helpful"
+                      ? "الإجابة مفيدة"
+                      : "الإجابة غير مفيدة"
                   }
                   onClick={() => onFeedback(message, value)}
                   className={cn(

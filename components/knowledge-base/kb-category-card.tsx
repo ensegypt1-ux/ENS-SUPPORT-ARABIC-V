@@ -44,11 +44,12 @@ export function KBCategoryCard({ category, className }: KBCategoryCardProps) {
           <div className="flex items-center justify-between mt-3">
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <FileText className="h-3 w-3" />
-              {category.articleCount} article
-              {category.articleCount !== 1 ? "s" : ""}
+              {category.articleCount === 1
+                ? `${category.articleCount} مقال`
+                : `${category.articleCount} مقالات`}
             </span>
             <span className="flex items-center gap-1 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-              Get started
+              ابدأ
               <ArrowRight className="h-3 w-3" />
             </span>
           </div>

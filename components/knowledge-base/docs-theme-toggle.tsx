@@ -15,6 +15,12 @@ const options = [
   { key: "dark", icon: Moon },
 ] as const;
 
+const themeLabels: Record<(typeof options)[number]["key"], string> = {
+  light: "السمة الفاتحة",
+  system: "سمة النظام",
+  dark: "السمة الداكنة",
+};
+
 /** Floating bottom-right light/system/dark switcher (Storify-style). */
 export function DocsThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -27,7 +33,7 @@ export function DocsThemeToggle() {
   const active = mounted ? theme ?? "system" : "system";
 
   return (
-    <div className="fixed left-6 bottom-6 z-40 hidden items-center gap-1 rounded-full border border-border bg-background p-1 shadow-lg shadow-black/5 lg:flex">
+    <div className="fixed start-6 bottom-6 z-40 hidden items-center gap-1 rounded-full border border-border bg-background p-1 shadow-lg shadow-black/5 lg:flex">
       {options.map((opt) => {
         const isActive = active === opt.key;
         const Icon = opt.icon;
@@ -36,7 +42,7 @@ export function DocsThemeToggle() {
             key={opt.key}
             type="button"
             onClick={() => setTheme(opt.key)}
-            aria-label={`${opt.key} theme`}
+            aria-label={themeLabels[opt.key]}
             className={cn(
               "flex size-8 items-center justify-center rounded-full transition-colors",
               isActive

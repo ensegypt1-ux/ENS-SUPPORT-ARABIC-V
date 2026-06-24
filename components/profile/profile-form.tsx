@@ -16,6 +16,13 @@ import type { UpdateProfileFormData, ChangePasswordFormData } from "@/types";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { updateProfileSchema, changePasswordSchema } from "@/lib/validations";
 import { CountryCombobox } from "@/components/ui/country-combobox";
+import { AR_LOCALE } from "@/lib/strings";
+
+const ROLE_LABELS: Record<string, string> = {
+  customer: "عميل",
+  support: "دعم",
+  admin: "مدير",
+};
 
 import {
   Form,
@@ -93,13 +100,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     try {
       const res = await updateProfile(values);
       if (res.success) {
-        toast.success(res.message || "Profile updated");
+        toast.success(res.message || "اتحدّث الملف الشخصي");
         router.refresh();
       } else {
-        toast.error(res.error || "Failed to update profile");
+        toast.error(res.error || "تعذّر التحديث الملف الشخصي");
       }
     } catch {
-      toast.error("Unexpected error updating profile");
+      toast.error("حصل خطأ مش متوقع أثناء تحديث الملف الشخصي");
     } finally {
       setIsSaving(false);
     }
@@ -109,13 +116,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     try {
       const res = await changePassword(values);
       if (res.success) {
-        toast.success(res.message || "Password updated");
+        toast.success(res.message || "اتحدّث كلمة المرور");
         passwordForm.reset();
       } else {
-        toast.error(res.error || "Failed to update password");
+        toast.error(res.error || "تعذّر التحديث كلمة المرور");
       }
     } catch {
-      toast.error("Unexpected error updating password");
+      toast.error("حصل خطأ مش متوقع أثناء تحديث كلمة المرور");
     } finally {
       setIsChangingPassword(false);
     }
@@ -131,7 +138,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       fd.append("file", file);
       const res = await uploadProfileAvatar(fd);
       if (res.success) {
-        toast.success(res.message || "Avatar updated");
+        toast.success(res.message || "اتحدّث الصورة الرمزية");
         if (res.data?.url) {
           setImageUrl(res.data.url);
           form.setValue("image", res.data.url);
@@ -146,10 +153,10 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         }
         router.refresh();
       } else {
-        toast.error(res.error || "Failed to upload avatar");
+        toast.error(res.error || "تعذّر رفع الصورة الرمزية");
       }
     } catch {
-      toast.error("Unexpected error uploading avatar");
+      toast.error("حصل خطأ مش متوقع أثناء رفع الصورة الرمزية");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -177,7 +184,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="absolute -bottom-1 -right-1 p-2 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all group-hover:scale-105"
+                className="absolute -bottom-1 -end-1 p-2 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all group-hover:scale-105"
               >
                 {isUploading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -202,13 +209,14 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 {initialData.email}
               </p>
               <span className="inline-flex items-center mt-2 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary capitalize">
-                {initialData.role}
+                {ROLE_LABELS[initialData.role] ?? initialData.role}
               </span>
             </div>
             <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
               <Calendar className="h-3.5 w-3.5" />
               <span>
-                Joined {new Date(initialData.createdAt).toLocaleDateString()}
+                انضم في{" "}
+                {new Date(initialData.createdAt).toLocaleDateString(AR_LOCALE)}
               </span>
             </div>
           </div>
@@ -217,7 +225,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           <div className="lg:col-span-2 p-6">
             <div className="flex items-center gap-2 mb-6">
               <Pencil className="h-4 w-4 text-primary" />
-              <h3 className="font-medium text-foreground">Edit Profile</h3>
+              <h3 className="font-medium text-foreground">تعديل الملف الشخصي</h3>
             </div>
 
             <Form {...form}>
@@ -232,11 +240,11 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                          Full Name
+                          الاسم الكامل
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Your name"
+                            placeholder="اسمك"
                             className="bg-background/50 border-border/60 focus:border-primary/50 transition-colors"
                             {...field}
                           />
@@ -252,12 +260,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                          Email Address
+                          الإيميل
                         </FormLabel>
                         <FormControl>
                           <Input
                             type="email"
-                            placeholder="you@example.com"
+                            placeholder="your@email.com"
                             className="bg-background/50 border-border/60 focus:border-primary/50 transition-colors"
                             {...field}
                           />
@@ -275,13 +283,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                          Country
+                          الدولة
                         </FormLabel>
                         <FormControl>
                           <CountryCombobox
                             value={field.value}
                             onValueChange={field.onChange}
-                            placeholder="Select your country"
+                            placeholder="اختر دولتك"
                             className="bg-background/50 border-border/60 focus:border-primary/50 transition-colors"
                           />
                         </FormControl>
@@ -296,7 +304,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                          Phone Number
+                          رقم الهاتف
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -318,7 +326,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                        Envato Username
+                        اسم مستخدم Envato
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -340,11 +348,11 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                   >
                     {isSaving ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
+                        <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                        جاري الحفظ...
                       </>
                     ) : (
-                      "Save Changes"
+                      "حفظ التغييرات"
                     )}
                   </Button>
                   <Button
@@ -354,7 +362,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                     disabled={isSaving}
                     className="text-muted-foreground w-full sm:w-auto"
                   >
-                    Reset
+                    إعادة التعيين
                   </Button>
                 </div>
               </form>
@@ -369,7 +377,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           <div className="p-1.5 rounded-lg bg-primary/10">
             <KeyRound className="h-4 w-4 text-primary" />
           </div>
-          <h3 className="font-medium text-foreground">Security</h3>
+          <h3 className="font-medium text-foreground">الأمان</h3>
         </div>
 
         <Form {...passwordForm}>
@@ -383,7 +391,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                    Current Password
+                    كلمة المرور الحالية
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -405,12 +413,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                      New Password
+                      كلمة المرور الجديدة
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Enter new password"
+                        placeholder="أدخل كلمة المرور الجديدة"
                         className="bg-background/50 border-border/60 focus:border-primary/50 transition-colors"
                         {...field}
                       />
@@ -426,12 +434,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                      Confirm Password
+                      تأكيد كلمة المرور
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Confirm new password"
+                        placeholder="أكّد كلمة المرور الجديدة"
                         className="bg-background/50 border-border/60 focus:border-primary/50 transition-colors"
                         {...field}
                       />
@@ -450,11 +458,11 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               >
                 {isChangingPassword ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Updating...
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    جاري التحديث...
                   </>
                 ) : (
-                  "Update Password"
+                  "تحديث كلمة المرور"
                 )}
               </Button>
               <Button
@@ -464,7 +472,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 disabled={isChangingPassword}
                 className="text-muted-foreground w-full sm:w-auto"
               >
-                Reset
+                إعادة التعيين
               </Button>
             </div>
           </form>

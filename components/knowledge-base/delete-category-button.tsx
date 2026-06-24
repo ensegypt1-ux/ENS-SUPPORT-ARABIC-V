@@ -33,10 +33,10 @@ export function DeleteCategoryButton({
     try {
       const result = await deleteKBCategory(id);
       if (result.success) {
-        toast.success("Category deleted");
+        toast.success("اتمسح القسم");
         router.refresh();
       } else {
-        toast.error(result.error ?? "Failed to delete");
+        toast.error(result.error ?? "تعذّر الحذف");
       }
     } finally {
       setIsLoading(false);
@@ -52,21 +52,21 @@ export function DeleteCategoryButton({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Category</AlertDialogTitle>
+          <AlertDialogTitle>حذف القسم</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete <strong>{title}</strong>? This will
-            also delete all articles in this category. This action cannot be
-            undone.
+            متأكد من حذف <strong>{title}</strong>؟ سيؤدي هذا
+            أيضاً إلى حذف جميع المقالات في هذا القسم. مش هينفع الرجوع عن
+            هذا الإجراء.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>إلغاء</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isLoading}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete
+            حذف
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

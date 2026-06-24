@@ -28,7 +28,7 @@ export async function verifyPurchaseCodeAction(
     if (!purchaseCode || typeof purchaseCode !== "string") {
       return {
         success: false,
-        error: "Purchase code is required",
+        error: "رمز الشراء مطلوب",
       };
     }
 
@@ -37,7 +37,7 @@ export async function verifyPurchaseCodeAction(
     if (trimmedCode.length === 0) {
       return {
         success: false,
-        error: "Purchase code cannot be empty",
+        error: "رمز الشراء ما ينفعش يكون فاضي",
       };
     }
 
@@ -47,20 +47,20 @@ export async function verifyPurchaseCodeAction(
     if (!result.success) {
       return {
         success: false,
-        error: result.error || "Failed to verify purchase code",
+        error: result.error || "تعذّر التحقق من رمز الشراء",
       };
     }
 
     return {
       success: true,
       data: result.data,
-      message: "Purchase code verified successfully",
+      message: "رمز الشراء اتتحقق منه",
     };
   } catch (error) {
     console.error("Purchase code verification error:", error);
     return {
       success: false,
-      error: "An unexpected error occurred. Please try again.",
+      error: "حصل خطأ مش متوقع. جرّب تاني.",
     };
   }
 }

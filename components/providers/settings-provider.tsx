@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
 import { SystemSettings } from "@/types/settings";
+import { resolvePublicSupportEmail } from "@/lib/support-email";
 
 interface WhatsAppSettings {
   enabled: boolean;
@@ -126,7 +127,7 @@ export function useCompanyInfo() {
     name: settings.general.companyName,
     siteName: settings.general.siteName,
     siteDescription: settings.general.siteDescription,
-    supportEmail: settings.general.supportEmail,
+    supportEmail: resolvePublicSupportEmail(settings.general.supportEmail),
   };
 }
 
@@ -149,7 +150,7 @@ export function useFormatDate(options?: { includeTime?: boolean }) {
 
     const { dateFormat, timeFormat, timezone } = settings.general;
     const tz = timezone || "UTC";
-    const numericFormatter = new Intl.DateTimeFormat("en-US", {
+    const numericFormatter = new Intl.DateTimeFormat("ar-SA", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -158,7 +159,7 @@ export function useFormatDate(options?: { includeTime?: boolean }) {
       hour12: timeFormat === "12h",
       timeZone: tz,
     });
-    const textMonthFormatter = new Intl.DateTimeFormat("en-US", {
+    const textMonthFormatter = new Intl.DateTimeFormat("ar-SA", {
       year: "numeric",
       month: "short",
       day: "2-digit",

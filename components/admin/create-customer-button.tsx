@@ -11,8 +11,8 @@ export function CreateCustomerButton() {
   return (
     <>
       <Button onClick={() => setDialogOpen(true)}>
-        <UserPlus className="mr-2 h-4 w-4" />
-        Create Customer
+        <UserPlus className="me-2 h-4 w-4" />
+        إنشاء عميل
       </Button>
 
       <UserFormDialog
@@ -20,7 +20,7 @@ export function CreateCustomerButton() {
         onOpenChange={setDialogOpen}
         user={null}
         mode="create"
-        entityLabel="Customer"
+        entityLabel="عميل"
         audience="customer"
       />
     </>

@@ -140,8 +140,8 @@ export default async function SupportAgentServiceRequestDetailPage({
       <div className="flex items-center justify-between">
         <Button variant="outline" size="sm" asChild>
           <Link href={`/support-agent/services/${slug}`}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
+            <ArrowLeft className="h-4 w-4 me-2" />
+            رجوع
           </Link>
         </Button>
       </div>
@@ -165,11 +165,11 @@ export default async function SupportAgentServiceRequestDetailPage({
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <User className="h-4 w-4" />
-                Customer
+                العميل
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="font-medium">{customer?.name || "Unknown"}</p>
+              <p className="font-medium">{customer?.name || "غير معروف"}</p>
               <p className="text-sm text-muted-foreground">{customer?.email || ""}</p>
             </CardContent>
           </Card>
@@ -178,7 +178,7 @@ export default async function SupportAgentServiceRequestDetailPage({
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                Created
+                تاريخ الإنشاء
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -196,7 +196,7 @@ export default async function SupportAgentServiceRequestDetailPage({
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Package className="h-4 w-4" />
-                Product
+                المنتج
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -213,11 +213,11 @@ export default async function SupportAgentServiceRequestDetailPage({
         <div className="lg:col-span-2 space-y-6">
           <Tabs defaultValue="details" className="space-y-4">
             <TabsList>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="comments">Comments</TabsTrigger>
-              {fileUploadsEnabled && <TabsTrigger value="attachments">Attachments</TabsTrigger>}
-              <TabsTrigger value="history">History</TabsTrigger>
-              <TabsTrigger value="meetings">Meetings</TabsTrigger>
+              <TabsTrigger value="details">التفاصيل</TabsTrigger>
+              <TabsTrigger value="comments">التعليقات</TabsTrigger>
+              {fileUploadsEnabled && <TabsTrigger value="attachments">المرفقات</TabsTrigger>}
+              <TabsTrigger value="history">السجل</TabsTrigger>
+              <TabsTrigger value="meetings">الاجتماعات</TabsTrigger>
             </TabsList>
 
             <TabsContent value="details" className="space-y-4">
@@ -269,7 +269,7 @@ export default async function SupportAgentServiceRequestDetailPage({
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Controls</CardTitle>
+              <CardTitle className="text-base">عناصر التحكم</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <TicketStatusControl ticketId={id} currentStatus={ticket.status} />

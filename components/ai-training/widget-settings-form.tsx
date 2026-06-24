@@ -18,10 +18,9 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
+import { PanelCardHeading, PanelFormActions } from "@/components/ui/panel-form";
 import { updateAISettings } from "@/actions/ai-training";
 import { WidgetAvatarUploader } from "@/components/ai-training/widget-avatar-uploader";
 import { WidgetPreview } from "@/components/ai-chat/widget-preview";
@@ -126,9 +125,9 @@ export function WidgetSettingsForm({
         setWidgetWidth(String(parsedSize.width));
         setWidgetHeight(String(parsedSize.height));
         router.refresh();
-        toast.success("Widget appearance saved");
+        toast.success("اتحفظ مظهر الأداة");
       } else {
-        toast.error(result.error ?? "Failed to save");
+        toast.error(result.error ?? "تعذّر الحفظ");
       }
     } finally {
       setIsSaving(false);
@@ -136,36 +135,33 @@ export function WidgetSettingsForm({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Appearance */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Palette className="h-4 w-4" />
-              Appearance
-            </CardTitle>
-            <CardDescription>
-              Customize how the storefront chat widget looks to visitors.
-            </CardDescription>
+            <PanelCardHeading
+              title="المظهر"
+              icon={<Palette className="h-4 w-4 text-primary" />}
+              description="خصّص شكل أداة المحادثة في المتجر كما يراها الزوار."
+            />
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Header title</Label>
+              <Label className="text-xs font-medium">عنوان الرأس</Label>
               <Input
                 className="h-9"
-                placeholder={settings.businessName || "Live Chat"}
+                placeholder={settings.businessName || "محادثة مباشرة"}
                 value={headerTitle}
                 maxLength={60}
                 onChange={(e) => setHeaderTitle(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Shown in the chat header. Falls back to your business name.
+                يُعرض في رأس المحادثة. يُستخدم اسم نشاطك التجاري إن تُرك فارغًا.
               </p>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Position</Label>
+              <Label className="text-xs font-medium">الموضع</Label>
               <Select
                 value={position}
                 onValueChange={(v) =>
@@ -176,8 +172,8 @@ export function WidgetSettingsForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="bottom-right">Bottom right</SelectItem>
-                  <SelectItem value="bottom-left">Bottom left</SelectItem>
+                  <SelectItem value="bottom-right">أسفل اليمين</SelectItem>
+                  <SelectItem value="bottom-left">أسفل اليسار</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -186,23 +182,22 @@ export function WidgetSettingsForm({
               <div className="flex items-start gap-2">
                 <Maximize2 className="mt-0.5 h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">Expanded size</p>
+                  <p className="text-sm font-medium">الحجم الموسّع</p>
                   <p className="text-xs text-muted-foreground">
-                    Applied to the floating embed and iframe snippet after
-                    saving.
+                    يُطبَّق على التضمين العائم ومقتطف iframe بعد الحفظ.
                   </p>
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <DimensionField
-                  label="Width"
+                  label="العرض"
                   value={widgetWidth}
                   min={MIN_WIDGET_WIDTH}
                   max={MAX_WIDGET_WIDTH}
                   onChange={setWidgetWidth}
                 />
                 <DimensionField
-                  label="Height"
+                  label="الارتفاع"
                   value={widgetHeight}
                   min={MIN_WIDGET_HEIGHT}
                   max={MAX_WIDGET_HEIGHT}
@@ -213,22 +208,22 @@ export function WidgetSettingsForm({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <ColorField
-                label="Primary color"
+                label="اللون الأساسي"
                 value={primaryColor}
                 onChange={setPrimaryColor}
               />
               <ColorField
-                label="Accent color"
+                label="لون التمييز"
                 value={accentColor}
                 onChange={setAccentColor}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Footer text</Label>
+              <Label className="text-xs font-medium">نص التذييل</Label>
               <Input
                 className="h-9"
-                placeholder="Powered by AI"
+                placeholder="مدعوم بالذكاء الاصطناعي"
                 value={footerText}
                 maxLength={60}
                 onChange={(e) => setFooterText(e.target.value)}
@@ -237,9 +232,9 @@ export function WidgetSettingsForm({
 
             <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 p-3">
               <div>
-                <p className="text-sm font-medium">Show footer text</p>
+                <p className="text-sm font-medium">إظهار نص التذييل</p>
                 <p className="text-xs text-muted-foreground">
-                  Display the small label at the bottom of the chat window.
+                  عرض التسمية الصغيرة في أسفل نافذة المحادثة.
                 </p>
               </div>
               <Switch
@@ -249,14 +244,13 @@ export function WidgetSettingsForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Header avatar</Label>
+              <Label className="text-xs font-medium">صورة رأس المحادثة</Label>
               <WidgetAvatarUploader
                 value={headerAvatarUrl}
                 onChange={setHeaderAvatarUrl}
               />
               <p className="text-xs text-muted-foreground">
-                Shown in the chat header. Falls back to a sparkle icon if left
-                empty.
+                تُعرض في رأس المحادثة. تُستبدل بأيقونة متلألئة إن تُركت فارغة.
               </p>
             </div>
           </CardContent>
@@ -265,14 +259,11 @@ export function WidgetSettingsForm({
         {/* Live preview */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Eye className="h-4 w-4" />
-              Live preview
-            </CardTitle>
-            <CardDescription>
-              Updates as you edit. Welcome message and placeholder come from the
-              Settings tab.
-            </CardDescription>
+            <PanelCardHeading
+              title="معاينة مباشرة"
+              icon={<Eye className="h-4 w-4 text-primary" />}
+              description="تتحدّث أثناء التحرير. رسالة الترحيب والنص البديل من تبويب الإعدادات."
+            />
           </CardHeader>
           <CardContent className="flex max-h-[48rem] justify-center overflow-auto rounded-xl bg-muted/30 py-6">
             <WidgetPreview
@@ -291,17 +282,17 @@ export function WidgetSettingsForm({
         </Card>
       </div>
 
-      <div className="sticky bottom-4 z-10 flex items-center justify-between gap-3 rounded-lg border border-border bg-background/90 px-4 py-3 shadow-lg backdrop-blur supports-backdrop-filter:bg-background/75">
-        <p className="text-xs text-muted-foreground">
-          {isDirty
-            ? "You have unsaved changes."
-            : "Changes take effect after saving."}
-        </p>
+      <PanelFormActions className="sticky bottom-4 z-10 rounded-lg border border-border bg-background/90 px-4 py-3 shadow-lg backdrop-blur supports-backdrop-filter:bg-background/75">
+            <p className="text-right text-xs text-muted-foreground" dir="rtl">
+              {isDirty
+                ? "لديك تغييرات غير محفوظة."
+                : "تُطبَّق التغييرات بعد الحفظ."}
+            </p>
         <Button onClick={handleSave} disabled={isSaving || !isDirty}>
-          {isSaving && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
-          Save changes
+          {isSaving && <Loader2 className="me-2 h-3.5 w-3.5 animate-spin" />}
+          حفظ إعدادات الأداة
         </Button>
-      </div>
+      </PanelFormActions>
     </div>
   );
 }
@@ -314,7 +305,7 @@ function parseWidgetSize(
     width,
     MIN_WIDGET_WIDTH,
     MAX_WIDGET_WIDTH,
-    "Widget width"
+    "عرض الأداة"
   );
   if (!parsedWidth.ok) return parsedWidth;
 
@@ -322,7 +313,7 @@ function parseWidgetSize(
     height,
     MIN_WIDGET_HEIGHT,
     MAX_WIDGET_HEIGHT,
-    "Widget height"
+    "ارتفاع الأداة"
   );
   if (!parsedHeight.ok) return parsedHeight;
 
@@ -337,12 +328,12 @@ function parseDimension(
 ): { ok: true; value: number } | { ok: false; error: string } {
   const n = Number(value);
   if (!Number.isInteger(n)) {
-    return { ok: false, error: `${label} must be a whole number.` };
+    return { ok: false, error: `لازم ${label} يكون رقم صحيح.` };
   }
   if (n < min || n > max) {
     return {
       ok: false,
-      error: `${label} must be between ${min}px and ${max}px.`,
+      error: `لازم ${label} يكون بين ${min}px و${max}px.`,
     };
   }
   return { ok: true, value: n };
@@ -371,7 +362,7 @@ function DimensionField({
       <Label className="text-xs font-medium">{label}</Label>
       <div className="relative">
         <Input
-          className="h-9 pr-9"
+          className="h-9 pe-9"
           type="number"
           inputMode="numeric"
           min={min}
@@ -380,7 +371,7 @@ function DimensionField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
-        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+        <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
           px
         </span>
       </div>

@@ -48,68 +48,68 @@ export default async function SupportAgentInstallationPage({
 
   const installationStats = [
     {
-      title: "Total Assigned",
+      title: "إجمالي المعيّن",
       value: requests.length,
       icon: Download,
       iconColor: "text-sky-600",
       iconBgColor: "bg-sky-50 dark:bg-sky-950",
-      description: "Installations assigned to you",
+      description: "طلبات التثبيت المعيّنة لك",
     },
     {
-      title: "Open",
+      title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
       iconColor: "text-amber-600",
       iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "Waiting for your response",
+      description: "في انتظار ردك",
     },
     {
-      title: "In Progress",
+      title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
       iconColor: "text-indigo-600",
       iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "You are currently working on",
+      description: "تعمل عليها حاليًا",
     },
     {
-      title: "Resolved / Closed",
+      title: "محلولة / مغلقة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
       iconColor: "text-emerald-600",
       iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "Completed installations",
+      description: "تثبيتات مكتملة",
     },
   ];
 
   const tabItems = [
-    { value: "all", label: "All", count: requests.length },
-    { value: "open", label: "Open", count: openRequests.length },
+    { value: "all", label: "الكل", count: requests.length },
+    { value: "open", label: "مفتوحة", count: openRequests.length },
     {
       value: "scheduled_meeting",
-      label: "Scheduled Meeting",
+      label: "اجتماع مجدول",
       count: scheduledMeetingRequests.length,
     },
     {
       value: "waiting_on_customer",
-      label: "Waiting",
+      label: "في الانتظار",
       count: waitingRequests.length,
     },
     {
       value: "in_progress",
-      label: "In Progress",
+      label: "قيد المعالجة",
       count: inProgressRequests.length,
     },
-    { value: "resolved", label: "Resolved", count: resolvedRequests.length },
-    { value: "closed", label: "Closed", count: closedRequests.length },
+    { value: "resolved", label: "محلولة", count: resolvedRequests.length },
+    { value: "closed", label: "مغلقة", count: closedRequests.length },
   ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">My Installation Requests</h1>
+        <h1 className="text-3xl font-bold">طلبات التثبيت الخاصة بي</h1>
         <p className="text-muted-foreground mt-1">
-          Manage installation service requests assigned to you
+          إدارة طلبات خدمة التثبيت المعيّنة لك
         </p>
       </div>
 
@@ -122,7 +122,7 @@ export default async function SupportAgentInstallationPage({
           <PageTabsHeader
             tabs={tabItems}
             showSearch
-            searchPlaceholder="Search requests..."
+            searchPlaceholder="بحث في الطلبات..."
             searchDefaultValue={filters.search}
             showPriorityFilter
             priorityDefaultValue={filters.priority}
@@ -136,7 +136,7 @@ export default async function SupportAgentInstallationPage({
             {requests.length === 0 ? (
               <EmptySearchResults
                 searchQuery={filters.search}
-                entityName="requests"
+                entityName="طلبات"
               />
             ) : viewMode === "table" ? (
               <TicketsTable
@@ -162,7 +162,7 @@ export default async function SupportAgentInstallationPage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No open installation requests
+                  مفيش طلبات تثبيت مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -183,7 +183,7 @@ export default async function SupportAgentInstallationPage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No scheduled meeting installation requests
+                  مفيش طلبات تثبيت باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -207,7 +207,7 @@ export default async function SupportAgentInstallationPage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No waiting installation requests
+                  مفيش طلبات تثبيت في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -228,7 +228,7 @@ export default async function SupportAgentInstallationPage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No in-progress installation requests
+                  مفيش طلبات تثبيت قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -252,7 +252,7 @@ export default async function SupportAgentInstallationPage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No resolved installation requests
+                  مفيش طلبات تثبيت محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -273,7 +273,7 @@ export default async function SupportAgentInstallationPage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No closed installation requests
+                  مفيش طلبات تثبيت مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

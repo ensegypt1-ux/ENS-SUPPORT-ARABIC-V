@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
+import { adminTableHeadClass } from "@/components/ui/arabic-ux";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -46,9 +48,9 @@ const statusVariants: Record<
   string,
   { label: string; variant: "default" | "secondary" | "destructive" }
 > = {
-  generated: { label: "Ready", variant: "default" },
-  pending: { label: "Pending", variant: "secondary" },
-  failed: { label: "Failed", variant: "destructive" },
+  generated: { label: "جاهز", variant: "default" },
+  pending: { label: "قيد الانتظار", variant: "secondary" },
+  failed: { label: "فشل", variant: "destructive" },
 };
 
 export function PairsTable({
@@ -77,10 +79,10 @@ export function PairsTable({
   const handleToggleActive = async (id: string, next: boolean) => {
     const result = await toggleAITrainingPairActive(id, next);
     if (result.success) {
-      toast.success(next ? "Pair activated" : "Pair deactivated");
+      toast.success(next ? "اتفعّل الزوج" : "اتعطّل الزوج");
       router.refresh();
     } else {
-      toast.error(result.error ?? "Failed to update");
+      toast.error(result.error ?? "تعذّر التحديث");
     }
   };
 
@@ -93,7 +95,7 @@ export function PairsTable({
       <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center">
         <div className="w-full sm:flex-1">
           <SearchInput
-            placeholder="Search questions or answers..."
+            placeholder="البحث في الأسئلة أو الإجابات..."
             className="w-full md:flex-1"
             inputClassName="w-full md:w-full"
           />
@@ -106,10 +108,10 @@ export function PairsTable({
           }
         >
           <SelectTrigger className="h-9 w-full shrink-0 text-sm sm:w-45">
-            <SelectValue placeholder="All categories" />
+            <SelectValue placeholder="جميع الفئات" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All categories</SelectItem>
+            <SelectItem value="all">جميع الفئات</SelectItem>
             {categories.map((c) => (
               <SelectItem key={c} value={c}>
                 {c}
@@ -122,9 +124,9 @@ export function PairsTable({
       {/* Table */}
       {pairs.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/60 bg-muted/20 py-16 text-center">
-          <h3 className="text-base font-semibold">No training pairs</h3>
+          <h3 className="text-base font-semibold">مفيش أزواج تدريب</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Add your first Q&amp;A pair to start training the AI.
+            أضف أول زوج سؤال وجواب لبدء تدريب الذكاء الاصطناعي.
           </p>
         </div>
       ) : (
@@ -132,20 +134,20 @@ export function PairsTable({
           <Table>
             <TableHeader>
               <TableRow className="border-b border-border bg-muted/20 hover:bg-muted/20">
-                <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider w-[40%]">
-                  Question
+                <TableHead className={cn(adminTableHeadClass, "w-[40%]")}>
+                  السؤال
                 </TableHead>
-                <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                  Category
+                <TableHead className={adminTableHeadClass}>
+                  الفئة
                 </TableHead>
-                <TableHead className="h-12 px-4 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                  Status
+                <TableHead className={adminTableHeadClass}>
+                  الحالة
                 </TableHead>
-                <TableHead className="h-12 px-4 text-center text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                  Active
+                <TableHead className={cn(adminTableHeadClass, "text-center")}>
+                  نشط
                 </TableHead>
-                <TableHead className="h-12 px-4 text-right text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider w-25">
-                  Actions
+                <TableHead className={cn(adminTableHeadClass, "w-25")}>
+                  إجراءات
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -187,7 +189,7 @@ export function PairsTable({
                         onCheckedChange={(v) => handleToggleActive(id, v)}
                       />
                     </TableCell>
-                    <TableCell className="py-3.5 px-4 text-right">
+                    <TableCell className="py-3.5 px-4 text-end">
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           asChild

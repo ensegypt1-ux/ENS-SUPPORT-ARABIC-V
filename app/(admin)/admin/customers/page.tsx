@@ -8,6 +8,7 @@ import { ClientsTable } from "@/components/admin/clients-table";
 import { Users, Ticket, Clock, CheckCircle2 } from "lucide-react";
 import { PageTabsHeader } from "@/components/shared/page-tabs-header";
 import { EmptySearchResults } from "@/components/shared/empty-search-results";
+import { AdminPageHeader } from "@/components/layout/admin-page-header";
 import { CreateCustomerButton } from "@/components/admin/create-customer-button";
 
 // Disable static generation for this page since it has dynamic data
@@ -57,55 +58,50 @@ export default async function AdminCustomersPage({
 
   const clientStats = [
     {
-      title: "Total Customers",
+      title: "إجمالي العملاء",
       value: totalCustomers,
       icon: Users,
       iconColor: "text-slate-600",
       iconBgColor: "bg-slate-50 dark:bg-slate-950",
-      description: `${activeClients} with active tickets`,
+      description: `${activeClients} عميل لديه تذاكر نشطة`,
     },
     {
-      title: "Total Tickets",
+      title: "إجمالي التذاكر",
       value: totalTickets,
       icon: Ticket,
       iconColor: "text-indigo-600",
       iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "Across all customers",
+      description: "عبر جميع العملاء",
     },
     {
-      title: "Open Tickets",
+      title: "تذاكر مفتوحة",
       value: totalOpenTickets,
       icon: Clock,
       iconColor: "text-amber-600",
       iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "Awaiting resolution",
+      description: "في انتظار الحل",
     },
     {
-      title: "Resolved Tickets",
+      title: "تذاكر محلولة",
       value: totalResolvedTickets,
       icon: CheckCircle2,
       iconColor: "text-emerald-600",
       iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "Successfully closed",
+      description: "اتقفلت",
     },
   ];
 
   const tabItems = [
-    { value: "all", label: "All Customers", count: serializedClients.length },
+    { value: "all", label: "جميع العملاء", count: serializedClients.length },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Customers</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage and view all customer accounts and their support activity
-          </p>
-        </div>
-        <CreateCustomerButton />
-      </div>
+    <div className="space-y-6 text-right" dir="rtl">
+      <AdminPageHeader
+        title="العملاء"
+        description="إدارة حسابات العملاء ومتابعة نشاط الدعم"
+        actions={<CreateCustomerButton />}
+      />
 
       {/* Statistics */}
       <StatsGrid stats={clientStats} />
@@ -116,7 +112,7 @@ export default async function AdminCustomersPage({
           <PageTabsHeader
             tabs={tabItems}
             showSearch
-            searchPlaceholder="Search customers..."
+            searchPlaceholder="بحث في العملاء..."
             searchDefaultValue={filters.search}
             rightActions={<ViewToggle />}
           />
@@ -132,7 +128,7 @@ export default async function AdminCustomersPage({
             {serializedClients.length === 0 ? (
               <EmptySearchResults
                 searchQuery={filters.search}
-                entityName="customers"
+                entityName="العملاء"
               />
             ) : viewMode === "table" ? (
               <ClientsTable clients={serializedClients} />

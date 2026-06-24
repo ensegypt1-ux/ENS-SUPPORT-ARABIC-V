@@ -36,25 +36,25 @@ export default async function EditAITrainingPairPage({ params }: PageProps) {
   return (
     <div className="max-w-2xl space-y-6 pb-8">
       <div>
-        <Button asChild variant="ghost" size="sm" className="mb-2 -ml-2">
-          <Link href="/admin/ai-support-agent">
-            <ChevronLeft className="h-4 w-4" />
-            Back to AI Support Agent
+        <Button asChild variant="ghost" size="sm" className="mb-2 -ms-2">
+          <Link href="/admin/ai-support-agent" className="flex items-center gap-1.5">
+            <ChevronLeft className="h-4 w-4 rtl:-scale-x-100" />
+            العودة إلى وكيل الدعم الذكي
           </Link>
         </Button>
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Edit Training Pair
+          تعديل زوج التدريب
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Updating the question will regenerate its embedding.
+          سيؤدي تحديث السؤال إلى إعادة إنشاء التضمين.
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Q&amp;A Pair</CardTitle>
+          <CardTitle className="text-base">زوج الأسئلة والأجوبة</CardTitle>
           <CardDescription>
-            Status:{" "}
+            الحالة:{" "}
             <span className="font-mono">{pair.embeddingStatus}</span>
             {pair.embeddingError && (
               <span className="text-destructive"> — {pair.embeddingError}</span>

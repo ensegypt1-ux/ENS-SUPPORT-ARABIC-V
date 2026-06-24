@@ -10,8 +10,8 @@ export function ViewToggle() {
       paramName="view"
       defaultMode="table"
       modes={[
-        { value: "table", label: "Table", icon: Table },
-        { value: "card", label: "Cards", icon: LayoutGrid },
+        { value: "table", label: "جدول", icon: Table },
+        { value: "card", label: "بطاقات", icon: LayoutGrid },
       ]}
     />
   );

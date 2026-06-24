@@ -6,10 +6,9 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
+import { PanelSectionHeader } from "@/components/ui/panel-form";
 import { ChatWindow } from "@/components/ai-chat/chat-window";
 import { useAiChatConfig } from "@/components/ai-chat/use-ai-chat-config";
 import { CHAT_SESSION_STORAGE_KEY } from "@/components/ai-chat/use-chat-session";
@@ -44,43 +43,38 @@ export function TestAIPanel({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1.5">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <MessageSquare className="h-4 w-4" />
-              Live test chat
-            </CardTitle>
-            <CardDescription>
-              Try queries the way a customer would. Save changes before testing
-              — it uses the live settings.
-            </CardDescription>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleReset}
-            className="shrink-0 text-muted-foreground"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            <span className="ml-1.5">Reset</span>
-          </Button>
-        </div>
+    <Card dir="rtl" className="text-right">
+      <CardHeader className="space-y-0">
+        <PanelSectionHeader
+          title="محادثة اختبار مباشرة"
+          icon={<MessageSquare className="h-4 w-4 text-primary" />}
+          description="جرّب الأسئلة زي العميل. احفظ الإعدادات قبل الاختبار — بيستخدم الإعدادات الحية."
+          actions={
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleReset}
+              className="shrink-0 text-muted-foreground"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span className="ms-1.5">إعادة تعيين</span>
+            </Button>
+          }
+        />
       </CardHeader>
       <CardContent className="space-y-3">
         {config && !config.enabled && (
           <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-400">
-            The chatbot is currently disabled in Settings. Enable the agent to
-            test live responses.
+            روبوت المحادثة متعطّل في الإعدادات. فعّل الوكيل عشان تجرّب الردود
+            المباشرة.
           </div>
         )}
         <div className="flex justify-center overflow-auto rounded-xl bg-muted/30 px-4 py-8">
           {testConfig === null ? (
             <div className="flex h-136 items-center justify-center text-sm text-muted-foreground">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Loading live settings…
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
+              بيحمّل الإعدادات الحية…
             </div>
           ) : (
             <ChatWindow

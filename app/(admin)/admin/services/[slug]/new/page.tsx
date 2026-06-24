@@ -26,6 +26,7 @@ import { uploadTicketAttachments } from "@/actions/attachments";
 import { createServiceRequestForStaff } from "@/actions/service-requests";
 import { getServiceBySlug } from "@/actions/services";
 import type { User } from "@/types";
+import { EDIT_FORM_UI, FORM_UI } from "@/lib/strings";
 
 type ClientUser = User & {
   ticketCount: number;
@@ -63,7 +64,7 @@ export default function AdminNewServiceRequestPage({
 }) {
   const router = useRouter();
   const [slug, setSlug] = useState("");
-  const [serviceName, setServiceName] = useState("Service");
+  const [serviceName, setServiceName] = useState("خدمة");
   const [serviceIconKey, setServiceIconKey] = useState("briefcase");
   const [customers, setCustomers] = useState<ClientUser[]>([]);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
@@ -134,8 +135,8 @@ export default function AdminNewServiceRequestPage({
     try {
       const result = await createServiceRequestForStaff(slug, data);
       if (!result.success || !result.data) {
-        setError(result.error || "Failed to create request");
-        toast.error(result.error || "Failed to create request");
+        setError(result.error || "تعذّر الإنشاء الطلب");
+        toast.error(result.error || "تعذّر الإنشاء الطلب");
         setIsSubmitting(false);
         return;
       }
@@ -152,16 +153,16 @@ export default function AdminNewServiceRequestPage({
         const uploadResult = await uploadTicketAttachments(ticketId, formData);
         if (!uploadResult.success) {
           toast.warning(
-            `Request created but some files failed to upload: ${uploadResult.error}`
+            `اتعمل الطلب لكن تعذّر رفع بعض الملفات: ${uploadResult.error}`
           );
         }
       }
 
-      toast.success("Request created successfully!");
+      toast.success("اتعمل الطلب!");
       router.push(`/admin/services/${slug}/${ticketId}`);
       router.refresh();
     } catch (e) {
-      const message = e instanceof Error ? e.message : "An unexpected error occurred";
+      const message = e instanceof Error ? e.message : "حصل خطأ مش متوقع";
       setError(message);
       toast.error(message);
       setIsSubmitting(false);
@@ -169,10 +170,10 @@ export default function AdminNewServiceRequestPage({
   };
 
   const priorities = [
-    { value: "low", label: "Low", color: "bg-slate-400" },
-    { value: "medium", label: "Medium", color: "bg-blue-500" },
-    { value: "high", label: "High", color: "bg-amber-500" },
-    { value: "urgent", label: "Urgent", color: "bg-red-500" },
+    { value: "low", label: "منخفضة", color: "bg-slate-400" },
+    { value: "medium", label: "متوسطة", color: "bg-blue-500" },
+    { value: "high", label: "عالية", color: "bg-amber-500" },
+    { value: "urgent", label: "عاجلة", color: "bg-red-500" },
   ];
 
   return (
@@ -182,11 +183,11 @@ export default function AdminNewServiceRequestPage({
           <div className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-center sm:justify-between sm:pb-6">
             <div className="min-w-0">
               <h1 className="text-lg font-semibold text-foreground sm:text-xl">
-                Create {serviceName} Request
+                {EDIT_FORM_UI.createServiceRequest(serviceName)}
               </h1>
               <nav className="mt-1 hidden items-center text-sm text-muted-foreground sm:flex">
                 <Link href="/admin" className="hover:text-foreground transition-colors">
-                  Admin
+                  {FORM_UI.adminBreadcrumb}
                 </Link>
                 <span className="mx-2">•</span>
                 <Link
@@ -196,7 +197,7 @@ export default function AdminNewServiceRequestPage({
                   {serviceName}
                 </Link>
                 <span className="mx-2">•</span>
-                <span className="text-foreground">New Request</span>
+                <span className="text-foreground">طلب جديد</span>
               </nav>
             </div>
             <div className="relative h-16 w-16 self-start sm:h-20 sm:w-20 sm:self-auto">
@@ -221,9 +222,9 @@ export default function AdminNewServiceRequestPage({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               <div className="space-y-4 rounded-xl border bg-background p-4 sm:p-6">
-                <h2 className="text-lg font-semibold">Select Customer</h2>
+                <h2 className="text-lg font-semibold">اختر العميل</h2>
                 <Input
-                  placeholder="Search customers..."
+                  placeholder="بحث في العملاء..."
                   value={customerSearch}
                   onChange={(e) => setCustomerSearch(e.target.value)}
                   className="h-11"
@@ -234,7 +235,7 @@ export default function AdminNewServiceRequestPage({
                   disabled={isLoadingCustomers || isSubmitting}
                 >
                   <SelectTrigger className="h-11">
-                    <SelectValue placeholder={isLoadingCustomers ? "Loading..." : "Select customer"} />
+                    <SelectValue placeholder={isLoadingCustomers ? "جاري التحميل..." : "اختر العميل"} />
                   </SelectTrigger>
                   <SelectContent>
                     {filteredCustomers.map((c) => (
@@ -250,15 +251,15 @@ export default function AdminNewServiceRequestPage({
               </div>
 
               <div className="space-y-6 rounded-xl border bg-background p-4 sm:p-6">
-                <h2 className="text-lg font-semibold">Request Details</h2>
+                <h2 className="text-lg font-semibold">تفاصيل الطلب</h2>
 
                 <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
+                  <Label htmlFor="title">العنوان</Label>
                   <Input id="title" {...register("title", { required: true })} className="h-11" />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">الوصف</Label>
                   <Textarea
                     id="description"
                     {...register("description", { required: true })}
@@ -270,7 +271,7 @@ export default function AdminNewServiceRequestPage({
                   <>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="productName">Product Name</Label>
+                        <Label htmlFor="productName">اسم المنتج</Label>
                         <Input
                           id="productName"
                           {...register("productName")}
@@ -278,7 +279,7 @@ export default function AdminNewServiceRequestPage({
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="productVersion">Product Version</Label>
+                        <Label htmlFor="productVersion">إصدار المنتج</Label>
                         <Input
                           id="productVersion"
                           {...register("productVersion")}
@@ -288,7 +289,7 @@ export default function AdminNewServiceRequestPage({
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="purchaseCode">Purchase Code</Label>
+                      <Label htmlFor="purchaseCode">رمز الشراء</Label>
                       <Input
                         id="purchaseCode"
                         {...register("purchaseCode")}
@@ -300,21 +301,21 @@ export default function AdminNewServiceRequestPage({
               </div>
 
               <div className="space-y-4 rounded-xl border bg-background p-4 sm:p-6">
-                <h2 className="text-lg font-semibold">Attachments</h2>
+                <h2 className="text-lg font-semibold">المرفقات</h2>
                 <FileUploadPreview onFilesChange={handleFilesChange} />
               </div>
             </div>
 
             <div className="space-y-6">
               <div className="space-y-4 rounded-xl border bg-background p-4 sm:p-6">
-                <h2 className="text-lg font-semibold">Priority</h2>
+                <h2 className="text-lg font-semibold">الأولوية</h2>
                 <Select
                   value={priority}
                   onValueChange={(value) => setValue("priority", value as FormData["priority"])}
                   disabled={isSubmitting}
                 >
                   <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Select priority" />
+                    <SelectValue placeholder="اختر الأولوية" />
                   </SelectTrigger>
                   <SelectContent>
                     {priorities.map((p) => (
@@ -330,21 +331,21 @@ export default function AdminNewServiceRequestPage({
               </div>
 
               <div className="space-y-4 rounded-xl border bg-background p-4 sm:p-6">
-                <h2 className="text-lg font-semibold">Timezone</h2>
+                <h2 className="text-lg font-semibold">المنطقة الزمنية</h2>
                 <TimezoneSelect value={timezone} onValueChange={(value) => setValue("timezone", value)} />
               </div>
 
               <div className="flex flex-col gap-3">
                 <Button type="submit" disabled={isSubmitting} className="h-11">
                   {isSubmitting ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-4 w-4 me-2 animate-spin" />
                   ) : (
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="h-4 w-4 me-2" />
                   )}
-                  Create Request
+                  {FORM_UI.createRequest}
                 </Button>
                 <Button type="button" variant="outline" asChild className="h-11">
-                  <Link href={`/admin/services/${slug}`}>Cancel</Link>
+                  <Link href={`/admin/services/${slug}`}>إلغاء</Link>
                 </Button>
               </div>
             </div>

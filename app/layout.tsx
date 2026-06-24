@@ -2,7 +2,7 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import PlausibleProvider from "next-plausible";
 import { Toaster } from "@/components/ui/sonner";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cairo, Geist_Mono } from "next/font/google";
 import { PwaBootstrap } from "@/components/pwa/pwa-bootstrap";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
@@ -16,9 +16,10 @@ import {
   getPublicSystemSettings,
 } from "@/lib/settings-utils";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const cairo = Cairo({
+  variable: "--font-sans",
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -83,20 +84,22 @@ export default async function RootLayout({
   const cssVariables = generateCssVariables(settings.appearance);
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
-         <PlausibleProvider
-          domain="solvio-demo.neurolightstudio.com"
-          customDomain="https://analytics.neurolightstudio.com"
-          selfHosted
-        />
+        {process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN ? (
+          <PlausibleProvider
+            domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
+            customDomain={process.env.NEXT_PUBLIC_PLAUSIBLE_CUSTOM_DOMAIN}
+            selfHosted={Boolean(process.env.NEXT_PUBLIC_PLAUSIBLE_CUSTOM_DOMAIN)}
+          />
+        ) : null}
         {/* Inject CSS variables for brand colors */}
         <style dangerouslySetInnerHTML={{ __html: cssVariables }} />
         {/* Inject custom CSS if defined */}
         {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
+        className={`${cairo.variable} ${geistMono.variable} font-sans antialiased min-h-screen`}
       >
         <PwaBootstrap />
         <ThemeProvider>

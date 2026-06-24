@@ -84,7 +84,7 @@ export async function getAnalyticsData(
   days: number = 30
 ): Promise<ApiResponse<AnalyticsData>> {
   try {
-    await requirePermissionOrThrow("analytics.view", { message: "Forbidden" });
+    await requirePermissionOrThrow("analytics.view", { message: "ممنوع" });
 
     const ticketsCollection = await getCollection("tickets");
     const usersCollection = await getCollection("user");
@@ -531,7 +531,7 @@ export async function getAnalyticsData(
       error:
         error instanceof Error
           ? error.message
-          : "Failed to fetch analytics data",
+          : "تعذّر جلب بيانات التحليلات",
     };
   }
 }

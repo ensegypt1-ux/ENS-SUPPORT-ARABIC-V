@@ -50,11 +50,11 @@ export function MessageAttachments({
     setIsDeleting(true);
     const result = await deleteMessageAttachment(pendingDeleteId);
     if (result.success) {
-      toast.success("Attachment deleted");
+      toast.success("اتمسح المرفق");
       setDeleteDialogOpen(false);
       setPendingDeleteId(null);
     } else {
-      toast.error(result.error || "Failed to delete attachment");
+      toast.error(result.error || "تعذّر الحذف المرفق");
     }
     setIsDeleting(false);
   };
@@ -109,7 +109,7 @@ export function MessageAttachments({
                 download={attachment.file_name}
                 target="_blank"
                 rel="noopener noreferrer"
-                title="Download"
+                title="تنزيل"
               >
                 <Download className="h-4 w-4" />
               </a>
@@ -125,7 +125,7 @@ export function MessageAttachments({
                   setPendingDeleteId(attachment.id);
                   setDeleteDialogOpen(true);
                 }}
-                title="Delete"
+                title="حذف"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -143,16 +143,15 @@ export function MessageAttachments({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete attachment</AlertDialogTitle>
+            <AlertDialogTitle>حذف المرفق</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this attachment? This action
-              cannot be undone.
+              متأكد من حذف هذا المرفق؟ مش هينفع الرجوع عن هذا الإجراء.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>إلغاء</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteConfirm} disabled={isDeleting}>
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "جاري الحذف..." : "حذف"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

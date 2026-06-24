@@ -49,10 +49,10 @@ export default async function AdminProfilePage() {
       <div className="space-y-1">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Profile Settings
+            الملف الشخصي
           </h1>
           <p className="text-sm text-muted-foreground">
-            Manage your account preferences and security
+            إدارة تفضيلات حسابك والأمان
           </p>
         </div>
       </div>
@@ -62,7 +62,7 @@ export default async function AdminProfilePage() {
         <div className="flex items-center gap-2 mb-4">
           <Shield className="h-4 w-4 text-primary" />
           <span className="text-sm font-medium text-foreground">
-            Your Permissions
+            صلاحياتك
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -70,13 +70,13 @@ export default async function AdminProfilePage() {
             variant="secondary"
             className="rounded-lg px-3 py-1.5 text-xs font-medium bg-primary/5 text-primary border-0 hover:bg-primary/10"
           >
-            Manage Users
+            إدارة المستخدمين
           </Badge>
           <Badge
             variant="secondary"
             className="rounded-lg px-3 py-1.5 text-xs font-medium bg-primary/5 text-primary border-0 hover:bg-primary/10"
           >
-            Access All Tickets
+            Access الكل Tickets
           </Badge>
           <Badge
             variant="secondary"

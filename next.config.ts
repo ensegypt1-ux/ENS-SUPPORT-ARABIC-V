@@ -1,4 +1,8 @@
 import type { NextConfig } from "next";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Domains allowed to embed the chat widget (`/embed`) in an iframe.
@@ -16,6 +20,10 @@ const embedFrameAncestors = (() => {
 })();
 
 const nextConfig: NextConfig = {
+  // Pin workspace root so Next/Turbopack do not resolve via a parent lockfile.
+  turbopack: {
+    root: projectRoot,
+  },
   async headers() {
     return [
       {
@@ -31,6 +39,9 @@ const nextConfig: NextConfig = {
   },
   reactCompiler: true,
   experimental: {
+    // Limit parallel static-generation workers (prevents Windows worker crashes).
+    cpus: 4,
+    workerThreads: false,
     serverActions: {
       bodySizeLimit: "20mb", // Increase from default 1MB to 20MB for file uploads
     },

@@ -47,7 +47,7 @@ export async function createConversation(data: { participantIds: string[] }) {
   try {
     const session = await getSession();
     if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const userRole = ((session.user as User).role || "customer") as UserRole;
@@ -58,7 +58,7 @@ export async function createConversation(data: { participantIds: string[] }) {
     if (allParticipantIds.length < 2) {
       return {
         success: false,
-        error: "A conversation must include at least two participants",
+        error: "لازم تضمّ المحادثة مشاركين على الأقل",
       };
     }
 
@@ -77,7 +77,7 @@ export async function createConversation(data: { participantIds: string[] }) {
         return {
           success: false,
           error:
-            "Customers can only start conversations with support or admin users.",
+            "العملاء يقدروا يبدأوا محادثات مع الدعم أو المسؤولين بس.",
         };
       }
     }
@@ -103,7 +103,7 @@ export async function createConversation(data: { participantIds: string[] }) {
     };
   } catch (error) {
     console.error("Failed to create conversation:", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return { success: false, error: "حصل خطأ مش متوقع" };
   }
 }
 
@@ -118,7 +118,7 @@ export async function sendMessage(data: {
   try {
     const session = await getSession();
     if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -129,7 +129,7 @@ export async function sendMessage(data: {
     if (!conversation) {
       return {
         success: false,
-        error: "You are not a participant in this conversation",
+        error: "إنت مش مشارك في المحادثة دي",
       };
     }
 
@@ -147,7 +147,7 @@ export async function sendMessage(data: {
     );
 
     if (!message) {
-      return { success: false, error: "Failed to send message" };
+      return { success: false, error: "تعذّر إرسال الرسالة" };
     }
 
     emitMessageCreated(message);
@@ -161,7 +161,7 @@ export async function sendMessage(data: {
       if (recipientIds.length > 0) {
         await createBulkNotifications(recipientIds, {
           type: "new_message",
-          title: "New message",
+          title: "رسالة جديدة",
           body: `${session.user.name} sent you a message`,
           data: {
             conversationId: data.conversationId,
@@ -193,14 +193,14 @@ export async function sendMessage(data: {
         }
       }
     } catch (notificationError) {
-      console.error("Failed to send message notifications:", notificationError);
+      console.error("تعذّر الإرسال الرسالة notifications:", notificationError);
     }
 
     revalidateMessagePages();
     return { success: true, data: message };
   } catch (error) {
-    console.error("Failed to send message:", error);
-    return { success: false, error: "An unexpected error occurred" };
+    console.error("تعذّر الإرسال الرسالة:", error);
+    return { success: false, error: "حصل خطأ مش متوقع" };
   }
 }
 
@@ -214,7 +214,7 @@ export async function markMessagesAsRead(data: {
   try {
     const session = await getSession();
     if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "مش مسموح" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -225,7 +225,7 @@ export async function markMessagesAsRead(data: {
     if (!conversation) {
       return {
         success: false,
-        error: "You are not a participant in this conversation",
+        error: "إنت مش مشارك في المحادثة دي",
       };
     }
 
@@ -248,6 +248,6 @@ export async function markMessagesAsRead(data: {
     return { success: true };
   } catch (error) {
     console.error("Failed to mark messages as read:", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return { success: false, error: "حصل خطأ مش متوقع" };
   }
 }

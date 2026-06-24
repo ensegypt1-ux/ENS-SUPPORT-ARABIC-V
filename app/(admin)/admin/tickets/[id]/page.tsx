@@ -27,6 +27,14 @@ import { MeetingScheduler } from "@/components/meetings/meeting-scheduler";
 import { MeetingList } from "@/components/meetings/meeting-list";
 import { TicketDescription } from "@/components/tickets/ticket-description";
 import { NameWithRole } from "@/components/shared/name-with-role";
+import {
+  DetailFieldLabel,
+  MetaSeparator,
+  PageMetaLine,
+  PageSectionLabel,
+} from "@/components/ui/arabic-ux";
+import { PanelSwitchRow } from "@/components/ui/panel-form";
+import { FALLBACKS, TICKET_UI } from "@/lib/strings";
 import { ArrowLeft } from "lucide-react";
 
 interface AdminTicketDetailPageProps {
@@ -39,18 +47,15 @@ export default async function AdminTicketDetailPage({
   const session = await requireAuth();
   const { id } = await params;
 
-  // Get ticket
   const ticketResult = await getTicketById(id);
   if (!ticketResult.success || !ticketResult.data) {
     notFound();
   }
   const ticket = ticketResult.data;
 
-  // Get comments
   const commentsResult = await getTicketComments(id);
   const comments = commentsResult.success ? commentsResult.data || [] : [];
 
-  // Get attachments (if file uploads are enabled)
   const fileUploadsEnabled = isFileUploadsEnabled();
   const attachmentsResult = fileUploadsEnabled
     ? await getTicketAttachments(id)
@@ -59,15 +64,12 @@ export default async function AdminTicketDetailPage({
     ? attachmentsResult.data || []
     : [];
 
-  // Get history
   const historyResult = await getTicketHistory(id);
   const history = historyResult.success ? historyResult.data || [] : [];
 
-  // Get meetings
   const meetingsResult = await getTicketMeetings(id);
   const meetings = meetingsResult.success ? meetingsResult.data || [] : [];
 
-  // Get user information
   const usersCollection = await getCollection<UserType>("user");
   const assignedToId =
     typeof ticket.assignedToId === "string" ? ticket.assignedToId : null;
@@ -80,8 +82,8 @@ export default async function AdminTicketDetailPage({
   const uniqueUserIds = [...new Set(userIds)].filter(Boolean);
 
   const objectIds = uniqueUserIds
-    .filter((id) => typeof id === "string" && ObjectId.isValid(id))
-    .map((id) => new ObjectId(id));
+    .filter((uid) => typeof uid === "string" && ObjectId.isValid(uid))
+    .map((uid) => new ObjectId(uid));
 
   const usersData = await usersCollection
     .find({
@@ -100,7 +102,7 @@ export default async function AdminTicketDetailPage({
     const key = user.id || user._id?.toString();
     if (key) {
       users[key] = {
-        name: user.name || "Unknown User",
+        name: user.name || FALLBACKS.unknownUser,
         email: user.email || "",
         role: user.role || "customer",
         image: user.image,
@@ -110,7 +112,7 @@ export default async function AdminTicketDetailPage({
     const objectKey = user._id?.toString();
     if (objectKey && !users[objectKey]) {
       users[objectKey] = {
-        name: user.name || "Unknown User",
+        name: user.name || FALLBACKS.unknownUser,
         email: user.email || "",
         role: user.role || "customer",
         image: user.image,
@@ -118,10 +120,8 @@ export default async function AdminTicketDetailPage({
     }
   });
 
-  // If customer is not found, try to fetch by _id (fallback for old data)
   if (!users[ticket.customerId]) {
     try {
-      // Try to find user by _id if customerId looks like an ObjectId
       let customerUser = null;
       if (ObjectId.isValid(ticket.customerId)) {
         customerUser = await usersCollection.findOne({
@@ -131,49 +131,44 @@ export default async function AdminTicketDetailPage({
 
       if (customerUser) {
         users[ticket.customerId] = {
-          name: customerUser.name || "Unknown User",
+          name: customerUser.name || FALLBACKS.unknownUser,
           email: customerUser.email || "",
           role: customerUser.role || "customer",
           image: customerUser.image,
         };
-      } else {
-        console.warn(
-          `Customer not found for ticket ${ticket.ticketNumber}. CustomerId: ${ticket.customerId}`
-        );
       }
     } catch (error) {
       console.error("Error fetching customer user:", error);
     }
   }
 
-  // Get support staff for assignment
   const supportStaff = await usersCollection
     .find({ role: { $in: ["support", "admin"] } })
     .toArray();
 
-  // Resolve department name
   let departmentName: string | null = null;
   if (ticket.departmentSlug) {
     const departmentsCollection =
       await getCollection<TicketDepartmentDefinition>("ticket_departments");
-    const dept = await departmentsCollection.findOne({ slug: ticket.departmentSlug });
+    const dept = await departmentsCollection.findOne({
+      slug: ticket.departmentSlug,
+    });
     departmentName = dept?.name || ticket.departmentSlug;
   }
 
-  // Resolve product from admin-managed ticket_products catalog
   let productLabel: string | null = null;
   if (ticket.productSlug) {
     const productsCollection = await getCollection<TicketProductDefinition>(
       "ticket_products"
     );
-    const product = await productsCollection.findOne({ slug: ticket.productSlug });
+    const product = await productsCollection.findOne({
+      slug: ticket.productSlug,
+    });
     productLabel = product?.name || ticket.productSlug;
   }
 
   const customer = users[ticket.customerId] || {
-    // Guest tickets (AI chatbot widget) have no user record — fall back to the
-    // name/email the visitor entered in the contact form.
-    name: ticket.guestName || "Unknown Customer",
+    name: ticket.guestName || FALLBACKS.unknownCustomer,
     email: ticket.guestEmail || "",
     role: "customer",
   };
@@ -190,29 +185,25 @@ export default async function AdminTicketDetailPage({
     : null;
 
   return (
-    <div className="space-y-6">
-      {/* Top strip: back + ticket number + inline admin controls */}
+    <div className="space-y-6 text-start">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-row items-center gap-2">
+          <span className="font-mono text-xs tracking-wide text-muted-foreground">
+            {ticket.ticketNumber}
+          </span>
           <Button
             variant="ghost"
             size="icon"
             asChild
-            className="h-8 w-8 -ml-2"
+            className="-me-2 h-8 w-8"
           >
-            <Link href="/admin/tickets" aria-label="Back to tickets">
-              <ArrowLeft className="h-4 w-4" />
+            <Link href="/admin/tickets" aria-label={TICKET_UI.backToTickets}>
+              <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
             </Link>
           </Button>
-          <span className="text-xs font-mono tracking-wide text-muted-foreground">
-            {ticket.ticketNumber}
-          </span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <TicketStatusControl
-            ticketId={id}
-            currentStatus={ticket.status}
-          />
+          <TicketStatusControl ticketId={id} currentStatus={ticket.status} />
           <TicketPriorityControl
             ticketId={id}
             currentPriority={ticket.priority}
@@ -230,72 +221,68 @@ export default async function AdminTicketDetailPage({
         </div>
       </div>
 
-      {/* Title + meta line */}
       <div className="space-y-1.5">
-        <h1 className="text-2xl font-semibold tracking-tight text-balance">
+        <h1 className="text-balance text-2xl font-semibold leading-snug">
           {ticket.title}
         </h1>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-          <span>Opened by</span>
+        <PageMetaLine>
+          <span>{TICKET_UI.openedBy}</span>
           <NameWithRole
             name={customer?.name}
             role={(customer as { role?: string })?.role}
-            className="text-sm text-foreground font-medium"
+            className="text-sm font-medium text-foreground"
             badgeClassName="h-4 px-2 text-[10px]"
           />
           {createdLabel && (
             <>
-              <span className="text-muted-foreground/50">•</span>
+              <MetaSeparator />
               <span>{createdLabel}</span>
             </>
           )}
           {lastActivityLabel && (
             <>
-              <span className="text-muted-foreground/50">•</span>
-              <span>Last activity {lastActivityLabel}</span>
+              <MetaSeparator />
+              <span>
+                {TICKET_UI.lastActivity} {lastActivityLabel}
+              </span>
             </>
           )}
-        </div>
+        </PageMetaLine>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-4 lg:gap-10">
-        {/* Main content — flush on page bg */}
-        <div className="lg:col-span-3 space-y-8">
-          {/* Description */}
-          <section className="space-y-2 pb-6 border-b">
-            <h2 className="text-[11px] uppercase tracking-wider text-muted-foreground">
-              Description
-            </h2>
+        <div className="space-y-8 lg:col-span-3">
+          <section className="space-y-2 border-b pb-6">
+            <PageSectionLabel>{TICKET_UI.description}</PageSectionLabel>
             <TicketDescription description={ticket.description} />
           </section>
 
-          {/* Tabs — underline style */}
           <Tabs defaultValue="comments" className="space-y-6">
-            <TabsList className="h-auto w-full justify-start bg-transparent border-b rounded-none p-0 gap-1">
+            <TabsList className="h-auto w-full justify-start gap-1 rounded-none border-b bg-transparent p-0">
               <TabsTrigger
                 value="comments"
-                className="flex-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none rounded-none bg-transparent border-0 text-muted-foreground hover:text-foreground px-4 pb-3 -mb-px font-medium transition-colors"
+                className="-mb-px flex-none rounded-none border-0 bg-transparent px-4 pb-3 font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
               >
-                Comments
-                <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[11px] text-muted-foreground">
+                {TICKET_UI.comments}
+                <span className="ms-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[11px] text-muted-foreground">
                   {comments?.length ?? 0}
                 </span>
               </TabsTrigger>
               <TabsTrigger
                 value="meetings"
-                className="flex-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none rounded-none bg-transparent border-0 text-muted-foreground hover:text-foreground px-4 pb-3 -mb-px font-medium transition-colors"
+                className="-mb-px flex-none rounded-none border-0 bg-transparent px-4 pb-3 font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
               >
-                Meetings
-                <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[11px] text-muted-foreground">
+                {TICKET_UI.meetings}
+                <span className="ms-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[11px] text-muted-foreground">
                   {meetings?.length ?? 0}
                 </span>
               </TabsTrigger>
               <TabsTrigger
                 value="history"
-                className="flex-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none rounded-none bg-transparent border-0 text-muted-foreground hover:text-foreground px-4 pb-3 -mb-px font-medium transition-colors"
+                className="-mb-px flex-none rounded-none border-0 bg-transparent px-4 pb-3 font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
               >
-                Logs
-                <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[11px] text-muted-foreground">
+                {TICKET_UI.logs}
+                <span className="ms-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[11px] text-muted-foreground">
                   {history?.length ?? 0}
                 </span>
               </TabsTrigger>
@@ -317,12 +304,12 @@ export default async function AdminTicketDetailPage({
 
             <TabsContent value="meetings" className="mt-0">
               <div className="space-y-4">
-                <div className="flex items-center justify-between gap-2 rounded-lg border bg-card p-3">
+                <PanelSwitchRow className="rounded-lg bg-card p-3">
                   <p className="text-sm text-muted-foreground">
-                    Schedule a Zoom or Google Meet with the customer.
+                    {TICKET_UI.scheduleMeetingHint}
                   </p>
                   <MeetingScheduler ticketId={id} />
-                </div>
+                </PanelSwitchRow>
                 <MeetingList
                   meetings={meetings}
                   users={users}
@@ -339,12 +326,9 @@ export default async function AdminTicketDetailPage({
           </Tabs>
         </div>
 
-        {/* Sidebar — quiet metadata */}
-        <aside className="lg:sticky lg:top-6 self-start text-sm divide-y divide-border/60 [&>div]:py-4 [&>div:first-child]:pt-0 [&>div:last-child]:pb-0">
+        <aside className="divide-y divide-border/60 self-start text-sm lg:sticky lg:top-6 [&>div]:py-4 [&>div:first-child]:pt-0 [&>div:last-child]:pb-0">
           <div>
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">
-              Customer
-            </div>
+            <DetailFieldLabel>{TICKET_UI.customer}</DetailFieldLabel>
             <NameWithRole
               name={customer?.name}
               role={(customer as { role?: string })?.role}
@@ -352,16 +336,14 @@ export default async function AdminTicketDetailPage({
               badgeClassName="h-4 px-2 text-[10px]"
             />
             {customer?.email && (
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 {customer.email}
               </p>
             )}
           </div>
 
           <div>
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">
-              Assigned To
-            </div>
+            <DetailFieldLabel>{TICKET_UI.assignedTo}</DetailFieldLabel>
             {assignedTo ? (
               <>
                 <NameWithRole
@@ -370,61 +352,53 @@ export default async function AdminTicketDetailPage({
                   className="text-sm font-medium"
                   badgeClassName="h-4 px-2 text-[10px]"
                 />
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {assignedTo.email}
                 </p>
               </>
             ) : (
-              <p className="text-sm text-muted-foreground">Unassigned</p>
+              <p className="text-sm text-muted-foreground">
+                {FALLBACKS.unassigned}
+              </p>
             )}
           </div>
 
           {departmentName && (
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">
-                Department
-              </div>
+              <DetailFieldLabel>{TICKET_UI.department}</DetailFieldLabel>
               <p className="text-sm">{departmentName}</p>
             </div>
           )}
 
           {productLabel && (
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">
-                Product
-              </div>
+              <DetailFieldLabel>{TICKET_UI.product}</DetailFieldLabel>
               <p className="text-sm">{productLabel}</p>
             </div>
           )}
 
           {createdLabel && (
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">
-                Created
-              </div>
+              <DetailFieldLabel>{TICKET_UI.created}</DetailFieldLabel>
               <p className="text-sm">{createdLabel}</p>
             </div>
           )}
 
           {resolvedLabel && (
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">
-                Resolved
-              </div>
+              <DetailFieldLabel>{TICKET_UI.resolved}</DetailFieldLabel>
               <p className="text-sm">{resolvedLabel}</p>
             </div>
           )}
 
           {ticket.tags && ticket.tags.length > 0 && (
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">
-                Tags
-              </div>
+              <DetailFieldLabel>{TICKET_UI.tags}</DetailFieldLabel>
               <div className="flex flex-wrap gap-1.5">
                 {ticket.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-0.5 bg-muted text-foreground text-xs rounded"
+                    className="rounded bg-muted px-2 py-0.5 text-xs text-foreground"
                   >
                     {tag}
                   </span>
@@ -435,10 +409,8 @@ export default async function AdminTicketDetailPage({
 
           {ticket.purchaseCode && (
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">
-                Purchase Code
-              </div>
-              <p className="text-xs font-mono break-all text-muted-foreground">
+              <DetailFieldLabel>{TICKET_UI.purchaseCode}</DetailFieldLabel>
+              <p className="break-all font-mono text-xs text-muted-foreground">
                 {ticket.purchaseCode}
               </p>
             </div>

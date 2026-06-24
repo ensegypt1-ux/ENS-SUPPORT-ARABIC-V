@@ -44,14 +44,14 @@ export function FileUploadPreview({
     for (const file of files) {
       // Check if we've reached max files
       if (selectedFiles.length + validFiles.length >= maxFiles) {
-        errors.push(`Maximum ${maxFiles} files allowed`);
+        errors.push(`الحد الأقصى ${maxFiles} ملفات`);
         break;
       }
 
       // Validate file size
       if (file.size > maxFileSize) {
         const maxSizeMB = (maxFileSize / 1024 / 1024).toFixed(2);
-        errors.push(`${file.name}: File size exceeds ${maxSizeMB}MB`);
+        errors.push(`${file.name}: حجم الملف يتجاوز ${maxSizeMB} م.ب`);
         continue;
       }
 
@@ -62,7 +62,7 @@ export function FileUploadPreview({
         allowedMimeTypes: allowedTypes,
       });
       if (!resolvedMimeType) {
-        errors.push(`${file.name}: File type not allowed`);
+        errors.push(`${file.name}: نوع الملف غير مسموح`);
         continue;
       }
 
@@ -94,9 +94,9 @@ export function FileUploadPreview({
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === 0) return "0 بايت";
     const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const sizes = ["بايت", "ك.ب", "م.ب", "غ.ب"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
@@ -130,12 +130,12 @@ export function FileUploadPreview({
             <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">
               {selectedFiles.length >= maxFiles
-                ? `Maximum ${maxFiles} files reached`
-                : "Click to select files or drag and drop"}
+                ? `تم الوصول إلى الحد الأقصى ${maxFiles} ملفات`
+                : "انقر لاختيار الملفات أو اسحبها وأفلتها هنا"}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Max size: {(maxFileSize / 1024 / 1024).toFixed(2)}MB per file •
-              Max {maxFiles} files
+              الحد الأقصى: {(maxFileSize / 1024 / 1024).toFixed(2)} م.ب لكل ملف •
+              بحد أقصى {maxFiles} ملفات
             </p>
           </div>
         </label>
@@ -145,7 +145,7 @@ export function FileUploadPreview({
       {selectedFiles.length > 0 && (
         <div className="space-y-2">
           <p className="text-sm font-medium text-foreground">
-            Selected Files ({selectedFiles.length}/{maxFiles})
+            الملفات المحددة ({selectedFiles.length}/{maxFiles})
           </p>
           <div className="space-y-2">
             {selectedFiles.map((file, index) => (
@@ -173,7 +173,8 @@ export function FileUploadPreview({
                   disabled={disabled}
                   variant="ghost"
                   size="sm"
-                  className="ml-2 flex-shrink-0"
+                  className="ms-2 flex-shrink-0"
+                  aria-label="إزالة الملف"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -185,8 +186,8 @@ export function FileUploadPreview({
 
       {/* Allowed File Types */}
       <div className="text-xs text-muted-foreground">
-        <p className="font-medium mb-1">Allowed file types:</p>
-        <p>Images (JPEG, PNG, GIF, WebP), PDF, Text, ZIP</p>
+        <p className="font-medium mb-1">أنواع الملفات المسموحة:</p>
+        <p>صور (JPEG, PNG, GIF, WebP)، PDF، نص، ZIP</p>
       </div>
     </div>
   );

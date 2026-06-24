@@ -44,7 +44,7 @@ export interface ToolDef {
 function fmtResults(
   rows: { title: string; content: string; score?: number }[]
 ): string {
-  if (rows.length === 0) return "No matching results.";
+  if (rows.length === 0) return "مفيش نتائج مطابقة.";
   return rows
     .map(
       (r, i) =>
@@ -116,7 +116,7 @@ export const AGENT_TOOLS: Record<string, ToolDef> = {
         siteId: ctx.siteId,
       });
       const threshold = ctx.settings.confidenceThreshold;
-      if (matches.length === 0) return "No FAQ entries found.";
+      if (matches.length === 0) return "ملقيناش أسئلة شائعة.";
       const best = matches[0];
       const confident = best.score >= threshold;
       return (
@@ -193,7 +193,7 @@ export const AGENT_TOOLS: Record<string, ToolDef> = {
           : undefined;
       return (
         "Handoff acknowledged — the contact form is now open in the chat. " +
-        "Reply with ONE short, friendly sentence: tell the customer to fill " +
+        "Reply with ONE short, friendly sentence IN ARABIC: tell the customer to fill " +
         "in the form and that a human will get back to them by email. Do not " +
         "repeat their issue, ask if they need anything else, or add extra " +
         "commentary."

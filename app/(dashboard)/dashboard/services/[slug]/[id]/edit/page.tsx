@@ -46,7 +46,7 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
   const [error, setError] = useState("");
   const [ticketId, setTicketId] = useState("");
   const [serviceSlug, setServiceSlug] = useState("");
-  const [serviceName, setServiceName] = useState("Service");
+  const [serviceName, setServiceName] = useState("خدمة");
 
   const {
     register,
@@ -92,7 +92,7 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
 
         setIsLoading(false);
       } catch (e) {
-        const message = e instanceof Error ? e.message : "Failed to load request";
+        const message = e instanceof Error ? e.message : "تعذّر التحميل الطلب";
         setError(message);
         setIsLoading(false);
       }
@@ -109,17 +109,17 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
       const result = await updateServiceContent(ticketId, serviceSlug, data);
 
       if (!result.success) {
-        setError(result.error || "Failed to update request");
-        toast.error(result.error || "Failed to update request");
+        setError(result.error || "تعذّر التحديث الطلب");
+        toast.error(result.error || "تعذّر التحديث الطلب");
         setIsSubmitting(false);
         return;
       }
 
-      toast.success("Request updated successfully!");
+      toast.success("اتحدّث الطلب!");
       router.push(`/dashboard/services/${serviceSlug}/${ticketId}`);
       router.refresh();
     } catch (e) {
-      const message = e instanceof Error ? e.message : "An unexpected error occurred";
+      const message = e instanceof Error ? e.message : "حصل خطأ مش متوقع";
       setError(message);
       toast.error(message);
       setIsSubmitting(false);
@@ -127,16 +127,16 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
   };
 
   const priorities = [
-    { value: "low", label: "Low - No rush", color: "bg-slate-400" },
-    { value: "medium", label: "Medium - Standard timeline", color: "bg-blue-500" },
-    { value: "high", label: "High - Need it soon", color: "bg-amber-500" },
-    { value: "urgent", label: "Urgent - Critical, ASAP", color: "bg-red-500" },
+    { value: "low", label: "منخفضة - بدون استعجال", color: "bg-slate-400" },
+    { value: "medium", label: "متوسطة - جدول زمني قياسي", color: "bg-blue-500" },
+    { value: "high", label: "عالية - مطلوب قريبًا", color: "bg-amber-500" },
+    { value: "urgent", label: "عاجلة - حرجة، في أقرب وقت", color: "bg-red-500" },
   ];
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Loading...</h1>
+        <h1 className="text-2xl font-bold">جاري التحميل...</h1>
       </div>
     );
   }
@@ -146,8 +146,8 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
       <div className="flex items-center justify-between">
         <Button variant="outline" size="sm" asChild>
           <Link href={`/dashboard/services/${serviceSlug}/${ticketId}`}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
+            <ArrowLeft className="h-4 w-4 me-2" />
+            رجوع
           </Link>
         </Button>
       </div>
@@ -160,12 +160,12 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
 
       <Card>
         <CardHeader>
-          <CardTitle>Edit {serviceName} Request</CardTitle>
+          <CardTitle>تعديل طلب {serviceName}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title">العنوان</Label>
               <Input id="title" {...register("title")} disabled={isSubmitting} />
               {errors.title && (
                 <p className="text-sm text-destructive">{errors.title.message}</p>
@@ -173,7 +173,7 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">الوصف</Label>
               <Textarea
                 id="description"
                 {...register("description")}
@@ -187,7 +187,7 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Priority</Label>
+                <Label>الأولوية</Label>
                 <Select
                   value={priority}
                   onValueChange={(value) =>
@@ -196,7 +196,7 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
                   disabled={isSubmitting}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select priority" />
+                    <SelectValue placeholder="اختر الأولوية" />
                   </SelectTrigger>
                   <SelectContent>
                     {priorities.map((p) => (
@@ -212,12 +212,12 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="productName">Product Name</Label>
+                <Label htmlFor="productName">اسم المنتج</Label>
                 <Input id="productName" {...register("productName")} disabled={isSubmitting} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="productVersion">Product Version</Label>
+                <Label htmlFor="productVersion">إصدار المنتج</Label>
                 <Input
                   id="productVersion"
                   {...register("productVersion")}
@@ -229,9 +229,9 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
             <div className="flex justify-end">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="h-4 w-4 me-2 animate-spin" />
                 ) : (
-                  <Save className="h-4 w-4 mr-2" />
+                  <Save className="h-4 w-4 me-2" />
                 )}
                 Save
               </Button>

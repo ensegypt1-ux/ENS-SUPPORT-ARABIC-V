@@ -16,13 +16,21 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error("Global error:", error);
   }, [error]);
 
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-background text-foreground">
+    <html lang="ar" dir="rtl">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body
+        className="min-h-screen bg-background text-foreground antialiased"
+        style={{ fontFamily: "'Cairo', system-ui, sans-serif" }}
+      >
         <div className="flex min-h-screen items-center justify-center px-4">
           <div className="w-full max-w-md space-y-6 text-center">
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
@@ -30,14 +38,14 @@ export default function GlobalError({
             </div>
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tight">
-                Something went wrong!
+                حصل خطأ ما!
               </h1>
               <p className="text-muted-foreground">
-                A critical error occurred. Please try refreshing the page.
+                وقع خطأ حرج.  تحديث الصفحة والمحاولة مرة أخرى.
               </p>
               {error.digest && (
                 <p className="text-xs text-muted-foreground">
-                  Error ID: {error.digest}
+                  معرّف الخطأ: {error.digest}
                 </p>
               )}
             </div>
@@ -46,13 +54,13 @@ export default function GlobalError({
                 onClick={() => reset()}
                 className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                Try again
+                إعادة المحاولة
               </button>
               <button
                 onClick={() => (window.location.href = "/")}
                 className="inline-flex items-center justify-center rounded-md border border-input bg-background px-6 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                Go to homepage
+                الذهاب للصفحة الرئيسية
               </button>
             </div>
           </div>
@@ -61,4 +69,3 @@ export default function GlobalError({
     </html>
   );
 }
-

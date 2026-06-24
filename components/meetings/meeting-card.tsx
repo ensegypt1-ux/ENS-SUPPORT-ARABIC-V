@@ -47,6 +47,13 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { MeetingEditor } from "./meeting-editor";
 import { TIMEZONES } from "@/components/ui/timezones";
+import { AR_LOCALE } from "@/lib/strings";
+
+const RESCHEDULE_STATUS_LABELS: Record<string, string> = {
+  pending: "قيد الانتظار",
+  approved: "موافق عليه",
+  rejected: "مرفوض",
+};
 
 interface MeetingCardProps {
   meeting: Meeting;
@@ -84,12 +91,12 @@ export function MeetingCard({
     if (result.success) {
       toast.success(
         status === "completed"
-          ? "Meeting marked as completed"
-          : "Meeting cancelled"
+          ? "اتحدّد الاجتماع كمكتمل"
+          : "اتلغى الاجتماع"
       );
       router.refresh();
     } else {
-      toast.error(result.error || "Failed to update meeting");
+      toast.error(result.error || "تعذّر التحديث الاجتماع");
     }
 
     setIsUpdating(false);
@@ -101,11 +108,11 @@ export function MeetingCard({
     const result = await deleteMeeting(meeting._id.toString());
 
     if (result.success) {
-      toast.success("Meeting deleted successfully");
+      toast.success("اتمسح الاجتماع");
       setShowDeleteDialog(false);
       router.refresh();
     } else {
-      toast.error(result.error || "Failed to delete meeting");
+      toast.error(result.error || "تعذّر الحذف الاجتماع");
     }
 
     setIsUpdating(false);
@@ -117,10 +124,10 @@ export function MeetingCard({
     const result = await confirmMeetingAttendance(meeting._id.toString());
 
     if (result.success) {
-      toast.success("Attendance confirmed successfully");
+      toast.success("اتأكد الحضور");
       router.refresh();
     } else {
-      toast.error(result.error || "Failed to confirm attendance");
+      toast.error(result.error || "تعذّر تأكيد الحضور");
     }
 
     setIsUpdating(false);
@@ -131,22 +138,22 @@ export function MeetingCard({
       case "scheduled":
         return (
           <Badge variant="default" className="bg-blue-500">
-            <Calendar className="mr-1 h-3 w-3" />
-            Scheduled
+            <Calendar className="me-1 h-3 w-3" />
+            مجدول
           </Badge>
         );
       case "completed":
         return (
           <Badge variant="default" className="bg-green-500">
-            <CheckCircle2 className="mr-1 h-3 w-3" />
-            Completed
+            <CheckCircle2 className="me-1 h-3 w-3" />
+            مكتمل
           </Badge>
         );
       case "cancelled":
         return (
           <Badge variant="destructive">
-            <XCircle className="mr-1 h-3 w-3" />
-            Cancelled
+            <XCircle className="me-1 h-3 w-3" />
+            ملغى
           </Badge>
         );
     }
@@ -170,7 +177,7 @@ export function MeetingCard({
     const date = new Date(meeting.scheduledAt);
     const timeZone = meeting.timezone;
 
-    return new Intl.DateTimeFormat("en-US", {
+    return new Intl.DateTimeFormat(AR_LOCALE, {
       year: "numeric",
       month: "short",
       day: "2-digit",
@@ -215,28 +222,28 @@ export function MeetingCard({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit Meeting
+                    <Edit className="me-2 h-4 w-4" />
+                    تعديل الاجتماع
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => handleStatusChange("completed")}
                   >
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Mark as Completed
+                    <CheckCircle2 className="me-2 h-4 w-4" />
+                    تحديد كمكتمل
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => handleStatusChange("cancelled")}
                   >
-                    <XCircle className="mr-2 h-4 w-4" />
-                    Cancel Meeting
+                    <XCircle className="me-2 h-4 w-4" />
+                    إلغاء الاجتماع
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => setShowDeleteDialog(true)}
                     className="text-destructive"
                   >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Meeting
+                    <Trash2 className="me-2 h-4 w-4" />
+                    حذف الاجتماع
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -248,28 +255,28 @@ export function MeetingCard({
           {/* Meeting Details */}
           <div className="space-y-2">
             <div className="flex items-center text-sm">
-              <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+              <Calendar className="me-2 h-4 w-4 text-muted-foreground" />
               <span>{getFormattedScheduledAt()}</span>
             </div>
 
             {meeting.duration && (
               <div className="flex items-center text-sm">
-                <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>{meeting.duration} minutes</span>
+                <Clock className="me-2 h-4 w-4 text-muted-foreground" />
+                <span>{meeting.duration} دقيقة</span>
               </div>
             )}
 
             {meeting.timezone && (
               <div className="flex items-center text-sm">
-                <Globe className="mr-2 h-4 w-4 text-muted-foreground" />
+                <Globe className="me-2 h-4 w-4 text-muted-foreground" />
                 <span>{getTimezoneLabel()}</span>
               </div>
             )}
 
             {organizer && (
               <div className="flex items-center text-sm">
-                <span className="text-muted-foreground mr-2">
-                  Organized by:
+                <span className="text-muted-foreground me-2">
+                  منظّم من قبل:
                 </span>
                 <NameWithRole
                   name={organizer.name}
@@ -283,7 +290,7 @@ export function MeetingCard({
 
           {/* Description */}
           {meeting.description && (
-            <div className="text-sm text-muted-foreground border-l-2 border-muted pl-3">
+            <div className="text-sm text-muted-foreground border-s-2 border-muted ps-3">
               {meeting.description}
             </div>
           )}
@@ -294,7 +301,7 @@ export function MeetingCard({
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
                 <span className="font-medium text-green-900 dark:text-green-100">
-                  Attendance Confirmed
+                  اتأكد الحضور
                 </span>
                 {meeting.customerConfirmation.confirmedAt && (
                   <span className="text-xs text-green-700 dark:text-green-300 ml-auto">
@@ -313,7 +320,7 @@ export function MeetingCard({
               <div className="flex items-center gap-2 mb-2">
                 <CalendarClock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <span className="font-medium text-blue-900 dark:text-blue-100">
-                  Reschedule Request
+                  طلب إعادة جدولة
                 </span>
                 <Badge
                   variant={
@@ -325,20 +332,20 @@ export function MeetingCard({
                   }
                   className="ml-auto"
                 >
-                  {meeting.rescheduleRequest.status.charAt(0).toUpperCase() +
-                    meeting.rescheduleRequest.status.slice(1)}
+                  {RESCHEDULE_STATUS_LABELS[meeting.rescheduleRequest.status] ??
+                    meeting.rescheduleRequest.status}
                 </Badge>
               </div>
               <div className="space-y-1 text-blue-800 dark:text-blue-200">
                 <p>
-                  <span className="font-medium">Preferred Time:</span>{" "}
+                  <span className="font-medium">الوقت المفضل:</span>{" "}
                   {new Date(
                     meeting.rescheduleRequest.preferredTime
                   ).toLocaleString()}
                 </p>
                 {meeting.rescheduleRequest.reason && (
                   <p>
-                    <span className="font-medium">Reason:</span>{" "}
+                    <span className="font-medium">السبب:</span>{" "}
                     {meeting.rescheduleRequest.reason}
                   </p>
                 )}
@@ -355,8 +362,8 @@ export function MeetingCard({
                 className="w-full"
                 onClick={() => window.open(meeting.meetingLink, "_blank")}
               >
-                <ExternalLink className="mr-2 h-4 w-4" />
-                Join Meeting
+                <ExternalLink className="me-2 h-4 w-4" />
+                الانضمام إلى الاجتماع
               </Button>
             </div>
           )}
@@ -375,13 +382,13 @@ export function MeetingCard({
                 >
                   {isUpdating ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Confirming...
+                      <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                      جاري التأكيد...
                     </>
                   ) : (
                     <>
-                      <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Confirm Attendance
+                      <CheckCircle2 className="me-2 h-4 w-4" />
+                      تأكيد الحضور
                     </>
                   )}
                 </Button>
@@ -396,8 +403,8 @@ export function MeetingCard({
                   onClick={() => setShowRescheduleDialog(true)}
                   disabled={isUpdating}
                 >
-                  <CalendarClock className="mr-2 h-4 w-4" />
-                  Request Reschedule
+                  <CalendarClock className="me-2 h-4 w-4" />
+                  طلب إعادة جدولة
                 </Button>
               )}
             </div>
@@ -406,7 +413,7 @@ export function MeetingCard({
           {/* Cancellation Reason */}
           {meeting.status === "cancelled" && meeting.cancellationReason && (
             <div className="text-sm p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-              <span className="font-medium">Cancellation Reason: </span>
+              <span className="font-medium">سبب الإلغاء: </span>
               {meeting.cancellationReason}
             </div>
           )}
@@ -435,14 +442,14 @@ export function MeetingCard({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Meeting</AlertDialogTitle>
+            <AlertDialogTitle>حذف الاجتماع</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this meeting? This action cannot
-              be undone.
+              متأكد من حذف هذا الاجتماع؟ مش هينفع الرجوع عن هذا
+              الإجراء.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isUpdating}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isUpdating}>إلغاء</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isUpdating}
@@ -450,11 +457,11 @@ export function MeetingCard({
             >
               {isUpdating ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                  جاري الحذف...
                 </>
               ) : (
-                "Delete"
+                "حذف"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

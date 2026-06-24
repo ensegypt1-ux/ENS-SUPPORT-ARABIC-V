@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { toPlainObject } from "@/lib/serialization";
 import { PublicHeader } from "@/components/layout/public-header";
 import { DocsShell } from "@/components/knowledge-base/docs-shell";
@@ -27,9 +28,11 @@ export default async function DocsLayout({
       <PublicHeader />
 
       {/* Docs sub-header + 3-column layout (sidebar fed by live KB data) */}
-      <DocsShell categories={categories} articles={articles}>
-        {children}
-      </DocsShell>
+      <Suspense fallback={null}>
+        <DocsShell categories={categories} articles={articles}>
+          {children}
+        </DocsShell>
+      </Suspense>
 
       {/* Floating theme toggle */}
       <DocsThemeToggle />

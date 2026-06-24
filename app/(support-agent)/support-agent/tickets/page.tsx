@@ -53,68 +53,68 @@ export default async function SupportAgentTicketsPage({
 
   const ticketStats = [
     {
-      title: "Total Assigned",
+          title: "إجمالي المعيّن",
       value: tickets.length,
       icon: TicketIcon,
       iconColor: "text-sky-600",
       iconBgColor: "bg-sky-50 dark:bg-sky-950",
-      description: "Tickets assigned to you",
+      description: "التذاكر المعيّنة لك",
     },
     {
-      title: "Open",
+      title: "مفتوحة",
       value: openTickets.length,
       icon: AlertCircle,
       iconColor: "text-amber-600",
       iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "Waiting for your response",
+      description: "في انتظار ردك",
     },
     {
-      title: "In Progress",
+      title: "قيد المعالجة",
       value: inProgressTickets.length,
       icon: Clock,
       iconColor: "text-indigo-600",
       iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "You are currently working on",
+      description: "تعمل عليها حاليًا",
     },
     {
-      title: "Resolved / Closed",
+      title: "محلولة / مغلقة",
       value: resolvedTickets.length + closedTickets.length,
       icon: CheckCircle2,
       iconColor: "text-emerald-600",
       iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "Completed tickets",
+      description: "تذاكر مكتملة",
     },
   ];
 
   const tabItems = [
-    { value: "all", label: "All", count: tickets.length },
-    { value: "open", label: "Open", count: openTickets.length },
+    { value: "all", label: "الكل", count: tickets.length },
+    { value: "open", label: "مفتوحة", count: openTickets.length },
     {
       value: "scheduled_meeting",
-      label: "Scheduled Meeting",
+      label: "اجتماع مجدول",
       count: scheduledMeetingTickets.length,
     },
     {
       value: "waiting_on_customer",
-      label: "Waiting",
+      label: "في الانتظار",
       count: waitingTickets.length,
     },
     {
       value: "in_progress",
-      label: "In Progress",
+      label: "قيد المعالجة",
       count: inProgressTickets.length,
     },
-    { value: "resolved", label: "Resolved", count: resolvedTickets.length },
-    { value: "closed", label: "Closed", count: closedTickets.length },
+    { value: "resolved", label: "محلولة", count: resolvedTickets.length },
+    { value: "closed", label: "مغلقة", count: closedTickets.length },
   ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">My Assigned Tickets</h1>
+        <h1 className="text-2xl font-bold sm:text-3xl">طلباتي المعيّنة</h1>
         <p className="text-muted-foreground mt-1">
-          Manage and respond to tickets assigned to you
+          إدارة والرد على التذاكر المعيّنة لك
         </p>
       </div>
 
@@ -127,7 +127,7 @@ export default async function SupportAgentTicketsPage({
           <PageTabsHeader
             tabs={tabItems}
             showSearch
-            searchPlaceholder="Search tickets..."
+            searchPlaceholder="بحث في التذاكر..."
             searchDefaultValue={filters.search}
             showPriorityFilter
             priorityDefaultValue={filters.priority}
@@ -167,7 +167,7 @@ export default async function SupportAgentTicketsPage({
             {openTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No open tickets
+                  مفيش تذاكر مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -194,7 +194,7 @@ export default async function SupportAgentTicketsPage({
             {scheduledMeetingTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No scheduled meeting tickets
+                  مفيش تذاكر باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -221,7 +221,7 @@ export default async function SupportAgentTicketsPage({
             {waitingTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No waiting tickets
+                  مفيش تذاكر في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -248,7 +248,7 @@ export default async function SupportAgentTicketsPage({
             {inProgressTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No in progress tickets
+                  مفيش تذاكر قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -275,7 +275,7 @@ export default async function SupportAgentTicketsPage({
             {resolvedTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No resolved tickets
+                  مفيش تذاكر محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -302,7 +302,7 @@ export default async function SupportAgentTicketsPage({
             {closedTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  No closed tickets
+                  مفيش تذاكر مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

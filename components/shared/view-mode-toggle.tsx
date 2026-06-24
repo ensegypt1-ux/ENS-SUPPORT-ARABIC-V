@@ -26,8 +26,8 @@ export interface ViewModeToggleProps {
 }
 
 const fallbackModes: ViewModeToggleOption[] = [
-  { value: "table", label: "Table" },
-  { value: "card", label: "Cards" },
+  { value: "table", label: "جدول" },
+  { value: "card", label: "بطاقات" },
 ];
 
 export function ViewModeToggle({
@@ -77,7 +77,7 @@ export function ViewModeToggle({
           >
             {Icon && <Icon className="h-4 w-4" />}
             {mode.label && (
-              <span className="ml-2 hidden sm:inline">{mode.label}</span>
+              <span className="ms-2 hidden sm:inline">{mode.label}</span>
             )}
           </Button>
         );

@@ -7,6 +7,7 @@ import { AdminNav } from "@/components/layout/admin-nav";
 import { AppHeader } from "@/components/layout/app-header";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { requireAuth, requirePermission } from "@/lib/auth-utils";
+import { FALLBACKS } from "@/lib/strings";
 
 export default async function AdminLayout({
   children,
@@ -30,7 +31,7 @@ export default async function AdminLayout({
 
   const user = {
     id: sessionUser.id,
-    name: sessionUser.name ?? "Unknown User",
+    name: sessionUser.name ?? FALLBACKS.unknownUser,
     email: sessionUser.email ?? "",
     role: userRole,
     image: userDoc?.image ?? sessionUser.image ?? "",
@@ -44,15 +45,16 @@ export default async function AdminLayout({
   const services = servicesResult.success && servicesResult.data ? servicesResult.data : [];
 
   return (
-    <div className="min-h-screen w-full bg-surface flex">
-      {/* Sidebar */}
+    <div
+      className="flex min-h-screen w-full bg-surface"
+      dir="rtl"
+      data-admin-panel
+    >
       <AppSidebar user={user}>
         <AdminNav userRole={userRole} services={services} />
       </AppSidebar>
 
-      {/* Main Content with Header */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header - Sticky */}
+      <div className="flex min-w-0 flex-1 flex-col">
         <div className="sticky top-0 z-40 shrink-0">
           <AppHeader
             user={user}
@@ -61,8 +63,7 @@ export default async function AdminLayout({
           />
         </div>
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-x-clip bg-surface">
+        <main className="flex-1 overflow-x-clip bg-surface text-start">
           <div className="mx-auto p-4 md:p-6">{children}</div>
         </main>
       </div>

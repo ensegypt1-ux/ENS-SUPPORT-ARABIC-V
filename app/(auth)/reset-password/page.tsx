@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useState, Suspense } from "react"; // Added Suspense
+import { useState, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,11 +24,11 @@ import { toast } from "sonner";
 
 const resetPasswordSchema = z
   .object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z.string().min(8, "كلمة المرور لازم 8 حروف على الأقل"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "كلمتا المرور مش متطابقتين",
     path: ["confirmPassword"],
   });
 
@@ -36,8 +36,8 @@ type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // Added useSearchParams
-  const token = searchParams.get("token"); // Get token from query params
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,7 +51,7 @@ function ResetPasswordForm() {
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     if (!token) {
-      setError("Invalid or missing token");
+      setError("الرمز مش صح أو مش موجود");
       return;
     }
 
@@ -61,19 +61,19 @@ function ResetPasswordForm() {
     try {
       const result = await authClient.resetPassword({
         newPassword: data.password,
-        token, // Pass token explicitly
+        token,
       });
 
       if (result?.error) {
-        setError(result.error.message || "Failed to reset password");
+        setError(result.error.message || "تعذّر تغيير كلمة المرور");
         setIsLoading(false);
         return;
       }
 
-      toast.success("Password reset successfully");
+      toast.success("كلمة المرور اتغيّرت");
       router.push("/login");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
+      const message = err instanceof Error ? err.message : "حصل خطأ. جرّب تاني.";
       setError(message);
       setIsLoading(false);
     }
@@ -85,10 +85,10 @@ function ResetPasswordForm() {
         <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
-              Reset Password
+              تغيير كلمة المرور
             </CardTitle>
             <CardDescription className="text-center">
-              Enter your new password below
+              ادخل كلمة المرور الجديدة
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -99,7 +99,7 @@ function ResetPasswordForm() {
                 </Alert>
               )}
               <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
+                <Label htmlFor="password">كلمة المرور الجديدة</Label>
                 <Input
                   id="password"
                   type="password"
@@ -115,7 +115,7 @@ function ResetPasswordForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -134,11 +134,11 @@ function ResetPasswordForm() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Resetting...
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    بيتحدّث...
                   </>
                 ) : (
-                  "Reset Password"
+                  "تغيير كلمة المرور"
                 )}
               </Button>
 
@@ -147,8 +147,8 @@ function ResetPasswordForm() {
                   href="/login"
                   className="flex items-center text-sm text-muted-foreground hover:text-primary"
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Login
+                  <ArrowLeft className="me-2 h-4 w-4" />
+                  رجوع للدخول
                 </Link>
               </div>
             </CardFooter>

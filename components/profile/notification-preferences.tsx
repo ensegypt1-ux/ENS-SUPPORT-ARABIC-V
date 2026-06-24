@@ -50,10 +50,10 @@ function ChannelSelector({
         className="flex flex-wrap gap-2"
       >
         {[
-          { value: "both", label: "Both" },
-          { value: "email", label: "Email" },
-          { value: "in_app", label: "In-App" },
-          { value: "none", label: "None" },
+          { value: "both", label: "كلاهما" },
+          { value: "email", label: "الإيميل" },
+          { value: "in_app", label: "داخل التطبيق" },
+          { value: "none", label: "لا شيء" },
         ].map((option) => (
           <div key={`${id}-${option.value}`} className="flex items-center">
             <RadioGroupItem
@@ -142,9 +142,9 @@ export function NotificationPreferences() {
     });
 
     if (result.success) {
-      toast.success("Notification preferences updated successfully");
+      toast.success("اتحدّث تفضيلات الإشعارات");
     } else {
-      toast.error(result.error || "Failed to update preferences");
+      toast.error(result.error || "تعذّر التحديث التفضيلات");
     }
     setIsSaving(false);
   };
@@ -157,7 +157,7 @@ export function NotificationPreferences() {
             <Bell className="h-4 w-4 text-primary" />
           </div>
           <h3 className="font-medium text-foreground">
-            Notification Preferences
+            تفضيلات الإشعارات
           </h3>
         </div>
         <div className="flex items-center justify-center py-12">
@@ -175,10 +175,10 @@ export function NotificationPreferences() {
         </div>
         <div>
           <h3 className="font-medium text-foreground">
-            Notification Preferences
+            تفضيلات الإشعارات
           </h3>
           <p className="text-xs text-muted-foreground">
-            Customize how notifications work for you
+            خصّص كيفية عمل الإشعارات بالنسبة لك
           </p>
         </div>
       </div>
@@ -187,9 +187,9 @@ export function NotificationPreferences() {
         {/* Click Behavior Section */}
         <div className="space-y-4">
           <div>
-            <Label className="text-sm font-medium">Click Behavior</Label>
+            <Label className="text-sm font-medium">سلوك النقر</Label>
             <p className="text-xs text-muted-foreground mt-0.5">
-              What happens when you click a notification
+              ما الذي يحدث عند النقر على إشعار
             </p>
           </div>
 
@@ -211,14 +211,13 @@ export function NotificationPreferences() {
               <RadioGroupItem value="detail" id="detail" className="mt-0.5" />
               <div className="flex-1">
                 <span className="font-medium text-sm">
-                  Show detail page first
+                  عرض صفحة التفاصيل أولاً
                 </span>
-                <span className="ml-2 text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                  Recommended
+                <span className="ms-2 text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                  موصى به
                 </span>
                 <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                  View the full notification content before navigating to the
-                  resource.
+                  اعرض محتوى الإشعار كاملاً قبل الانتقال إلى المورد.
                 </p>
               </div>
             </label>
@@ -234,11 +233,11 @@ export function NotificationPreferences() {
               <RadioGroupItem value="direct" id="direct" className="mt-0.5" />
               <div className="flex-1">
                 <span className="font-medium text-sm">
-                  Go directly to resource
+                  الانتقال مباشرة إلى المورد
                 </span>
                 <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                  Skip the detail page and navigate directly to the related
-                  ticket or message.
+                  تخطّ صفحة التفاصيل وانتقل مباشرة إلى التذكرة أو الرسالة
+                  المرتبطة.
                 </p>
               </div>
             </label>
@@ -248,43 +247,43 @@ export function NotificationPreferences() {
         {/* Channels Section */}
         <div className="space-y-4">
           <div>
-            <Label className="text-sm font-medium">Notification Channels</Label>
+            <Label className="text-sm font-medium">قنوات الإشعارات</Label>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Choose how you receive different types of notifications
+              اختر كيفية استلام أنواع الإشعارات المختلفة
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <ChannelSelector
-              label="Default"
+              label="الافتراضي"
               icon={Mail}
               value={channelsDefault}
               onChange={setChannelsDefault}
               id="ch-default"
             />
             <ChannelSelector
-              label="Comments"
+              label="التعليقات"
               icon={MessageSquare}
               value={channelsComment}
               onChange={setChannelsComment}
               id="ch-comment"
             />
             <ChannelSelector
-              label="Attachments"
+              label="المرفقات"
               icon={Paperclip}
               value={channelsAttachment}
               onChange={setChannelsAttachment}
               id="ch-attachment"
             />
             <ChannelSelector
-              label="Meeting Scheduled"
+              label="اجتماع مجدول"
               icon={CalendarPlus}
               value={channelsMeetingScheduled}
               onChange={setChannelsMeetingScheduled}
               id="ch-meeting-scheduled"
             />
             <ChannelSelector
-              label="Meeting Updated"
+              label="اجتماع محدّث"
               icon={CalendarClock}
               value={channelsMeetingUpdated}
               onChange={setChannelsMeetingUpdated}
@@ -295,10 +294,10 @@ export function NotificationPreferences() {
 
         <div className="space-y-4">
           <div>
-            <Label className="text-sm font-medium">Browser Push</Label>
+            <Label className="text-sm font-medium">إشعارات المتصفح</Label>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Receive background alerts even when the app is not in the
-              foreground. Push follows your in-app notification channels.
+              استلم تنبيهات في الخلفية حتى عندما لا يكون التطبيق في
+              المقدمة. تتبع الإشعارات الفورية قنوات الإشعارات داخل التطبيق.
             </p>
           </div>
 
@@ -312,29 +311,29 @@ export function NotificationPreferences() {
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">
                       {pushSubscribed
-                        ? "Browser push is active on this device"
-                        : "Browser push is not enabled on this device"}
+                        ? "إشعارات المتصفح مفعّلة على هذا الجهاز"
+                        : "إشعارات المتصفح غير مفعّلة على هذا الجهاز"}
                     </p>
                     <p className="text-xs leading-5 text-muted-foreground">
-                      Install the app from your browser menu for the best mobile
-                      and desktop experience, then enable push here when you are
-                      ready.
+                      ثبّت التطبيق من قائمة المتصفح للحصول على أفضل تجربة على
+                      الهاتف وسطح المكتب، ثم فعّل الإشعارات هنا عندما تكون
+                      جاهزاً.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2 text-xs">
                   <span className="rounded-full border border-border/50 bg-background/70 px-2.5 py-1 text-muted-foreground">
-                    {pushSupported ? "Push supported" : "Push unsupported"}
+                    {pushSupported ? "الإشعارات مدعومة" : "الإشعارات غير مدعومة"}
                   </span>
                   <span className="rounded-full border border-border/50 bg-background/70 px-2.5 py-1 text-muted-foreground">
-                    Server {pushConfigured ? "configured" : "not configured"}
+                    الخادم {pushConfigured ? "مهيأ" : "غير مهيأ"}
                   </span>
                   <span className="rounded-full border border-border/50 bg-background/70 px-2.5 py-1 text-muted-foreground">
-                    Permission: {pushPermission}
+                    الإذن: {pushPermission}
                   </span>
                   <span className="rounded-full border border-border/50 bg-background/70 px-2.5 py-1 text-muted-foreground">
-                    Active browsers: {subscriptionCount}
+                    المتصفحات النشطة: {subscriptionCount}
                   </span>
                 </div>
 
@@ -342,8 +341,8 @@ export function NotificationPreferences() {
                   <div className="flex items-start gap-2 rounded-xl border border-border/40 bg-background/60 px-3 py-2 text-xs text-muted-foreground">
                     <Laptop className="mt-0.5 h-4 w-4 shrink-0" />
                     <p>
-                      Browser push requires a modern browser with service worker
-                      and Push API support, plus HTTPS in production.
+                      تتطلب إشعارات المتصفح متصفحاً حديثاً يدعم Service Worker
+                      وواجهة Push API، بالإضافة إلى HTTPS في بيئة الإنتاج.
                     </p>
                   </div>
                 )}
@@ -352,9 +351,9 @@ export function NotificationPreferences() {
                   <div className="flex items-start gap-2 rounded-xl border border-amber-200/60 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300">
                     <Shield className="mt-0.5 h-4 w-4 shrink-0" />
                     <p>
-                      Add `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`,
-                      and `VAPID_SUBJECT` on the server before enabling browser
-                      push.
+                      أضف `NEXT_PUBLIC_VAPID_PUBLIC_KEY` و`VAPID_PRIVATE_KEY`
+                      و`VAPID_SUBJECT` على الخادم قبل تفعيل إشعارات
+                      المتصفح.
                     </p>
                   </div>
                 )}
@@ -363,8 +362,8 @@ export function NotificationPreferences() {
                   <div className="flex items-start gap-2 rounded-xl border border-amber-200/60 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300">
                     <Shield className="mt-0.5 h-4 w-4 shrink-0" />
                     <p>
-                      Notifications are blocked for this site in your browser.
-                      Re-enable them in browser settings, then try again here.
+                      الإشعارات محظورة لهذا الموقع في متصفحك. أعد تفعيلها في
+                      إعدادات المتصفح، ثم حاول مرة أخرى هنا.
                     </p>
                   </div>
                 )}
@@ -384,13 +383,13 @@ export function NotificationPreferences() {
               >
                 {pushBusy ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Updating...
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    جاري التحديث...
                   </>
                 ) : pushSubscribed ? (
-                  "Disable On This Device"
+                  "تعطيل على هذا الجهاز"
                 ) : (
-                  "Enable Browser Push"
+                  "تفعيل إشعارات المتصفح"
                 )}
               </Button>
             </div>
@@ -407,11 +406,11 @@ export function NotificationPreferences() {
           >
             {isSaving ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                جاري الحفظ...
               </>
             ) : (
-              "Save Preferences"
+              "حفظ التفضيلات"
             )}
           </Button>
         </div>

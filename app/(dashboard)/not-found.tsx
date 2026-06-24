@@ -6,13 +6,10 @@ import { FileQuestion, Home } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "404 - Page Not Found",
-  description: "The dashboard page you're looking for doesn't exist.",
+  title: "404 - الصفحة غير موجودة",
+  description: "صفحة لوحة التحكم التي تبحث عنها غير موجودة.",
 };
 
-/**
- * Dashboard Routes Not Found Page
- */
 export default function DashboardNotFound() {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-8">
@@ -21,14 +18,13 @@ export default function DashboardNotFound() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
             <FileQuestion className="h-8 w-8 text-muted-foreground" />
           </div>
-          <CardTitle className="text-2xl">Page Not Found</CardTitle>
+          <CardTitle className="text-2xl">الصفحة غير موجودة</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <div className="space-y-2">
             <p className="text-6xl font-bold text-muted-foreground/20">404</p>
             <p className="text-muted-foreground">
-              The page you&apos;re looking for doesn&apos;t exist or has been
-              moved.
+              الصفحة دي مش موجودة أو اتنقلت.
             </p>
           </div>
 
@@ -36,41 +32,41 @@ export default function DashboardNotFound() {
             <Button asChild>
               <Link href="/dashboard" className="gap-2">
                 <Home className="h-4 w-4" />
-                Dashboard
+                لوحة التحكم
               </Link>
             </Button>
             <BackButton />
           </div>
 
           <div className="pt-4 border-t">
-            <p className="text-sm text-muted-foreground">Quick links:</p>
+            <p className="text-sm text-muted-foreground">روابط سريعة:</p>
             <div className="mt-2 flex flex-wrap justify-center gap-2">
               <Link
                 href="/dashboard/tickets"
                 className="text-xs text-primary hover:underline"
               >
-                My Tickets
+                طلباتي
               </Link>
               <span className="text-xs text-muted-foreground">•</span>
               <Link
                 href="/dashboard/tickets/new"
                 className="text-xs text-primary hover:underline"
               >
-                New Ticket
+                تذكرة جديدة
               </Link>
               <span className="text-xs text-muted-foreground">•</span>
               <Link
                 href="/dashboard/customization"
                 className="text-xs text-primary hover:underline"
               >
-                Customization
+                التخصيص
               </Link>
               <span className="text-xs text-muted-foreground">•</span>
               <Link
                 href="/dashboard/installation"
                 className="text-xs text-primary hover:underline"
               >
-                Installation
+                التثبيت
               </Link>
             </div>
           </div>

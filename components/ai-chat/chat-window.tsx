@@ -68,7 +68,7 @@ export function ChatWindow({
 
   const theme = resolveWidgetTheme(config.primaryColor, config.accentColor);
   const headerTitle =
-    config.headerTitle?.trim() || config.businessName?.trim() || "Live Chat";
+    config.headerTitle?.trim() || config.businessName?.trim() || "المحادثة المباشرة";
   const configuredSizeStyle: CSSProperties | undefined =
     !embedded && sizeMode === "configured"
       ? {
@@ -172,10 +172,10 @@ export function ChatWindow({
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setError(data.error ?? "Something went wrong");
+        setError(data.error ?? "حصل خطأ ما");
         addMessage({
           role: "system",
-          content: data.error ?? "Something went wrong",
+          content: data.error ?? "حصل خطأ ما",
         });
         return;
       }
@@ -207,8 +207,8 @@ export function ChatWindow({
         setShowTicketForm(true);
       }
     } catch {
-      setError("Network error");
-      addMessage({ role: "system", content: "Network error — please retry." });
+      setError("خطأ في الشبكة");
+      addMessage({ role: "system", content: "خطأ في الشبكة —  المحاولة مرة أخرى." });
     } finally {
       setIsLoading(false);
     }
@@ -218,7 +218,7 @@ export function ChatWindow({
     setShowTicketForm(false);
     addMessage({
       role: "system",
-      content: `Thanks! Ticket ${ticketNumber} is created — we'll reply by email soon.`,
+      content: `شكراً! اتعمل التذكرة ${ticketNumber} — سنرد عليك بالإيميل قريباً.`,
     });
   };
 
@@ -284,7 +284,7 @@ export function ChatWindow({
           <button
             type="button"
             onClick={onClose}
-            title="Close"
+            title="إغلاق"
             className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-white/30"
           >
             <X className="h-4 w-4" />
@@ -292,7 +292,7 @@ export function ChatWindow({
         </header>
 
         {/* Avatar straddling the header's bottom edge */}
-        <div className="absolute -bottom-5 left-1/2 -translate-x-1/2">
+        <div className="absolute -bottom-5 start-1/2 -translate-x-1/2">
           <div className="h-12 w-12 overflow-hidden rounded-full bg-white p-0.5 shadow-md ring-2 ring-white">
             {config.headerAvatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -328,9 +328,9 @@ export function ChatWindow({
           />
         ))}
         {isLoading && (
-          <div className="flex items-center gap-2 pl-9 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 ps-9 text-xs text-muted-foreground">
             <Loader2 className="h-3 w-3 animate-spin" />
-            Thinking...
+            جارٍ التفكير...
           </div>
         )}
         {showTicketForm && hydrated && (
@@ -356,7 +356,7 @@ export function ChatWindow({
         <form
           ref={composerRef}
           onSubmit={handleSend}
-          className="relative rounded-[1.75rem] border-2 bg-background py-2.5 pl-4 pr-12"
+          className="relative rounded-[1.75rem] border-2 bg-background py-2.5 ps-4 pe-12"
           style={{ borderColor: theme.primary }}
         >
           <textarea
@@ -365,7 +365,7 @@ export function ChatWindow({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleInputKeyDown}
             placeholder={config.placeholder}
-            aria-label="Chat message"
+            aria-label="رسالة المحادثة"
             className="block max-h-28 min-h-6 w-full resize-none overflow-y-auto bg-transparent text-[15px] font-medium leading-6 text-foreground caret-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground"
             disabled={isLoading || !hydrated}
             maxLength={500}
@@ -374,9 +374,9 @@ export function ChatWindow({
           />
           <button
             type="submit"
-            aria-label="Send message"
-            title="Send message"
-            className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full text-white shadow-sm transition-all enabled:hover:brightness-110 enabled:active:scale-95 disabled:opacity-30 disabled:saturate-50"
+            aria-label="إرسال الرسالة"
+            title="إرسال الرسالة"
+            className="absolute bottom-2 end-2 flex h-8 w-8 items-center justify-center rounded-full text-white shadow-sm transition-all enabled:hover:brightness-110 enabled:active:scale-95 disabled:opacity-30 disabled:saturate-50"
             style={{ backgroundColor: theme.sendButton }}
             disabled={isLoading || !input.trim() || !hydrated}
           >

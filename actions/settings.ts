@@ -23,14 +23,14 @@ import {
 async function requireSettingsView() {
   const session = await requirePermissionOrThrow(["settings.view", "settings.manage"], {
     any: true,
-    message: "Forbidden - Settings access required",
+    message: "ممنوع - يلزم صلاحية الوصول إلى الإعدادات",
   });
   return session.user as any;
 }
 
 async function requireSettingsManage() {
   const session = await requirePermissionOrThrow("settings.manage", {
-    message: "Forbidden - Settings manage access required",
+    message: "ممنوع - يلزم صلاحية إدارة الإعدادات",
   });
   return session.user as any;
 }
@@ -82,7 +82,7 @@ export async function getSettings(): Promise<ApiResponse<SystemSettings>> {
     console.error("Get settings error:", error);
     return {
       success: false,
-      error: error.message || "Failed to fetch settings",
+      error: error.message || "تعذّر جلب الإعدادات",
     };
   }
 }
@@ -194,7 +194,7 @@ export async function updateSettings(
     console.error("Update settings error:", error);
     return {
       success: false,
-      error: error.message || "Failed to update settings",
+      error: error.message || "تعذّر تحديث الإعدادات",
     };
   }
 }
@@ -239,7 +239,7 @@ export async function resetSettings(): Promise<ApiResponse<SystemSettings>> {
     console.error("Reset settings error:", error);
     return {
       success: false,
-      error: error.message || "Failed to reset settings",
+      error: error.message || "تعذّر إعادة تعيين الإعدادات",
     };
   }
 }
@@ -300,7 +300,7 @@ export async function getPublicSettings() {
     console.error("Get public settings error:", error);
     return {
       success: false,
-      error: error.message || "Failed to fetch public settings",
+      error: error.message || "تعذّر جلب الإعدادات العامة",
     };
   }
 }
@@ -345,7 +345,7 @@ export async function testEmailSettings(): Promise<
     });
 
     if (!result.success) {
-      throw new Error("Failed to send test email");
+      throw new Error("تعذّر إرسال البريد التجريبي");
     }
 
     return {
@@ -356,7 +356,7 @@ export async function testEmailSettings(): Promise<
     console.error("Test email error:", error);
     return {
       success: false,
-      error: error.message || "Failed to send test email",
+      error: error.message || "تعذّر إرسال البريد التجريبي",
     };
   }
 }
@@ -389,7 +389,7 @@ export async function testSlackIntegration(): Promise<
     console.error("Test Slack error:", error);
     return {
       success: false,
-      error: error.message || "Failed to test Slack integration",
+      error: error.message || "تعذّر اختبار تكامل Slack",
     };
   }
 }
@@ -419,7 +419,7 @@ export async function testDiscordIntegration(): Promise<
     console.error("Test Discord error:", error);
     return {
       success: false,
-      error: error.message || "Failed to test Discord integration",
+      error: error.message || "تعذّر اختبار تكامل Discord",
     };
   }
 }
@@ -437,7 +437,7 @@ export async function uploadLogo(
     if (!file) {
       return {
         success: false,
-        error: "No file provided",
+        error: "مفيش ملف مرفوع",
       };
     }
 
@@ -453,7 +453,7 @@ export async function uploadLogo(
       return {
         success: false,
         error:
-          "Invalid file type. Only images are allowed (JPEG, PNG, GIF, WebP, SVG)",
+          "نوع الملف مش صح. مسموح بالصور بس (JPEG, PNG, GIF, WebP, SVG)",
       };
     }
 
@@ -462,7 +462,7 @@ export async function uploadLogo(
     if (file.size > maxSize) {
       return {
         success: false,
-        error: "File size exceeds 5MB limit",
+        error: "حجم الملف يتجاوز الحد الأقصى 5 ميغابايت",
       };
     }
 
@@ -518,7 +518,7 @@ export async function uploadLogo(
     console.error("Upload logo error:", error);
     return {
       success: false,
-      error: error.message || "Failed to upload logo",
+      error: error.message || "تعذّر رفع الشعار",
     };
   }
 }
@@ -536,7 +536,7 @@ export async function uploadFavicon(
     if (!file) {
       return {
         success: false,
-        error: "No file provided",
+        error: "مفيش ملف مرفوع",
       };
     }
 
@@ -550,7 +550,7 @@ export async function uploadFavicon(
     if (!allowedTypes.includes(file.type)) {
       return {
         success: false,
-        error: "Invalid file type. Only ICO, PNG, or JPEG files are allowed",
+        error: "نوع الملف مش صح. مسموح بـ ICO أو PNG أو JPEG بس",
       };
     }
 
@@ -559,7 +559,7 @@ export async function uploadFavicon(
     if (file.size > maxSize) {
       return {
         success: false,
-        error: "File size exceeds 1MB limit",
+        error: "حجم الملف يتجاوز الحد الأقصى 1 ميغابايت",
       };
     }
 
@@ -615,7 +615,7 @@ export async function uploadFavicon(
     console.error("Upload favicon error:", error);
     return {
       success: false,
-      error: error.message || "Failed to upload favicon",
+      error: error.message || "تعذّر رفع أيقونة الموقع",
     };
   }
 }
@@ -633,7 +633,7 @@ export async function uploadLogoDark(
     if (!file) {
       return {
         success: false,
-        error: "No file provided",
+        error: "مفيش ملف مرفوع",
       };
     }
 
@@ -649,7 +649,7 @@ export async function uploadLogoDark(
       return {
         success: false,
         error:
-          "Invalid file type. Only images are allowed (JPEG, PNG, GIF, WebP, SVG)",
+          "نوع الملف مش صح. مسموح بالصور بس (JPEG, PNG, GIF, WebP, SVG)",
       };
     }
 
@@ -658,7 +658,7 @@ export async function uploadLogoDark(
     if (file.size > maxSize) {
       return {
         success: false,
-        error: "File size exceeds 5MB limit",
+        error: "حجم الملف يتجاوز الحد الأقصى 5 ميغابايت",
       };
     }
 
@@ -714,7 +714,7 @@ export async function uploadLogoDark(
     console.error("Upload dark mode logo error:", error);
     return {
       success: false,
-      error: error.message || "Failed to upload dark mode logo",
+      error: error.message || "تعذّر رفع شعار الوضع الداكن",
     };
   }
 }
@@ -766,7 +766,7 @@ export async function deleteLogo(): Promise<ApiResponse<{ success: boolean }>> {
     console.error("Delete logo error:", error);
     return {
       success: false,
-      error: error.message || "Failed to delete logo",
+      error: error.message || "تعذّر حذف الشعار",
     };
   }
 }
@@ -820,7 +820,7 @@ export async function deleteLogoDark(): Promise<
     console.error("Delete dark mode logo error:", error);
     return {
       success: false,
-      error: error.message || "Failed to delete dark mode logo",
+      error: error.message || "تعذّر حذف شعار الوضع الداكن",
     };
   }
 }

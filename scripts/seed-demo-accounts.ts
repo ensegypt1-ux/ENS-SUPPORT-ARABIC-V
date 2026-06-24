@@ -26,6 +26,11 @@ if (fs.existsSync(envPath)) {
   });
 }
 
+if (process.env.NODE_ENV === "production") {
+  console.error("Error: seed:demo must not run in production.");
+  process.exit(1);
+}
+
 // Demo account configurations
 const DEMO_ACCOUNTS = [
   {

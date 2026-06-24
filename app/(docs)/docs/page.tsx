@@ -22,10 +22,10 @@ export default async function DocsHomePage() {
         {/* Eyebrow */}
         <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
           <span className="rounded-md bg-muted px-2 py-1 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-            Documentation
+            الوثائق
           </span>
           <span className="text-muted-foreground/40">·</span>
-          <span>Knowledge base</span>
+          <span>قاعدة المعرفة</span>
         </div>
 
         {/* Title */}
@@ -33,20 +33,19 @@ export default async function DocsHomePage() {
           <span className="text-primary">
             <BookOpen className="size-7" />
           </span>
-          Documentation
+          الوثائق
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Guides, tutorials, and references to help you get the most out of the
-          platform — from your first ticket to AI support agents, services, and
-          integrations.
+          قاعدة معرفة ENS ودروس ومراجع لمساعدتك على استخدام خدماتنا — من فتح التذكرة
+          إلى التثبيت والتخصيص والمساعدة الذكية.
         </p>
 
         {/* Featured / category cards */}
         {categories.length === 0 ? (
           <div className="mt-16 flex flex-col items-center justify-center py-16 text-muted-foreground">
             <BookOpen className="mb-4 size-12 opacity-30" />
-            <p className="text-lg font-medium">No documentation available yet</p>
-            <p className="mt-1 text-sm">Check back soon.</p>
+            <p className="text-lg font-medium">لا تتوفر وثائق بعد</p>
+            <p className="mt-1 text-sm">تحقق لاحقاً أو تواصل مع فريق ENS.</p>
           </div>
         ) : (
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -68,11 +67,11 @@ export default async function DocsHomePage() {
                   >
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute -top-10 -right-10 size-40 rounded-full bg-white/30 blur-2xl dark:bg-white/5"
+                      className="pointer-events-none absolute -top-10 -end-10 size-40 rounded-full bg-white/30 blur-2xl dark:bg-white/5"
                     />
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute -bottom-12 -left-8 size-32 rounded-full bg-white/40 blur-2xl dark:bg-white/5"
+                      className="pointer-events-none absolute -bottom-12 -start-8 size-32 rounded-full bg-white/40 blur-2xl dark:bg-white/5"
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="relative flex size-20 items-center justify-center rounded-2xl bg-background/70 shadow-lg shadow-black/5 ring-1 ring-border/60 backdrop-blur-sm transition-transform group-hover:scale-105">
@@ -101,8 +100,9 @@ export default async function DocsHomePage() {
                     )}
                     <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground transition-colors group-hover:text-primary">
                       <FileText className="size-3.5" />
-                      {category.articleCount} article
-                      {category.articleCount !== 1 ? "s" : ""}
+                      {category.articleCount === 1
+                        ? `${category.articleCount} مقال`
+                        : `${category.articleCount} مقالات`}
                       <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
                     </span>
                   </div>
@@ -114,12 +114,12 @@ export default async function DocsHomePage() {
 
         {/* Footer */}
         <div className="mt-20 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground">
-          <span>Last updated {new Date().getFullYear()}</span>
+          <span>آخر تحديث {new Date().getFullYear()}</span>
           <Link
             href="/#contact"
             className="inline-flex items-center gap-1 font-medium hover:text-foreground"
           >
-            Need help? Contact support
+            تحتاج مساعدة؟ تواصل مع الدعم
             <ArrowRight className="size-3" />
           </Link>
         </div>

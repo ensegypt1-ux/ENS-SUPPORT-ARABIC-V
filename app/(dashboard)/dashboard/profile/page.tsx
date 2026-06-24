@@ -48,11 +48,11 @@ export default async function CustomerProfilePage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-6">
             <div className="min-w-0">
-              <h1 className="text-lg font-semibold text-foreground sm:text-xl">Your Profile</h1>
+              <h1 className="text-lg font-semibold text-foreground sm:text-xl">ملفك الشخصي</h1>
               <nav className="mt-1 hidden items-center text-sm text-muted-foreground sm:flex">
-                <Link href="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link>
+                <Link href="/dashboard" className="hover:text-foreground transition-colors">لوحة التحكم</Link>
                 <span className="mx-2">•</span>
-                <span className="text-foreground">Profile</span>
+                <span className="text-foreground">الملف الشخصي</span>
               </nav>
             </div>
             <div className="relative h-16 w-16 self-start sm:h-20 sm:w-20 sm:self-auto">

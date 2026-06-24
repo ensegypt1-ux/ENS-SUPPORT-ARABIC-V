@@ -28,16 +28,16 @@ export function TicketTrendsChart({ data }: TicketTrendsChartProps) {
             <div className="p-2 rounded-lg bg-info/15">
               <TrendingUp className="h-4 w-4 text-info" />
             </div>
-            Ticket Trends
+            اتجاهات التذاكر
           </CardTitle>
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-info" />
-              <span className="text-muted-foreground">Created ({totalCreated})</span>
+              <span className="text-muted-foreground">مُنشأة ({totalCreated})</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-success" />
-              <span className="text-muted-foreground">Resolved ({totalResolved})</span>
+              <span className="text-muted-foreground">محلولة ({totalResolved})</span>
             </div>
           </div>
         </div>
@@ -85,7 +85,7 @@ export function TicketTrendsChart({ data }: TicketTrendsChartProps) {
                 stroke="hsl(var(--info))"
                 strokeWidth={2}
                 fill="url(#colorCreated)"
-                name="Created"
+                name="مُنشأة"
               />
               <Area
                 type="monotone"
@@ -93,7 +93,7 @@ export function TicketTrendsChart({ data }: TicketTrendsChartProps) {
                 stroke="hsl(var(--success))"
                 strokeWidth={2}
                 fill="url(#colorResolved)"
-                name="Resolved"
+                name="محلولة"
               />
             </AreaChart>
           </ResponsiveContainer>

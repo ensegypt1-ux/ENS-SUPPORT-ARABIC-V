@@ -19,28 +19,26 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FALLBACKS, PRIORITY_LABELS, STATUS_LABELS, UI } from "@/lib/strings";
+import type { TicketPriority, TicketStatus } from "@/types";
 
-type TicketStatusValue =
-    | "open"
-    | "in_progress"
-    | "waiting_on_customer"
-    | "resolved"
-    | "closed";
-type TicketPriorityValue = "low" | "medium" | "high" | "urgent";
+type TicketStatusValue = Exclude<TicketStatus, "scheduled_meeting"> | "scheduled_meeting";
+type TicketPriorityValue = TicketPriority;
 
 const STATUS_OPTIONS: { value: TicketStatusValue; label: string }[] = [
-    { value: "open", label: "Open" },
-    { value: "in_progress", label: "In Progress" },
-    { value: "waiting_on_customer", label: "Waiting on Customer" },
-    { value: "resolved", label: "Resolved" },
-    { value: "closed", label: "Closed" },
+    { value: "open", label: STATUS_LABELS.open },
+    { value: "scheduled_meeting", label: STATUS_LABELS.scheduled_meeting },
+    { value: "in_progress", label: STATUS_LABELS.in_progress },
+    { value: "waiting_on_customer", label: STATUS_LABELS.waiting_on_customer },
+    { value: "resolved", label: STATUS_LABELS.resolved },
+    { value: "closed", label: STATUS_LABELS.closed },
 ];
 
 const PRIORITY_OPTIONS: { value: TicketPriorityValue; label: string }[] = [
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
-    { value: "urgent", label: "Urgent" },
+    { value: "low", label: PRIORITY_LABELS.low },
+    { value: "medium", label: PRIORITY_LABELS.medium },
+    { value: "high", label: PRIORITY_LABELS.high },
+    { value: "urgent", label: PRIORITY_LABELS.urgent },
 ];
 
 interface Agent {
@@ -71,11 +69,11 @@ export function TicketBulkActions({
         startTransition(async () => {
             const result = await work();
             if (result.success) {
-                toast.success(result.message || "Tickets updated");
+                toast.success(result.message || "التذاكر اتحدّثت");
                 onDone();
                 router.refresh();
             } else {
-                toast.error(result.error || result.message || "Failed to update tickets");
+                toast.error(result.error || result.message || "مقدرناش نحدّث التذاكر");
             }
         });
     };
@@ -96,13 +94,13 @@ export function TicketBulkActions({
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="h-8" disabled={isPending}>
-                        <CircleDot className="mr-1.5 h-3.5 w-3.5" />
-                        Status
-                        <ChevronDown className="ml-1 h-3.5 w-3.5 opacity-60" />
+                        <CircleDot className="me-1.5 h-3.5 w-3.5" />
+                        {UI.status}
+                        <ChevronDown className="ms-1 h-3.5 w-3.5 opacity-60" />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuLabel>Set status</DropdownMenuLabel>
+                    <DropdownMenuLabel>غيّر {UI.status}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {STATUS_OPTIONS.map((option) => (
                         <DropdownMenuItem
@@ -124,13 +122,13 @@ export function TicketBulkActions({
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="h-8" disabled={isPending}>
-                        <Flag className="mr-1.5 h-3.5 w-3.5" />
-                        Priority
-                        <ChevronDown className="ml-1 h-3.5 w-3.5 opacity-60" />
+                        <Flag className="me-1.5 h-3.5 w-3.5" />
+                        {UI.priority}
+                        <ChevronDown className="ms-1 h-3.5 w-3.5 opacity-60" />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-44">
-                    <DropdownMenuLabel>Set priority</DropdownMenuLabel>
+                    <DropdownMenuLabel>غيّر {UI.priority}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {PRIORITY_OPTIONS.map((option) => (
                         <DropdownMenuItem
@@ -156,29 +154,29 @@ export function TicketBulkActions({
             >
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="h-8" disabled={isPending}>
-                        <UserPlus className="mr-1.5 h-3.5 w-3.5" />
-                        Assign
-                        <ChevronDown className="ml-1 h-3.5 w-3.5 opacity-60" />
+                        <UserPlus className="me-1.5 h-3.5 w-3.5" />
+                        تعيين
+                        <ChevronDown className="ms-1 h-3.5 w-3.5 opacity-60" />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="max-h-72 w-56 overflow-y-auto">
-                    <DropdownMenuLabel>Assign to</DropdownMenuLabel>
+                    <DropdownMenuLabel>تعيين إلى</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() => apply(() => bulkAssignTickets(selectedIds, null))}
                     >
-                        Unassigned
+                        {FALLBACKS.unassigned}
                     </DropdownMenuItem>
                     {agentsState === "loading" && (
                         <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground">
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            Loading agents...
+                            {UI.loading}
                         </div>
                     )}
                     {agentsState === "loaded" && agents.length === 0 && (
                         <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                            No agents available
+                            مفيش وكلاء
                         </div>
                     )}
                     {agents.map((agent) => (

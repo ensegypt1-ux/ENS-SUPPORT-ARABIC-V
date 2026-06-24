@@ -18,6 +18,11 @@ import { LogOut, Settings, User } from "lucide-react";
 import { useSidebarCollapsed } from "@/components/layout/app-sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NameWithRole } from "@/components/shared/name-with-role";
+import { useCompanyInfo } from "@/components/providers/settings-provider";
+import {
+  getUserInitials,
+  resolveUserDisplayName,
+} from "@/lib/user-display";
 
 interface UserMenuProps {
   user: {
@@ -32,6 +37,9 @@ interface UserMenuProps {
 export function UserMenu({ user, variant = "header" }: UserMenuProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const { name: companyName } = useCompanyInfo();
+  const displayName = resolveUserDisplayName(user.name, user.email, companyName);
+  const initials = getUserInitials(user.name, user.email, companyName);
   // Use user.image directly, but allow override from custom event
   const [customAvatarUrl, setCustomAvatarUrl] = useState<string | undefined>();
   const collapsed = useSidebarCollapsed();
@@ -70,24 +78,15 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
   // Settings path only available for admin
   const settingsPath = user.role === "admin" ? "/admin/settings" : null;
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   const handleSignOut = async () => {
     setIsLoading(true);
     try {
       await signOut();
-      toast.success("Signed out successfully");
+      toast.success("خرجت");
       router.push("/login");
       router.refresh();
     } catch {
-      toast.error("Failed to sign out");
+      toast.error("تعذّر الخروج");
       setIsLoading(false);
     }
   };
@@ -112,20 +111,20 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
               )}
             >
               {avatarUrl ? (
-                <AvatarImage src={avatarUrl} alt={user.name} />
+                <AvatarImage src={avatarUrl} alt={displayName} />
               ) : null}
               <AvatarFallback className="text-xs">
-                {getInitials(user.name)}
+                {initials}
               </AvatarFallback>
             </Avatar>
             {collapsed ? (
               <span className="text-center text-[9px] font-medium leading-3 text-slate-500">
-                Account
+                الحساب
               </span>
             ) : (
-              <div className="flex-1 text-left">
+              <div className="flex-1 text-start">
                 <NameWithRole
-                  name={user.name}
+                  name={displayName}
                   role={user.role}
                   className="text-sm font-medium text-foreground"
                   badgeClassName="h-4 px-2 text-[10px]"
@@ -134,11 +133,11 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
             )}
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuContent className="w-56" align="start" forceMount>
           <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
+            <div className="flex flex-col space-y-1 text-start">
               <NameWithRole
-                name={user.name}
+                name={displayName}
                 role={user.role}
                 className="text-sm font-medium leading-none"
                 badgeClassName="h-4 px-2 text-[10px]"
@@ -150,20 +149,20 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => router.push(profilePath)}>
-            <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
+            <User className="h-4 w-4" />
+            <span>حسابي</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!settingsPath}
             onClick={() => settingsPath && router.push(settingsPath)}
           >
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
+            <Settings className="h-4 w-4" />
+            <span>الإعدادات</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut} disabled={isLoading}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>{isLoading ? "Signing out..." : "Sign out"}</span>
+            <LogOut className="h-4 w-4 rtl:-scale-x-100" />
+            <span>{isLoading ? "بيطلع..." : "خروج"}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -175,16 +174,16 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar>
-            {avatarUrl ? <AvatarImage src={avatarUrl} alt={user.name} /> : null}
-            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+            {avatarUrl ? <AvatarImage src={avatarUrl} alt={displayName} /> : null}
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent className="w-56" align="start" forceMount>
         <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-1 text-start">
             <NameWithRole
-              name={user.name}
+              name={displayName}
               role={user.role}
               className="text-sm font-medium leading-none"
               badgeClassName="h-4 px-2 text-[10px]"
@@ -196,20 +195,20 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => router.push(profilePath)}>
-          <User className="mr-2 h-4 w-4" />
-          <span>Profile</span>
+          <User className="h-4 w-4" />
+          <span>حسابي</span>
         </DropdownMenuItem>
         <DropdownMenuItem
           disabled={!settingsPath}
           onClick={() => settingsPath && router.push(settingsPath)}
         >
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Settings</span>
+          <Settings className="h-4 w-4" />
+          <span>الإعدادات</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} disabled={isLoading}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>{isLoading ? "Signing out..." : "Sign out"}</span>
+          <LogOut className="h-4 w-4 rtl:-scale-x-100" />
+          <span>{isLoading ? "بيطلع..." : "خروج"}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

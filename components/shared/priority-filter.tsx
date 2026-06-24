@@ -11,11 +11,11 @@ import {
 import { cn } from "@/lib/utils";
 
 const PRIORITY_OPTIONS = [
-  { value: "all", label: "All Priorities" },
-  { value: "low", label: "Low" },
-  { value: "medium", label: "Medium" },
-  { value: "high", label: "High" },
-  { value: "urgent", label: "Urgent" },
+  { value: "all", label: "كل الأولويات" },
+  { value: "low", label: "منخفضة" },
+  { value: "medium", label: "متوسطة" },
+  { value: "high", label: "عالية" },
+  { value: "urgent", label: "عاجلة" },
 ];
 
 interface PriorityFilterProps {
@@ -46,7 +46,7 @@ export function PriorityFilter({ defaultValue, className }: PriorityFilterProps)
       onValueChange={handlePriorityChange}
     >
       <SelectTrigger className={cn("h-9 w-full text-sm sm:w-[140px]", className)}>
-        <SelectValue placeholder="All Priorities" />
+        <SelectValue placeholder="كل الأولويات" />
       </SelectTrigger>
       <SelectContent>
         {PRIORITY_OPTIONS.map((option) => (

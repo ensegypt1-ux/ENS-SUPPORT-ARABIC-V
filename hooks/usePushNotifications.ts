@@ -177,13 +177,13 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
 
   const enablePush = useCallback(async () => {
     if (!supportsPushNotifications()) {
-      toast.error("This browser does not support push notifications.");
+      toast.error("هذا المتصفح لا يدعم الإشعارات الفورية.");
       return;
     }
 
     if (!isConfigured) {
       toast.error(
-        "Web push is not configured on the server. Add your VAPID keys first."
+        "الإشعارات الفورية غير مُعدّة على الخادم. أضف مفاتيح VAPID أولاً."
       );
       return;
     }
@@ -201,8 +201,8 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
       if (permissionResult !== "granted") {
         toast.error(
           permissionResult === "denied"
-            ? "Browser notifications are blocked for this site."
-            : "Notification permission was not granted."
+            ? "إشعارات المتصفح محظورة لهذا الموقع."
+            : "ماديتش إذن الإشعارات."
         );
         return;
       }
@@ -215,14 +215,14 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
 
         if (!window.isSecureContext && !onLocalhost) {
           toast.error(
-            "Push notifications require HTTPS (localhost is allowed for testing)."
+            "الإشعارات الفورية تتطلب HTTPS (يُسمح بـ localhost للاختبار)."
           );
         } else if (process.env.NODE_ENV !== "production" && !devPwaEnabled) {
           toast.error(
-            "Service worker is disabled in development. Set NEXT_PUBLIC_ENABLE_DEV_PWA=true or run a production build."
+            "خدمة العامل معطّلة في بيئة التطوير. عيّن NEXT_PUBLIC_ENABLE_DEV_PWA=true أو شغّل نسخة الإنتاج."
           );
         } else {
-          toast.error("Failed to register the service worker for push.");
+          toast.error("مقدرناش نسجّل خدمة الإشعارات.");
         }
         return;
       }
@@ -231,7 +231,7 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
       if (!subscription) {
         const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
         if (!publicKey) {
-          toast.error("The public VAPID key is missing.");
+          toast.error("مفتاح VAPID العام مفقود.");
           return;
         }
 
@@ -247,7 +247,7 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
         !subscriptionJson.keys?.p256dh ||
         !subscriptionJson.keys.auth
       ) {
-        throw new Error("Incomplete push subscription payload.");
+        throw new Error("بيانات اشتراك الإشعارات الفورية غير مكتملة.");
       }
 
       const payload: PushSubscriptionPayload = {
@@ -263,7 +263,7 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
       const result = await registerPushSubscription(payload);
       if (!result.success) {
         toast.error(
-          result.error || "Failed to enable browser push notifications."
+          result.error || "مقدرناش نفعّل إشعارات المتصفح."
         );
         return;
       }
@@ -271,14 +271,14 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
       setIsSubscribed(true);
       setSubscriptionCount(result.data?.subscriptionCount ?? subscriptionCount);
       toast.success(
-        result.message || "Browser push notifications enabled successfully."
+        result.message || "اتفعّلت إشعارات المتصفح."
       );
     } catch (error) {
       console.error("Failed to enable browser push notifications:", error);
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to enable browser push notifications."
+          : "مقدرناش نفعّل إشعارات المتصفح."
       );
     } finally {
       setBusy(false);
@@ -288,7 +288,7 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
 
   const disablePush = useCallback(async () => {
     if (!supportsPushNotifications()) {
-      toast.error("This browser does not support push notifications.");
+      toast.error("هذا المتصفح لا يدعم الإشعارات الفورية.");
       return;
     }
 
@@ -300,7 +300,7 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
 
       if (!subscription) {
         setIsSubscribed(false);
-        toast.success("Browser push is already disabled on this device.");
+        toast.success("إشعارات المتصفح الفورية معطّلة بالفعل على هذا الجهاز.");
         return;
       }
 
@@ -313,7 +313,7 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
 
       if (!result.success) {
         toast.error(
-          result.error || "Failed to disable browser push notifications."
+          result.error || "مقدرناش نعطّل إشعارات المتصفح."
         );
         return;
       }
@@ -321,14 +321,14 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
       setIsSubscribed(false);
       setSubscriptionCount(result.data?.subscriptionCount ?? 0);
       toast.success(
-        result.message || "Browser push notifications disabled successfully."
+        result.message || "اتعطّلت إشعارات المتصفح."
       );
     } catch (error) {
       console.error("Failed to disable browser push notifications:", error);
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to disable browser push notifications."
+          : "مقدرناش نعطّل إشعارات المتصفح."
       );
     } finally {
       setBusy(false);

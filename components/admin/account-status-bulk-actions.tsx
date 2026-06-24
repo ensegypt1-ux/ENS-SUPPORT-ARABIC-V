@@ -40,8 +40,9 @@ export function AccountStatusBulkActions({
     const [reason, setReason] = useState("");
 
     const count = selectedIds.length;
-    const noun = scope === "customer" ? "customer" : "member";
-    const nounPlural = `${noun}${count === 1 ? "" : "s"}`;
+    const noun = scope === "customer" ? "عميل" : "عضو";
+    const nounPlural = scope === "customer" ? "عملاء" : "أعضاء";
+    const targetLabel = count === 1 ? noun : nounPlural;
 
     const run = (status: AccountStatus, withReason?: string) => {
         startTransition(async () => {
@@ -52,13 +53,13 @@ export function AccountStatusBulkActions({
                 withReason,
             );
             if (result.success) {
-                toast.success(result.message || "Status updated");
+                toast.success(result.message || "اتحدّث الحالة");
                 setConfirm(null);
                 setReason("");
                 onDone();
                 router.refresh();
             } else {
-                toast.error(result.error || "Failed to update status");
+                toast.error(result.error || "تعذّر التحديث الحالة");
             }
         });
     };
@@ -72,8 +73,8 @@ export function AccountStatusBulkActions({
                 onClick={() => run("active")}
                 className="h-8 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700 dark:border-emerald-500/30 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
             >
-                <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
-                Activate
+                <CheckCircle2 className="me-1.5 h-3.5 w-3.5" />
+                تفعيل
             </Button>
             <Button
                 variant="outline"
@@ -82,8 +83,8 @@ export function AccountStatusBulkActions({
                 onClick={() => setConfirm("disabled")}
                 className="h-8 border-amber-200 text-amber-700 hover:bg-amber-50 hover:text-amber-700 dark:border-amber-500/30 dark:text-amber-400 dark:hover:bg-amber-950/40"
             >
-                <PauseCircle className="mr-1.5 h-3.5 w-3.5" />
-                Disable
+                <PauseCircle className="me-1.5 h-3.5 w-3.5" />
+                تعطيل
             </Button>
             <Button
                 variant="outline"
@@ -92,8 +93,8 @@ export function AccountStatusBulkActions({
                 onClick={() => setConfirm("banned")}
                 className="h-8 border-rose-200 text-rose-700 hover:bg-rose-50 hover:text-rose-700 dark:border-rose-500/30 dark:text-rose-400 dark:hover:bg-rose-950/40"
             >
-                <Ban className="mr-1.5 h-3.5 w-3.5" />
-                Ban
+                <Ban className="me-1.5 h-3.5 w-3.5" />
+                حظر
             </Button>
 
             <AlertDialog
@@ -108,25 +109,25 @@ export function AccountStatusBulkActions({
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>
-                            {confirm === "banned" ? "Ban" : "Disable"} {count}{" "}
-                            {nounPlural}?
+                            {confirm === "banned" ? "حظر" : "تعطيل"} {count}{" "}
+                            {targetLabel}؟
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                             {confirm === "banned"
-                                ? `The selected ${nounPlural} will be banned, signed out immediately, and blocked from signing in until reactivated.`
-                                : `The selected ${nounPlural} will be disabled, signed out immediately, and unable to sign in until reactivated.`}
+                                ? `هنحظر ${count} ${targetLabel}، ونخرّجهم فوراً، ومش هيقدروا يدخلوا لحد ما تفعّلهم تاني.`
+                                : `هنعطّل ${count} ${targetLabel}، ونخرّجهم فوراً، ومش هيقدروا يدخلوا لحد ما تفعّلهم تاني.`}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <div className="space-y-2">
-                        <Label htmlFor="bulk-status-reason">Reason (optional)</Label>
+                        <Label htmlFor="bulk-status-reason">السبب (اختياري)</Label>
                         <Textarea
                             id="bulk-status-reason"
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
                             placeholder={
                                 confirm === "banned"
-                                    ? "e.g. Repeated abuse / policy violation"
-                                    : "e.g. Temporary deactivation pending review"
+                                    ? "مثال: إساءة متكررة / مخالفة السياسة"
+                                    : "مثال: تعطيل مؤقت بانتظار المراجعة"
                             }
                             rows={3}
                             disabled={isPending}
@@ -134,7 +135,7 @@ export function AccountStatusBulkActions({
                     </div>
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isPending}>
-                            Cancel
+                            إلغاء
                         </AlertDialogCancel>
                         <AlertDialogAction
                             disabled={isPending}
@@ -150,13 +151,13 @@ export function AccountStatusBulkActions({
                         >
                             {isPending ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Working...
+                                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                                    جاري المعالجة...
                                 </>
                             ) : confirm === "banned" ? (
-                                "Ban"
+                                "حظر"
                             ) : (
-                                "Disable"
+                                "تعطيل"
                             )}
                         </AlertDialogAction>
                     </AlertDialogFooter>

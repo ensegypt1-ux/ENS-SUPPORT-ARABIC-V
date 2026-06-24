@@ -14,7 +14,7 @@ import type { ApiResponse, TicketDepartmentDefinition, UserRole } from "@/types"
 
 async function requireSignedIn() {
   const session = await getSession();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new Error("مش مسموح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
   const userId = (session.user as any)?.id ?? "unknown";
   return { session, role, userId };
@@ -22,7 +22,7 @@ async function requireSignedIn() {
 
 async function requireAdmin() {
   const session = await requirePermissionOrThrow("tickets.manage", {
-    message: "Forbidden: Tickets manage access required",
+    message: "ممنوع: يلزم صلاحية إدارة التذاكر",
   });
   return (session.user as { id?: string })?.id ?? "unknown";
 }
@@ -64,7 +64,7 @@ export async function getTicketDepartments(): Promise<
     };
   } catch (error: any) {
     console.error("Get ticket departments error:", error);
-    return { success: false, error: error.message || "Failed to load departments" };
+    return { success: false, error: error.message || "تعذّر التحميل الأقسام" };
   }
 }
 
@@ -89,12 +89,12 @@ export async function getActiveTicketDepartments(): Promise<
     };
   } catch (error: any) {
     console.error("Get active ticket departments error:", error);
-    return { success: false, error: error.message || "Failed to load departments" };
+    return { success: false, error: error.message || "تعذّر التحميل الأقسام" };
   }
 }
 
 const createTicketDepartmentSchema = z.object({
-  name: z.string().min(1, "Department name is required"),
+  name: z.string().min(1, "اسم القسم مطلوب"),
   slug: z.string().optional(),
 });
 
@@ -112,9 +112,9 @@ export async function createTicketDepartment(
 
     const rawSlug =
       parsed.data.slug?.trim() || slugifyTicketDepartment(parsed.data.name);
-    if (!rawSlug) return { success: false, error: "Invalid slug" };
+    if (!rawSlug) return { success: false, error: "المعرّف مش صح" };
     if (RESERVED_TICKET_DEPARTMENT_SLUGS.has(rawSlug)) {
-      return { success: false, error: "Slug is reserved" };
+      return { success: false, error: "المعرّف محجوز" };
     }
 
     const collection = await getCollection<TicketDepartmentDefinition>(
@@ -122,7 +122,7 @@ export async function createTicketDepartment(
     );
     const existing = await collection.findOne({ slug: rawSlug });
     if (existing)
-      return { success: false, error: "A department with this slug already exists" };
+      return { success: false, error: "يوجد قسم بهذا المعرّف بالفعل" };
 
     const now = new Date();
     await collection.insertOne({
@@ -144,7 +144,7 @@ export async function createTicketDepartment(
     return { success: true };
   } catch (error: any) {
     console.error("Create ticket department error:", error);
-    return { success: false, error: error.message || "Failed to create department" };
+    return { success: false, error: error.message || "تعذّر إنشاء القسم" };
   }
 }
 
@@ -169,7 +169,7 @@ export async function updateTicketDepartment(
     }
 
     if (!ObjectId.isValid(parsed.data.id)) {
-      return { success: false, error: "Invalid department id" };
+      return { success: false, error: "معرّف القسم مش صح" };
     }
 
     const collection = await getCollection<TicketDepartmentDefinition>(
@@ -177,7 +177,7 @@ export async function updateTicketDepartment(
     );
     const objectId = new ObjectId(parsed.data.id);
     const existing = await collection.findOne({ _id: objectId });
-    if (!existing) return { success: false, error: "Department not found" };
+    if (!existing) return { success: false, error: "مفيش القسم" };
 
     const updateDoc: Partial<TicketDepartmentDefinition> & Record<string, any> = {
       updatedAt: new Date(),
@@ -192,16 +192,16 @@ export async function updateTicketDepartment(
 
     if (typeof parsed.data.slug === "string") {
       if (existing.isSystem)
-        return { success: false, error: "System department slug cannot be changed" };
+        return { success: false, error: "مش ينفع تغيّر معرّف القسم النظامي" };
       const nextSlug = slugifyTicketDepartment(parsed.data.slug);
-      if (!nextSlug) return { success: false, error: "Invalid slug" };
+      if (!nextSlug) return { success: false, error: "المعرّف مش صح" };
       if (RESERVED_TICKET_DEPARTMENT_SLUGS.has(nextSlug)) {
-        return { success: false, error: "Slug is reserved" };
+        return { success: false, error: "المعرّف محجوز" };
       }
       if (nextSlug !== existing.slug) {
         const slugExists = await collection.findOne({ slug: nextSlug });
         if (slugExists)
-          return { success: false, error: "A department with this slug already exists" };
+          return { success: false, error: "يوجد قسم بهذا المعرّف بالفعل" };
         updateDoc.slug = nextSlug;
       }
     }
@@ -215,7 +215,7 @@ export async function updateTicketDepartment(
     return { success: true };
   } catch (error: any) {
     console.error("Update ticket department error:", error);
-    return { success: false, error: error.message || "Failed to update department" };
+    return { success: false, error: error.message || "تعذّر تحديث القسم" };
   }
 }
 
@@ -224,16 +224,16 @@ export async function deleteTicketDepartment(id: string) {
     await requireAdmin();
 
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid department id" };
+      return { success: false, error: "معرّف القسم مش صح" };
     }
 
     const collection = await getCollection<TicketDepartmentDefinition>(
       "ticket_departments"
     );
     const existing = await collection.findOne({ _id: new ObjectId(id) });
-    if (!existing) return { success: false, error: "Department not found" };
+    if (!existing) return { success: false, error: "مفيش القسم" };
     if (existing.isSystem)
-      return { success: false, error: "System departments cannot be deleted" };
+      return { success: false, error: "مش ينفع تمسح الأقسام النظامية" };
 
     await collection.deleteOne({ _id: new ObjectId(id) });
 
@@ -244,6 +244,6 @@ export async function deleteTicketDepartment(id: string) {
     return { success: true };
   } catch (error: any) {
     console.error("Delete ticket department error:", error);
-    return { success: false, error: error.message || "Failed to delete department" };
+    return { success: false, error: error.message || "تعذّر حذف القسم" };
   }
 }
