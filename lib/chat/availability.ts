@@ -82,6 +82,37 @@ export async function getLiveChatAvailability(
   return user?.liveChatAvailability?.status ?? "unavailable";
 }
 
+/**
+ * Available only counts while the agent is actively connected.
+ * Stale "available" rows (e.g. after closing the browser) revert to unavailable.
+ */
+export async function reconcileLiveChatAvailabilityWithConnection(
+  userId: string
+): Promise<LiveChatAvailabilityStatus> {
+  const status = await getLiveChatAvailability(userId);
+  if (status !== "available") {
+    return "unavailable";
+  }
+
+  if (getOnlineUserIds().includes(userId)) {
+    return "available";
+  }
+
+  await setLiveChatAvailability(userId, "unavailable");
+  return "unavailable";
+}
+
+export async function markStaffLiveChatUnavailable(
+  userId: string
+): Promise<LiveChatAvailabilityStatus> {
+  const status = await getLiveChatAvailability(userId);
+  if (status === "unavailable") {
+    return "unavailable";
+  }
+  await setLiveChatAvailability(userId, "unavailable");
+  return "unavailable";
+}
+
 export async function setLiveChatAvailability(
   userId: string,
   status: LiveChatAvailabilityStatus

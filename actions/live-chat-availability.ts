@@ -2,6 +2,8 @@ import {
   getLiveChatAvailability,
   getSupportAvailabilitySnapshot,
   isStaffRole,
+  markStaffLiveChatUnavailable,
+  reconcileLiveChatAvailabilityWithConnection,
   setLiveChatAvailability,
   type LiveChatAvailabilityStatus,
 } from "@/lib/chat/availability";
@@ -23,7 +25,16 @@ export async function getOwnLiveChatAvailability(): Promise<{
     throw new Error("غير مصرّح");
   }
 
-  const status = await getLiveChatAvailability(session.user.id);
+  const before = await getLiveChatAvailability(session.user.id);
+  const status = await reconcileLiveChatAvailabilityWithConnection(
+    session.user.id
+  );
+
+  if (before === "available" && status === "unavailable") {
+    emitLiveChatAvailabilityChanged(session.user.id, "unavailable");
+    await emitSupportAvailabilityChanged();
+  }
+
   return { status };
 }
 

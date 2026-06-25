@@ -84,6 +84,28 @@ export const auth = betterAuth({
             console.error("Session status check failed:", err);
           }
         },
+        after: async (session) => {
+          try {
+            const userId = (session as { userId?: string }).userId;
+            if (!userId) return;
+
+            const userDoc = await db.collection("user").findOne(
+              ObjectId.isValid(userId)
+                ? { $or: [{ id: userId }, { _id: new ObjectId(userId) }] }
+                : { id: userId },
+              { projection: { role: 1 } }
+            );
+            const role = (userDoc as { role?: string } | null)?.role;
+            if (role !== "admin" && role !== "support") return;
+
+            const { markStaffLiveChatUnavailable } = await import(
+              "@/lib/chat/availability"
+            );
+            await markStaffLiveChatUnavailable(userId);
+          } catch (err) {
+            console.error("Live chat availability login reset failed:", err);
+          }
+        },
       },
     },
   },

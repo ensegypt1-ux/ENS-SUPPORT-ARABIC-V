@@ -565,6 +565,16 @@ export function initializeSocketServer(httpServer: HttpServer) {
           updated_at: current.lastSeen.toISOString(),
         });
         void notifyStaffSupportAvailabilityChange(user, true);
+        void (async () => {
+          const { markStaffLiveChatUnavailable } = await import(
+            "@/lib/chat/availability"
+          );
+          const next = await markStaffLiveChatUnavailable(user.id);
+          if (next === "unavailable") {
+            emitLiveChatAvailabilityChanged(user.id, "unavailable");
+            await emitSupportAvailabilityChanged();
+          }
+        })();
         return;
       }
 
