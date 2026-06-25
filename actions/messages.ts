@@ -23,10 +23,13 @@ import {
   deleteGuestConversation,
 } from "@/lib/chat/guest-chat";
 import { notifyStaffOfGuestConversation } from "@/lib/chat/guest-notifications";
+import { getLiveChatAvailability } from "@/lib/chat/availability";
 import {
   emitConversationRemovedToParticipants,
   emitConversationSummaryToParticipants,
-  emitConversationSummaryToStaff,
+  emitConversationSummaryToConnectedStaffInbox,
+  emitGuestInboxChanged,
+  emitGuestMessageCreated,
   emitMessageCreated,
   emitMessagesRead,
 } from "@/lib/socket/server";
@@ -180,14 +183,13 @@ export async function sendMessage(data: {
       return { success: false, error: "تعذّر إرسال الرسالة" };
     }
 
-    emitMessageCreated(message);
-    await emitConversationSummaryToParticipants(data.conversationId);
     if (conversation.source === "guest_widget") {
-      const { getAllStaffUserIds } = await import("@/lib/socket/presence-utils");
-      await emitConversationSummaryToStaff(
-        data.conversationId,
-        await getAllStaffUserIds()
-      );
+      emitGuestMessageCreated(message);
+      await emitConversationSummaryToConnectedStaffInbox(data.conversationId);
+      emitGuestInboxChanged(data.conversationId);
+    } else {
+      emitMessageCreated(message);
+      await emitConversationSummaryToParticipants(data.conversationId);
     }
 
     try {
@@ -285,7 +287,11 @@ export async function markMessagesAsRead(data: {
     );
 
     emitMessagesRead(data.conversationId, data.messageIds, session.user.id);
-    await emitConversationSummaryToParticipants(data.conversationId);
+    if (conversation.source === "guest_widget") {
+      await emitConversationSummaryToConnectedStaffInbox(data.conversationId);
+    } else {
+      await emitConversationSummaryToParticipants(data.conversationId);
+    }
 
     return { success: true };
   } catch (error) {
@@ -304,6 +310,14 @@ export async function claimGuestConversationAction(conversationId: string) {
     const userRole = ((session.user as User).role || "customer") as UserRole;
     if (userRole !== "support" && userRole !== "admin") {
       return { success: false, error: "ممنوع" };
+    }
+
+    const availability = await getLiveChatAvailability(session.user.id);
+    if (availability !== "available") {
+      return {
+        success: false,
+        error: "فعّل التوفر للمحادثة المباشرة قبل استلام محادثة جديدة",
+      };
     }
 
     const result = await claimGuestConversation(

@@ -5,15 +5,16 @@ import { PublicFooter } from "@/components/layout/public-footer";
 import { PublicTicketForm } from "@/components/tickets/public-ticket-form";
 import { getAppMetadata } from "@/lib/settings-utils";
 import { getPublicHomeContent } from "@/lib/public-home-content";
+import { ENS_BRAND } from "@/lib/ens-brand";
 
 export async function generateMetadata(): Promise<Metadata> {
   const app = await getAppMetadata();
   const appName =
-    typeof app.title === "string" ? app.title : "Support";
+    typeof app.title === "string" ? app.title : ENS_BRAND.portalTitle;
   return {
-    title: `Create a Ticket | ${appName}`,
+    title: `افتح تذكرة | ${appName}`,
     description:
-      "أرسل تذكرة دعم — لا يتطلب حساب. صِف مشكلتك وسيتابع فريقنا عبر البريد.",
+      "أرسل تذكرة دعم إلى ENS — لا يلزم حساب. صِف مشكلتك وسيتابعها فريق الدعم عبر البريد.",
   };
 }
 
@@ -23,17 +24,14 @@ export default function PublicNewTicketPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <PublicHeader variant="landing" header={content?.header} />
-      <main className="relative isolate flex-1">
-        {/* Decorative background — soft tonal base + a primary glow up top so
-            the white cards have something to sit against (matches the landing
-            page's accent treatment). */}
+      <main className="relative isolate flex-1" dir="rtl">
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 bg-gradient-to-b from-muted/50 via-background to-background"
+          className="support-hero-glow pointer-events-none absolute inset-x-0 top-0 -z-10 h-[min(420px,55vh)]"
         />
         <div
           aria-hidden
-          className="absolute inset-x-0 top-0 -z-10 h-72 bg-gradient-to-b from-primary/[0.07] to-transparent"
+          className="absolute inset-0 -z-20 bg-gradient-to-b from-muted/40 via-background to-background"
         />
         <Suspense fallback={null}>
           <PublicTicketForm />

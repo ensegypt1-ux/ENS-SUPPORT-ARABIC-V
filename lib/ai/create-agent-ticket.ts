@@ -259,7 +259,7 @@ export async function createAgentTicket(
           : undefined;
         const result = await sendEmail({
           to: email!,
-          ...emailTemplates.ticketCreated(ticketNumber, title, viewUrl),
+          ...(await emailTemplates.ticketCreated(ticketNumber, title, viewUrl)),
         });
         if (!result.success) {
           console.error(

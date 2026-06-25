@@ -187,6 +187,100 @@ export const FORM_UI = {
   unexpectedError: "حدث خطأ غير متوقع",
 } as const;
 
+/** Public guest ticket form (/support/new) */
+export const PUBLIC_TICKET_UI = {
+  pageTitle: "افتح تذكرة دعم",
+  pageSubtitle:
+    "صِف مشكلتك وسيتابعها فريق دعم ENS. لا يلزم حساب — نرسل تأكيدًا وتحديثات إلى بريدك.",
+  badge: "بوابة دعم ENS",
+  journey: ["بياناتك", "تفاصيل الطلب", "إرسال"] as const,
+  sections: {
+    contact: {
+      title: "بيانات التواصل",
+      description: "نستخدمها للرد على تذكرتك وإرسال التحديثات.",
+    },
+    ticket: {
+      title: "محتوى التذكرة",
+      description: "كلما كان الوصف أوضح، كان الحل أسرع.",
+    },
+    details: {
+      title: "تفاصيل الطلب",
+      description: "ساعدنا على توجيه طلبك للفريق المناسب.",
+    },
+    purchase: {
+      title: "التحقق من الشراء",
+      description: "لعملاء Envato — يُسرّع معالجة طلبات الدعم ذات الأولوية.",
+    },
+    submit: {
+      title: "إرسال الطلب",
+      description: "راجع بياناتك ثم أرسل التذكرة.",
+    },
+  },
+  fields: {
+    name: "الاسم الكامل",
+    email: "البريد الإلكتروني",
+    title: "عنوان التذكرة",
+    description: "الوصف",
+    purchaseCode: "رمز الشراء",
+  },
+  placeholders: {
+    name: "مثال: محمد أحمد",
+    email: "you@email.com",
+    title: "ملخص موجز للمشكلة أو الطلب",
+    description:
+      "اشرح المشكلة بالتفصيل: ماذا حدث؟ ماذا جرّبت؟ ما النتيجة المتوقعة؟",
+    purchaseCode: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  },
+  hints: {
+    email: "سنرسل رقم التذكرة والتحديثات على هذا البريد.",
+    priority: "ما مدى استعجال هذا الطلب؟",
+    timezone: "لجدولة المكالمات والاجتماعات",
+    purchaseCode: "رمز Envato للتحقق",
+    descriptionSecurity:
+      "تجنّب ذكر كلمات المرور أو رموز التحقق. غطِّ البيانات الحساسة في أي لقطات شاشة.",
+  },
+  empty: {
+    categories: "لا توجد فئات متاحة",
+    departments: "لا توجد أقسام متاحة",
+    products: "لا توجد منتجات متاحة",
+  },
+  verified: "تم التحقق",
+  verifyRequired: "يرجى التحقق من رمز الشراء قبل إرسال التذكرة.",
+  submitting: "جاري الإرسال…",
+  submitTicket: "إرسال التذكرة",
+  success: {
+    title: "تم استلام تذكرتك",
+    description:
+      "شكرًا لتواصلك مع دعم ENS. استلمنا طلبك وأرسلنا تأكيدًا إلى بريدك الإلكتروني.",
+    ticketLabel: "رقم التذكرة",
+    copyAria: "نسخ رقم التذكرة",
+    another: "إرسال تذكرة أخرى",
+    home: "العودة للرئيسية",
+    trustNote:
+      "رابط متابعة التذكرة في بريدك الإلكتروني — احتفظ به لنفسك ولا تشاركه مع الآخرين.",
+  },
+} as const;
+
+/** Security guidance for public support flows (tickets, guest replies). */
+export const PUBLIC_SECURITY_NOTICE = {
+  ariaLabel: "إرشادات أمان حسابك",
+  title: "تنبيه مهم لحماية حسابك",
+  intro:
+    "فريق ENS يحرص على أمانك. لن نطلب منك أبدًا مشاركة معلومات حساسة عبر التذكرة أو البريد.",
+  body:
+    "لا ترسل كلمة المرور عبر التذكرة — موظفو ENS لن يطلبوها منك أبدًا. لا تشارك رموز التحقق (OTP) أو رموز المصادقة أو الاسترداد. تجنّب إرسال بيانات الدفع أو البنوك. عند رفع لقطات شاشة، احذف أو غطِّ أي معلومات سرية قدر الإمكان. إذا احتجنا معلومات حساسة، سنوفر لك طريقة آمنة عند الحاجة.",
+  compact:
+    "لا تشارك كلمة المرور أو رموز التحقق أو بيانات الدفع في ردك. غطِّ المعلومات الحساسة في أي مرفقات.",
+  chips: [
+    { id: "password", label: "كلمة المرور", icon: "key" as const },
+    { id: "otp", label: "رموز التحقق", icon: "phone" as const },
+    { id: "payment", label: "بيانات الدفع", icon: "card" as const },
+    { id: "screenshots", label: "لقطات الشاشة", icon: "image" as const },
+  ] as const,
+  footer:
+    "إذا طلب منك أحد — حتى بادعاء أنه من ENS — مشاركة بيانات حساسة، تواصل معنا عبر القنوات الرسمية فقط.",
+} as const;
+
 export const EDIT_FORM_UI = {
   editInstallationTitle: "تعديل طلب التثبيت",
   editInstallationDesc: "عدّل تفاصيل طلب التثبيت.",

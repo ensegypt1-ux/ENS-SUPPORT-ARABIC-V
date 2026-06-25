@@ -81,7 +81,10 @@ export function MessagesClient({ userId, userRole }: MessagesClientProps) {
     loading: conversationsLoading,
     error: conversationsError,
     refreshConversations,
-  } = useRealtimeConversations(userId, { archivedOnly });
+  } = useRealtimeConversations(userId, {
+    archivedOnly,
+    activeConversationId: selectedConversationId,
+  });
 
   const {
     soundMuted,

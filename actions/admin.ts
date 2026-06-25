@@ -613,7 +613,7 @@ export async function adminCreateTicket(
         if (customer.email) {
           await sendEmail({
             to: customer.email,
-            ...emailTemplates.ticketCreated(ticketNumber, validatedData.title),
+            ...(await emailTemplates.ticketCreated(ticketNumber, validatedData.title)),
           });
         }
 
@@ -1049,13 +1049,13 @@ export async function updateTicketStatus(
 
           const emailResult = await sendEmail({
             to: customer.email,
-            ...emailTemplates.ticketStatusChanged(
+            ...(await emailTemplates.ticketStatusChanged(
               ticket.ticketNumber,
               ticket.title,
               formatStatus(oldStatus),
               formatStatus(status),
               message,
-            ),
+            )),
           });
 
           if (!emailResult.success) {

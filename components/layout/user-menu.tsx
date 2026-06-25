@@ -81,6 +81,17 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
   const handleSignOut = async () => {
     setIsLoading(true);
     try {
+      if (user.role === "admin" || user.role === "support") {
+        try {
+          await fetch("/api/staff/live-chat/availability", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "unavailable" }),
+          });
+        } catch {
+          // Best-effort — logout should still proceed.
+        }
+      }
       await signOut();
       toast.success("خرجت");
       router.push("/login");

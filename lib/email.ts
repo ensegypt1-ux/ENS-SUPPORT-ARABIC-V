@@ -5,8 +5,25 @@ import {
   PRIORITY_LABELS,
   STATUS_LABELS,
 } from "@/lib/strings";
-import { ENS_BRAND } from "@/lib/ens-brand";
 import type { TicketPriority } from "@/types";
+import {
+  emailBadge,
+  emailButton,
+  emailCallout,
+  emailDetailRow,
+  emailDetailsBox,
+  emailHeading,
+  emailLayout,
+  emailParagraph,
+  emailSecondaryLink,
+  emailSectionTitle,
+  emailSteps,
+  escapeHtml,
+  resolveEmailBrand,
+  type EmailBrandContext,
+} from "@/lib/email-layout";
+
+export { escapeHtml };
 
 interface SendEmailOptions {
   to: string;
@@ -33,25 +50,23 @@ const emailSettingByNotificationKey: Record<
   ticketResolution: "notifyOnTicketResolution",
 };
 
-const htmlEscapes: Record<string, string> = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#39;",
-};
-
-export function escapeHtml(value: unknown): string {
-  return String(value ?? "").replace(/[&<>"']/g, (char) => htmlEscapes[char]);
+function priorityBadge(priority: string): string {
+  const styles: Record<string, [string, string]> = {
+    urgent: ["#991b1b", "#fee2e2"],
+    high: ["#9a3412", "#fed7aa"],
+    medium: ["#92400e", "#fef3c7"],
+    low: ["#1e40af", "#dbeafe"],
+  };
+  const [color, bg] = styles[priority] ?? ["#1e40af", "#dbeafe"];
+  const label = PRIORITY_LABELS[priority as TicketPriority] ?? priority;
+  return emailBadge(label, color, bg);
 }
 
-/** Centered call-to-action button used by customer-facing ticket emails. */
-function ticketLinkButton(url: string | undefined, label: string): string {
-  if (!url) return "";
-  return `
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${escapeHtml(url)}" style="display: inline-block; background-color: #0070f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">${escapeHtml(label)}</a>
-        </div>`;
+function categoryLabel(category: string): string {
+  return (
+    CATEGORY_LABELS[category] ??
+    category.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+  );
 }
 
 export function isEmailServiceEnabled(settings: SystemSettings): boolean {
@@ -106,7 +121,6 @@ export async function shouldSendEmailNotification(
   };
 }
 
-// Create reusable transporter
 const createTransporter = () => {
   if (!process.env.EMAIL_SERVER_HOST) {
     throw new Error("إعدادات خادم البريد غير مكتملة");
@@ -115,7 +129,7 @@ const createTransporter = () => {
   return nodemailer.createTransport({
     host: process.env.EMAIL_SERVER_HOST,
     port: parseInt(process.env.EMAIL_SERVER_PORT || "587"),
-    secure: process.env.EMAIL_SERVER_PORT === "465", // true for 465, false for other ports
+    secure: process.env.EMAIL_SERVER_PORT === "465",
     auth: {
       user: process.env.EMAIL_SERVER_USER,
       pass: process.env.EMAIL_SERVER_PASSWORD,
@@ -140,7 +154,7 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions) {
       to,
       subject,
       html,
-      text: text || html.replace(/<[^>]*>/g, ""), // Strip HTML tags for text version
+      text: text || html.replace(/<[^>]*>/g, ""),
     });
 
     return { success: true, messageId: info.messageId };
@@ -151,140 +165,149 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions) {
   }
 }
 
-// Email templates
 export const emailTemplates = {
-  ticketCreated: (ticketNumber: string, title: string, viewUrl?: string) => ({
-    subject: `تذكرة جديدة: ${ticketNumber} - ${title}`,
-    html: `
-      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">تم إنشاء تذكرتك</h2>
-        <p>شكراً على تواصلك — تذكرة الدعم جاهزة وسنراجعها ونعود إلك في أقرب وقت.</p>
-        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
-          <p style="margin: 5px 0;"><strong>الحالة:</strong> <span style="color: #10b981;">${STATUS_LABELS.open}</span></p>
-        </div>
-        <p>سنراجع تذكرتك ونعود إلك في أقرب وقت.${
-          viewUrl
-            ? " استخدم الزر تحت لمشاهدة الحالة وترد في أي وقت — بدون حساب."
-            : " يمكنك تتابع التذكرة من حسابك."
-        }</p>
-        ${ticketLinkButton(viewUrl, "عرض تذكرتك")}
-        <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
-        </p>
-      </div>
-    `,
-  }),
+  ticketCreated: async (
+    ticketNumber: string,
+    title: string,
+    viewUrl?: string
+  ) => {
+    const brand = await resolveEmailBrand();
+    const openBadge = emailBadge(
+      STATUS_LABELS.open,
+      "#059669",
+      "#ecfdf5"
+    );
 
-  ticketStatusChanged: (
+    const bodyHtml = `
+      ${emailHeading("تم استلام تذكرتك", "شكرًا لتواصلك مع فريق دعم ENS. راجعنا طلبك وسنرد عليك في أقرب وقت ممكن.")}
+      ${emailDetailsBox(`
+        ${emailDetailRow("رقم التذكرة", ticketNumber, { ltr: true })}
+        ${emailDetailRow("العنوان", title)}
+        ${emailDetailRow("الحالة", openBadge, { html: true })}
+      `)}
+      ${emailSteps([
+        "راجع تفاصيل التذكرة عبر الرابط أدناه.",
+        "أضف أي معلومات إضافية إذا لزم الأمر.",
+        "تابع البريد الإلكتروني لتحديثات الحالة والردود.",
+      ])}
+      ${viewUrl ? emailButton(viewUrl, "عرض التذكرة") : ""}
+      ${viewUrl ? emailParagraph("يمكنك متابعة التذكرة والرد في أي وقت — دون الحاجة إلى حساب.") : emailParagraph("يمكنك متابعة التذكرة من حسابك في بوابة الدعم.")}`;
+
+    return {
+      subject: `تذكرة جديدة: ${ticketNumber} — ${title}`,
+      html: emailLayout({
+        title: "تم استلام تذكرتك",
+        preheader: `تم إنشاء تذكرة ${ticketNumber} بنجاح. فريق الدعم سيراجعها قريبًا.`,
+        bodyHtml,
+        brand,
+      }),
+    };
+  },
+
+  ticketStatusChanged: async (
     ticketNumber: string,
     title: string,
     oldStatus: string,
     newStatus: string,
     message?: string,
     viewUrl?: string
-  ) => ({
-    subject: `تحدّثت حالة التذكرة: ${ticketNumber}`,
-    html: `
-      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">تم تحديث حالة التذكرة</h2>
-        <p>حالة تذكرة الدعم بتاعتك تغيّرت.</p>
-        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
-          <p style="margin: 5px 0;"><strong>الحالة السابقة:</strong> ${escapeHtml(oldStatus)}</p>
-          <p style="margin: 5px 0;"><strong>الحالة الجديدة:</strong> <span style="color: #0070f3;">${escapeHtml(newStatus)}</span></p>
-        </div>
-        ${
-          message
-            ? `
-        <div style="background-color: #f0f9ff; border-right: 4px solid #0070f3; padding: 15px; margin: 20px 0;">
-          <p style="margin: 0 0 5px 0; font-weight: bold; color: #0070f3;">رسالة من الدعم:</p>
-          <p style="margin: 0; white-space: pre-wrap;">${escapeHtml(message)}</p>
-        </div>
-        `
-            : ""
-        }
-        ${ticketLinkButton(viewUrl, "عرض تذكرتك")}
-        <p>${
-          viewUrl
-            ? "استخدم الزر فوق لمشاهدة آخر التفاصيل وترد."
-            : "سجّل دخولك لمشاهدة تفاصيل التذكرة."
-        }</p>
-        <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
-        </p>
-      </div>
-    `,
-  }),
+  ) => {
+    const brand = await resolveEmailBrand();
 
-  newComment: (
+    const bodyHtml = `
+      ${emailHeading("تحدّثت حالة التذكرة", "تم تغيير حالة تذكرة الدعم الخاصة بك.")}
+      ${emailDetailsBox(`
+        ${emailDetailRow("رقم التذكرة", ticketNumber, { ltr: true })}
+        ${emailDetailRow("العنوان", title)}
+        ${emailDetailRow("الحالة السابقة", oldStatus)}
+        ${emailDetailRow("الحالة الجديدة", newStatus, { highlight: "#1d4ed8" })}
+      `)}
+      ${
+        message
+          ? emailCallout("رسالة من فريق الدعم", escapeHtml(message))
+          : ""
+      }
+      ${viewUrl ? emailButton(viewUrl, "عرض التذكرة") : ""}
+      ${emailParagraph(
+        viewUrl
+          ? "استخدم الزر أعلاه لمشاهدة آخر التفاصيل والرد على الفريق."
+          : "سجّل دخولك إلى بوابة الدعم لمشاهدة تفاصيل التذكرة."
+      )}`;
+
+    return {
+      subject: `تحدّثت حالة التذكرة: ${ticketNumber}`,
+      html: emailLayout({
+        title: "تحدّثت حالة التذكرة",
+        preheader: `حالة التذكرة ${ticketNumber} أصبحت: ${newStatus}`,
+        bodyHtml,
+        brand,
+      }),
+    };
+  },
+
+  newComment: async (
     ticketNumber: string,
     title: string,
     commenterName: string,
     commentContent: string,
     viewUrl?: string
-  ) => ({
-    subject: `تعليق جديد على التذكرة: ${ticketNumber}`,
-    html: `
-      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">تعليق جديد على تذكرتك</h2>
-        <p>أضاف ${escapeHtml(commenterName)} تعليق على تذكرتك.</p>
-        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
-        </div>
-        <div style="background-color: #f0f9ff; border-right: 4px solid #0070f3; padding: 15px; margin: 20px 0;">
-          <p style="margin: 0 0 10px 0; font-weight: bold; color: #0070f3;">تعليق من ${escapeHtml(commenterName)}:</p>
-          <p style="margin: 0; white-space: pre-wrap; color: #333;">${escapeHtml(commentContent)}</p>
-        </div>
-        ${ticketLinkButton(viewUrl, "عرض والرد")}
-        <p>${
-          viewUrl
-            ? "استخدم الزر فوق لمشاهدة المحادثة وترد — بدون حساب."
-            : "سجّل دخولك للرد على التعليق."
-        }</p>
-        <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
-        </p>
-      </div>
-    `,
-  }),
+  ) => {
+    const brand = await resolveEmailBrand();
 
-  ticketAssigned: (
+    const bodyHtml = `
+      ${emailHeading("تعليق جديد على تذكرتك", `أضاف ${commenterName} ردًا جديدًا على تذكرتك.`)}
+      ${emailDetailsBox(`
+        ${emailDetailRow("رقم التذكرة", ticketNumber, { ltr: true })}
+        ${emailDetailRow("العنوان", title)}
+      `)}
+      ${emailCallout(`تعليق من ${commenterName}`, escapeHtml(commentContent))}
+      ${viewUrl ? emailButton(viewUrl, "عرض التذكرة والرد") : ""}
+      ${emailParagraph(
+        viewUrl
+          ? "يمكنك مشاهدة المحادثة والرد مباشرة عبر الرابط — دون حساب."
+          : "سجّل دخولك إلى بوابة الدعم للرد على التعليق."
+      )}`;
+
+    return {
+      subject: `تعليق جديد على التذكرة: ${ticketNumber}`,
+      html: emailLayout({
+        title: "تعليق جديد على تذكرتك",
+        preheader: `${commenterName} أضاف تعليقًا على التذكرة ${ticketNumber}`,
+        bodyHtml,
+        brand,
+      }),
+    };
+  },
+
+  ticketAssigned: async (
     ticketNumber: string,
     title: string,
     assigneeName: string,
     ticketUrl?: string
-  ) => ({
-    subject: `تم تعيين تذكرة: ${ticketNumber}`,
-    html: `
-      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">تذكرة جديدة معيّنة لك</h2>
-        <p>تم تعيين تذكرة دعم.</p>
-        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
-          <p style="margin: 5px 0;"><strong>معيّنة إلى:</strong> ${escapeHtml(assigneeName)}</p>
-        </div>
-        ${
-          ticketUrl
-            ? `
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${escapeHtml(ticketUrl)}" style="display: inline-block; background-color: #0070f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">عرض التذكرة</a>
-        </div>
-        `
-            : ""
-        }
-        <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
-        </p>
-      </div>
-    `,
-  }),
+  ) => {
+    const brand = await resolveEmailBrand();
 
-  meetingScheduled: (
+    const bodyHtml = `
+      ${emailHeading("تذكرة جديدة مُعيَّنة لك", "تم تعيين تذكرة دعم لك للمتابعة.")}
+      ${emailDetailsBox(`
+        ${emailDetailRow("رقم التذكرة", ticketNumber, { ltr: true })}
+        ${emailDetailRow("العنوان", title)}
+        ${emailDetailRow("مُعيَّنة إلى", assigneeName)}
+      `)}
+      ${ticketUrl ? emailButton(ticketUrl, "فتح التذكرة") : ""}`;
+
+    return {
+      subject: `تذكرة مُعيَّنة: ${ticketNumber}`,
+      html: emailLayout({
+        title: "تذكرة جديدة مُعيَّنة لك",
+        preheader: `تم تعيين التذكرة ${ticketNumber} إلى ${assigneeName}`,
+        bodyHtml,
+        brand,
+      }),
+    };
+  },
+
+  meetingScheduled: async (
     ticketNumber: string,
     title: string,
     meetingTitle: string,
@@ -294,128 +317,111 @@ export const emailTemplates = {
     meetingLink?: string,
     timezone?: string,
     description?: string
-  ) => ({
-    subject: `اجتماع مجدول للتذكرة: ${ticketNumber}`,
-    html: `
-      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">تم جدولة اجتماع لتذكرتك</h2>
-        <p>تم جدولة اجتماع لمناقشة تذكرتك.</p>
-        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>عنوان التذكرة:</strong> ${escapeHtml(title)}</p>
-        </div>
-        <div style="background-color: #f0f9ff; border-right: 4px solid #9333ea; padding: 15px; margin: 20px 0;">
-          <h3 style="margin: 0 0 10px 0; color: #9333ea;">تفاصيل الاجتماع</h3>
-          <p style="margin: 5px 0;"><strong>عنوان الاجتماع:</strong> ${escapeHtml(meetingTitle)}</p>
-          <p style="margin: 5px 0;"><strong>التاريخ والوقت:</strong> ${escapeHtml(scheduledAt)}</p>
-          <p style="margin: 5px 0;"><strong>المدة:</strong> ${escapeHtml(duration)} دقيقة</p>
-          <p style="margin: 5px 0;"><strong>المنصة:</strong> ${
-            platform === "zoom" ? "Zoom" : "Google Meet"
-          }</p>
-          ${
-            timezone
-              ? `<p style="margin: 5px 0;"><strong>المنطقة الزمنية:</strong> ${escapeHtml(timezone)}</p>`
-              : ""
-          }
-          ${
-            description
-              ? `<p style="margin: 10px 0 5px 0;"><strong>الوصف:</strong></p><p style="margin: 5px 0; white-space: pre-wrap;">${escapeHtml(description)}</p>`
-              : ""
-          }
-        </div>
-        ${
-          meetingLink
-            ? `
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${escapeHtml(meetingLink)}" style="display: inline-block; background-color: #9333ea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">انضم إلى الاجتماع</a>
-        </div>
-        <p style="text-align: center; color: #666; font-size: 14px;">
-          رابط الاجتماع: <a href="${escapeHtml(meetingLink)}" style="color: #9333ea;">${escapeHtml(meetingLink)}</a>
-        </p>
-        `
-            : ""
-        }
-        <p>انضم للاجتماع في المعاد. يمكنك تشوف التفاصيل من حسابك.</p>
-        <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
-        </p>
-      </div>
-    `,
-  }),
+  ) => {
+    const brand = await resolveEmailBrand();
+    const platformLabel = platform === "zoom" ? "Zoom" : "Google Meet";
 
-  meetingUpdated: (
+    const meetingDetails = [
+      emailDetailRow("عنوان الاجتماع", meetingTitle),
+      emailDetailRow("التاريخ والوقت", scheduledAt),
+      emailDetailRow("المدة", `${duration} دقيقة`),
+      emailDetailRow("المنصة", platformLabel),
+      ...(timezone ? [emailDetailRow("المنطقة الزمنية", timezone)] : []),
+    ].join("");
+
+    const bodyHtml = `
+      ${emailHeading("تم جدولة اجتماع", "تم تحديد موعد اجتماع لمناقشة تذكرتك.")}
+      ${emailDetailsBox(`
+        ${emailDetailRow("رقم التذكرة", ticketNumber, { ltr: true })}
+        ${emailDetailRow("عنوان التذكرة", title)}
+      `)}
+      ${emailSectionTitle("تفاصيل الاجتماع")}
+      ${emailDetailsBox(meetingDetails)}
+      ${
+        description
+          ? emailCallout("وصف الاجتماع", escapeHtml(description), "#0ea5e9")
+          : ""
+      }
+      ${meetingLink ? emailButton(meetingLink, "انضم إلى الاجتماع") : ""}
+      ${meetingLink ? emailSecondaryLink(meetingLink, meetingLink) : ""}
+      ${emailParagraph("يرجى الانضمام في الموعد المحدّد. يمكنك أيضًا مراجعة التفاصيل من بوابة الدعم.")}`;
+
+    return {
+      subject: `اجتماع مجدول للتذكرة: ${ticketNumber}`,
+      html: emailLayout({
+        title: "تم جدولة اجتماع",
+        preheader: `اجتماع «${meetingTitle}» بتاريخ ${scheduledAt}`,
+        bodyHtml,
+        brand,
+      }),
+    };
+  },
+
+  meetingUpdated: async (
     ticketNumber: string,
     title: string,
     meetingTitle: string,
     updatedFields: Record<string, string | number>,
     meetingLink?: string
-  ) => ({
-    subject: `تم التحديث الاجتماع للتذكرة: ${ticketNumber}`,
-    html: `
-      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">تم تحديث تفاصيل الاجتماع</h2>
-        <p>الاجتماع المرتبط بتذكرتك اتغيّر.</p>
-        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>عنوان التذكرة:</strong> ${escapeHtml(title)}</p>
-          <p style="margin: 5px 0;"><strong>عنوان الاجتماع:</strong> ${escapeHtml(meetingTitle)}</p>
-        </div>
-        <div style="background-color: #f0f9ff; border-right: 4px solid #0070f3; padding: 15px; margin: 20px 0;">
-          <h3 style="margin: 0 0 10px 0; color: #0070f3;">الحقول المحدّثة</h3>
-          ${Object.entries(updatedFields)
-            .map(
-              ([key, value]) =>
-                `<p style="margin: 5px 0;"><strong>${escapeHtml(key)}:</strong> ${escapeHtml(
-                  value
-                )}</p>`
-            )
-            .join("")}
-        </div>
-        ${
-          meetingLink
-            ? `
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${escapeHtml(meetingLink)}" style="display: inline-block; background-color: #0070f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">فتح الاجتماع</a>
-        </div>
-        `
-            : ""
-        }
-        <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
-        </p>
-      </div>
-    `,
-  }),
+  ) => {
+    const brand = await resolveEmailBrand();
 
-  attachmentUploaded: (
+    const updatesHtml = Object.entries(updatedFields)
+      .map(([key, value]) => emailDetailRow(key, String(value)))
+      .join("");
+
+    const bodyHtml = `
+      ${emailHeading("تحدّثت تفاصيل الاجتماع", "تم تعديل موعد أو تفاصيل الاجتماع المرتبط بتذكرتك.")}
+      ${emailDetailsBox(`
+        ${emailDetailRow("رقم التذكرة", ticketNumber, { ltr: true })}
+        ${emailDetailRow("عنوان التذكرة", title)}
+        ${emailDetailRow("عنوان الاجتماع", meetingTitle)}
+      `)}
+      ${emailSectionTitle("الحقول المُحدَّثة")}
+      ${emailDetailsBox(updatesHtml)}
+      ${meetingLink ? emailButton(meetingLink, "فتح الاجتماع") : ""}`;
+
+    return {
+      subject: `تحدّث الاجتماع للتذكرة: ${ticketNumber}`,
+      html: emailLayout({
+        title: "تحدّثت تفاصيل الاجتماع",
+        preheader: `تم تحديث اجتماع «${meetingTitle}» للتذكرة ${ticketNumber}`,
+        bodyHtml,
+        brand,
+      }),
+    };
+  },
+
+  attachmentUploaded: async (
     ticketNumber: string,
     title: string,
     uploaderName: string,
     filename: string,
     ticketUrl: string
-  ) => ({
-    subject: `تم رفع مرفق: ${filename} على التذكرة ${ticketNumber}`,
-    html: `
-      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">مرفق جديد على تذكرتك</h2>
-        <p>رفع ${escapeHtml(uploaderName)} ملف على تذكرتك.</p>
-        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
-          <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
-          <p style="margin: 5px 0;"><strong>الملف:</strong> ${escapeHtml(filename)}</p>
-        </div>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${escapeHtml(ticketUrl)}" style="display: inline-block; background-color: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">عرض التذكرة</a>
-        </div>
-        <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
-        </p>
-      </div>
-    `,
-  }),
+  ) => {
+    const brand = await resolveEmailBrand();
 
-  // Admin notification for new ticket
-  adminNewTicketNotification: (
+    const bodyHtml = `
+      ${emailHeading("مرفق جديد على تذكرتك", `رفع ${uploaderName} ملفًا جديدًا على تذكرتك.`)}
+      ${emailDetailsBox(`
+        ${emailDetailRow("رقم التذكرة", ticketNumber, { ltr: true })}
+        ${emailDetailRow("العنوان", title)}
+        ${emailDetailRow("اسم الملف", filename, { ltr: true })}
+      `)}
+      ${emailButton(ticketUrl, "عرض التذكرة")}`;
+
+    return {
+      subject: `مرفق جديد: ${filename} — التذكرة ${ticketNumber}`,
+      html: emailLayout({
+        title: "مرفق جديد على تذكرتك",
+        preheader: `${uploaderName} رفع ملف «${filename}» على التذكرة ${ticketNumber}`,
+        bodyHtml,
+        brand,
+      }),
+    };
+  },
+
+  adminNewTicketNotification: async (
     ticketNumber: string,
     title: string,
     description: string,
@@ -429,159 +435,127 @@ export const emailTemplates = {
     purchaseCode: string | undefined,
     createdAt: string,
     ticketUrl: string
-  ) => ({
-    subject: `🎫 تذكرة دعم جديدة: ${ticketNumber} - ${title}`,
-    html: `
-      <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background-color: #ffffff;">
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">🎫 تذكرة دعم جديدة</h1>
-        </div>
+  ) => {
+    const brand = await resolveEmailBrand();
 
-        <!-- Content -->
-        <div style="padding: 30px; background-color: #f9fafb;">
-          <p style="color: #374151; font-size: 16px; margin-bottom: 20px;">
-            وصلت تذكرة دعم جديدة وتحتاج متابعة.
-          </p>
+    const ticketRows = [
+      emailDetailRow("رقم التذكرة", ticketNumber, { ltr: true }),
+      emailDetailRow("العنوان", title),
+      emailDetailRow("الأولوية", priorityBadge(priority), { html: true }),
+      emailDetailRow("الفئة", categoryLabel(category)),
+      emailDetailRow("تاريخ الإنشاء", createdAt),
+    ].join("");
 
-          <!-- Ticket Information -->
-          <div style="background-color: #ffffff; border-right: 4px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h2 style="color: #667eea; margin: 0 0 15px 0; font-size: 18px;">تفاصيل التذكرة</h2>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 140px;">رقم التذكرة:</td>
-                <td style="padding: 8px 0; color: #111827; font-weight: bold;">${escapeHtml(ticketNumber)}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">العنوان:</td>
-                <td style="padding: 8px 0; color: #111827;">${escapeHtml(title)}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">الأولوية:</td>
-                <td style="padding: 8px 0;">
-                  <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; ${
-                    priority === "urgent"
-                      ? "background-color: #fee2e2; color: #991b1b;"
-                      : priority === "high"
-                      ? "background-color: #fed7aa; color: #9a3412;"
-                      : priority === "medium"
-                      ? "background-color: #fef3c7; color: #92400e;"
-                      : "background-color: #dbeafe; color: #1e40af;"
-                  }">
-                    ${escapeHtml(PRIORITY_LABELS[priority as TicketPriority] ?? priority)}
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">الفئة:</td>
-                <td style="padding: 8px 0; color: #111827;">${escapeHtml(
-                  CATEGORY_LABELS[category] ??
-                    category.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-                )}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">تاريخ الإنشاء:</td>
-                <td style="padding: 8px 0; color: #111827;">${escapeHtml(createdAt)}</td>
-              </tr>
-            </table>
-          </div>
+    const customerRows = [
+      emailDetailRow("الاسم", customerName),
+      emailDetailRow("البريد الإلكتروني", customerEmail, { ltr: true }),
+      ...(customerCountry ? [emailDetailRow("الدولة", customerCountry)] : []),
+    ].join("");
 
-          <!-- Customer Information -->
-          <div style="background-color: #ffffff; border-right: 4px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h2 style="color: #10b981; margin: 0 0 15px 0; font-size: 18px;">معلومات العميل</h2>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 140px;">الاسم:</td>
-                <td style="padding: 8px 0; color: #111827;">${escapeHtml(customerName)}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">البريد الإلكتروني:</td>
-                <td style="padding: 8px 0;"><a href="mailto:${escapeHtml(customerEmail)}" style="color: #667eea; text-decoration: none;">${escapeHtml(customerEmail)}</a></td>
-              </tr>
-              ${
-                customerCountry
-                  ? `
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">الدولة:</td>
-                <td style="padding: 8px 0; color: #111827;">${escapeHtml(customerCountry)}</td>
-              </tr>
-              `
-                  : ""
-              }
-            </table>
-          </div>
+    const productRows =
+      productName || productVersion || purchaseCode
+        ? [
+            ...(productName ? [emailDetailRow("المنتج", productName)] : []),
+            ...(productVersion
+              ? [emailDetailRow("الإصدار", productVersion, { ltr: true })]
+              : []),
+            ...(purchaseCode
+              ? [emailDetailRow("رمز الشراء", purchaseCode, { ltr: true })]
+              : []),
+          ].join("")
+        : "";
 
-          ${
-            productName || productVersion || purchaseCode
-              ? `
-          <!-- Product Information -->
-          <div style="background-color: #ffffff; border-right: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h2 style="color: #f59e0b; margin: 0 0 15px 0; font-size: 18px;">معلومات المنتج</h2>
-            <table style="width: 100%; border-collapse: collapse;">
-              ${
-                productName
-                  ? `
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 140px;">المنتج:</td>
-                <td style="padding: 8px 0; color: #111827;">${escapeHtml(productName)}</td>
-              </tr>
-              `
-                  : ""
-              }
-              ${
-                productVersion
-                  ? `
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">الإصدار:</td>
-                <td style="padding: 8px 0; color: #111827;">${escapeHtml(productVersion)}</td>
-              </tr>
-              `
-                  : ""
-              }
-              ${
-                purchaseCode
-                  ? `
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">رمز الشراء:</td>
-                <td style="padding: 8px 0; color: #111827; font-family: monospace; font-size: 12px;">${escapeHtml(purchaseCode)}</td>
-              </tr>
-              `
-                  : ""
-              }
-            </table>
-          </div>
-          `
-              : ""
-          }
+    const bodyHtml = `
+      ${emailHeading("تذكرة دعم جديدة", "وصلت تذكرة جديدة وتحتاج إلى مراجعة من فريق الدعم.")}
+      ${emailSectionTitle("تفاصيل التذكرة")}
+      ${emailDetailsBox(ticketRows)}
+      ${emailSectionTitle("معلومات العميل")}
+      ${emailDetailsBox(customerRows)}
+      ${
+        productRows
+          ? `${emailSectionTitle("معلومات المنتج")}${emailDetailsBox(productRows)}`
+          : ""
+      }
+      ${emailSectionTitle("الوصف")}
+      ${emailCallout("", escapeHtml(description), "#6366f1")}
+      ${emailButton(ticketUrl, "فتح التذكرة في لوحة الإدارة")}
+      ${emailParagraph("راجع التذكرة وعيِّنها أو رُد عليها من لوحة الإدارة.")}`;
 
-          <!-- Description -->
-          <div style="background-color: #ffffff; border-right: 4px solid #8b5cf6; padding: 20px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h2 style="color: #8b5cf6; margin: 0 0 15px 0; font-size: 18px;">الوصف</h2>
-            <div style="color: #374151; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;">${escapeHtml(description)}</div>
-          </div>
+    return {
+      subject: `تذكرة دعم جديدة: ${ticketNumber} — ${title}`,
+      html: emailLayout({
+        title: "تذكرة دعم جديدة",
+        preheader: `تذكرة جديدة ${ticketNumber} من ${customerName} — ${PRIORITY_LABELS[priority as TicketPriority] ?? priority}`,
+        bodyHtml,
+        brand,
+      }),
+    };
+  },
+};
 
-          <!-- Action Button -->
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${escapeHtml(ticketUrl)}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);">
-              عرض التذكرة
-            </a>
-          </div>
+export const authEmailTemplates = {
+  passwordReset: async (resetUrl: string, brand?: EmailBrandContext) => {
+    const resolvedBrand = brand ?? (await resolveEmailBrand());
 
-          <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 20px;">
-            اضغط الزر فوق لمشاهدة التذكرة وترد من لوحة الإدارة.
-          </p>
-        </div>
+    const bodyHtml = `
+      ${emailHeading("إعادة تعيين كلمة المرور", "تلقّينا طلبًا لإعادة تعيين كلمة مرور حسابك.")}
+      ${emailParagraph("اضغط الزر أدناه لتعيين كلمة مرور جديدة. الرابط صالح لفترة محدودة.")}
+      ${emailButton(resetUrl, "تعيين كلمة مرور جديدة")}
+      ${emailSecondaryLink(resetUrl, resetUrl)}
+      ${emailParagraph("إذا لم تطلب إعادة التعيين، يمكنك تجاهل هذا البريد بأمان.")}`;
 
-        <!-- Footer -->
-        <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
-          <p style="color: #6b7280; font-size: 12px; margin: 0;">
-            إشعار تلقائي من ${ENS_BRAND.portalTitle}.
-          </p>
-          <p style="color: #9ca3af; font-size: 11px; margin: 10px 0 0 0;">
-            لا ترد على هذا البريد الإلكتروني.
-          </p>
-        </div>
-      </div>
-    `,
-  }),
+    return {
+      subject: "إعادة تعيين كلمة المرور — دعم ENS",
+      html: emailLayout({
+        title: "إعادة تعيين كلمة المرور",
+        preheader: "رابط إعادة تعيين كلمة المرور لحسابك في بوابة دعم ENS",
+        bodyHtml,
+        brand: resolvedBrand,
+      }),
+    };
+  },
+
+  emailVerification: async (verifyUrl: string, brand?: EmailBrandContext) => {
+    const resolvedBrand = brand ?? (await resolveEmailBrand());
+
+    const bodyHtml = `
+      ${emailHeading("تأكيد البريد الإلكتروني", "مرحبًا بك في بوابة دعم ENS. خطوة واحدة فقط لتفعيل حسابك.")}
+      ${emailParagraph("يرجى تأكيد بريدك الإلكتروني بالضغط على الزر أدناه.")}
+      ${emailButton(verifyUrl, "تأكيد البريد الإلكتروني")}
+      ${emailSecondaryLink(verifyUrl, verifyUrl)}
+      ${emailParagraph("إذا لم تنشئ حسابًا، يمكنك تجاهل هذا البريد.")}`;
+
+    return {
+      subject: "تأكيد البريد الإلكتروني — دعم ENS",
+      html: emailLayout({
+        title: "تأكيد البريد الإلكتروني",
+        preheader: "أكّد بريدك الإلكتروني لتفعيل حسابك في بوابة دعم ENS",
+        bodyHtml,
+        brand: resolvedBrand,
+      }),
+    };
+  },
+
+  testEmail: async (sentAt: string, brand?: EmailBrandContext) => {
+    const resolvedBrand = brand ?? (await resolveEmailBrand());
+
+    const bodyHtml = `
+      ${emailHeading("اختبار إعدادات البريد", "تم إرسال هذا البريد للتحقق من أن إعدادات SMTP تعمل بشكل صحيح.")}
+      ${emailDetailsBox(`
+        ${emailDetailRow("الحالة", "تم الإرسال بنجاح")}
+        ${emailDetailRow("وقت الإرسال", sentAt)}
+        ${emailDetailRow("الخادم", process.env.EMAIL_SERVER_HOST || "—", { ltr: true })}
+      `)}
+      ${emailParagraph("إذا وصلك هذا البريد، فإعدادات البريد في لوحة التحكم صحيحة وجاهزة للاستخدام.")}`;
+
+    return {
+      subject: "اختبار البريد — دعم ENS",
+      html: emailLayout({
+        title: "اختبار إعدادات البريد",
+        preheader: "رسالة اختبار من بوابة دعم ENS — الإعدادات تعمل بنجاح",
+        bodyHtml,
+        brand: resolvedBrand,
+      }),
+    };
+  },
 };

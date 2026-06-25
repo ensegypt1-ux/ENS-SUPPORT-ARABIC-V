@@ -90,6 +90,8 @@ export function useOperationsCenter(userId: string | null) {
     socket.on("chat:guest:inbox:changed", handleRealtime);
     socket.on("chat:conversation:upsert", handleRealtime);
     socket.on("presence:updated", handleRealtime);
+    socket.on("chat:availability:changed", handleRealtime);
+    socket.on("support:availability:changed", handleRealtime);
     socket.on("notification:created", handleRealtime);
     socket.on("connect", handleRealtime);
 
@@ -98,6 +100,8 @@ export function useOperationsCenter(userId: string | null) {
       socket.off("chat:guest:inbox:changed", handleRealtime);
       socket.off("chat:conversation:upsert", handleRealtime);
       socket.off("presence:updated", handleRealtime);
+      socket.off("chat:availability:changed", handleRealtime);
+      socket.off("support:availability:changed", handleRealtime);
       socket.off("notification:created", handleRealtime);
       socket.off("connect", handleRealtime);
       if (refreshTimerRef.current) {

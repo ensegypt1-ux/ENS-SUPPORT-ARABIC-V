@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -24,9 +24,13 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
-  LifeBuoy,
   Copy,
   Check,
+  User,
+  FileText,
+  SlidersHorizontal,
+  ShieldCheck,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -39,16 +43,97 @@ import {
   getPublicTicketProducts,
   verifyPublicPurchaseCode,
 } from "@/actions/public-tickets";
-import { FORM_UI, PRIORITY_LABELS, TICKET_UI, UI } from "@/lib/strings";
+import {
+  CATEGORY_LABELS,
+  FORM_UI,
+  PRIORITY_FORM_LABELS,
+  PRIORITY_LABELS,
+  PUBLIC_TICKET_UI,
+  TICKET_UI,
+  UI,
+} from "@/lib/strings";
+import { homeVisual } from "@/lib/home-visual";
+import type { TicketPriority } from "@/types";
+import { PublicSecurityNotice } from "@/components/tickets/public-security-notice";
 
 type PublicTicketFormData = z.infer<typeof createPublicTicketSchema>;
 
-const priorities = [
-  { value: "low", label: PRIORITY_LABELS.low, color: "bg-slate-400" },
-  { value: "medium", label: PRIORITY_LABELS.medium, color: "bg-blue-500" },
-  { value: "high", label: PRIORITY_LABELS.high, color: "bg-amber-500" },
-  { value: "urgent", label: PRIORITY_LABELS.urgent, color: "bg-red-500" },
+const priorities: Array<{
+  value: TicketPriority;
+  label: string;
+  hint: string;
+  color: string;
+}> = [
+  {
+    value: "low",
+    label: PRIORITY_LABELS.low,
+    hint: PRIORITY_FORM_LABELS.low,
+    color: "bg-slate-400",
+  },
+  {
+    value: "medium",
+    label: PRIORITY_LABELS.medium,
+    hint: PRIORITY_FORM_LABELS.medium,
+    color: "bg-blue-500",
+  },
+  {
+    value: "high",
+    label: PRIORITY_LABELS.high,
+    hint: PRIORITY_FORM_LABELS.high,
+    color: "bg-amber-500",
+  },
+  {
+    value: "urgent",
+    label: PRIORITY_LABELS.urgent,
+    hint: PRIORITY_FORM_LABELS.urgent,
+    color: "bg-red-500",
+  },
 ];
+
+function FormSection({
+  icon,
+  title,
+  description,
+  children,
+  className,
+}: {
+  icon: ReactNode;
+  title: string;
+  description?: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      className={cn(
+        homeVisual.surface,
+        "space-y-5 p-5 sm:p-6",
+        className
+      )}
+    >
+      <header className="space-y-1.5 border-b border-border/45 pb-4">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            {icon}
+          </span>
+          <h2 className="text-base font-bold text-foreground sm:text-lg">{title}</h2>
+        </div>
+        {description ? (
+          <p className="text-sm leading-relaxed text-muted-foreground pe-1">
+            {description}
+          </p>
+        ) : null}
+      </header>
+      {children}
+    </section>
+  );
+}
+
+function FieldHint({ children }: { children: ReactNode }) {
+  return (
+    <p className="text-xs leading-relaxed text-muted-foreground">{children}</p>
+  );
+}
 
 export function PublicTicketForm() {
   const searchParams = useSearchParams();
@@ -119,7 +204,10 @@ export function PublicTicketForm() {
         const result = await getPublicTicketCategories();
         if (result.success && result.data) {
           setCategories(
-            result.data.map((c) => ({ value: c.slug, label: c.name }))
+            result.data.map((c) => ({
+              value: c.slug,
+              label: CATEGORY_LABELS[c.slug] ?? c.name,
+            }))
           );
         } else {
           setCategories([]);
@@ -180,7 +268,6 @@ export function PublicTicketForm() {
     }
   }, [productParam, products, setValue]);
 
-  // Reset verification state whenever the code changes.
   useEffect(() => {
     setPurchaseCodeVerified(false);
     setPurchaseCodeError("");
@@ -189,7 +276,7 @@ export function PublicTicketForm() {
   const handleVerifyPurchaseCode = async () => {
     const code = purchaseCode?.trim();
     if (!code) {
-      setPurchaseCodeError("اكتب كود الشراء");
+      setPurchaseCodeError("اكتب رمز الشراء");
       setPurchaseCodeVerified(false);
       return;
     }
@@ -203,16 +290,16 @@ export function PublicTicketForm() {
       if (result.success) {
         setPurchaseCodeVerified(true);
         setPurchaseCodeError("");
-        toast.success("كود الشراء متأكد!");
+        toast.success("تم التحقق من رمز الشراء");
       } else {
         setPurchaseCodeVerified(false);
-        setPurchaseCodeError(result.error || "التحقق غير ناجح");
-        toast.error(result.error || "التحقق غير ناجح");
+        setPurchaseCodeError(result.error || "تعذّر التحقق من الرمز");
+        toast.error(result.error || "تعذّر التحقق من الرمز");
       }
     } catch {
       setPurchaseCodeVerified(false);
-      setPurchaseCodeError("حدث خطأ في التحقق");
-      toast.error("حدث خطأ في التحقق");
+      setPurchaseCodeError("حدث خطأ أثناء التحقق");
+      toast.error("حدث خطأ أثناء التحقق");
     } finally {
       setIsVerifyingPurchaseCode(false);
     }
@@ -232,7 +319,7 @@ export function PublicTicketForm() {
       }
 
       setSuccessTicketNumber(result.data.ticketNumber);
-      toast.success("التذكرة تم الإرسال!");
+      toast.success("تم إرسال التذكرة بنجاح");
       if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -256,38 +343,44 @@ export function PublicTicketForm() {
     }
   };
 
-  // ── Success state ──────────────────────────────────────────────────────────
   if (successTicketNumber) {
     return (
-      <div className="mx-auto max-w-xl px-4 py-16 sm:py-24">
-        <div className="rounded-2xl border border-border/60 bg-background p-8 text-center shadow-sm">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
-            <CheckCircle2 className="h-8 w-8 text-green-500" />
+      <div
+        className={cn(homeVisual.container, homeVisual.pageX, "py-12 sm:py-16")}
+        dir="rtl"
+      >
+        <div
+          className={cn(
+            homeVisual.surface,
+            "mx-auto max-w-lg p-8 text-center sm:p-10"
+          )}
+        >
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
+            <CheckCircle2 className="h-8 w-8 text-success" />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Ticket submitted
+          <h1 className="text-2xl font-bold tracking-tight">
+            {PUBLIC_TICKET_UI.success.title}
           </h1>
-          <p className="mt-2 text-muted-foreground">
-            Thanks for reaching out. Our team has received your request and a
-            confirmation has been sent to your email.
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+            {PUBLIC_TICKET_UI.success.description}
           </p>
 
-          <div className="mt-6 rounded-xl border bg-muted/40 p-4">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">
-              Your ticket number
+          <div className="mt-6 rounded-xl border border-border/60 bg-muted/30 p-4">
+            <p className="text-xs font-medium text-muted-foreground">
+              {PUBLIC_TICKET_UI.success.ticketLabel}
             </p>
-            <div className="mt-1 flex items-center justify-center gap-2">
-              <span className="font-mono text-lg font-semibold">
+            <div className="mt-2 flex items-center justify-center gap-2">
+              <span className="font-mono text-lg font-bold tracking-wide" dir="ltr">
                 {successTicketNumber}
               </span>
               <button
                 type="button"
                 onClick={handleCopy}
-                className="text-muted-foreground transition-colors hover:text-foreground"
-                aria-label="نسخ رقم التذكرة"
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label={PUBLIC_TICKET_UI.success.copyAria}
               >
                 {copied ? (
-                  <Check className="h-4 w-4 text-green-500" />
+                  <Check className="h-4 w-4 text-success" />
                 ) : (
                   <Copy className="h-4 w-4" />
                 )}
@@ -295,7 +388,11 @@ export function PublicTicketForm() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <p className="mt-5 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+            {PUBLIC_TICKET_UI.success.trustNote}
+          </p>
+
+          <div className="mt-8 flex flex-col gap-2.5 sm:flex-row sm:justify-center">
             <Button
               onClick={() => {
                 setSuccessTicketNumber(null);
@@ -304,10 +401,10 @@ export function PublicTicketForm() {
               variant="outline"
               className="h-11"
             >
-              Submit another ticket
+              {PUBLIC_TICKET_UI.success.another}
             </Button>
             <Button asChild className="h-11">
-              <Link href="/">العودة للرئيسية</Link>
+              <Link href="/">{PUBLIC_TICKET_UI.success.home}</Link>
             </Button>
           </div>
         </div>
@@ -315,159 +412,181 @@ export function PublicTicketForm() {
     );
   }
 
-  // ── Form ─────────────────────────────────────────────────────────────────
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-0">
-      <div className="mb-8 max-w-2xl">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1">
-          <LifeBuoy className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-primary">
-            Support
-          </span>
-        </div>
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-          Create a support ticket
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Tell us what you need help with. No account required — we&apos;ll
-          email you a confirmation and updates.
+    <div
+      className={cn(homeVisual.container, homeVisual.pageX, "py-8 sm:py-10 lg:py-12")}
+      dir="rtl"
+    >
+      {/* Hero */}
+      <header className="mb-8 text-right sm:mb-10">
+        <p className={homeVisual.eyebrow}>
+          <span className={homeVisual.eyebrowDot} aria-hidden />
+          {PUBLIC_TICKET_UI.badge}
         </p>
-      </div>
+        <h1 className="mt-4 text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+          {PUBLIC_TICKET_UI.pageTitle}
+        </h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+          {PUBLIC_TICKET_UI.pageSubtitle}
+        </p>
+        <ol className={cn(homeVisual.journeyRow, "mt-5 justify-start sm:mt-6")}>
+          {PUBLIC_TICKET_UI.journey.map((step, i) => (
+            <li key={step} className="inline-flex items-center gap-1.5 sm:gap-2">
+              {i > 0 ? (
+                <span aria-hidden className="text-border/70">
+                  ←
+                </span>
+              ) : null}
+              <span className={homeVisual.journeyStep}>
+                <span className={homeVisual.journeyNum}>{i + 1}</span>
+                {step}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </header>
 
-      {error && (
+      {error ? (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-      )}
+      ) : null}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Left Column */}
-          <div className="space-y-6 lg:col-span-2">
-            {/* Your Details */}
-            <div className="space-y-6 rounded-2xl border border-border/60 bg-background shadow-sm p-6">
-              <h2 className="text-lg font-semibold">بياناتك</h2>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+          {/* Main column */}
+          <div className="space-y-6 lg:col-span-7 xl:col-span-8">
+            <FormSection
+              icon={<User className="h-4 w-4" />}
+              title={PUBLIC_TICKET_UI.sections.contact.title}
+              description={PUBLIC_TICKET_UI.sections.contact.description}
+            >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="name">
-                    Name <span className="text-destructive">*</span>
+                  <Label htmlFor="name" className={homeVisual.fieldLabel}>
+                    {PUBLIC_TICKET_UI.fields.name}{" "}
+                    <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="name"
-                    placeholder="محمد أحمد"
+                    placeholder={PUBLIC_TICKET_UI.placeholders.name}
                     {...register("name")}
                     disabled={isSubmitting}
-                    className="h-11 placeholder:text-muted-foreground/50"
+                    className="h-11 bg-background/80"
+                    aria-invalid={Boolean(errors.name)}
                   />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">
-                      {errors.name.message}
-                    </p>
-                  )}
+                  {errors.name ? (
+                    <p className="text-sm text-destructive">{errors.name.message}</p>
+                  ) : null}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">
-                    Email <span className="text-destructive">*</span>
+                  <Label htmlFor="email" className={homeVisual.fieldLabel}>
+                    {PUBLIC_TICKET_UI.fields.email}{" "}
+                    <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="name@company.com"
+                    dir="ltr"
+                    placeholder={PUBLIC_TICKET_UI.placeholders.email}
                     {...register("email")}
                     disabled={isSubmitting}
-                    className="h-11 placeholder:text-muted-foreground/50"
+                    className="h-11 bg-background/80 text-start"
+                    aria-invalid={Boolean(errors.email)}
                   />
-                  {errors.email && (
+                  <FieldHint>{PUBLIC_TICKET_UI.hints.email}</FieldHint>
+                  {errors.email ? (
+                    <p className="text-sm text-destructive">{errors.email.message}</p>
+                  ) : null}
+                </div>
+              </div>
+            </FormSection>
+
+            <FormSection
+              icon={<FileText className="h-4 w-4" />}
+              title={PUBLIC_TICKET_UI.sections.ticket.title}
+              description={PUBLIC_TICKET_UI.sections.ticket.description}
+            >
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title" className={homeVisual.fieldLabel}>
+                    {PUBLIC_TICKET_UI.fields.title}{" "}
+                    <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="title"
+                    placeholder={PUBLIC_TICKET_UI.placeholders.title}
+                    {...register("title")}
+                    disabled={isSubmitting}
+                    className="h-11 bg-background/80"
+                    aria-invalid={Boolean(errors.title)}
+                  />
+                  {errors.title ? (
+                    <p className="text-sm text-destructive">{errors.title.message}</p>
+                  ) : null}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description" className={homeVisual.fieldLabel}>
+                    {PUBLIC_TICKET_UI.fields.description}{" "}
+                    <span className="text-destructive">*</span>
+                  </Label>
+                  <Textarea
+                    id="description"
+                    placeholder={PUBLIC_TICKET_UI.placeholders.description}
+                    {...register("description")}
+                    disabled={isSubmitting}
+                    className="min-h-[160px] resize-y bg-background/80 sm:min-h-[180px]"
+                    aria-invalid={Boolean(errors.description)}
+                  />
+                  {errors.description ? (
                     <p className="text-sm text-destructive">
-                      {errors.email.message}
+                      {errors.description.message}
                     </p>
+                  ) : (
+                    <FieldHint>{PUBLIC_TICKET_UI.hints.descriptionSecurity}</FieldHint>
                   )}
                 </div>
               </div>
-            </div>
+            </FormSection>
 
-            {/* General */}
-            <div className="space-y-6 rounded-2xl border border-border/60 bg-background shadow-sm p-6">
-              <h2 className="text-lg font-semibold">عام</h2>
-              <div className="space-y-2">
-                <Label htmlFor="title">
-                  Ticket Title <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="title"
-                  placeholder="ملخص موجز لمشكلتك"
-                  {...register("title")}
-                  disabled={isSubmitting}
-                  className="h-11 placeholder:text-muted-foreground/50"
-                />
-                {errors.title && (
-                  <p className="text-sm text-destructive">
-                    {errors.title.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">
-                  Description <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="صِف مشكلتك أو طلبك بالتفصيل..."
-                  {...register("description")}
-                  disabled={isSubmitting}
-                  className="min-h-[140px] resize-none placeholder:text-muted-foreground/50"
-                />
-                {errors.description && (
-                  <p className="text-sm text-destructive">
-                    {errors.description.message}
-                  </p>
-                )}
-              </div>
-            </div>
+            <PublicSecurityNotice />
 
-            {/* Product Verification */}
-            {envatoSettings.enabled && (
-              <div className="space-y-6 rounded-2xl border border-border/60 bg-background shadow-sm p-6">
-                <div>
-                  <h2 className="text-lg font-semibold">
-                    Product Verification
-                    {envatoSettings.requirePurchaseCode && (
-                      <span className="ms-1 text-destructive">*</span>
-                    )}
-                  </h2>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Verify your purchase for priority support
-                  </p>
-                </div>
-
+            {envatoSettings.enabled ? (
+              <FormSection
+                icon={<ShieldCheck className="h-4 w-4" />}
+                title={PUBLIC_TICKET_UI.sections.purchase.title}
+                description={PUBLIC_TICKET_UI.sections.purchase.description}
+              >
                 <div className="space-y-2">
-                  <Label htmlFor="purchaseCode">
-                    Purchase Code
-                    {envatoSettings.requirePurchaseCode && (
-                      <span className="ms-1 text-destructive">*</span>
-                    )}
+                  <Label htmlFor="purchaseCode" className={homeVisual.fieldLabel}>
+                    {PUBLIC_TICKET_UI.fields.purchaseCode}
+                    {envatoSettings.requirePurchaseCode ? (
+                      <span className="text-destructive"> *</span>
+                    ) : null}
                   </Label>
-                  <div className="flex gap-3">
-                    <div className="relative flex-1">
+                  <FieldHint>{PUBLIC_TICKET_UI.hints.purchaseCode}</FieldHint>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+                    <div className="relative min-w-0 flex-1">
                       <Input
                         id="purchaseCode"
-                        placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                        dir="ltr"
+                        placeholder={PUBLIC_TICKET_UI.placeholders.purchaseCode}
                         {...register("purchaseCode")}
                         disabled={isSubmitting || isVerifyingPurchaseCode}
                         className={cn(
-                          "h-11 pe-10 font-mono",
+                          "h-11 pe-10 font-mono text-sm text-start",
                           purchaseCodeVerified &&
-                            "border-green-500 focus-visible:ring-green-500",
+                            "border-success focus-visible:ring-success/30",
                           purchaseCodeError && "border-destructive"
                         )}
                       />
-                      {purchaseCodeVerified && (
-                        <CheckCircle2 className="absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-green-500" />
-                      )}
-                      {purchaseCodeError && !purchaseCodeVerified && (
+                      {purchaseCodeVerified ? (
+                        <CheckCircle2 className="absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-success" />
+                      ) : null}
+                      {purchaseCodeError && !purchaseCodeVerified ? (
                         <XCircle className="absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-destructive" />
-                      )}
+                      ) : null}
                     </div>
                     <Button
                       type="button"
@@ -480,9 +599,8 @@ export function PublicTicketForm() {
                         purchaseCodeVerified
                       }
                       className={cn(
-                        "h-11",
-                        purchaseCodeVerified &&
-                          "bg-green-600 hover:bg-green-700"
+                        "h-11 shrink-0 sm:min-w-[7rem]",
+                        purchaseCodeVerified && "bg-success hover:bg-success/90"
                       )}
                     >
                       {isVerifyingPurchaseCode ? (
@@ -490,198 +608,205 @@ export function PublicTicketForm() {
                       ) : purchaseCodeVerified ? (
                         <>
                           <CheckCircle2 className="me-2 h-4 w-4" />
-                          Verified
+                          {PUBLIC_TICKET_UI.verified}
                         </>
                       ) : (
                         "تحقق"
                       )}
                     </Button>
                   </div>
-                  {purchaseCodeError && (
-                    <p className="text-sm text-destructive">
-                      {purchaseCodeError}
-                    </p>
-                  )}
-                  {errors.purchaseCode && (
+                  {purchaseCodeError ? (
+                    <p className="text-sm text-destructive">{purchaseCodeError}</p>
+                  ) : null}
+                  {errors.purchaseCode ? (
                     <p className="text-sm text-destructive">
                       {errors.purchaseCode.message}
                     </p>
-                  )}
+                  ) : null}
                 </div>
 
                 {envatoSettings.requirePurchaseCode &&
-                  !purchaseCodeVerified &&
-                  purchaseCode && (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        Please verify your purchase code to submit this ticket
-                      </AlertDescription>
-                    </Alert>
-                  )}
-              </div>
-            )}
+                !purchaseCodeVerified &&
+                purchaseCode ? (
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      {PUBLIC_TICKET_UI.verifyRequired}
+                    </AlertDescription>
+                  </Alert>
+                ) : null}
+              </FormSection>
+            ) : null}
           </div>
 
-          {/* Right Column */}
-          <div className="space-y-4">
-            <div className="space-y-5 rounded-2xl border border-border/60 bg-background p-5 shadow-sm">
-              {/* Priority */}
-              <div className="space-y-2">
-                <Label>
-                  Priority
-                </Label>
-                <Select
-                  value={priority}
-                  onValueChange={(value) =>
-                    setValue(
-                      "priority",
-                      value as "low" | "medium" | "high" | "urgent"
-                    )
-                  }
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger className="h-10 w-full">
-                    <SelectValue placeholder={FORM_UI.selectPriority} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {priorities.map((p) => (
-                      <SelectItem key={p.value} value={p.value}>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={cn("h-2 w-2 rounded-full", p.color)}
-                          />
-                          {p.label}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Category */}
-              <div className="space-y-2">
-                <Label>
-                  Category
-                </Label>
-                <Select
-                  value={category}
-                  onValueChange={(value) =>
-                    setValue(
-                      "category",
-                      value as PublicTicketFormData["category"]
-                    )
-                  }
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger className="h-10 w-full">
-                    <SelectValue placeholder="اختر الفئة" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {loadingCategories ? (
-                      <SelectItem value="general" disabled>
-                        جاري التحميل…
-                      </SelectItem>
-                    ) : categories.length === 0 ? (
-                      <SelectItem value="general" disabled>
-                        No categories
-                      </SelectItem>
-                    ) : (
-                      categories.map((cat) => (
-                        <SelectItem key={cat.value} value={cat.value}>
-                          {cat.label}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Department */}
-              <div className="space-y-2">
-                <Label>
-                  Department
-                </Label>
-                <Select
-                  value={departmentSlug || ""}
-                  onValueChange={(value) => setValue("departmentSlug", value)}
-                  disabled={isSubmitting || loadingDepartments}
-                >
-                  <SelectTrigger className="h-10 w-full">
-                    <SelectValue placeholder="اختر القسم" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {loadingDepartments ? (
-                      <SelectItem value="__loading" disabled>
-                        جاري التحميل…
-                      </SelectItem>
-                    ) : departments.length === 0 ? (
-                      <SelectItem value="__empty" disabled>
-                        No departments
-                      </SelectItem>
-                    ) : (
-                      departments.map((d) => (
-                        <SelectItem key={d.value} value={d.value}>
-                          {d.label}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Product */}
-              <div className="space-y-2">
-                <Label>
-                  Product
-                </Label>
-                <Select
-                  value={productSlug || ""}
-                  onValueChange={(value) => setValue("productSlug", value)}
-                  disabled={isSubmitting || loadingProducts}
-                >
-                  <SelectTrigger className="h-10 w-full">
-                    <SelectValue placeholder="اختر منتجاً" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {loadingProducts ? (
-                      <SelectItem value="__loading" disabled>
-                        جاري التحميل…
-                      </SelectItem>
-                    ) : products.length === 0 ? (
-                      <SelectItem value="__empty" disabled>
-                        No products available
-                      </SelectItem>
-                    ) : (
-                      products.map((p) => (
+          {/* Sidebar */}
+          <aside className="space-y-5 lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24 lg:self-start">
+            <FormSection
+              icon={<SlidersHorizontal className="h-4 w-4" />}
+              title={PUBLIC_TICKET_UI.sections.details.title}
+              description={PUBLIC_TICKET_UI.sections.details.description}
+            >
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className={homeVisual.fieldLabel}>{TICKET_UI.priority}</Label>
+                  <FieldHint>{PUBLIC_TICKET_UI.hints.priority}</FieldHint>
+                  <Select
+                    value={priority}
+                    onValueChange={(value) =>
+                      setValue("priority", value as TicketPriority)
+                    }
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger className="h-11 w-full bg-background/80">
+                      <SelectValue placeholder={FORM_UI.selectPriority} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {priorities.map((p) => (
                         <SelectItem key={p.value} value={p.value}>
-                          {p.label}
+                          <div className="flex flex-col gap-0.5 py-0.5 text-start">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={cn("h-2 w-2 shrink-0 rounded-full", p.color)}
+                              />
+                              <span className="font-medium">{p.label}</span>
+                            </div>
+                            <span className="text-xs text-muted-foreground">{p.hint}</span>
+                          </div>
                         </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              {/* Timezone */}
-              <div className="space-y-2">
-                <Label>
-                  Timezone
-                </Label>
-                <TimezoneSelect
-                  value={timezone}
-                  onValueChange={(value) => setValue("timezone", value)}
-                  disabled={isSubmitting}
-                  placeholder={FORM_UI.selectTimezone}
-                />
-              </div>
-            </div>
+                <div className="space-y-2">
+                  <Label className={homeVisual.fieldLabel}>{TICKET_UI.category}</Label>
+                  <Select
+                    value={category}
+                    onValueChange={(value) =>
+                      setValue(
+                        "category",
+                        value as PublicTicketFormData["category"]
+                      )
+                    }
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger className="h-11 w-full bg-background/80">
+                      <SelectValue placeholder="اختر الفئة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {loadingCategories ? (
+                        <SelectItem value="general" disabled>
+                          {UI.loading}
+                        </SelectItem>
+                      ) : categories.length === 0 ? (
+                        <SelectItem value="general" disabled>
+                          {PUBLIC_TICKET_UI.empty.categories}
+                        </SelectItem>
+                      ) : (
+                        categories.map((cat) => (
+                          <SelectItem key={cat.value} value={cat.value}>
+                            {cat.label}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            {/* Submit */}
-            <div className="space-y-2 rounded-2xl border border-border/60 bg-background shadow-sm p-5">
+                <div className="space-y-2">
+                  <Label className={homeVisual.fieldLabel}>{TICKET_UI.department}</Label>
+                  <Select
+                    value={departmentSlug || ""}
+                    onValueChange={(value) => setValue("departmentSlug", value)}
+                    disabled={isSubmitting || loadingDepartments}
+                  >
+                    <SelectTrigger className="h-11 w-full bg-background/80">
+                      <SelectValue placeholder="اختر القسم" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {loadingDepartments ? (
+                        <SelectItem value="__loading" disabled>
+                          {UI.loading}
+                        </SelectItem>
+                      ) : departments.length === 0 ? (
+                        <SelectItem value="__empty" disabled>
+                          {PUBLIC_TICKET_UI.empty.departments}
+                        </SelectItem>
+                      ) : (
+                        departments.map((d) => (
+                          <SelectItem key={d.value} value={d.value}>
+                            {d.label}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className={homeVisual.fieldLabel}>{TICKET_UI.product}</Label>
+                  <Select
+                    value={productSlug || ""}
+                    onValueChange={(value) => setValue("productSlug", value)}
+                    disabled={isSubmitting || loadingProducts}
+                  >
+                    <SelectTrigger className="h-11 w-full bg-background/80">
+                      <SelectValue placeholder="اختر المنتج" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {loadingProducts ? (
+                        <SelectItem value="__loading" disabled>
+                          {UI.loading}
+                        </SelectItem>
+                      ) : products.length === 0 ? (
+                        <SelectItem value="__empty" disabled>
+                          {PUBLIC_TICKET_UI.empty.products}
+                        </SelectItem>
+                      ) : (
+                        products.map((p) => (
+                          <SelectItem key={p.value} value={p.value}>
+                            {p.label}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className={homeVisual.fieldLabel}>{FORM_UI.timezone}</Label>
+                  <FieldHint>{PUBLIC_TICKET_UI.hints.timezone}</FieldHint>
+                  <TimezoneSelect
+                    value={timezone}
+                    onValueChange={(value) => setValue("timezone", value)}
+                    disabled={isSubmitting}
+                    placeholder={FORM_UI.selectTimezone}
+                    className="h-11 bg-background/80"
+                  />
+                </div>
+              </div>
+            </FormSection>
+
+            <section
+              className={cn(
+                homeVisual.surface,
+                "space-y-4 p-5 sm:p-6"
+              )}
+            >
+              <header className="space-y-1 border-b border-border/45 pb-3">
+                <div className="flex items-center gap-2">
+                  <Send className="h-4 w-4 text-primary" />
+                  <h2 className="text-base font-bold">
+                    {PUBLIC_TICKET_UI.sections.submit.title}
+                  </h2>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {PUBLIC_TICKET_UI.sections.submit.description}
+                </p>
+              </header>
               <Button
                 type="submit"
-                className="h-11 w-full"
+                className="h-11 w-full text-base font-semibold"
                 disabled={
                   isSubmitting ||
                   (envatoSettings.requirePurchaseCode && !purchaseCodeVerified)
@@ -690,17 +815,17 @@ export function PublicTicketForm() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="me-2 h-4 w-4 animate-spin" />
-                    Submitting...
+                    {PUBLIC_TICKET_UI.submitting}
                   </>
                 ) : (
-                  UI.submit
+                  PUBLIC_TICKET_UI.submitTicket
                 )}
               </Button>
               <Button asChild type="button" variant="outline" className="h-11 w-full">
                 <Link href="/">{UI.cancel}</Link>
               </Button>
-            </div>
-          </div>
+            </section>
+          </aside>
         </div>
       </form>
     </div>

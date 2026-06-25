@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { DOCS_COPY } from "@/lib/docs-copy";
 
 export interface TocHeading {
   id: string;
@@ -42,9 +43,9 @@ export function ArticleToc({ headings }: ArticleTocProps) {
   if (headings.length === 0) return null;
 
   return (
-    <div className="ps-4 border-s border-border/60">
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/70 mb-4">
-        في هذه الصفحة
+    <div className="border-e border-border/50 pe-4" dir="rtl">
+      <p className="mb-3 text-[11px] font-semibold tracking-wide text-muted-foreground">
+        {DOCS_COPY.toc}
       </p>
 
       <ul className="space-y-1">
@@ -76,10 +77,10 @@ export function ArticleToc({ headings }: ArticleTocProps) {
       <div className="mt-6 pt-4 border-t border-border/60">
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="text-[12px] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+          className="text-[12px] text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1.5"
         >
           <svg
-            className="h-3 w-3"
+            className="h-3 w-3 rotate-180"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -91,7 +92,7 @@ export function ArticleToc({ headings }: ArticleTocProps) {
               d="M5 10l7-7m0 0l7 7m-7-7v18"
             />
           </svg>
-          العودة إلى الأعلى
+          {DOCS_COPY.backToTop}
         </button>
       </div>
     </div>

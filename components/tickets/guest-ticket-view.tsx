@@ -22,6 +22,7 @@ import {
 } from "@/actions/public-tickets";
 import type { TicketStatus } from "@/types";
 import { STATUS_LABELS, UI } from "@/lib/strings";
+import { PublicSecurityNotice } from "@/components/tickets/public-security-notice";
 
 function formatDate(iso: string): string {
   try {
@@ -86,7 +87,10 @@ export function GuestTicketView({ token }: { token: string }) {
   // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="container mx-auto max-w-3xl px-4 py-24 sm:px-6 lg:px-0">
+      <div
+        className="container mx-auto max-w-3xl px-4 py-24 sm:px-6 lg:px-0"
+        dir="rtl"
+      >
         <PageSpinner minHeight="min-h-[200px]" />
       </div>
     );
@@ -95,7 +99,10 @@ export function GuestTicketView({ token }: { token: string }) {
   // ── Invalid / expired token ──────────────────────────────────────────────────
   if (error || !ticket) {
     return (
-      <div className="container mx-auto max-w-xl px-4 py-24 sm:px-6 lg:px-0">
+      <div
+        className="container mx-auto max-w-xl px-4 py-24 sm:px-6 lg:px-0"
+        dir="rtl"
+      >
         <div className="rounded-2xl border border-border/60 bg-background p-8 text-center shadow-sm">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
             <AlertCircle className="h-8 w-8 text-destructive" />
@@ -123,7 +130,10 @@ export function GuestTicketView({ token }: { token: string }) {
 
   // ── Ticket view ──────────────────────────────────────────────────────────────
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-0">
+    <div
+      className="container mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-0"
+      dir="rtl"
+    >
       <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1">
         <LifeBuoy className="h-3.5 w-3.5 text-primary" />
         <span className="text-xs font-semibold uppercase tracking-[0.15em] text-primary">
@@ -210,11 +220,12 @@ export function GuestTicketView({ token }: { token: string }) {
           </p>
         ) : (
           <>
+            <PublicSecurityNotice variant="compact" className="mb-4" />
             <h2 className="mb-3 text-lg font-semibold">أضف رد</h2>
             <Textarea
               value={reply}
               onChange={(e) => setReply(e.target.value)}
-              placeholder="اكتب رسالتك..."
+              placeholder="اكتب رسالتك… (لا تشارك كلمات مرور أو رموز تحقق)"
               disabled={isSending}
               className="min-h-[120px] resize-none placeholder:text-muted-foreground/50"
             />

@@ -15,16 +15,11 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: !process.env.SKIP_EMAIL_VERIFICATION,
     async sendResetPassword({ user, url }) {
-      const { sendEmail } = await import("@/lib/email");
+      const { sendEmail, authEmailTemplates } = await import("@/lib/email");
+      const template = await authEmailTemplates.passwordReset(url);
       await sendEmail({
         to: user.email,
-        subject: "إعادة تعيين كلمة المرور",
-        html: `
-          <h1>إعادة تعيين كلمة المرور</h1>
-          <p>اضغط على الرابط أدناه لتعيين كلمة مرور جديدة:</p>
-          <a href="${url}">تعيين كلمة المرور</a>
-          <p>إذا لم تطلب إعادة التعيين، يمكنك تجاهل هذا البريد.</p>
-        `,
+        ...template,
       });
     },
   },
@@ -103,17 +98,11 @@ export const auth = betterAuth({
       sendOnSignUp: true,
       autoSignInAfterVerification: true,
       sendVerificationEmail: async ({ user, url }) => {
-        // Send verification email using nodemailer
-        const { sendEmail } = await import("@/lib/email");
+        const { sendEmail, authEmailTemplates } = await import("@/lib/email");
+        const template = await authEmailTemplates.emailVerification(url);
         await sendEmail({
           to: user.email,
-          subject: "تأكيد البريد الإلكتروني",
-          html: `
-            <h1>مرحبًا بك في بوابة الدعم</h1>
-            <p>يرجى تأكيد بريدك الإلكتروني بالضغط على الرابط أدناه:</p>
-            <a href="${url}">تأكيد البريد الإلكتروني</a>
-            <p>إذا لم تنشئ حسابًا، يمكنك تجاهل هذا البريد.</p>
-          `,
+          ...template,
         });
       },
     },

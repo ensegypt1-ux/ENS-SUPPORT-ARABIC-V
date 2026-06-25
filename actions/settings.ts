@@ -317,7 +317,8 @@ export async function testEmailSettings(): Promise<
     const settingsCollection = await getCollection<SystemSettings>("settings");
     const settings = await settingsCollection.findOne({});
 
-    const { sendEmail, getEmailDisabledReason } = await import("@/lib/email");
+    const { sendEmail, getEmailDisabledReason, authEmailTemplates } =
+      await import("@/lib/email");
 
     const disabledReason = getEmailDisabledReason(settings ?? ({} as SystemSettings));
     if (disabledReason) {
@@ -330,19 +331,15 @@ export async function testEmailSettings(): Promise<
       throw new Error("لم يتم ضبط بريد إشعارات المسؤول");
     }
 
+    const sentAt = new Date().toLocaleString("ar-SA", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+    const testTemplate = await authEmailTemplates.testEmail(sentAt);
+
     const result = await sendEmail({
       to: adminEmail,
-      subject: "Test Email - Support System",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">Email Configuration Test</h2>
-          <p>This is a test email from your support ticket system.</p>
-          <p>If you're receiving this, your email configuration is working correctly!</p>
-          <p style="color: #666; font-size: 12px; margin-top: 30px;">
-            Sent at: ${new Date().toLocaleString()}
-          </p>
-        </div>
-      `,
+      ...testTemplate,
     });
 
     if (!result.success) {

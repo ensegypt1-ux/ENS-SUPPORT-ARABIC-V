@@ -173,7 +173,6 @@ export async function updateRbacRole(
   const col = await getRbacRolesCollection();
   const existing = await col.findOne({ _id: new ObjectId(roleId) });
   if (!existing) throw new Error("Role not found");
-  if (existing.isSystem) throw new Error("System roles cannot be edited");
 
   const updated = {
     ...(patch.name ? { name: patch.name.trim() } : {}),

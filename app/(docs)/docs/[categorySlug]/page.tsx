@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, ArrowRight } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import {
   getPublishedKBCategories,
   getPublishedKBArticles,
@@ -11,7 +11,9 @@ import {
   accentForSlug,
   iconForSlug,
 } from "@/components/knowledge-base/docs-theme";
-import { DocsRightRail } from "@/components/knowledge-base/docs-aside";
+import { DocsSupportStrip } from "@/components/knowledge-base/docs-support-strip";
+import { DOCS_COPY } from "@/lib/docs-copy";
+import { homeVisual } from "@/lib/home-visual";
 
 export const dynamic = "force-dynamic";
 
@@ -35,88 +37,86 @@ export default async function CategoryPage({ params }: PageProps) {
   const Icon = iconForSlug(category.slug);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_240px]">
-      <article className="min-w-0 px-6 py-10 md:px-12 md:py-14">
-        {/* Breadcrumb */}
-        <nav
-          className="flex items-center gap-2 text-sm font-medium text-muted-foreground"
-          aria-label="مسار التنقل"
+    <article
+      className={cn(
+        homeVisual.pageX,
+        "mx-auto w-full max-w-3xl py-8 lg:max-w-4xl lg:py-10 xl:max-w-5xl"
+      )}
+      dir="rtl"
+    >
+      <nav
+        className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground"
+        aria-label="مسار التنقل"
+      >
+        <Link href="/docs" className="transition-colors hover:text-foreground">
+          {DOCS_COPY.breadcrumb.docs}
+        </Link>
+        <span aria-hidden className="text-border">
+          /
+        </span>
+        <span className="font-medium text-foreground">{category.title}</span>
+      </nav>
+
+      <header className="mt-6 flex items-start gap-4">
+        <span
+          className={cn(
+            "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+            accent.soft,
+            accent.text
+          )}
         >
-          <Link href="/docs" className="hover:text-foreground transition-colors">
-            الوثائق
-          </Link>
-          <ChevronRight className="size-3 text-muted-foreground/40" />
-          <span className="text-foreground">{category.title}</span>
-        </nav>
-
-        {/* Header */}
-        <div className="mt-6 flex items-start gap-3">
-          <div
-            className={cn(
-              "flex size-10 shrink-0 items-center justify-center rounded-xl text-white shadow-sm",
-              accent.bg
-            )}
-          >
-            {category.icon ? (
-              <span className="text-lg leading-none">{category.icon}</span>
-            ) : (
-              <Icon className="size-5" />
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-muted-foreground">القسم</p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-              {category.title}
-            </h1>
-          </div>
+          {category.icon ? (
+            <span className="text-xl leading-none">{category.icon}</span>
+          ) : (
+            <Icon className="h-5 w-5" />
+          )}
+        </span>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            {category.title}
+          </h1>
+          {category.description ? (
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {category.description}
+            </p>
+          ) : null}
+          <p className="mt-2 text-xs text-muted-foreground">
+            {DOCS_COPY.articleCount(category.articleCount ?? articles.length)}
+          </p>
         </div>
+      </header>
 
-        {category.description && (
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-            {category.description}
-          </p>
-        )}
+      {articles.length === 0 ? (
+        <p className="mt-10 rounded-xl border border-dashed border-border/70 bg-muted/20 px-5 py-10 text-center text-sm text-muted-foreground">
+          {DOCS_COPY.emptyCategory}
+        </p>
+      ) : (
+        <ul className="mt-8 divide-y divide-border/50 rounded-2xl border border-border/60 bg-card">
+          {articles.map((article) => (
+            <li key={article.slug}>
+              <Link
+                href={`/docs/${categorySlug}/${article.slug}`}
+                className="group flex items-start gap-3 px-4 py-4 transition-colors hover:bg-muted/30 sm:px-5"
+              >
+                <FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary/70" />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-foreground group-hover:text-primary sm:text-[15px]">
+                    {article.title}
+                  </span>
+                  {article.excerpt ? (
+                    <span className="mt-1 line-clamp-2 block text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                      {article.excerpt}
+                    </span>
+                  ) : null}
+                </span>
+                <ArrowLeft className="h-4 w-4 shrink-0 text-muted-foreground opacity-60 transition-transform group-hover:-translate-x-0.5 group-hover:text-primary" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
 
-        {/* Articles */}
-        {articles.length === 0 ? (
-          <p className="mt-10 text-muted-foreground">
-            لا يوجد مقالات في هذا القسم بعد.
-          </p>
-        ) : (
-          <ol className="mt-10 space-y-3">
-            {articles.map((article, i) => (
-              <li key={article.slug}>
-                <Link
-                  href={`/docs/${categorySlug}/${article.slug}`}
-                  className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-foreground/20 hover:shadow-sm md:p-5"
-                >
-                  <div
-                    className={cn(
-                      "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white shadow-sm",
-                      accent.bg
-                    )}
-                  >
-                    {i + 1}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary md:text-base">
-                      {article.title}
-                    </h3>
-                    {article.excerpt && (
-                      <p className="mt-0.5 line-clamp-1 text-sm leading-relaxed text-muted-foreground">
-                        {article.excerpt}
-                      </p>
-                    )}
-                  </div>
-                  <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-                </Link>
-              </li>
-            ))}
-          </ol>
-        )}
-      </article>
-
-      <DocsRightRail />
-    </div>
+      <DocsSupportStrip />
+    </article>
   );
 }

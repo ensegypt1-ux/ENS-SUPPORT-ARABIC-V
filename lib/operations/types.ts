@@ -29,7 +29,12 @@ export type AgentPresenceRow = {
   userId: string;
   name: string;
   role: string;
-  online: boolean;
+  /** Active socket connection to the platform. */
+  connected: boolean;
+  /** Explicitly opted in to receive live chat. */
+  chatAvailable: boolean;
+  /** Ready for live chat (connected + chatAvailable). */
+  liveChatReady: boolean;
   openTickets: number;
   claimedChats: number;
   resolvedToday: number;
@@ -67,8 +72,13 @@ export type OperationsCenterSnapshot = {
     resolvedToday: number;
   };
   agents: {
-    onlineCount: number;
+    /** Agents ready for live chat (available + connected). */
+    availableForChatCount: number;
+    connectedCount: number;
+    availableOptInCount: number;
     totalStaff: number;
+    /** @deprecated Use availableForChatCount */
+    onlineCount: number;
     rows: AgentPresenceRow[];
   };
   responseTimes: {

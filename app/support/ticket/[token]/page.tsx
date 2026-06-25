@@ -26,7 +26,7 @@ export default async function GuestTicketPage({
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <PublicHeader variant="landing" header={content?.header} />
-      <main className="relative isolate flex-1">
+      <main className="relative isolate flex-1" dir="rtl">
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-gradient-to-b from-muted/50 via-background to-background"

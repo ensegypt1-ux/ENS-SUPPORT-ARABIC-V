@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserMenu } from "@/components/layout/user-menu";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { LiveChatAvailabilityToggle } from "@/components/chat/live-chat-availability-toggle";
 import { useSettings } from "@/components/providers/settings-provider";
 import { toggleSidebarEvent } from "@/components/layout/app-sidebar";
 import {
@@ -177,7 +178,12 @@ export function AppHeader({
         </button>
 
         {/* Right Section */}
-        <div className="ms-auto flex items-center gap-1">
+        <div className="ms-auto flex items-center gap-1.5">
+          <LiveChatAvailabilityToggle
+            userId={user.id}
+            role={user.role}
+          />
+
           {/* Theme Toggle */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

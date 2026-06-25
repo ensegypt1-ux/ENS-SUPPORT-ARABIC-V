@@ -145,6 +145,18 @@ export async function uploadTicketAttachments(
 
         if ((session.user as User).role !== "customer") {
           const customerRecipientId = ticket.customerId;
+          const customerAttachmentEmail =
+            process.env.EMAIL_NOTIFICATIONS_ENABLED === "true"
+              ? await (
+                  await import("@/lib/email")
+                ).emailTemplates.attachmentUploaded(
+                  ticket.ticketNumber,
+                  ticket.title,
+                  uploader?.name || "Support",
+                  filenameList,
+                  paths.dashboardDetail
+                )
+              : undefined;
           await (
             await import("@/lib/notifications")
           ).dispatchUserNotification({
@@ -157,21 +169,7 @@ export async function uploadTicketAttachments(
               ticketNumber: ticket.ticketNumber,
               url: paths.dashboardDetail,
             },
-            email:
-              process.env.EMAIL_NOTIFICATIONS_ENABLED === "true"
-                ? {
-                    subject: `Attachment Uploaded on ${ticket.ticketNumber}`,
-                    html: (
-                      await import("@/lib/email")
-                    ).emailTemplates.attachmentUploaded(
-                      ticket.ticketNumber,
-                      ticket.title,
-                      uploader?.name || "Support",
-                      filenameList,
-                      paths.dashboardDetail
-                    ).html,
-                  }
-                : undefined,
+            email: customerAttachmentEmail,
             metadata: {
               filenames: uploadedAttachments.map((a) => a.filename),
             },
@@ -210,6 +208,18 @@ export async function uploadTicketAttachments(
           for (const rid of Array.from(new Set(recipients))) {
             const isSupportView = !!assignedIdRaw;
             const url = isSupportView ? paths.supportDetail : paths.adminDetail;
+            const staffAttachmentEmail =
+              process.env.EMAIL_NOTIFICATIONS_ENABLED === "true"
+                ? await (
+                    await import("@/lib/email")
+                  ).emailTemplates.attachmentUploaded(
+                    ticket.ticketNumber,
+                    ticket.title,
+                    uploader?.name || "Customer",
+                    filenameList,
+                    url
+                  )
+                : undefined;
             await (
               await import("@/lib/notifications")
             ).dispatchUserNotification({
@@ -222,21 +232,7 @@ export async function uploadTicketAttachments(
                 ticketNumber: ticket.ticketNumber,
                 url,
               },
-              email:
-                process.env.EMAIL_NOTIFICATIONS_ENABLED === "true"
-                  ? {
-                      subject: `Attachment Uploaded on ${ticket.ticketNumber}`,
-                      html: (
-                        await import("@/lib/email")
-                      ).emailTemplates.attachmentUploaded(
-                        ticket.ticketNumber,
-                        ticket.title,
-                        uploader?.name || "Customer",
-                        filenameList,
-                        url
-                      ).html,
-                    }
-                  : undefined,
+              email: staffAttachmentEmail,
               metadata: {
                 filenames: uploadedAttachments.map((a) => a.filename),
               },

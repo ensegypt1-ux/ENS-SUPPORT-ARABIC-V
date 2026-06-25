@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { claimGuestConversation } from "@/lib/chat/guest-chat";
+import { getLiveChatAvailability } from "@/lib/chat/availability";
 import { notifyStaffOfGuestConversation } from "@/lib/chat/guest-notifications";
 import { getSession } from "@/lib/auth-utils";
 import type { SessionUser } from "@/lib/auth";
@@ -24,6 +25,18 @@ export async function POST(
     }
 
     const { conversationId } = await params;
+
+    const availability = await getLiveChatAvailability(session.user.id);
+    if (availability !== "available") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "فعّل التوفر للمحادثة المباشرة قبل استلام محادثة جديدة",
+        },
+        { status: 403 }
+      );
+    }
+
     const result = await claimGuestConversation(conversationId, session.user.id);
 
     if (!result.success) {

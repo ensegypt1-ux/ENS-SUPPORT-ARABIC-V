@@ -8,7 +8,7 @@ import {
   updateGuestProfile,
 } from "@/lib/chat/guest-chat";
 import { notifyStaffOfGuestConversation } from "@/lib/chat/guest-notifications";
-import { getSupportOnlineStatus } from "@/lib/socket/presence-utils";
+import { getSupportOnlineStatus } from "@/lib/chat/availability";
 import { getOrCreateAISettings } from "@/lib/ai/settings-store";
 import { checkRateLimit, extractClientIp } from "@/lib/rate-limit";
 

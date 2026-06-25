@@ -36,6 +36,17 @@ export interface ServerToClientEvents {
     conversationId: string;
   }) => void;
   "ops:center:changed": (payload: { at: string }) => void;
+  "support:availability:changed": (payload: {
+    online: boolean;
+    count: number;
+    availableCount: number;
+    connectedCount: number;
+  }) => void;
+  "chat:availability:changed": (payload: {
+    userId: string;
+    status: "available" | "unavailable";
+    updatedAt: string;
+  }) => void;
   "chat:message:created": (message: Message) => void;
   "chat:message:updated": (message: Message) => void;
   "chat:message:deleted": (payload: {

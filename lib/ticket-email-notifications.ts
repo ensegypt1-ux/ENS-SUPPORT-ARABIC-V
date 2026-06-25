@@ -39,12 +39,12 @@ export async function sendTicketAssignmentEmail(params: {
 
   const emailResult = await sendEmail({
     to: assignee.email,
-    ...emailTemplates.ticketAssigned(
+    ...(await emailTemplates.ticketAssigned(
       params.ticket.ticketNumber,
       params.ticket.title,
       assignee.name || "فريق الدعم",
       params.ticketUrl
-    ),
+    )),
   });
 
   if (!emailResult.success) {
@@ -108,7 +108,7 @@ export async function sendAdminNewTicketEmails(params: {
     dateStyle: "medium",
     timeStyle: "short",
   });
-  const template = emailTemplates.adminNewTicketNotification(
+  const template = await emailTemplates.adminNewTicketNotification(
     params.ticket.ticketNumber,
     params.ticket.title,
     params.ticket.description,

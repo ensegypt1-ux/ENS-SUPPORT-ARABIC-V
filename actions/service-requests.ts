@@ -455,7 +455,7 @@ export async function createServiceRequest(
       if (sendNewTicketEmail && customerEmail) {
         const emailResult = await sendEmail({
           to: customerEmail,
-          ...emailTemplates.ticketCreated(ticketNumber, validatedData.title),
+          ...(await emailTemplates.ticketCreated(ticketNumber, validatedData.title)),
         });
         if (!emailResult.success) {
           console.error(
@@ -678,7 +678,7 @@ export async function createServiceRequestForStaff(
       if (sendNewTicketEmail && customer?.email) {
         const emailResult = await sendEmail({
           to: customer.email,
-          ...emailTemplates.ticketCreated(ticketNumber, validatedData.title),
+          ...(await emailTemplates.ticketCreated(ticketNumber, validatedData.title)),
         });
         if (!emailResult.success) {
           console.error(

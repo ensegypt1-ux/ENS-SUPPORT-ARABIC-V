@@ -274,7 +274,7 @@ export async function createTicket(
         if (user.email) {
           const emailResult = await sendEmail({
             to: user.email,
-            ...emailTemplates.ticketCreated(ticketNumber, validatedData.title),
+            ...(await emailTemplates.ticketCreated(ticketNumber, validatedData.title)),
           });
 
           if (!emailResult.success) {
@@ -756,14 +756,14 @@ export async function updateTicket(
           if (recipientEmail) {
             await sendEmail({
               to: recipientEmail,
-              ...emailTemplates.ticketStatusChanged(
+              ...(await emailTemplates.ticketStatusChanged(
                 ticket.ticketNumber,
                 ticket.title,
                 ticket.status,
                 validatedData.status,
                 undefined,
                 viewUrl
-              ),
+              )),
             });
           }
         }

@@ -6,9 +6,11 @@ import { getSystemSettings } from "@/lib/settings-utils";
 import { isQdrantConfigured, qdrantHealth } from "@/lib/ai/qdrant";
 import { getSocketServer } from "@/lib/socket/server";
 import {
-  getOnlineStaffUserIds,
+  getAvailableStaffUserIds,
+  getConnectedStaffUserIds,
   getStaffMembers,
-} from "@/lib/socket/presence-utils";
+  getSupportAvailabilitySnapshot,
+} from "@/lib/chat/availability";
 import { formatOperationsDuration } from "@/lib/operations/format-duration";
 import { computeGuestQueueMetricsFromDocuments } from "@/lib/operations/guest-queue-metrics";
 import type {
@@ -106,20 +108,23 @@ async function buildServiceHealth(): Promise<ServiceHealthItem[]> {
     });
   }
 
-  const onlineStaff = await getOnlineStaffUserIds();
+  const onlineStaff = await getConnectedStaffUserIds();
+  const availability = await getSupportAvailabilitySnapshot();
   items.push({
     id: "support_presence",
-    name: "فريق الدعم المتصل",
+    name: "المحادثة المباشرة",
     status:
-      onlineStaff.length > 0
+      availability.count > 0
         ? "healthy"
-        : onlineStaff.length === 0
+        : availability.availableCount > 0
           ? "degraded"
           : "unknown",
     detail:
-      onlineStaff.length > 0
-        ? `${onlineStaff.length} موظف متصل الآن`
-        : "لا يوجد موظفو دعم متصلون حاليًا",
+      availability.count > 0
+        ? `${availability.count} موظف جاهز للمحادثة المباشرة`
+        : availability.availableCount > 0
+          ? `${availability.availableCount} موظف متاح لكن غير متصل`
+          : "لا يوجد موظفون متاحون للمحادثة المباشرة",
     checkedAt,
   });
 
@@ -232,7 +237,8 @@ async function buildResponseTimes(startOfToday: Date) {
 }
 
 async function buildAgentRows(
-  onlineStaffIds: Set<string>,
+  connectedStaffIds: Set<string>,
+  availableStaffIds: Set<string>,
   startOfToday: Date
 ): Promise<AgentPresenceRow[]> {
   const staffMembers = await getStaffMembers();
@@ -267,7 +273,10 @@ async function buildAgentRows(
         userId,
         name: user?.name || "موظف",
         role,
-        online: onlineStaffIds.has(userId),
+        connected: connectedStaffIds.has(userId),
+        chatAvailable: availableStaffIds.has(userId),
+        liveChatReady:
+          connectedStaffIds.has(userId) && availableStaffIds.has(userId),
         openTickets,
         claimedChats,
         resolvedToday,
@@ -276,7 +285,8 @@ async function buildAgentRows(
   );
 
   return rows.sort((a, b) => {
-    if (a.online !== b.online) return a.online ? -1 : 1;
+    if (a.liveChatReady !== b.liveChatReady) return a.liveChatReady ? -1 : 1;
+    if (a.connected !== b.connected) return a.connected ? -1 : 1;
     return b.openTickets + b.claimedChats - (a.openTickets + a.claimedChats);
   });
 }
@@ -435,12 +445,20 @@ function buildAlerts(input: {
     });
   }
 
-  if (input.agents.onlineCount === 0 && input.agents.totalStaff > 0) {
+  if (
+    input.agents.availableForChatCount === 0 &&
+    input.agents.totalStaff > 0 &&
+    input.conversations.waiting > 0
+  ) {
     alerts.push({
-      id: "no-staff-online",
+      id: "no-agents-available-for-chat",
       severity: "warning",
-      title: "لا يوجد فريق دعم متصل",
-      message: "لا يوجد موظفو دعم متصلون حاليًا عبر المنصة",
+      title: "لا يوجد موظفون جاهزون للمحادثة",
+      message:
+        input.agents.availableOptInCount > 0
+          ? "يوجد موظفون متاحون لكن غير متصلين — المحادثات المباشرة غير جاهزة للعملاء"
+          : "فعّل «متاح للمحادثة» من لوحة الدعم لاستقبال الزوار",
+      href: "/admin/messages",
     });
   }
 
@@ -491,7 +509,9 @@ export async function buildOperationsCenterSnapshot(): Promise<OperationsCenterS
     aiMatchedToday,
     aiEscalatedToday,
     liveChatsToday,
-    onlineStaffIds,
+    connectedStaffIds,
+    availableStaffIds,
+    supportAvailability,
     staffMembers,
     responseTimes,
     activityFeed,
@@ -527,7 +547,9 @@ export async function buildOperationsCenterSnapshot(): Promise<OperationsCenterS
       source: "guest_widget",
       createdAt: { $gte: startOfToday },
     }),
-    getOnlineStaffUserIds(),
+    getConnectedStaffUserIds(),
+    getAvailableStaffUserIds(),
+    getSupportAvailabilitySnapshot(),
     getStaffMembers(),
     buildResponseTimes(startOfToday),
     buildActivityFeed(20),
@@ -545,8 +567,13 @@ export async function buildOperationsCenterSnapshot(): Promise<OperationsCenterS
     waitingOnCustomer +
     scheduledMeetingTickets;
 
-  const onlineStaffSet = new Set(onlineStaffIds);
-  const agentRows = await buildAgentRows(onlineStaffSet, startOfToday);
+  const connectedStaffSet = new Set(connectedStaffIds);
+  const availableStaffSet = new Set(availableStaffIds);
+  const agentRows = await buildAgentRows(
+    connectedStaffSet,
+    availableStaffSet,
+    startOfToday
+  );
 
   const aiAssistedToday = aiMatchedToday;
   const humanAssistedToday = liveChatsToday + aiEscalatedToday + resolvedToday;
@@ -565,8 +592,11 @@ export async function buildOperationsCenterSnapshot(): Promise<OperationsCenterS
       resolvedToday,
     },
     agents: {
-      onlineCount: onlineStaffIds.length,
+      availableForChatCount: supportAvailability.count,
+      connectedCount: supportAvailability.connectedCount,
+      availableOptInCount: supportAvailability.availableCount,
       totalStaff: staffMembers.length,
+      onlineCount: supportAvailability.count,
       rows: agentRows,
     },
     responseTimes,

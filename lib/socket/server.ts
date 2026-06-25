@@ -482,6 +482,21 @@ export function initializeSocketServer(httpServer: HttpServer) {
     socket.emit("guest:presence:snapshot", getGuestPresenceSnapshot());
     io.emit("presence:updated", toPresenceState(user.id, existing));
 
+    if (user.role === "admin" || user.role === "support") {
+      void (async () => {
+        const { getLiveChatAvailability } = await import(
+          "@/lib/chat/availability"
+        );
+        const status = await getLiveChatAvailability(user.id);
+        socket.emit("chat:availability:changed", {
+          userId: user.id,
+          status,
+          updatedAt: new Date().toISOString(),
+        });
+      })();
+      void emitSupportAvailabilityChanged();
+    }
+
     socket.on("chat:conversation:join", async ({ conversationId }) => {
       const conversation = await ensureConversationAccess(conversationId, {
         type: "user",
@@ -549,6 +564,7 @@ export function initializeSocketServer(httpServer: HttpServer) {
           last_seen: current.lastSeen.toISOString(),
           updated_at: current.lastSeen.toISOString(),
         });
+        void notifyStaffSupportAvailabilityChange(user, true);
         return;
       }
 
@@ -612,6 +628,40 @@ export async function emitConversationSummaryToStaff(
   );
 }
 
+/** Push per-agent summaries to staff currently connected in the inbox room. */
+export async function emitConversationSummaryToConnectedStaffInbox(
+  conversationId: string
+) {
+  const io = getSocketServer();
+  if (!io) return;
+
+  const sockets = await io.in(roomForStaffInbox()).fetchSockets();
+  const staffByUserId = new Map<
+    string,
+    Extract<UserRole, "admin" | "support">
+  >();
+
+  for (const socket of sockets) {
+    const user = socket.data.user;
+    if (!user?.id) continue;
+    if (user.role !== "admin" && user.role !== "support") continue;
+    staffByUserId.set(user.id, user.role === "admin" ? "admin" : "support");
+  }
+
+  await Promise.all(
+    Array.from(staffByUserId.entries()).map(async ([userId, role]) => {
+      const summary = await getConversationSummaryForUser(
+        conversationId,
+        userId,
+        role
+      );
+      if (summary) {
+        io.to(roomForUser(userId)).emit("chat:conversation:upsert", summary);
+      }
+    })
+  );
+}
+
 export function emitGuestInboxChanged(conversationId: string) {
   const io = getSocketServer();
   if (!io) return;
@@ -629,6 +679,45 @@ export function emitOpsCenterChanged() {
   io.to(roomForStaffInbox()).emit("ops:center:changed", {
     at: new Date().toISOString(),
   });
+}
+
+export function emitLiveChatAvailabilityChanged(
+  userId: string,
+  status: "available" | "unavailable"
+) {
+  const io = getSocketServer();
+  if (!io) return;
+
+  const payload = {
+    userId,
+    status,
+    updatedAt: new Date().toISOString(),
+  };
+
+  io.to(roomForUser(userId)).emit("chat:availability:changed", payload);
+  io.to(roomForStaffInbox()).emit("chat:availability:changed", payload);
+}
+
+export async function emitSupportAvailabilityChanged() {
+  const io = getSocketServer();
+  if (!io) return;
+
+  const { getSupportAvailabilitySnapshot } = await import(
+    "@/lib/chat/availability"
+  );
+  const snapshot = await getSupportAvailabilitySnapshot();
+
+  io.emit("support:availability:changed", snapshot);
+  emitOpsCenterChanged();
+}
+
+async function notifyStaffSupportAvailabilityChange(
+  user: SocketSessionUser,
+  wentFullyOffline: boolean
+) {
+  if (user.role !== "admin" && user.role !== "support") return;
+  if (!wentFullyOffline) return;
+  await emitSupportAvailabilityChanged();
 }
 
 export function emitConversationRemovedToParticipants(
@@ -660,6 +749,23 @@ export function emitMessageCreated(message: Message) {
     "chat:message:created",
     message
   );
+}
+
+/**
+ * Guest widget messages are delivered to the conversation room and the shared
+ * staff inbox room so agents receive them without relying on per-conversation joins.
+ */
+export function emitGuestMessageCreated(message: Message) {
+  const io = getSocketServer();
+  if (!io) {
+    return;
+  }
+
+  io.to(roomForConversation(message.conversation_id)).emit(
+    "chat:message:created",
+    message
+  );
+  io.to(roomForStaffInbox()).emit("chat:message:created", message);
 }
 
 export function emitMessageUpdated(message: Message) {

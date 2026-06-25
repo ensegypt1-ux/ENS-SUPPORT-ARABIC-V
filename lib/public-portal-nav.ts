@@ -62,7 +62,7 @@ export const PORTAL_NAV_GROUPS: PortalNavGroup[] = [
     links: [
       {
         label: "قاعدة المعرفة",
-        href: "/#guides",
+        href: "/docs",
         emphasis: "muted",
       },
     ],

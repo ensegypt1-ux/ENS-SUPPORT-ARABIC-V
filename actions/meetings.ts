@@ -144,7 +144,7 @@ export async function scheduleMeeting(
 
           await sendEmail({
             to: customer.email,
-            ...emailTemplates.meetingScheduled(
+            ...(await emailTemplates.meetingScheduled(
               ticket.ticketNumber,
               ticket.title,
               validatedData.title,
@@ -154,7 +154,7 @@ export async function scheduleMeeting(
               validatedData.meetingLink,
               validatedData.timezone,
               validatedData.description
-            ),
+            )),
           });
         }
       } catch (emailError) {
@@ -445,6 +445,20 @@ export async function updateMeeting(
         meeting.status !== "cancelled"
       ) {
         if (ticket.customerId) {
+          const cancelledMeetingEmail =
+            process.env.EMAIL_NOTIFICATIONS_ENABLED === "true"
+              ? await (
+                  await import("@/lib/email")
+                ).emailTemplates.meetingUpdated(
+                  ticket.ticketNumber,
+                  ticket.title,
+                  meeting.title,
+                  {
+                    status: "cancelled",
+                    reason: validatedData.cancellationReason || "",
+                  }
+                )
+              : undefined;
           await (
             await import("@/lib/notifications")
           ).dispatchUserNotification({
@@ -459,23 +473,7 @@ export async function updateMeeting(
                 : ""
             }`,
             data: dataPayload,
-            email:
-              process.env.EMAIL_NOTIFICATIONS_ENABLED === "true"
-                ? {
-                    subject: `Meeting Cancelled for Ticket ${ticket.ticketNumber}`,
-                    html: (
-                      await import("@/lib/email")
-                    ).emailTemplates.meetingUpdated(
-                      ticket.ticketNumber,
-                      ticket.title,
-                      meeting.title,
-                      {
-                        status: "cancelled",
-                        reason: validatedData.cancellationReason || "",
-                      }
-                    ).html,
-                  }
-                : undefined,
+            email: cancelledMeetingEmail,
           });
         }
       } else {
@@ -495,6 +493,18 @@ export async function updateMeeting(
           if (validatedData.status) {
             updatedFields["Status"] = validatedData.status;
           }
+          const updatedMeetingEmail =
+            process.env.EMAIL_NOTIFICATIONS_ENABLED === "true"
+              ? await (
+                  await import("@/lib/email")
+                ).emailTemplates.meetingUpdated(
+                  ticket.ticketNumber,
+                  ticket.title,
+                  meeting.title,
+                  updatedFields,
+                  meeting.meetingLink
+                )
+              : undefined;
           await (
             await import("@/lib/notifications")
           ).dispatchUserNotification({
@@ -503,21 +513,7 @@ export async function updateMeeting(
             title: "Meeting Updated",
             body: `Meeting "${meeting.title}" for ticket #${ticket.ticketNumber} was updated`,
             data: dataPayload,
-            email:
-              process.env.EMAIL_NOTIFICATIONS_ENABLED === "true"
-                ? {
-                    subject: `Meeting Updated for Ticket ${ticket.ticketNumber}`,
-                    html: (
-                      await import("@/lib/email")
-                    ).emailTemplates.meetingUpdated(
-                      ticket.ticketNumber,
-                      ticket.title,
-                      meeting.title,
-                      updatedFields,
-                      meeting.meetingLink
-                    ).html,
-                  }
-                : undefined,
+            email: updatedMeetingEmail,
           });
         }
       }

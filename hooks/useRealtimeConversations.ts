@@ -4,7 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { createRequestScope, withTimeout } from "@/lib/async/request-scope";
 import { useSocketConnection } from "@/hooks/useSocketConnection";
-import type { ConversationWithParticipants } from "@/types/realtime";
+import type {
+  ConversationWithParticipants,
+  Message,
+} from "@/types/realtime";
 
 function sortConversations(conversations: ConversationWithParticipants[]) {
   return [...conversations].sort((left, right) => {
@@ -22,11 +25,36 @@ export { type ConversationWithParticipants };
 
 const CONVERSATIONS_FETCH_TIMEOUT_MS = 20_000;
 
+function patchConversationWithMessage(
+  conversation: ConversationWithParticipants,
+  message: Message,
+  userId: string
+): ConversationWithParticipants {
+  const fromSelf = message.sender_id === userId;
+
+  return {
+    ...conversation,
+    last_message_at: message.created_at,
+    lastMessage: {
+      id: message.id,
+      content: message.content,
+      sender_id: message.sender_id,
+      sender_name: message.sender_name,
+      created_at: message.created_at,
+      is_deleted: message.is_deleted,
+    },
+    unreadCount: fromSelf
+      ? conversation.unreadCount
+      : (conversation.unreadCount || 0) + 1,
+  };
+}
+
 export function useRealtimeConversations(
   userId: string | null,
-  options?: { archivedOnly?: boolean }
+  options?: { archivedOnly?: boolean; activeConversationId?: string | null }
 ) {
   const archivedOnly = options?.archivedOnly ?? false;
+  const activeConversationId = options?.activeConversationId ?? null;
   const [conversations, setConversations] = useState<
     ConversationWithParticipants[]
   >([]);
@@ -35,14 +63,14 @@ export function useRealtimeConversations(
   const { socket } = useSocketConnection(userId);
   const requestScopeRef = useRef(createRequestScope());
   const hasLoadedRef = useRef(false);
-  const conversationsRef = useRef<ConversationWithParticipants[]>([]);
+  const activeConversationIdRef = useRef(activeConversationId);
   const refreshRef = useRef<
     (options?: { background?: boolean }) => Promise<void>
   >(async () => {});
 
   useEffect(() => {
-    conversationsRef.current = conversations;
-  }, [conversations]);
+    activeConversationIdRef.current = activeConversationId;
+  }, [activeConversationId]);
 
   const refreshConversations = useCallback(
     async (refreshOptions?: { background?: boolean }) => {
@@ -138,16 +166,40 @@ export function useRealtimeConversations(
       });
     };
 
-    const handleGuestInboxChanged = ({
-      conversationId,
-    }: {
-      conversationId: string;
-    }) => {
-      if (conversationsRef.current.some((item) => item.id === conversationId)) {
-        return;
-      }
-
+    const handleGuestInboxChanged = () => {
       void refreshRef.current({ background: true });
+    };
+
+    const handleMessageCreated = (message: Message) => {
+      if (!message.conversation_id) return;
+
+      setConversations((current) => {
+        const index = current.findIndex(
+          (item) => item.id === message.conversation_id
+        );
+
+        if (index === -1) {
+          void refreshRef.current({ background: true });
+          return current;
+        }
+
+        const conversation = current[index];
+        const isActive =
+          activeConversationIdRef.current === message.conversation_id;
+        const updated = patchConversationWithMessage(
+          conversation,
+          message,
+          userId
+        );
+
+        if (isActive) {
+          updated.unreadCount = conversation.unreadCount;
+        }
+
+        const next = current.filter((item) => item.id !== conversation.id);
+        next.unshift(updated);
+        return sortConversations(next);
+      });
     };
 
     const handleConversationRemoved = ({
@@ -166,12 +218,14 @@ export function useRealtimeConversations(
 
     socket.on("chat:conversation:upsert", handleConversationUpsert);
     socket.on("chat:guest:inbox:changed", handleGuestInboxChanged);
+    socket.on("chat:message:created", handleMessageCreated);
     socket.on("chat:conversation:removed", handleConversationRemoved);
     socket.on("connect", handleConnect);
 
     return () => {
       socket.off("chat:conversation:upsert", handleConversationUpsert);
       socket.off("chat:guest:inbox:changed", handleGuestInboxChanged);
+      socket.off("chat:message:created", handleMessageCreated);
       socket.off("chat:conversation:removed", handleConversationRemoved);
       socket.off("connect", handleConnect);
     };

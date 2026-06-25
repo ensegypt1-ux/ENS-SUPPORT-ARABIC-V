@@ -46,6 +46,11 @@ export interface User {
   departmentSlugs?: string[];
   /** Account access status. Unset is treated as "active" (legacy users). */
   status?: AccountStatus;
+  /** Explicit live chat availability — separate from login / socket connection. */
+  liveChatAvailability?: {
+    status: "available" | "unavailable";
+    updatedAt: Date;
+  };
   /** Optional reason shown for disabled/banned accounts. */
   statusReason?: string;
   /** When the status was last changed. */

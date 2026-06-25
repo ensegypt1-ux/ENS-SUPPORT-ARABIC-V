@@ -164,18 +164,16 @@ export async function addComment(
         await import("@/lib/email");
       const { enabled: sendCommentEmail } =
         await shouldSendEmailNotification("newComment");
-      const buildCommentEmail = (commenterName: string) =>
-        sendCommentEmail
-          ? {
-              subject: `New Comment on Ticket ${ticket.ticketNumber}`,
-              html: emailTemplates.newComment(
-                ticket.ticketNumber,
-                ticket.title,
-                commenterName,
-                validatedData.content
-              ).html,
-            }
-          : undefined;
+      const buildCommentEmail = async (commenterName: string) => {
+        if (!sendCommentEmail) return undefined;
+        const template = await emailTemplates.newComment(
+          ticket.ticketNumber,
+          ticket.title,
+          commenterName,
+          validatedData.content
+        );
+        return { subject: template.subject, html: template.html };
+      };
 
       if (userRole !== "customer") {
         const titlePrefix =
@@ -197,13 +195,13 @@ export async function addComment(
               : undefined;
             await sendEmail({
               to: guestTicket.guestEmail,
-              ...emailTemplates.newComment(
+              ...(await emailTemplates.newComment(
                 ticket.ticketNumber,
                 ticket.title,
                 session.user.name || "Support",
                 validatedData.content,
                 viewUrl
-              ),
+              )),
             });
           }
         } else {
@@ -221,7 +219,7 @@ export async function addComment(
               ...(kind === "installation" && { installationId: ticketId }),
               ...(kind === "customization" && { customizationId: ticketId }),
             },
-            email: buildCommentEmail(session.user.name || "Support"),
+            email: await buildCommentEmail(session.user.name || "Support"),
             forceInApp: true,
           });
           if (customerRecipientId !== ticket.customerId) {
@@ -299,7 +297,7 @@ export async function addComment(
               ...(kind === "installation" && { installationId: ticketId }),
               ...(kind === "customization" && { customizationId: ticketId }),
             },
-            email: buildCommentEmail(session.user.name || "Customer"),
+            email: await buildCommentEmail(session.user.name || "Customer"),
             forceInApp: true,
           });
         }

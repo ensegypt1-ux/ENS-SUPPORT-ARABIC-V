@@ -1,15 +1,20 @@
 import { NextResponse } from "next/server";
 
-import { getSupportOnlineStatus } from "@/lib/socket/presence-utils";
+import { readPublicSupportAvailability } from "@/actions/live-chat-availability";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const status = await getSupportOnlineStatus();
-    return NextResponse.json(status);
+    const snapshot = await readPublicSupportAvailability();
+    return NextResponse.json(snapshot);
   } catch (error) {
     console.error("support-status error:", error);
-    return NextResponse.json({ online: false, count: 0 });
+    return NextResponse.json({
+      online: false,
+      count: 0,
+      availableCount: 0,
+      connectedCount: 0,
+    });
   }
 }

@@ -8,6 +8,10 @@ import {
   getAllPublishedArticlesForNav,
 } from "@/actions/knowledge-base";
 
+function DocsShellFallback() {
+  return <div className="min-h-[50vh] bg-background" dir="rtl" />;
+}
+
 export default async function DocsLayout({
   children,
 }: {
@@ -18,23 +22,17 @@ export default async function DocsLayout({
     getAllPublishedArticlesForNav(),
   ]);
 
-  // Ensure values passed into client components are plain serializable objects.
   const categories = toPlainObject(categoriesResult.data ?? []);
   const articles = toPlainObject(articlesResult.data ?? []);
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
-      {/* Marketing navbar */}
       <PublicHeader />
-
-      {/* Docs sub-header + 3-column layout (sidebar fed by live KB data) */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<DocsShellFallback />}>
         <DocsShell categories={categories} articles={articles}>
           {children}
         </DocsShell>
       </Suspense>
-
-      {/* Floating theme toggle */}
       <DocsThemeToggle />
     </div>
   );

@@ -261,9 +261,9 @@ export function OperationsCenterClient({ userId }: { userId: string }) {
       icon: Clock,
     },
     {
-      title: "موظفون متصلون",
-      value: `${snapshot.agents.onlineCount}/${snapshot.agents.totalStaff}`,
-      description: "فريق الدعم الآن",
+      title: "جاهزون للمحادثة",
+      value: `${snapshot.agents.availableForChatCount}/${snapshot.agents.totalStaff}`,
+      description: `${snapshot.agents.connectedCount} متصل · ${snapshot.agents.availableOptInCount} متاح`,
       icon: Users,
     },
     {
@@ -450,16 +450,28 @@ export function OperationsCenterClient({ userId }: { userId: string }) {
                           </div>
                         </td>
                         <td className="py-2.5 text-center">
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              agent.online
-                                ? "border-success/40 bg-success/10 text-success"
-                                : "text-muted-foreground"
-                            )}
-                          >
-                            {agent.online ? "متصل" : "غير متصل"}
-                          </Badge>
+                          <div className="flex flex-col items-center gap-1">
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                agent.liveChatReady
+                                  ? "border-success/40 bg-success/10 text-success"
+                                  : agent.chatAvailable
+                                    ? "border-warning/40 bg-warning/10 text-warning-foreground"
+                                    : agent.connected
+                                      ? "text-muted-foreground"
+                                      : "text-muted-foreground opacity-60"
+                              )}
+                            >
+                              {agent.liveChatReady
+                                ? "جاهز"
+                                : agent.chatAvailable
+                                  ? "متاح · غير متصل"
+                                  : agent.connected
+                                    ? "متصل"
+                                    : "غير متصل"}
+                            </Badge>
+                          </div>
                         </td>
                         <td className="py-2.5 text-center">{agent.openTickets}</td>
                         <td className="py-2.5 text-center">{agent.claimedChats}</td>
