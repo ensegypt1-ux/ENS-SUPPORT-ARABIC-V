@@ -132,10 +132,10 @@ export default function EmbedPage() {
       >
         <div
           className={cn(
-            "w-full transition-opacity duration-200",
+            "w-full transition-all duration-300 ease-out",
             open
-              ? "opacity-100"
-              : "pointer-events-none fixed -bottom-[9999px] opacity-0"
+              ? "translate-y-0 opacity-100"
+              : "pointer-events-none fixed -bottom-[9999px] translate-y-2 opacity-0"
           )}
           aria-hidden={!open}
         >
@@ -157,9 +157,9 @@ export default function EmbedPage() {
             type="button"
             onClick={() => setOpen(true)}
             aria-label="فتح المحادثة"
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-xl"
+            className="group flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_8px_32px_-8px_rgba(37,99,235,0.55)] ring-4 ring-primary/10 transition-all duration-300 hover:scale-[1.04] hover:shadow-[0_12px_40px_-8px_rgba(37,99,235,0.6)] active:scale-[0.98]"
           >
-            <MessageCircle className="h-6 w-6" />
+            <MessageCircle className="h-6 w-6 transition-transform duration-300 group-hover:scale-105" />
           </button>
         )}
       </div>

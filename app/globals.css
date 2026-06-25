@@ -352,7 +352,18 @@
 @keyframes widget-message-in {
   from {
     opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes widget-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -365,7 +376,7 @@
   60%,
   100% {
     transform: translateY(0);
-    opacity: 0.45;
+    opacity: 0.4;
   }
   30% {
     transform: translateY(-3px);
@@ -374,11 +385,38 @@
 }
 
 .widget-message-in {
-  animation: widget-message-in 0.22s ease-out both;
+  animation: widget-message-in 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.widget-panel-in {
+  animation: widget-panel-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .widget-typing-dot {
   animation: widget-typing-bounce 1.15s ease-in-out infinite;
+}
+
+.widget-scroll {
+  scroll-behavior: smooth;
+}
+
+.widget-shell {
+  transition: box-shadow 0.25s ease;
+}
+
+.widget-composer-input {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.widget-composer-input::-webkit-scrollbar {
+  display: none;
+}
+
+.widget-composer-input::-webkit-outer-spin-button,
+.widget-composer-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 @keyframes marquee {

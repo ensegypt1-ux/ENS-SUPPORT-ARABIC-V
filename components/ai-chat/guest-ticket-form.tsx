@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, Ticket } from "lucide-react";
 import type { Value } from "react-phone-number-input";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { InternationalPhoneField } from "@/components/shared/international-phone-field";
 import { validateInternationalPhone } from "@/lib/phone/international-phone";
+import {
+  WidgetInlineNotice,
+} from "@/components/ai-chat/widget-primitives";
 
 interface GuestTicketFormProps {
   visitorId: string;
@@ -18,6 +21,7 @@ interface GuestTicketFormProps {
   departmentSlug?: string;
   onSubmitted: (ticketNumber: string) => void;
   onCancel: () => void;
+  primaryColor?: string;
 }
 
 export function GuestTicketForm({
@@ -27,6 +31,7 @@ export function GuestTicketForm({
   departmentSlug,
   onSubmitted,
   onCancel,
+  primaryColor,
 }: GuestTicketFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState<Value>();
@@ -82,15 +87,23 @@ export function GuestTicketForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="widget-message-in space-y-4 rounded-2xl border border-border/55 bg-background p-4 shadow-sm ring-1 ring-border/30"
+      className="widget-panel-in space-y-4 rounded-[18px] border border-border/45 bg-background p-4 shadow-[0_2px_12px_-6px_rgba(15,23,42,0.08)]"
     >
-      <div className="space-y-1">
-        <p className="text-sm font-semibold tracking-tight text-foreground">
-          إرسال طلب دعم
-        </p>
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          رقم الهاتف ورسالتك فقط — سنتواصل معك عبر WhatsApp في أقرب وقت.
-        </p>
+      <div className="flex items-start gap-3">
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] text-white shadow-sm"
+          style={{ backgroundColor: primaryColor || "var(--primary)" }}
+        >
+          <Ticket className="h-4 w-4" />
+        </div>
+        <div className="min-w-0 space-y-1">
+          <p className="text-[14px] font-semibold tracking-tight text-foreground">
+            إرسال طلب دعم
+          </p>
+          <p className="text-[12px] leading-relaxed text-muted-foreground">
+            رقم الهاتف ورسالتك فقط — سنتواصل معك في أقرب وقت.
+          </p>
+        </div>
       </div>
 
       <InternationalPhoneField
@@ -110,7 +123,7 @@ export function GuestTicketForm({
             id="guest-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="h-10 text-sm"
+            className="h-10 rounded-xl text-sm"
             placeholder="أحمد محمد"
             disabled={isLoading}
           />
@@ -124,7 +137,7 @@ export function GuestTicketForm({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-10 text-sm"
+            className="h-10 rounded-xl text-sm"
             placeholder="you@email.com"
             disabled={isLoading}
             dir="ltr"
@@ -141,29 +154,26 @@ export function GuestTicketForm({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={4}
-          className="min-h-[96px] resize-none text-sm leading-relaxed"
+          className="min-h-[96px] resize-none rounded-xl text-sm leading-relaxed"
           placeholder="صف مشكلتك أو استفسارك…"
           disabled={isLoading}
         />
       </div>
 
-      {error && (
-        <p className="rounded-lg bg-destructive/10 px-2.5 py-1.5 text-xs text-destructive">
-          {error}
-        </p>
-      )}
+      {error && <WidgetInlineNotice tone="error">{error}</WidgetInlineNotice>}
 
       <div className="flex gap-2 pt-1">
         <Button
           type="submit"
           size="sm"
-          className="h-10 flex-1 rounded-xl text-sm"
+          className="h-11 flex-1 rounded-[14px] text-sm font-semibold"
+          style={primaryColor ? { backgroundColor: primaryColor } : undefined}
           disabled={isLoading}
         >
           {isLoading ? (
             <Loader2 className="me-1.5 h-4 w-4 animate-spin" />
           ) : (
-            <Send className="me-1.5 h-4 w-4" />
+            <Send className="me-1.5 h-4 w-4 rtl:-scale-x-100" />
           )}
           إرسال الطلب
         </Button>
@@ -171,7 +181,7 @@ export function GuestTicketForm({
           type="button"
           variant="outline"
           size="sm"
-          className="h-10 rounded-xl"
+          className="h-11 rounded-[14px]"
           onClick={onCancel}
           disabled={isLoading}
         >

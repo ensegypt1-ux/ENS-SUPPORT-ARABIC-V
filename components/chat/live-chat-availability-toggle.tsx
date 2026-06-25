@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Headset } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
@@ -12,27 +12,20 @@ type LiveChatAvailabilityToggleProps = {
   className?: string;
 };
 
-export function LiveChatAvailabilityToggle({
-  userId,
-  role,
+const hint =
+  "تسجيل الدخول لا يعني أنك متاح للعملاء. فعّل هذا الخيار فقط عند استعدادك لاستقبال محادثات الزوار.";
+
+function ToggleShell({
+  isAvailable,
   className,
-}: LiveChatAvailabilityToggleProps) {
-  const [mounted, setMounted] = useState(false);
-  const enabled = role === "admin" || role === "support";
-  const { isAvailable, loading, updating, toggle, error } =
-    useLiveChatAvailability({ userId, enabled });
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!enabled) return null;
-
-  const hint =
-    "تسجيل الدخول لا يعني أنك متاح للعملاء. فعّل هذا الخيار فقط عند استعدادك لاستقبال محادثات الزوار.";
-
-  const switchDisabled = !mounted || loading || updating;
-
+  title,
+  children,
+}: {
+  isAvailable: boolean;
+  className?: string;
+  title?: string;
+  children: ReactNode;
+}) {
   return (
     <div
       className={cn(
@@ -42,6 +35,49 @@ export function LiveChatAvailabilityToggle({
           : "border-border/70 bg-muted/30",
         className
       )}
+      title={title}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function LiveChatAvailabilityToggle({
+  userId,
+  role,
+  className,
+}: LiveChatAvailabilityToggleProps) {
+  const [mounted, setMounted] = useState(false);
+  const enabled = role === "admin" || role === "support";
+  const { isAvailable, loading, updating, toggle, error } =
+    useLiveChatAvailability({ userId, enabled: mounted && enabled });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!enabled) return null;
+
+  if (!mounted) {
+    return (
+      <ToggleShell isAvailable={false} className={className}>
+        <Headset
+          className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+          aria-hidden
+        />
+        <span className="hidden text-xs font-medium sm:inline">غير متاح</span>
+        <div
+          className="h-5 w-9 shrink-0 scale-90 rounded-full bg-input"
+          aria-hidden
+        />
+      </ToggleShell>
+    );
+  }
+
+  return (
+    <ToggleShell
+      isAvailable={isAvailable}
+      className={className}
       title={error ? `${hint} (${error})` : hint}
     >
       <Headset
@@ -52,12 +88,12 @@ export function LiveChatAvailabilityToggle({
         aria-hidden
       />
       <span className="hidden text-xs font-medium sm:inline">
-        {mounted && isAvailable ? "متاح للمحادثة" : "غير متاح"}
+        {isAvailable ? "متاح للمحادثة" : "غير متاح"}
       </span>
       <Switch
-        checked={mounted ? isAvailable : false}
+        checked={isAvailable}
         onCheckedChange={() => void toggle()}
-        disabled={switchDisabled}
+        disabled={loading || updating}
         aria-label={
           isAvailable
             ? "إيقاف استقبال المحادثات المباشرة"
@@ -65,6 +101,6 @@ export function LiveChatAvailabilityToggle({
         }
         className="scale-90"
       />
-    </div>
+    </ToggleShell>
   );
 }
