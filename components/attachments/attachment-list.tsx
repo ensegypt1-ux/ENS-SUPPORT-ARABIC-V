@@ -64,7 +64,7 @@ export function AttachmentList({
       const result = await deleteAttachment(attachmentToDelete);
 
       if (result.success) {
-        toast.success("اتمسح المرفق");
+        toast.success("تم الحذف المرفق");
         onDelete?.();
       } else {
         toast.error(result.error || "تعذّر الحذف المرفق");
@@ -113,7 +113,7 @@ export function AttachmentList({
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground text-center py-4">
-            مفيش مرفقات بعد
+            لا يوجد مرفقات بعد
           </p>
         </CardContent>
       </Card>
@@ -211,7 +211,7 @@ export function AttachmentList({
           <AlertDialogHeader>
             <AlertDialogTitle>حذف المرفق</AlertDialogTitle>
             <AlertDialogDescription>
-              متأكد من حذف هذا المرفق؟ مش هينفع الرجوع عن هذا الإجراء.
+              متأكد من حذف هذا المرفق؟ لا يمكن التراجع عن هذا الإجراء.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -1,6 +1,7 @@
 import type {
   ClientNotification,
   ConversationWithParticipants,
+  GuestPresenceState,
   Message,
   SerializedComment,
   TypingIndicator,
@@ -14,15 +15,27 @@ export interface SocketSessionUser {
   role?: string;
 }
 
+export interface SocketGuestUser {
+  guestSessionId: string;
+  conversationId: string;
+  displayName: string;
+}
+
 export interface ServerToClientEvents {
   "presence:snapshot": (presence: UserPresenceState[]) => void;
   "presence:updated": (presence: UserPresenceState) => void;
+  "guest:presence:snapshot": (presence: GuestPresenceState[]) => void;
+  "guest:presence:updated": (presence: GuestPresenceState) => void;
   "chat:conversation:upsert": (
     conversation: ConversationWithParticipants
   ) => void;
   "chat:conversation:removed": (payload: {
     conversationId: string;
   }) => void;
+  "chat:guest:inbox:changed": (payload: {
+    conversationId: string;
+  }) => void;
+  "ops:center:changed": (payload: { at: string }) => void;
   "chat:message:created": (message: Message) => void;
   "chat:message:updated": (message: Message) => void;
   "chat:message:deleted": (payload: {
@@ -70,5 +83,6 @@ export interface ClientToServerEvents {
 export type InterServerEvents = Record<string, never>;
 
 export interface SocketData {
-  user: SocketSessionUser;
+  user?: SocketSessionUser;
+  guest?: SocketGuestUser;
 }

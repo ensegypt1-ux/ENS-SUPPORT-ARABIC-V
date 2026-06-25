@@ -101,32 +101,24 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
       title: "أعضاء الفريق",
       value: teamMembers.length,
       icon: Users,
-      iconColor: "text-slate-600",
-      iconBgColor: "bg-slate-50 dark:bg-slate-950",
       description: "المسؤولون ووكلاء الدعم والأدوار المخصصة",
     },
     {
       title: "المسؤولون",
       value: adminUsers.length,
       icon: ShieldAlert,
-      iconColor: "text-rose-600",
-      iconBgColor: "bg-rose-50 dark:bg-rose-950",
-      description: "مسؤولو النظام",
+      description: "مسؤوإذا النظام",
     },
     {
       title: "فريق الدعم",
       value: supportUsers.length,
       icon: Headset,
-      iconColor: "text-indigo-600",
-      iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
       description: "وكلاء الدعم",
     },
     {
       title: "أدوار مخصصة",
       value: customRoleUsers.length,
       icon: UserCog,
-      iconColor: "text-violet-600",
-      iconBgColor: "bg-violet-50 dark:bg-violet-950",
       description: "أدوار صلاحيات مخصصة",
     },
   ];
@@ -192,7 +184,7 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
           >
             {adminUsers.length === 0 ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
-                مفيش مسؤولين
+                لا يوجد مسؤولين
               </div>
             ) : viewMode === "table" ? (
               <UsersTable users={adminUsers} />
@@ -213,7 +205,7 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
           >
             {supportUsers.length === 0 ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
-                مفيش فريق دعم
+                لا يوجد فريق دعم
               </div>
             ) : viewMode === "table" ? (
               <UsersTable users={supportUsers} />
@@ -234,7 +226,7 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
           >
             {customRoleUsers.length === 0 ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
-                مفيش أعضاء بأدوار مخصصة
+                لا يوجد أعضاء بأدوار مخصصة
               </div>
             ) : viewMode === "table" ? (
               <UsersTable users={customRoleUsers} />

@@ -51,32 +51,24 @@ export default async function SupportAgentInstallationPage({
       title: "إجمالي المعيّن",
       value: requests.length,
       icon: Download,
-      iconColor: "text-sky-600",
-      iconBgColor: "bg-sky-50 dark:bg-sky-950",
       description: "طلبات التثبيت المعيّنة لك",
     },
     {
       title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
-      iconColor: "text-amber-600",
-      iconBgColor: "bg-amber-50 dark:bg-amber-950",
       description: "في انتظار ردك",
     },
     {
       title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
-      iconColor: "text-indigo-600",
-      iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
       description: "تعمل عليها حاليًا",
     },
     {
       title: "محلولة / مغلقة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
-      iconColor: "text-emerald-600",
-      iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
       description: "تثبيتات مكتملة",
     },
   ];
@@ -162,7 +154,7 @@ export default async function SupportAgentInstallationPage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تثبيت مفتوحة
+                  لا يوجد طلبات تثبيت مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -183,7 +175,7 @@ export default async function SupportAgentInstallationPage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تثبيت باجتماع مجدول
+                  لا يوجد طلبات تثبيت باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -207,7 +199,7 @@ export default async function SupportAgentInstallationPage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تثبيت في الانتظار
+                  لا يوجد طلبات تثبيت في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -228,7 +220,7 @@ export default async function SupportAgentInstallationPage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تثبيت قيد المعالجة
+                  لا يوجد طلبات تثبيت قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -252,7 +244,7 @@ export default async function SupportAgentInstallationPage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تثبيت محلولة
+                  لا يوجد طلبات تثبيت محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -273,7 +265,7 @@ export default async function SupportAgentInstallationPage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تثبيت مغلقة
+                  لا يوجد طلبات تثبيت مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

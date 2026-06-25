@@ -57,32 +57,24 @@ export default async function AdminCustomizationPage({
       title: "إجمالي الطلبات",
       value: requests.length,
       icon: Wrench,
-      iconColor: "text-slate-600",
-      iconBgColor: "bg-slate-50 dark:bg-slate-950",
       description: "جميع طلبات التخصيص",
     },
     {
       title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
-      iconColor: "text-amber-600",
-      iconBgColor: "bg-amber-50 dark:bg-amber-950",
       description: "في انتظار المراجعة",
     },
     {
       title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
-      iconColor: "text-indigo-600",
-      iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
       description: "قيد العمل",
     },
     {
       title: "مكتملة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
-      iconColor: "text-emerald-600",
-      iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
       description: "محلولة أو مغلقة",
     },
   ];
@@ -180,7 +172,7 @@ export default async function AdminCustomizationPage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص مفتوحة
+                  لا يوجد طلبات تخصيص مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -207,7 +199,7 @@ export default async function AdminCustomizationPage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص باجتماع مجدول
+                  لا يوجد طلبات تخصيص باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -234,7 +226,7 @@ export default async function AdminCustomizationPage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص في الانتظار
+                  لا يوجد طلبات تخصيص في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -261,7 +253,7 @@ export default async function AdminCustomizationPage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص قيد المعالجة
+                  لا يوجد طلبات تخصيص قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -288,7 +280,7 @@ export default async function AdminCustomizationPage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص محلولة
+                  لا يوجد طلبات تخصيص محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -315,7 +307,7 @@ export default async function AdminCustomizationPage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص مغلقة
+                  لا يوجد طلبات تخصيص مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

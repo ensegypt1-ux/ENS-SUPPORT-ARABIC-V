@@ -91,7 +91,7 @@ export function AppHeader({
               title: "وضع الصيانة",
               message:
                 settings.maintenance?.message ||
-                "بنعمل صيانة دلوقتي. جرّب تاني بعد شوية.",
+                "بنعمل صيانة حاليًا. أعد المحاولة بعد شوية.",
               variant: "maintenance" as const,
               dismissible: false,
             }

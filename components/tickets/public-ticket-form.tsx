@@ -206,13 +206,13 @@ export function PublicTicketForm() {
         toast.success("كود الشراء متأكد!");
       } else {
         setPurchaseCodeVerified(false);
-        setPurchaseCodeError(result.error || "التحقق مش ناجح");
-        toast.error(result.error || "التحقق مش ناجح");
+        setPurchaseCodeError(result.error || "التحقق غير ناجح");
+        toast.error(result.error || "التحقق غير ناجح");
       }
     } catch {
       setPurchaseCodeVerified(false);
-      setPurchaseCodeError("حصل خطأ في التحقق");
-      toast.error("حصل خطأ في التحقق");
+      setPurchaseCodeError("حدث خطأ في التحقق");
+      toast.error("حدث خطأ في التحقق");
     } finally {
       setIsVerifyingPurchaseCode(false);
     }
@@ -225,14 +225,14 @@ export function PublicTicketForm() {
     try {
       const result = await createPublicTicket(data);
       if (!result.success || !result.data) {
-        setError(result.error || "مقدرناش نعمل التذكرة");
-        toast.error(result.error || "مقدرناش نعمل التذكرة");
+        setError(result.error || "تعذّر إنشاء التذكرة");
+        toast.error(result.error || "تعذّر إنشاء التذكرة");
         setIsSubmitting(false);
         return;
       }
 
       setSuccessTicketNumber(result.data.ticketNumber);
-      toast.success("التذكرة اتبعت!");
+      toast.success("التذكرة تم الإرسال!");
       if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -580,7 +580,7 @@ export function PublicTicketForm() {
                   <SelectContent>
                     {loadingCategories ? (
                       <SelectItem value="general" disabled>
-                        Loading...
+                        جاري التحميل…
                       </SelectItem>
                     ) : categories.length === 0 ? (
                       <SelectItem value="general" disabled>
@@ -613,7 +613,7 @@ export function PublicTicketForm() {
                   <SelectContent>
                     {loadingDepartments ? (
                       <SelectItem value="__loading" disabled>
-                        Loading...
+                        جاري التحميل…
                       </SelectItem>
                     ) : departments.length === 0 ? (
                       <SelectItem value="__empty" disabled>
@@ -646,7 +646,7 @@ export function PublicTicketForm() {
                   <SelectContent>
                     {loadingProducts ? (
                       <SelectItem value="__loading" disabled>
-                        Loading...
+                        جاري التحميل…
                       </SelectItem>
                     ) : products.length === 0 ? (
                       <SelectItem value="__empty" disabled>

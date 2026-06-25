@@ -108,7 +108,7 @@ export function MeetingCard({
     const result = await deleteMeeting(meeting._id.toString());
 
     if (result.success) {
-      toast.success("اتمسح الاجتماع");
+      toast.success("تم الحذف الاجتماع");
       setShowDeleteDialog(false);
       router.refresh();
     } else {
@@ -444,7 +444,7 @@ export function MeetingCard({
           <AlertDialogHeader>
             <AlertDialogTitle>حذف الاجتماع</AlertDialogTitle>
             <AlertDialogDescription>
-              متأكد من حذف هذا الاجتماع؟ مش هينفع الرجوع عن هذا
+              متأكد من حذف هذا الاجتماع؟ لا يمكن التراجع عن هذا
               الإجراء.
             </AlertDialogDescription>
           </AlertDialogHeader>

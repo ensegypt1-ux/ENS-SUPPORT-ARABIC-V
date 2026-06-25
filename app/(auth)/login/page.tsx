@@ -10,18 +10,14 @@ import { loginSchema } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn, authClient } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { AuthCardSkeleton, LoadingButtonContent } from "@/components/ui/loading";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { translateAuthError } from "@/lib/auth-errors";
+import { LoginBrandPanel } from "@/components/auth/login-brand-panel";
+import { ENS_BRAND } from "@/lib/ens-brand";
+import { cn } from "@/lib/utils";
 
 function LoginForm() {
   const router = useRouter();
@@ -50,7 +46,10 @@ function LoginForm() {
       });
 
       if (result.error) {
-        setError(result.error.message || "الإيميل أو كلمة المرور مش صح");
+        setError(
+          translateAuthError(result.error.message) ||
+            "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+        );
         setIsLoading(false);
         return;
       }
@@ -71,111 +70,138 @@ function LoginForm() {
       router.push(destination);
       router.refresh();
     } catch (_err) {
-      setError("حصل خطأ. جرّب تاني.");
+      setError("حدث خطأ. أعد المحاولة.");
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-full py-8 mx-auto max-w-md">
-      <Card>
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            دخول لحسابك
-          </CardTitle>
-          <CardDescription className="text-center">
-            ادخل إيميلك وكلمة المرور عشان توصل لتذاكر الدعم
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4 pb-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">الإيميل</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@company.com"
-                {...register("email")}
-                disabled={isLoading}
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+    <div className="flex flex-1 flex-col lg:flex-row">
+      <LoginBrandPanel variant="compact" className="lg:hidden" />
 
-            <div className="space-y-2">
-              <Label htmlFor="password">كلمة المرور</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                {...register("password")}
-                disabled={isLoading}
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive">
-                  {errors.password.message}
-                </p>
+      <section className="flex flex-1 items-center justify-center px-4 py-8 sm:px-6 sm:py-10 lg:px-10 xl:px-14">
+        <div
+          className={cn(
+            "w-full max-w-[26rem] animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
+          )}
+        >
+          <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm sm:p-8">
+            <header className="mb-6 text-start">
+              <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                {ENS_BRAND.loginTitle}
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {ENS_BRAND.loginSubtitle}
+              </p>
+            </header>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
-              <div className="flex justify-end">
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-primary hover:underline"
-                >
-                  نسيت كلمة المرور؟
-                </Link>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-start">
+                  البريد الإلكتروني
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  className="h-11 rounded-xl border-border/60 bg-background"
+                  {...register("email")}
+                  disabled={isLoading}
+                />
+                {errors.email && (
+                  <p className="text-start text-sm text-destructive">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
-                  بيدخل...
-                </>
-              ) : (
-                "دخول"
-              )}
-            </Button>
 
-            <div className="text-sm text-center text-muted-foreground">
-              معندكش حساب؟{" "}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="password" className="text-start">
+                    كلمة المرور
+                  </Label>
+                  <Link
+                    href="/forgot-password"
+                    className="shrink-0 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                  >
+                    نسيت كلمة المرور؟
+                  </Link>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  className="h-11 rounded-xl border-border/60 bg-background"
+                  {...register("password")}
+                  disabled={isLoading}
+                />
+                {errors.password && (
+                  <p className="text-start text-sm text-destructive">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                className="h-11 w-full rounded-xl text-sm font-semibold shadow-sm"
+                disabled={isLoading}
+              >
+                <LoadingButtonContent
+                  loading={isLoading}
+                  loadingLabel="جاري تسجيل الدخول…"
+                >
+                  <span>{ENS_BRAND.loginTitle}</span>
+                </LoadingButtonContent>
+              </Button>
+            </form>
+
+            <p className="mt-6 text-center text-sm text-muted-foreground">
+              ليس لديك حساب؟{" "}
               <Link
                 href={
                   redirectUrl
                     ? `/register?redirect=${encodeURIComponent(redirectUrl)}`
                     : "/register"
                 }
-                className="font-medium text-info hover:text-info/90"
+                className="font-semibold text-primary transition-colors hover:text-primary/80"
               >
-                افتح حساب
+                إنشاء حساب
               </Link>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <LoginBrandPanel
+        variant="full"
+        className="hidden lg:flex lg:w-[min(46%,520px)] lg:shrink-0 lg:border-s lg:border-border/50"
+      />
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center w-full max-w-md">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      }
-    >
+    <Suspense fallback={<LoginPageSkeleton />}>
       <LoginForm />
     </Suspense>
+  );
+}
+
+function LoginPageSkeleton() {
+  return (
+    <div className="flex flex-1 flex-col lg:flex-row">
+      <div className="flex flex-1 items-center justify-center p-6">
+        <AuthCardSkeleton />
+      </div>
+      <div className="hidden w-[min(46%,520px)] shrink-0 bg-muted/30 lg:block" />
+    </div>
   );
 }

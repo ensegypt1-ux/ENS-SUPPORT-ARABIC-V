@@ -221,11 +221,18 @@ export function NotificationBell({
     [basePath, clickBehavior, playNotificationSound, rememberAnnouncedId, router]
   );
 
-  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } =
-    useRealtimeNotifications(userId, {
-      allowedTypes,
-      onNotificationCreated: showForegroundAlert,
-    });
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    error: notificationsError,
+    markAsRead,
+    markAllAsRead,
+    refreshNotifications,
+  } = useRealtimeNotifications(userId, {
+    allowedTypes,
+    onNotificationCreated: showForegroundAlert,
+  });
 
   const recentNotifications = notifications.slice(0, 5);
   const isPushBlocked = pushPermission === "denied" && !pushSubscribed;
@@ -370,7 +377,7 @@ export function NotificationBell({
         <DropdownMenuSeparator className="m-0" />
 
         {/* Loading State */}
-        {loading && (
+        {loading && notifications.length === 0 && (
           <div className="space-y-3 p-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-start gap-3">
@@ -384,13 +391,34 @@ export function NotificationBell({
           </div>
         )}
 
+        {/* Error State */}
+        {!loading && notificationsError && notifications.length === 0 && (
+          <div className="space-y-3 px-4 py-8 text-center">
+            <ShieldAlert className="mx-auto h-8 w-8 text-destructive/80" />
+            <p className="text-sm font-medium">تعذّر تحميل الإشعارات</p>
+            <p className="text-xs text-muted-foreground">
+              {notificationsError.message}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => void refreshNotifications({ force: true })}
+            >
+              إعادة المحاولة
+            </Button>
+          </div>
+        )}
+
         {/* Empty State */}
-        {!loading && notifications.length === 0 && (
+        {!loading &&
+          !notificationsError &&
+          notifications.length === 0 && (
           <div className="px-4 py-12 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
               <Bell className="h-5 w-5 text-muted-foreground" />
             </div>
-            <p className="text-sm font-medium">خلصت كل الإشعارات</p>
+            <p className="text-sm font-medium">لا توجد إشعارات</p>
             <p className="mt-1 text-xs text-muted-foreground">
               ستظهر الإشعارات الجديدة هنا.
             </p>

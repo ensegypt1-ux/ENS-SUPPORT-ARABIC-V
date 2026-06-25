@@ -37,7 +37,7 @@ export function SupportHelpSection({
               {HOME_COPY.faq.title}
             </h2>
             <p className={homeVisual.sectionDesc}>
-              لسه مش لاقي إجابتك؟{" "}
+              لا تزال لم تجد إجابتك؟{" "}
               <Link
                 href={openTicketHref}
                 className={cn("font-semibold text-primary", supportMotion.textLink)}

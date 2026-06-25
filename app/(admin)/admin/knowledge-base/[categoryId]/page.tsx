@@ -104,7 +104,7 @@ export default async function CategoryDetailPage({ params }: PageProps) {
               <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
                 <BookOpen className="h-6 w-6 text-muted-foreground/50" />
               </div>
-              <p className="text-sm font-medium">مفيش مقالات بعد</p>
+              <p className="text-sm font-medium">لا يوجد مقالات بعد</p>
               <p className="text-xs text-muted-foreground mt-1 mb-4">
                 أضف أول مقالة إلى هذه الفئة.
               </p>

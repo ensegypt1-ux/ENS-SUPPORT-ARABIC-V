@@ -67,11 +67,11 @@ export function TrainingPairForm({ pair, sites = [] }: TrainingPairFormProps) {
         : await createAITrainingPair(data);
 
       if (result.success) {
-        toast.success(isEditing ? "اتحدّث الزوج" : "اتعمل الزوج");
+        toast.success(isEditing ? "تم التحديث الزوج" : "تم الإنشاء الزوج");
         router.push("/admin/ai-support-agent");
         router.refresh();
       } else {
-        toast.error(result.error ?? "حصل خطأ");
+        toast.error(result.error ?? "حدث خطأ");
       }
     } finally {
       setIsLoading(false);

@@ -67,7 +67,7 @@ export function BrandImageUploader({
 
   const validateFile = (file: File) => {
     if (!allowedImageTypes.includes(file.type)) {
-      toast.error("مسموح بس صور JPEG و PNG و GIF و WebP و SVG");
+      toast.error("يُسمح فقط صور JPEG و PNG و GIF و WebP و SVG");
       return false;
     }
 
@@ -103,7 +103,7 @@ export function BrandImageUploader({
         toast.error(result.error || `تعذّر رفع ${label.toLowerCase()}`);
       }
     } catch {
-      toast.error(`حصل خطأ وإحنا رفع ${label.toLowerCase()}`);
+      toast.error(`حدث خطأ وإحنا رفع ${label.toLowerCase()}`);
     } finally {
       setIsUploading(false);
       resetInput();
@@ -136,12 +136,12 @@ export function BrandImageUploader({
       if (result.success) {
         onChange("");
         onSaved?.();
-        toast.success(`اتشالت إزالة ${label}`);
+        toast.success(`تم الحذف إزالة ${label}`);
       } else {
         toast.error(result.error || `تعذّر الإزالة ${label.toLowerCase()}`);
       }
     } catch {
-      toast.error(`حصل خطأ وإحنا إزالة ${label.toLowerCase()}`);
+      toast.error(`حدث خطأ وإحنا إزالة ${label.toLowerCase()}`);
     } finally {
       setIsDeleting(false);
     }

@@ -86,7 +86,7 @@ export function DocsSidebar({
 
       {groups.length === 0 && (
         <p className="px-2 text-xs text-muted-foreground">
-          مفيش نتائج لـ &ldquo;{query}&rdquo;
+          لا توجد نتائج لـ &ldquo;{query}&rdquo;
         </p>
       )}
 
@@ -127,7 +127,7 @@ export function DocsSidebar({
               <ul className="space-y-0.5">
                 {groupArticles.length === 0 ? (
                   <li className="px-2 py-1.5 text-xs text-muted-foreground/50 italic">
-                    مفيش مقالات بعد
+                    لا يوجد مقالات بعد
                   </li>
                 ) : (
                   groupArticles.map((article) => {

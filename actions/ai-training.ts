@@ -46,9 +46,9 @@ const SETTINGS_COLLECTION = "ai_settings";
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("مش مسموح");
+  if (!session?.user) throw new Error("غير مصرّح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
+  if (role !== "admin") throw new Error("ممنوع: يتطلب صلاحية المسؤول");
   return session;
 }
 
@@ -87,6 +87,7 @@ const settingsSchema = z.object({
       chatbot: z.boolean(),
       agentSuggest: z.boolean(),
       ticketClassify: z.boolean(),
+      guestLiveChat: z.boolean(),
     })
     .optional(),
   businessName: z.string().max(200).optional(),
@@ -286,7 +287,7 @@ export async function updateAISettings(
       if (!isLikelyValidApiKey(apiKey.trim())) {
         return {
           success: false,
-          error: "مفتاح API لازم يبدأ بـ 'sk-' وما يقلش عن 20 حرف.",
+          error: "مفتاح API يجب أن يبدأ بـ 'sk-' وألا يقل عن 20 حرف.",
         };
       }
       updates.apiKeyEncrypted = encryptApiKey(apiKey.trim());
@@ -330,14 +331,14 @@ export async function uploadAIWidgetImage(
     }
     const file = formData.get("file") as File | null;
     if (!file) {
-      return { success: false, error: "مفيش ملف مرفوع" };
+      return { success: false, error: "لا يوجد ملف مرفوع" };
     }
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       return { success: false, error: "مسموح بملفات الصور بس" };
     }
     if (file.size > 5 * 1024 * 1024) {
-      return { success: false, error: "الصورة لازم تكون أصغر من 5 ميغابايت" };
+      return { success: false, error: "الصورة يجب أن تكون أصغر من 5 ميغابايت" };
     }
     const uploaded = await uploadFile({
       file,
@@ -461,14 +462,14 @@ export async function getAITrainingPair(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "معرّف الزوج مش صح" };
+      return { success: false, error: "معرّف الزوج غير صالح" };
 
     const col = await getCollection<AITrainingPair>(PAIRS_COLLECTION);
     const pair = await col.findOne(
       { _id: new ObjectId(id) },
       { projection: { embedding: 0 } }
     );
-    if (!pair) return { success: false, error: "مفيش زوج التدريب" };
+    if (!pair) return { success: false, error: "لا يوجد زوج التدريب" };
     return { success: true, data: toPublicAITrainingPair(pair) };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -561,7 +562,7 @@ export async function updateAITrainingPair(
   try {
     const session = await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "معرّف الزوج مش صح" };
+      return { success: false, error: "معرّف الزوج غير صالح" };
 
     const parsed = pairSchema.safeParse(input);
     if (!parsed.success)
@@ -569,7 +570,7 @@ export async function updateAITrainingPair(
 
     const col = await getCollection<AITrainingPair>(PAIRS_COLLECTION);
     const existing = await col.findOne({ _id: new ObjectId(id) });
-    if (!existing) return { success: false, error: "مفيش زوج التدريب" };
+    if (!existing) return { success: false, error: "لا يوجد زوج التدريب" };
 
     const { question, answer, category, isActive } = parsed.data;
     const trimmedQuestion = question.trim();
@@ -619,7 +620,7 @@ export async function deleteAITrainingPair(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "معرّف الزوج مش صح" };
+      return { success: false, error: "معرّف الزوج غير صالح" };
 
     const col = await getCollection<AITrainingPair>(PAIRS_COLLECTION);
     await col.deleteOne({ _id: new ObjectId(id) });
@@ -637,7 +638,7 @@ export async function toggleAITrainingPairActive(
   try {
     const session = await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "معرّف الزوج مش صح" };
+      return { success: false, error: "معرّف الزوج غير صالح" };
 
     const col = await getCollection<AITrainingPair>(PAIRS_COLLECTION);
     await col.updateOne(

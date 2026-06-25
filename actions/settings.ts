@@ -23,14 +23,14 @@ import {
 async function requireSettingsView() {
   const session = await requirePermissionOrThrow(["settings.view", "settings.manage"], {
     any: true,
-    message: "ممنوع - يلزم صلاحية الوصول إلى الإعدادات",
+    message: "ممنوع - يتطلب صلاحية الوصول إلى الإعدادات",
   });
   return session.user as any;
 }
 
 async function requireSettingsManage() {
   const session = await requirePermissionOrThrow("settings.manage", {
-    message: "ممنوع - يلزم صلاحية إدارة الإعدادات",
+    message: "ممنوع - يتطلب صلاحية إدارة الإعدادات",
   });
   return session.user as any;
 }
@@ -317,17 +317,18 @@ export async function testEmailSettings(): Promise<
     const settingsCollection = await getCollection<SystemSettings>("settings");
     const settings = await settingsCollection.findOne({});
 
-    if (!settings?.email?.enabled) {
-      throw new Error("Email notifications are disabled");
+    const { sendEmail, getEmailDisabledReason } = await import("@/lib/email");
+
+    const disabledReason = getEmailDisabledReason(settings ?? ({} as SystemSettings));
+    if (disabledReason) {
+      throw new Error(disabledReason);
     }
 
-    const adminEmail = settings.email?.adminNotificationEmail;
+    const adminEmail = settings?.email?.adminNotificationEmail;
 
     if (!adminEmail) {
-      throw new Error("Admin notification email is not configured");
+      throw new Error("لم يتم ضبط بريد إشعارات المسؤول");
     }
-
-    const { sendEmail } = await import("@/lib/email");
 
     const result = await sendEmail({
       to: adminEmail,
@@ -345,7 +346,12 @@ export async function testEmailSettings(): Promise<
     });
 
     if (!result.success) {
-      throw new Error("تعذّر إرسال البريد التجريبي");
+      const failure = result as { message?: string; error?: Error };
+      throw new Error(
+        failure.message ||
+          failure.error?.message ||
+          "تعذّر إرسال البريد التجريبي"
+      );
     }
 
     return {
@@ -437,7 +443,7 @@ export async function uploadLogo(
     if (!file) {
       return {
         success: false,
-        error: "مفيش ملف مرفوع",
+        error: "لا يوجد ملف مرفوع",
       };
     }
 
@@ -453,7 +459,7 @@ export async function uploadLogo(
       return {
         success: false,
         error:
-          "نوع الملف مش صح. مسموح بالصور بس (JPEG, PNG, GIF, WebP, SVG)",
+          "نوع الملف غير صالح. مسموح بالصور ولكن (JPEG, PNG, GIF, WebP, SVG)",
       };
     }
 
@@ -536,7 +542,7 @@ export async function uploadFavicon(
     if (!file) {
       return {
         success: false,
-        error: "مفيش ملف مرفوع",
+        error: "لا يوجد ملف مرفوع",
       };
     }
 
@@ -550,7 +556,7 @@ export async function uploadFavicon(
     if (!allowedTypes.includes(file.type)) {
       return {
         success: false,
-        error: "نوع الملف مش صح. مسموح بـ ICO أو PNG أو JPEG بس",
+        error: "نوع الملف غير صالح. مسموح بـ ICO أو PNG أو JPEG بس",
       };
     }
 
@@ -633,7 +639,7 @@ export async function uploadLogoDark(
     if (!file) {
       return {
         success: false,
-        error: "مفيش ملف مرفوع",
+        error: "لا يوجد ملف مرفوع",
       };
     }
 
@@ -649,7 +655,7 @@ export async function uploadLogoDark(
       return {
         success: false,
         error:
-          "نوع الملف مش صح. مسموح بالصور بس (JPEG, PNG, GIF, WebP, SVG)",
+          "نوع الملف غير صالح. مسموح بالصور ولكن (JPEG, PNG, GIF, WebP, SVG)",
       };
     }
 

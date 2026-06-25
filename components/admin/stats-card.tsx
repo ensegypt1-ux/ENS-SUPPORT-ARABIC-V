@@ -10,10 +10,6 @@ interface StatsCardProps {
     value: number;
     isPositive: boolean;
   };
-  /** @deprecated retained for backwards compatibility; icons now use a uniform muted tone */
-  iconColor?: string;
-  /** @deprecated retained for backwards compatibility; icons now use a uniform muted tone */
-  iconBgColor?: string;
   className?: string;
 }
 

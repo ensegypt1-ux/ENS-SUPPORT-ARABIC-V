@@ -15,20 +15,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { AuthCardSkeleton, LoadingButtonContent } from "@/components/ui/loading";
+import { UI } from "@/lib/strings";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { translateAuthError } from "@/lib/auth-errors";
 import Link from "next/link";
 import { toast } from "sonner";
 
 const resetPasswordSchema = z
   .object({
-    password: z.string().min(8, "كلمة المرور لازم 8 حروف على الأقل"),
+    password: z.string().min(8, "كلمة المرور يجب أن 8 حروف على الأقل"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "كلمتا المرور مش متطابقتين",
+    message: "كلمتا المرور غير متطابقتين",
     path: ["confirmPassword"],
   });
 
@@ -51,7 +54,7 @@ function ResetPasswordForm() {
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     if (!token) {
-      setError("الرمز مش صح أو مش موجود");
+      setError("الرمز غير صالح أو غير موجود");
       return;
     }
 
@@ -65,15 +68,20 @@ function ResetPasswordForm() {
       });
 
       if (result?.error) {
-        setError(result.error.message || "تعذّر تغيير كلمة المرور");
+        setError(
+          translateAuthError(result.error.message) ||
+            "تعذّر تغيير كلمة المرور"
+        );
         setIsLoading(false);
         return;
       }
 
-      toast.success("كلمة المرور اتغيّرت");
+      toast.success("كلمة المرور تغيّرت");
       router.push("/login");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "حصل خطأ. جرّب تاني.";
+      const message = translateAuthError(
+        err instanceof Error ? err.message : null
+      ) || "حدث خطأ. أعد المحاولة.";
       setError(message);
       setIsLoading(false);
     }
@@ -132,14 +140,9 @@ function ResetPasswordForm() {
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
-                    بيتحدّث...
-                  </>
-                ) : (
-                  "تغيير كلمة المرور"
-                )}
+                <LoadingButtonContent loading={isLoading} loadingLabel={UI.saving}>
+                  <span>تغيير كلمة المرور</span>
+                </LoadingButtonContent>
               </Button>
 
               <div className="flex items-center justify-center">
@@ -161,7 +164,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
     return (
-        <Suspense fallback={<div className="flex items-center justify-center w-full h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>}>
+        <Suspense fallback={<AuthCardSkeleton />}>
             <ResetPasswordForm />
         </Suspense>
     );

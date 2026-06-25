@@ -22,11 +22,11 @@ export function WidgetAvatarUploader({
 
   const handleFile = async (file: File) => {
     if (!ALLOWED.includes(file.type)) {
-      toast.error("مسموح بس JPG أو PNG أو JPEG أو WEBP");
+      toast.error("يُسمح فقط JPG أو PNG أو JPEG أو WEBP");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("حجم الصورة لازم يكون أقل من 5 ميجابايت");
+      toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
       return;
     }
     setIsUploading(true);

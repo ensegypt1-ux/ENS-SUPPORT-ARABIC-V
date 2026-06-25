@@ -38,7 +38,7 @@ export default function GlobalError({
             </div>
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tight">
-                حصل خطأ ما!
+                حدث خطأ ما!
               </h1>
               <p className="text-muted-foreground">
                 وقع خطأ حرج.  تحديث الصفحة والمحاولة مرة أخرى.

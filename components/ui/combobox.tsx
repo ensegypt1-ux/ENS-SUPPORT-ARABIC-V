@@ -86,7 +86,7 @@ export function Combobox({
   onValueChange,
   placeholder = "اختر...",
   searchPlaceholder = "بحث...",
-  emptyMessage = "مفيش نتائج.",
+  emptyMessage = "لا توجد نتائج.",
   disabled,
   clearable = false,
   id,

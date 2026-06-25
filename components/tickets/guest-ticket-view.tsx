@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { StatusBadge } from "@/components/tickets/status-badge";
 import {
-  Loader2,
   LifeBuoy,
   AlertCircle,
   Send,
   MessageSquare,
 } from "lucide-react";
+import { PageSpinner, LoadingButtonContent } from "@/components/ui/loading";
 import {
   addGuestTicketComment,
   getGuestTicketByToken,
@@ -25,7 +25,7 @@ import { STATUS_LABELS, UI } from "@/lib/strings";
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleString(undefined, {
+    return new Date(iso).toLocaleString("ar-EG", {
       dateStyle: "medium",
       timeStyle: "short",
     });
@@ -51,7 +51,7 @@ export function GuestTicketView({ token }: { token: string }) {
       if (result.success && result.data) {
         setTicket(result.data);
       } else {
-        setError(result.error || "لينك التذكرة مش شغّال أو انتهى.");
+        setError(result.error || "رابط التذكرة غير صالح أو انتهى.");
       }
       setLoading(false);
     })();
@@ -76,9 +76,9 @@ export function GuestTicketView({ token }: { token: string }) {
           : prev
       );
       setReply("");
-      toast.success("الرد اتبعت");
+      toast.success("الرد تم الإرسال");
     } else {
-      toast.error(result.error || "مقدرناش نبعت ردّك");
+      toast.error(result.error || "تعذّر إرسال ردّك");
     }
     setIsSending(false);
   };
@@ -86,8 +86,8 @@ export function GuestTicketView({ token }: { token: string }) {
   // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="container mx-auto flex max-w-3xl items-center justify-center px-4 py-24 sm:px-6 lg:px-0">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <div className="container mx-auto max-w-3xl px-4 py-24 sm:px-6 lg:px-0">
+        <PageSpinner minHeight="min-h-[200px]" />
       </div>
     );
   }
@@ -101,7 +101,7 @@ export function GuestTicketView({ token }: { token: string }) {
             <AlertCircle className="h-8 w-8 text-destructive" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Ticket not found
+            التذكرة غير موجودة
           </h1>
           <p className="mt-2 text-muted-foreground">{error}</p>
           <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:justify-center">
@@ -127,7 +127,7 @@ export function GuestTicketView({ token }: { token: string }) {
       <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1">
         <LifeBuoy className="h-3.5 w-3.5 text-primary" />
         <span className="text-xs font-semibold uppercase tracking-[0.15em] text-primary">
-          Your Ticket
+          تذكرتك
         </span>
       </div>
 
@@ -148,8 +148,8 @@ export function GuestTicketView({ token }: { token: string }) {
           {ticket.description}
         </p>
         <p className="mt-4 text-xs text-muted-foreground">
-          Opened {formatDate(ticket.createdAt)}
-          {ticket.guestName ? ` by ${ticket.guestName}` : ""}
+          فُتحت {formatDate(ticket.createdAt)}
+          {ticket.guestName ? ` — ${ticket.guestName}` : ""}
         </p>
       </div>
 
@@ -157,13 +157,12 @@ export function GuestTicketView({ token }: { token: string }) {
       <div className="mt-6 rounded-2xl border border-border/60 bg-background p-6 shadow-sm">
         <h2 className="flex items-center gap-2 text-lg font-semibold">
           <MessageSquare className="h-4.5 w-4.5 text-muted-foreground" />
-          Conversation
+          المحادثة
         </h2>
 
         {ticket.comments.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">
-            No replies yet. Our team will respond here, and you&apos;ll get an
-            email when they do.
+            لا توجد ردود بعد. سيرد فريق الدعم هنا، وستصلك رسالة بريد عند الرد.
           </p>
         ) : (
           <div className="mt-5 space-y-4">
@@ -200,7 +199,7 @@ export function GuestTicketView({ token }: { token: string }) {
         {isClosed ? (
           <p className="text-sm text-muted-foreground">
             هذه التذكرة {STATUS_LABELS[ticket.status.replace(/-/g, "_") as TicketStatus] || ticket.status}.
-            إذا لسه محتاج مساعدة،{" "}
+            إذا لا تزال تحتاج مساعدة،{" "}
             <Link
               href="/support/new"
               className="font-medium text-primary hover:underline"
@@ -211,7 +210,7 @@ export function GuestTicketView({ token }: { token: string }) {
           </p>
         ) : (
           <>
-            <h2 className="mb-3 text-lg font-semibold">ضيف رد</h2>
+            <h2 className="mb-3 text-lg font-semibold">أضف رد</h2>
             <Textarea
               value={reply}
               onChange={(e) => setReply(e.target.value)}
@@ -223,19 +222,14 @@ export function GuestTicketView({ token }: { token: string }) {
               <Button
                 onClick={handleSend}
                 disabled={isSending || !reply.trim()}
-                className="h-11"
+                className="h-11 gap-2"
               >
-                {isSending ? (
+                <LoadingButtonContent loading={isSending} loadingLabel={UI.saving}>
                   <>
-                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
-                    Sending...
+                    <Send className="h-4 w-4" />
+                    <span>إرسال الرد</span>
                   </>
-                ) : (
-                  <>
-                    <Send className="me-2 h-4 w-4" />
-                    Send Reply
-                  </>
-                )}
+                </LoadingButtonContent>
               </Button>
             </div>
           </>

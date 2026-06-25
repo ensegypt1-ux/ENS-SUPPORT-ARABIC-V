@@ -222,7 +222,7 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
             "خدمة العامل معطّلة في بيئة التطوير. عيّن NEXT_PUBLIC_ENABLE_DEV_PWA=true أو شغّل نسخة الإنتاج."
           );
         } else {
-          toast.error("مقدرناش نسجّل خدمة الإشعارات.");
+          toast.error("تعذّر تسجيل خدمة الإشعارات.");
         }
         return;
       }
@@ -263,7 +263,7 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
       const result = await registerPushSubscription(payload);
       if (!result.success) {
         toast.error(
-          result.error || "مقدرناش نفعّل إشعارات المتصفح."
+          result.error || "تعذّر تفعيل إشعارات المتصفح."
         );
         return;
       }
@@ -271,14 +271,14 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
       setIsSubscribed(true);
       setSubscriptionCount(result.data?.subscriptionCount ?? subscriptionCount);
       toast.success(
-        result.message || "اتفعّلت إشعارات المتصفح."
+        result.message || "تم تفعيل إشعارات المتصفح."
       );
     } catch (error) {
       console.error("Failed to enable browser push notifications:", error);
       toast.error(
         error instanceof Error
           ? error.message
-          : "مقدرناش نفعّل إشعارات المتصفح."
+          : "تعذّر تفعيل إشعارات المتصفح."
       );
     } finally {
       setBusy(false);
@@ -313,7 +313,7 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
 
       if (!result.success) {
         toast.error(
-          result.error || "مقدرناش نعطّل إشعارات المتصفح."
+          result.error || "تعذّر تعطيل إشعارات المتصفح."
         );
         return;
       }
@@ -321,14 +321,14 @@ export function usePushNotifications(options?: { enabled?: boolean }) {
       setIsSubscribed(false);
       setSubscriptionCount(result.data?.subscriptionCount ?? 0);
       toast.success(
-        result.message || "اتعطّلت إشعارات المتصفح."
+        result.message || "تم تعطيل إشعارات المتصفح."
       );
     } catch (error) {
       console.error("Failed to disable browser push notifications:", error);
       toast.error(
         error instanceof Error
           ? error.message
-          : "مقدرناش نعطّل إشعارات المتصفح."
+          : "تعذّر تعطيل إشعارات المتصفح."
       );
     } finally {
       setBusy(false);

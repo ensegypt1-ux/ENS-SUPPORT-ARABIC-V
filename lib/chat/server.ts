@@ -1,13 +1,19 @@
 import { ObjectId } from "mongodb";
 
 import { getCollection } from "@/lib/db";
+import {
+  guestParticipantId,
+  isGuestParticipantId,
+} from "@/lib/chat/participant-ids";
 import { FALLBACKS } from "@/lib/strings";
-import type { User } from "@/types";
+import type { User, UserRole } from "@/types";
 import type {
   ConversationMessageSummary,
   ConversationParticipantWithUser,
+  ConversationSource,
   ConversationType,
   ConversationWithParticipants,
+  GuestConversationStatus,
   Message,
   MessageAttachment,
   MessageEditHistory,
@@ -15,7 +21,7 @@ import type {
   UserSummary,
 } from "@/types/realtime";
 
-type ConversationDocument = {
+export type ConversationDocument = {
   _id: ObjectId;
   id: string;
   type: ConversationType;
@@ -25,6 +31,18 @@ type ConversationDocument = {
   updatedAt: Date;
   lastMessageAt: Date | null;
   lastMessage: ConversationMessageSummary | null;
+  source?: ConversationSource;
+  guestSessionId?: string;
+  guestAccessToken?: string;
+  guestName?: string;
+  guestEmail?: string;
+  guestPhone?: string;
+  chatLogId?: string;
+  departmentSlug?: string;
+  status?: GuestConversationStatus;
+  assignedAgentId?: string | null;
+  claimedAt?: Date;
+  closedAt?: Date;
 };
 
 type MessageDocument = {
@@ -72,12 +90,13 @@ function createId() {
 }
 
 async function getUsersMap(userIds: string[]) {
-  if (userIds.length === 0) {
+  const realUserIds = userIds.filter((id) => !isGuestParticipantId(id));
+  if (realUserIds.length === 0) {
     return new Map<string, UserSummary>();
   }
 
   const usersCollection = await getCollection<User>("user");
-  const objectIds = userIds
+  const objectIds = realUserIds
     .filter((id) => ObjectId.isValid(id))
     .map((id) => new ObjectId(id));
 
@@ -85,7 +104,7 @@ async function getUsersMap(userIds: string[]) {
     .find(
       {
         $or: [
-          { id: { $in: userIds } },
+          { id: { $in: realUserIds } },
           ...(objectIds.length > 0 ? [{ _id: { $in: objectIds } }] : []),
         ],
       },
@@ -124,6 +143,18 @@ function serializeConversationParticipants(
 ) {
   return conversation.participantIds.map<ConversationParticipantWithUser>(
     (userId) => {
+      if (isGuestParticipantId(userId)) {
+        return {
+          user_id: userId,
+          joined_at: conversation.createdAt.toISOString(),
+          last_read_at: null,
+          user_name: conversation.guestName?.trim() || "زائر",
+          user_email: conversation.guestEmail || "",
+          user_role: "guest",
+          user_image: undefined,
+        };
+      }
+
       const user = usersMap.get(userId);
 
       return {
@@ -162,10 +193,19 @@ function serializeConversation(
       : null,
     participants,
     unreadCount,
+    source: conversation.source,
+    guest_session_id: conversation.guestSessionId,
+    guest_name: conversation.guestName,
+    guest_email: conversation.guestEmail,
+    guest_phone: conversation.guestPhone,
+    guest_status: conversation.status,
+    assigned_agent_id: conversation.assignedAgentId ?? undefined,
+    chat_log_id: conversation.chatLogId,
+    department_slug: conversation.departmentSlug,
   };
 }
 
-function serializeMessageDocument(message: MessageDocument): Message {
+export function serializeMessageDocument(message: MessageDocument): Message {
   return {
     id: message.id,
     conversation_id: message.conversationId,
@@ -231,6 +271,133 @@ export async function ensureConversationParticipant(
   }
 
   return conversation;
+}
+
+export async function ensureConversationAccess(
+  conversationId: string,
+  actor:
+    | { type: "user"; userId: string; role?: UserRole }
+    | { type: "guest"; guestSessionId: string; guestAccessToken: string }
+) {
+  const conversation = await getConversationDocument(conversationId);
+  if (!conversation) return null;
+
+  if (actor.type === "guest") {
+    if (conversation.source !== "guest_widget") return null;
+    if (conversation.guestSessionId !== actor.guestSessionId) return null;
+    if (conversation.guestAccessToken !== actor.guestAccessToken) return null;
+    if (conversation.status === "closed") return null;
+    return conversation;
+  }
+
+  const { userId, role } = actor;
+
+  if (conversation.participantIds.includes(userId)) {
+    return conversation;
+  }
+
+  if (conversation.source === "guest_widget") {
+    if (role === "admin") return conversation;
+    if (
+      role === "support" &&
+      (conversation.status === "unclaimed" ||
+        conversation.assignedAgentId === userId)
+    ) {
+      return conversation;
+    }
+  }
+
+  return null;
+}
+
+function buildConversationQueryForUser(
+  userId: string,
+  role?: UserRole,
+  options?: { archivedOnly?: boolean }
+) {
+  const orConditions: Record<string, unknown>[] = [
+    { participantIds: userId },
+  ];
+
+  if (role === "admin") {
+    orConditions.push({ source: "guest_widget" });
+  } else if (role === "support") {
+    orConditions.push(
+      { source: "guest_widget", status: "unclaimed" },
+      { source: "guest_widget", assignedAgentId: userId }
+    );
+  }
+
+  const participantQuery = { $or: orConditions };
+
+  if (options?.archivedOnly) {
+    return {
+      $and: [
+        participantQuery,
+        { source: "guest_widget" as const, status: "closed" as const },
+      ],
+    };
+  }
+
+  return {
+    $and: [
+      participantQuery,
+      {
+        $or: [
+          { source: { $ne: "guest_widget" as const } },
+          { status: { $ne: "closed" as const } },
+          { status: { $exists: false } },
+        ],
+      },
+    ],
+  };
+}
+
+async function serializeConversationSummaries(
+  conversations: ConversationDocument[],
+  userId: string
+) {
+  if (conversations.length === 0) {
+    return [];
+  }
+
+  const messagesCollection = await getCollection<MessageDocument>("messages");
+  const uniqueParticipantIds = Array.from(
+    new Set(conversations.flatMap((conversation) => conversation.participantIds))
+  );
+  const usersMap = await getUsersMap(uniqueParticipantIds);
+
+  const unreadCounts = await messagesCollection
+    .aggregate<{ _id: string; count: number }>([
+      {
+        $match: {
+          conversationId: {
+            $in: conversations.map((conversation) => conversation.id),
+          },
+          senderId: { $ne: userId },
+          readBy: { $ne: userId },
+        },
+      },
+      {
+        $group: {
+          _id: "$conversationId",
+          count: { $sum: 1 },
+        },
+      },
+    ])
+    .toArray();
+
+  const unreadMap = new Map(
+    unreadCounts.map((item) => [item._id, item.count] as const)
+  );
+
+  return conversations.map((conversation) =>
+    serializeConversation(
+      conversation,
+      serializeConversationParticipants(conversation, usersMap),
+      unreadMap.get(conversation.id) || 0
+    )
+  );
 }
 
 export async function createConversationRecord(input: CreateConversationInput) {
@@ -314,11 +481,39 @@ export async function updateConversationLastMessage(conversationId: string) {
   return latestMessage;
 }
 
+export async function getConversationMessagesForGuest(
+  conversationId: string,
+  guestSessionId: string
+) {
+  const conversation = await getConversationDocument(conversationId);
+  if (!conversation || conversation.source !== "guest_widget") {
+    return null;
+  }
+  if (conversation.guestSessionId !== guestSessionId) {
+    return null;
+  }
+
+  const messagesCollection = await getCollection<MessageDocument>("messages");
+  const messages = await messagesCollection
+    .find({ conversationId })
+    .sort({ createdAt: 1 })
+    .toArray();
+
+  return messages.map(serializeMessageDocument);
+}
+
 export async function getConversationMessagesForUser(
   conversationId: string,
-  userId: string
+  userId: string,
+  role?: UserRole
 ) {
-  const conversation = await ensureConversationParticipant(conversationId, userId);
+  const conversation = role
+    ? await ensureConversationAccess(conversationId, {
+        type: "user",
+        userId,
+        role,
+      })
+    : await ensureConversationParticipant(conversationId, userId);
   if (!conversation) {
     return null;
   }
@@ -332,62 +527,39 @@ export async function getConversationMessagesForUser(
   return messages.map(serializeMessageDocument);
 }
 
-export async function getConversationSummariesForUser(userId: string) {
+export async function getConversationSummariesForUser(
+  userId: string,
+  role?: UserRole,
+  options?: { archivedOnly?: boolean }
+) {
   const conversationsCollection =
     await getCollection<ConversationDocument>("conversations");
-  const messagesCollection = await getCollection<MessageDocument>("messages");
 
   const conversations = await conversationsCollection
-    .find({ participantIds: userId })
+    .find(buildConversationQueryForUser(userId, role, options))
     .sort({ lastMessageAt: -1, createdAt: -1 })
     .toArray();
 
-  if (conversations.length === 0) {
-    return [];
-  }
-
-  const uniqueParticipantIds = Array.from(
-    new Set(conversations.flatMap((conversation) => conversation.participantIds))
-  );
-  const usersMap = await getUsersMap(uniqueParticipantIds);
-
-  const unreadCounts = await messagesCollection
-    .aggregate<{ _id: string; count: number }>([
-      {
-        $match: {
-          conversationId: { $in: conversations.map((conversation) => conversation.id) },
-          senderId: { $ne: userId },
-          readBy: { $ne: userId },
-        },
-      },
-      {
-        $group: {
-          _id: "$conversationId",
-          count: { $sum: 1 },
-        },
-      },
-    ])
-    .toArray();
-
-  const unreadMap = new Map(
-    unreadCounts.map((item) => [item._id, item.count] as const)
-  );
-
-  return conversations.map((conversation) =>
-    serializeConversation(
-      conversation,
-      serializeConversationParticipants(conversation, usersMap),
-      unreadMap.get(conversation.id) || 0
-    )
-  );
+  return serializeConversationSummaries(conversations, userId);
 }
 
 export async function getConversationSummaryForUser(
   conversationId: string,
-  userId: string
+  userId: string,
+  role?: UserRole
 ) {
-  const conversations = await getConversationSummariesForUser(userId);
-  return conversations.find((conversation) => conversation.id === conversationId) || null;
+  const conversation = await getConversationDocument(conversationId);
+  if (!conversation) return null;
+
+  const access = await ensureConversationAccess(conversationId, {
+    type: "user",
+    userId,
+    role,
+  });
+  if (!access) return null;
+
+  const [summary] = await serializeConversationSummaries([conversation], userId);
+  return summary || null;
 }
 
 export async function getParticipantIdsForConversation(conversationId: string) {

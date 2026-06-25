@@ -56,35 +56,27 @@ export async function ChatLogsPanel() {
       title: "إجمالي المحادثات",
       value: a.total,
       icon: MessageSquare,
-      iconColor: "text-info",
-      iconBgColor: "bg-info/15",
       description: `${a.last24h} خلال آخر 24 ساعة`,
     },
     {
       title: "معدل المطابقة",
       value: `${a.matchRate}%`,
       icon: TrendingUp,
-      iconColor: "text-primary",
-      iconBgColor: "bg-primary/15",
       description: `${a.matched} تمت الإجابة عليها`,
     },
     {
       title: "دقة التقييم",
       value: formatPercent(a.feedbackAccuracy),
       icon: ThumbsUp,
-      iconColor: "text-success",
-      iconBgColor: "bg-success/15",
       description:
         a.feedbackTotal === 0
-          ? "مفيش إجابات مُقيّمة بعد"
+          ? "لا توجد إجابات مُقيّمة بعد"
           : `${a.positiveFeedback}/${a.feedbackTotal} مفيدة`,
     },
     {
       title: "اتصعّد",
       value: a.escalated,
       icon: XCircle,
-      iconColor: "text-destructive",
-      iconBgColor: "bg-destructive/15",
       description: `${a.unmatched} بلا إجابة · طُلب التحويل`,
     },
   ];
@@ -208,7 +200,7 @@ export async function ChatLogsPanel() {
         <CardContent>
           {recent.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              مفيش سجلات محادثة بعد.
+              لا يوجد سجلات محادثة بعد.
             </p>
           ) : (
             <Table>

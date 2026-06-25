@@ -162,7 +162,7 @@ function UploadDialog({
 
   const handleUpload = async () => {
     if (!file) {
-      toast.error("اختار ملف الأول");
+      toast.error("اختر ملف الأول");
       return;
     }
     setUploading(true);
@@ -291,7 +291,7 @@ export function FilesPanel({
     try {
       const result = await deleteFile(id);
       if (result.success) {
-        toast.success("اتشالت إزالة الملف");
+        toast.success("تم الحذف إزالة الملف");
         await refresh();
         router.refresh();
       } else {
@@ -316,7 +316,7 @@ export function FilesPanel({
         siteId: nextSiteId || undefined,
       });
       if (result.success && result.data) {
-        toast.success("اتحدّث نطاق الملف");
+        toast.success("تم التحديث نطاق الملف");
         setFiles((prev) =>
           prev.map((f) => (f._id === id ? result.data! : f))
         );
@@ -352,7 +352,7 @@ export function FilesPanel({
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-12 text-center">
               <Upload className="mb-3 h-8 w-8 text-muted-foreground/60" />
               <p className="text-sm font-medium text-foreground">
-                مفيش ملفات بعد
+                لا يوجد ملفات بعد
               </p>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
                 ارفع ملف PDF أو Excel/CSV أو Word أو نص. يُحلّل ويُضمّن ويجيب
@@ -396,7 +396,7 @@ export function FilesPanel({
                           <AlertDialogTitle>إزالة الملف</AlertDialogTitle>
                           <AlertDialogDescription>
                             حذف <strong>{f.name}</strong> و{f.chunksIndexed}{" "}
-                            جزءًا مضمّنًا من قاعدة المعرفة؟ مش هينفع الرجوع عن
+                            جزءًا مضمّنًا من قاعدة المعرفة؟ لا يمكن التراجع عن
                             هذا الإجراء.
                           </AlertDialogDescription>
                         </AlertDialogHeader>

@@ -21,8 +21,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CountryCombobox } from "@/components/ui/country-combobox";
-import { Loader2 } from "lucide-react";
+import { AuthCardSkeleton, LoadingButtonContent } from "@/components/ui/loading";
+import { UI } from "@/lib/strings";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { translateAuthError } from "@/lib/auth-errors";
 
 function RegisterForm() {
   const router = useRouter();
@@ -59,7 +61,9 @@ function RegisterForm() {
       } as Record<string, unknown> & { email: string; password: string; name: string });
 
       if (result.error) {
-        setError(result.error.message || "تعذّر فتح الحساب");
+        setError(
+          translateAuthError(result.error.message) || "تعذّر إنشاء الحساب"
+        );
         setIsLoading(false);
         return;
       }
@@ -79,7 +83,7 @@ function RegisterForm() {
       router.push(destination);
       router.refresh();
     } catch {
-      setError("حصل خطأ. جرّب تاني.");
+      setError("حدث خطأ. أعد المحاولة.");
       setIsLoading(false);
     }
   };
@@ -90,10 +94,10 @@ function RegisterForm() {
         <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
-              افتح حساب
+              إنشاء حساب
             </CardTitle>
             <CardDescription className="text-center">
-              ادخل بياناتك عشان تفتح حساب الدعم
+              أدخل بياناتك لإنشاء حساب الدعم
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -119,7 +123,7 @@ function RegisterForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">الإيميل</Label>
+                <Label htmlFor="email">البريد الإلكتروني</Label>
                 <Input
                   id="email"
                   type="email"
@@ -144,7 +148,7 @@ function RegisterForm() {
                     })
                   }
                   disabled={isLoading}
-                  placeholder="اختار دولتك"
+                  placeholder="اختر دولتك"
                   aria-invalid={!!errors.country}
                 />
                 {errors.country && (
@@ -188,18 +192,13 @@ function RegisterForm() {
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
-                    بيفتح الحساب...
-                  </>
-                ) : (
-                  "افتح حساب"
-                )}
+                <LoadingButtonContent loading={isLoading} loadingLabel="جاري إنشاء الحساب…">
+                  <span>إنشاء حساب</span>
+                </LoadingButtonContent>
               </Button>
 
               <div className="text-sm text-center text-muted-foreground">
-                عندك حساب؟{" "}
+                لديك حساب؟{" "}
                 <Link
                   href={
                     redirectUrl
@@ -208,7 +207,7 @@ function RegisterForm() {
                   }
                   className="font-medium text-info hover:text-info/90"
                 >
-                  دخول
+                  تسجيل الدخول
                 </Link>
               </div>
             </CardFooter>
@@ -221,13 +220,7 @@ function RegisterForm() {
 
 export default function RegisterPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center w-full max-w-md">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      }
-    >
+    <Suspense fallback={<AuthCardSkeleton />}>
       <RegisterForm />
     </Suspense>
   );

@@ -75,7 +75,7 @@ export function UpdatesSettingsForm({ settings }: { settings: SystemSettings }) 
       maintenanceEnabled: settings.maintenance?.enabled ?? false,
       maintenanceMessage:
         settings.maintenance?.message ??
-        "بنعمل صيانة دلوقتي — جرّب تاني بعد شوية.",
+        "بنعمل صيانة حاليًا — أعد المحاولة بعد شوية.",
       allowAdmin: settings.maintenance?.allowAdmin ?? true,
       allowSupport: settings.maintenance?.allowSupport ?? true,
     },
@@ -95,7 +95,7 @@ export function UpdatesSettingsForm({ settings }: { settings: SystemSettings }) 
       maintenanceEnabled: settings.maintenance?.enabled ?? false,
       maintenanceMessage:
         settings.maintenance?.message ??
-        "بنعمل صيانة دلوقتي — جرّب تاني بعد شوية.",
+        "بنعمل صيانة حاليًا — أعد المحاولة بعد شوية.",
       allowAdmin: settings.maintenance?.allowAdmin ?? true,
       allowSupport: settings.maintenance?.allowSupport ?? true,
     });
@@ -130,11 +130,11 @@ export function UpdatesSettingsForm({ settings }: { settings: SystemSettings }) 
       });
 
       if (!result.success) {
-        toast.error(result.error || "مقدرناش نحدّث الإعدادات");
+        toast.error(result.error || "تعذّر تحديث الإعدادات");
         return;
       }
 
-      toast.success("اتحدّثت الإعدادات");
+      toast.success("تم تحديث الإعدادات");
       router.refresh();
     } finally {
       setIsSaving(false);

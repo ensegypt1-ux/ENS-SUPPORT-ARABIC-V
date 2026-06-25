@@ -83,24 +83,24 @@ export default function NewInstallationPage() {
 
         if (!uploadResult.success) {
           toast.warning(
-            `اتعمل الطلب لكن تعذّر رفع بعض الملفات: ${uploadResult.error}`
+            `تم الإنشاء الطلب لكن تعذّر رفع بعض الملفات: ${uploadResult.error}`
           );
         } else if (uploadResult.data && uploadResult.data.length > 0) {
           toast.success(
-            `اتعمل طلب التثبيت مع ${uploadResult.data.length} مرفق(ات)!`
+            `تم الإنشاء طلب التثبيت مع ${uploadResult.data.length} مرفق(ات)!`
           );
         } else {
-          toast.success("اتعمل طلب التثبيت!");
+          toast.success("تم الإنشاء طلب التثبيت!");
         }
       } else {
-        toast.success("اتعمل طلب التثبيت!");
+        toast.success("تم الإنشاء طلب التثبيت!");
       }
 
       router.push(`/dashboard/installation/${ticketId}`);
       router.refresh();
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : "حصل خطأ مش متوقع";
+        error instanceof Error ? error.message : "حدث خطأ غير متوقع";
       setError(errorMessage);
       toast.error(errorMessage);
       setIsSubmitting(false);

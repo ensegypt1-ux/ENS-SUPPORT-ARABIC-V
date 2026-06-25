@@ -349,6 +349,38 @@
   }
 }
 
+@keyframes widget-message-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes widget-typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+.widget-message-in {
+  animation: widget-message-in 0.22s ease-out both;
+}
+
+.widget-typing-dot {
+  animation: widget-typing-bounce 1.15s ease-in-out infinite;
+}
+
 @keyframes marquee {
   from {
     transform: translateX(0);
@@ -527,4 +559,67 @@
     --sidebar-scrollbar-thumb: #626a74;
     --sidebar-scrollbar-thumb-hover: #78828f;
   }
+}
+
+/* International phone input (react-phone-number-input) */
+.phone-input-root {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.phone-input-root--invalid .phone-input-field,
+.phone-input-root--invalid .PhoneInputInput {
+  border-color: var(--destructive);
+}
+
+.phone-input-field,
+.phone-input-root .PhoneInputInput {
+  flex: 1;
+  min-width: 0;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--background);
+  padding-inline: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--foreground);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.phone-input-field::placeholder,
+.phone-input-root .PhoneInputInput::placeholder {
+  color: var(--muted-foreground);
+}
+
+.phone-input-field:focus,
+.phone-input-root .PhoneInputInput:focus {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+.phone-input-root .PhoneInputInput:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Support inbox — subtle conversation canvas */
+.chat-thread-surface {
+  background-color: color-mix(in oklab, var(--muted) 28%, var(--background));
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--border) 55%, transparent) 0.75px,
+    transparent 0.75px
+  );
+  background-size: 18px 18px;
+}
+
+.dark .chat-thread-surface {
+  background-color: color-mix(in oklab, var(--muted) 18%, var(--background));
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--border) 35%, transparent) 0.75px,
+    transparent 0.75px
+  );
 }

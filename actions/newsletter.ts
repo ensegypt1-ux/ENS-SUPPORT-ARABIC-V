@@ -21,7 +21,7 @@ export async function subscribeToNewsletter(email: string) {
           { _id: existingSubscriber._id },
           { $set: { status: "subscribed", subscribedAt: new Date() } }
         );
-        return { success: true, message: "أهلاً بيك تاني! اتعمل اشتراكك من جديد." };
+        return { success: true, message: "أهلاً بيك تاني! تم الإنشاء اشتراكك من جديد." };
       }
       return { success: true, message: "أنت مشترك بالفعل." };
     }
@@ -38,7 +38,7 @@ export async function subscribeToNewsletter(email: string) {
       return { success: false, message: error.issues[0].message };
     }
     console.error("Newsletter subscription error:", error);
-    return { success: false, message: "حصل خطأ. جرّب تاني." };
+    return { success: false, message: "حدث خطأ. أعد المحاولة." };
   }
 }
 

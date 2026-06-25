@@ -1,7 +1,26 @@
 import { ObjectId } from "mongodb";
 import { getCollection } from "@/lib/db";
 import { FALLBACKS } from "@/lib/strings";
+import { toPlainObject } from "@/lib/serialization";
 import type { User as UserType, UserRole } from "@/types";
+
+type UserLike = Record<string, unknown> & {
+  _id?: { toString(): string };
+  id?: string;
+};
+
+/** Convert a MongoDB user document into a plain JSON-safe User for client props. */
+export function serializeUserDocument(user: UserLike): UserType {
+  const id =
+    user.id && user.id !== "undefined"
+      ? String(user.id)
+      : (user._id?.toString() ?? "");
+  return toPlainObject({ ...user, id }) as UserType;
+}
+
+export function serializeUserDocuments(users: UserLike[]): UserType[] {
+  return users.map(serializeUserDocument);
+}
 
 /**
  * Fetches user information for a list of user IDs

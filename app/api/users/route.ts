@@ -35,7 +35,7 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json(
-      { error: "Failed to fetch users" },
+      { error: "تعذّر جلب المستخدمين" },
       { status: 500 }
     );
   }

@@ -259,9 +259,11 @@ export async function resumeStrandedCrawls(): Promise<void> {
     .toArray();
   if (stranded.length === 0) return;
 
-  console.log(
-    `[web-source] resuming ${stranded.length} stranded crawl(s) after restart`
-  );
+  if (process.env.NODE_ENV !== "production") {
+    console.log(
+      `[web-source] resuming ${stranded.length} stranded crawl(s) after restart`
+    );
+  }
 
   for (const source of stranded) {
     const id = source._id.toString();

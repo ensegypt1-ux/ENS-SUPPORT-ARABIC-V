@@ -94,13 +94,13 @@ export function NotificationDetail({
 
       if (result.success) {
         setIsRead(!isRead);
-        toast.success(isRead ? "اتعلّم مش مقروء" : "اتعلّم مقروء");
+        toast.success(isRead ? "تم التعليم غير مقروءة" : "تم التعليم مقروء");
         router.refresh();
       } else {
-        toast.error("مقدرناش نحدّث الإشعار");
+        toast.error("تعذّر تحديث الإشعار");
       }
     } catch (error) {
-      toast.error("مقدرناش نحدّث الإشعار");
+      toast.error("تعذّر تحديث الإشعار");
     } finally {
       setIsLoading(false);
     }
@@ -115,14 +115,14 @@ export function NotificationDetail({
       );
 
       if (result.success) {
-        toast.success("اتمسح الإشعار");
+        toast.success("تم الحذف الإشعار");
         router.push(backUrl);
         router.refresh();
       } else {
-        toast.error("مقدرناش نمسح الإشعار");
+        toast.error("تعذّر حذف الإشعار");
       }
     } catch (error) {
-      toast.error("مقدرناش نمسح الإشعار");
+      toast.error("تعذّر حذف الإشعار");
     } finally {
       setIsLoading(false);
       setShowDeleteDialog(false);
@@ -318,7 +318,7 @@ export function NotificationDetail({
           <AlertDialogHeader>
             <AlertDialogTitle>حذف الإشعار؟</AlertDialogTitle>
             <AlertDialogDescription>
-              مش هتقدر ترجع — الإشعار هيتمسح نهائي.
+              لن تتمكن من الاسترجاع — الإشعار سيتمسح نهائي.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -125,7 +125,7 @@ export function WidgetSettingsForm({
         setWidgetWidth(String(parsedSize.width));
         setWidgetHeight(String(parsedSize.height));
         router.refresh();
-        toast.success("اتحفظ مظهر الأداة");
+        toast.success("تم الحفظ مظهر الأداة");
       } else {
         toast.error(result.error ?? "تعذّر الحفظ");
       }
@@ -328,12 +328,12 @@ function parseDimension(
 ): { ok: true; value: number } | { ok: false; error: string } {
   const n = Number(value);
   if (!Number.isInteger(n)) {
-    return { ok: false, error: `لازم ${label} يكون رقم صحيح.` };
+    return { ok: false, error: `يجب أن ${label} يكون رقم صحيح.` };
   }
   if (n < min || n > max) {
     return {
       ok: false,
-      error: `لازم ${label} يكون بين ${min}px و${max}px.`,
+      error: `يجب أن ${label} يكون بين ${min}px و${max}px.`,
     };
   }
   return { ok: true, value: n };

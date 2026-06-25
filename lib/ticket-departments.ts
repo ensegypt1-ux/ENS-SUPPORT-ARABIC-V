@@ -52,7 +52,7 @@ export async function validateTicketDepartmentForTicketCreation(
 ) {
   if (!department) return { ok: true as const };
   if (RESERVED_TICKET_DEPARTMENT_SLUGS.has(department)) {
-    return { ok: false as const, error: "Invalid department" };
+    return { ok: false as const, error: "قسم غير صالح" };
   }
 
   await ensureDefaultTicketDepartments();
@@ -60,6 +60,6 @@ export async function validateTicketDepartmentForTicketCreation(
     "ticket_departments"
   );
   const found = await collection.findOne({ slug: department, isActive: true });
-  if (!found) return { ok: false as const, error: "Invalid department" };
+  if (!found) return { ok: false as const, error: "قسم غير صالح" };
   return { ok: true as const };
 }

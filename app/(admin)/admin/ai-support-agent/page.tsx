@@ -93,24 +93,18 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
       title: "إجمالي الأزواج",
       value: totalPairs,
       icon: Database,
-      iconColor: "text-info",
-      iconBgColor: "bg-info/15",
       description: "في جميع الفئات",
     },
     {
       title: "جاهز",
       value: readyPairs,
       icon: CheckCircle2,
-      iconColor: "text-success",
-      iconBgColor: "bg-success/15",
       description: "التضمينات جاهزة",
     },
     {
       title: "نشط",
       value: activePairs,
       icon: Activity,
-      iconColor: "text-primary",
-      iconBgColor: "bg-primary/15",
       description: "متاح للمطابقة",
     },
   ];
@@ -230,7 +224,7 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
             />
           ) : (
             <p className="text-sm text-destructive">
-              {settingsResult.error ?? "مقدرناش نحمّل الإعدادات"}
+              {settingsResult.error ?? "تعذّر تحميل الإعدادات"}
             </p>
           )}
         </TabsContent>
@@ -250,7 +244,7 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
             />
           ) : (
             <p className="text-sm text-destructive">
-              {pairsResult.error ?? "مقدرناش نحمّل الأزواج"}
+              {pairsResult.error ?? "تعذّر تحميل الأزواج"}
             </p>
           )}
         </TabsContent>
@@ -281,7 +275,7 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
             <AISettingsForm settings={settings} />
           ) : (
             <p className="text-sm text-destructive">
-              {settingsResult.error ?? "مقدرناش نحمّل الإعدادات"}
+              {settingsResult.error ?? "تعذّر تحميل الإعدادات"}
             </p>
           )}
         </TabsContent>
@@ -291,7 +285,7 @@ export default async function AITrainingPage({ searchParams }: PageProps) {
             <WidgetSettingsForm settings={settings} />
           ) : (
             <p className="text-sm text-destructive">
-              {settingsResult.error ?? "مقدرناش نحمّل الإعدادات"}
+              {settingsResult.error ?? "تعذّر تحميل الإعدادات"}
             </p>
           )}
         </TabsContent>

@@ -86,8 +86,8 @@ function createSerializedPushPayload(payload: PushMessagePayload) {
     title: payload.title,
     body: payload.body,
     url,
-    icon: "/pwa-icons/192",
-    badge: "/pwa-icons/192",
+    icon: "/pwa-icons/192.png",
+    badge: "/pwa-icons/192.png",
     tag:
       payload.tag ||
       (payload.notificationId ? `notification:${payload.notificationId}` : undefined),

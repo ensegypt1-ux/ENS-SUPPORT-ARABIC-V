@@ -122,7 +122,7 @@ export function NewConversationDialog({
     e.preventDefault();
 
     if (selectedUserIds.length === 0) {
-      toast.error("اختار مستخدم واحد على الأقل");
+      toast.error("اختر مستخدم واحد على الأقل");
       return;
     }
 
@@ -133,7 +133,7 @@ export function NewConversationDialog({
     }
 
     if (conversationType === "group" && selectedUserIds.length < 2) {
-      toast.error("لازم فيه المحادثات الجماعية على مشاركين على الأقل");
+      toast.error("يجب أن يحتوي المحادثات الجماعية على مشاركين على الأقل");
       return;
     }
 
@@ -145,14 +145,14 @@ export function NewConversationDialog({
       });
 
       if (result.success && result.data) {
-        toast.success("اتعمل المحادثة");
+        toast.success("تم الإنشاء المحادثة");
         onConversationCreated(result.data.id);
       } else {
         toast.error(result.error || "تعذّر الإنشاء المحادثة");
       }
     } catch (error) {
       console.error("Error creating conversation:", error);
-      toast.error("حصل خطأ مش متوقع");
+      toast.error("حدث خطأ غير متوقع");
     } finally {
       setLoading(false);
     }

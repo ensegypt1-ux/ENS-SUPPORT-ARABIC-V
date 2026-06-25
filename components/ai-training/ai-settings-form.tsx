@@ -86,6 +86,7 @@ const schema = z.object({
     chatbot: z.boolean(),
     agentSuggest: z.boolean(),
     ticketClassify: z.boolean(),
+    guestLiveChat: z.boolean(),
   }),
   // Appearance fields (position, colors, powered-by) live on the Widget tab.
   chatbot: z.object({
@@ -422,7 +423,7 @@ export function AISettingsForm({
             "تغيّر نموذج التضمين — انقر إعادة الفهرسة لإعادة بناء الفهرس."
           );
         } else {
-          toast.success("اتحفظت إعدادات الذكاء الاصطناعي");
+          toast.success("تم حفظ إعدادات الذكاء الاصطناعي");
         }
       } else {
         toast.error(result.error ?? "تعذّر الحفظ");
@@ -433,7 +434,7 @@ export function AISettingsForm({
   };
 
   const onInvalid = () => {
-    toast.error("صلّح الحقول المعلّمة قبل ما تحفظ.");
+    toast.error("صحّح الحقول المعلّمة قبل ما تحفظ.");
   };
 
   const handleReindex = async () => {
@@ -461,7 +462,7 @@ export function AISettingsForm({
     try {
       const result = await syncQdrant();
       if (result.success && result.data) {
-        toast.success(`اتمت مزامنة ${result.data.synced} متجهًا مع Qdrant`);
+        toast.success(`تم مزامنة ${result.data.synced} متجهًا مع Qdrant`);
       } else {
         toast.error(result.error ?? "تعذّرت مزامنة Qdrant");
       }
@@ -636,7 +637,7 @@ export function AISettingsForm({
                 <p className="text-xs text-muted-foreground">
                   {settings.hasApiKey
                     ? "مخزّن مشفّرًا. اتركه دون تغيير للإبقاء على المفتاح الحالي."
-                    : "مفيش مفتاح محفوظ بعد. الصق مفتاح OpenAI السري ثم احفظ."}
+                    : "لا يوجد مفتاح محفوظ بعد. الصق مفتاح OpenAI السري ثم احفظ."}
                 </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -711,7 +712,7 @@ export function AISettingsForm({
                   <p className="text-xs text-muted-foreground">
                     يعمل Ollama على جهازك أو خادمك. ثبّته وشغّل{" "}
                     <code className="text-[11px]">ollama pull llama3.1</code>،
-                    ولا حاجة لمفتاح API. لازم السيرفر يوصل للرابط ده.
+                    لا حاجة لمفتاح API. يجب أن يكون الخادم متصلًا بهذا الرابط.
                   </p>
                 )}
               </div>
@@ -783,7 +784,7 @@ export function AISettingsForm({
                           Ollama Cloud لا يولّد تضمينات
                         </p>
                         <p className="text-xs text-amber-700/90 dark:text-amber-400/90">
-                          السحابة تستضيف نماذج المحادثة فقط، مش ينفع تشغيل
+                          السحابة تستضيف نماذج المحادثة فقط، لا يمكن تشغيل
                           بحث قاعدة المعرفة هنا. أبقِ المحادثة على Ollama Cloud
                           وولّد التضمينات عبر OpenAI بدلًا من ذلك.
                         </p>
@@ -1187,6 +1188,11 @@ export function AISettingsForm({
                   key: "ticketClassify",
                   label: "تصنيف التذاكر",
                   desc: "وسم التذاكر تلقائياً حسب الموضوع",
+                },
+                {
+                  key: "guestLiveChat",
+                  label: "محادثة مباشرة للزوار",
+                  desc: "يتصل الزائر بموظف الدعم مباشرة عند توفرهم (بدون تسجيل)",
                 },
               ] as const
             ).map((item) => (

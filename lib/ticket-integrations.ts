@@ -44,7 +44,7 @@ function getRoleLabel(role: UserRole) {
 
 function trimText(value?: string, maxLength = 280) {
   const normalized = (value || "").trim();
-  if (!normalized) return "مفيش وصف.";
+  if (!normalized) return "لا يوجد وصف.";
   if (normalized.length <= maxLength) return normalized;
   return `${normalized.slice(0, maxLength - 1)}…`;
 }
@@ -87,7 +87,7 @@ function buildDetails(payload: NewTicketIntegrationPayload) {
   ];
 
   if (payload.customerEmail) {
-    details.push({ label: "الإيميل", value: payload.customerEmail });
+    details.push({ label: "البريد الإلكتروني", value: payload.customerEmail });
   }
 
   if (payload.customerCountry) {

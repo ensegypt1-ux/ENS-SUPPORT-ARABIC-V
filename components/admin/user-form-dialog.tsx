@@ -244,16 +244,16 @@ export function UserFormDialog({
       if (result.success) {
         toast.success(
           result.message ||
-            `${isEditMode ? "اتحدّث" : "اتعمل"} ${entityLabel}`
+            `${isEditMode ? "تم التحديث" : "تم الإنشاء"} ${entityLabel}`
         );
         onOpenChange(false);
         router.refresh();
       } else {
-        toast.error(result.error || "حصل خطأ");
+        toast.error(result.error || "حدث خطأ");
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "حصل خطأ مش متوقع"
+        error instanceof Error ? error.message : "حدث خطأ غير متوقع"
       );
     } finally {
       setIsLoading(false);
@@ -308,7 +308,7 @@ export function UserFormDialog({
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">
-                  الإيميل <span className="text-destructive">*</span>
+                  البريد الإلكتروني <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="email"
@@ -448,7 +448,7 @@ export function UserFormDialog({
                   <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-background p-3">
                     {departments.length === 0 && (
                       <p className="col-span-2 text-xs text-muted-foreground">
-                        مفيش أقسام نشطة. أنشئ قسمًا أولًا من إعدادات
+                        لا يوجد أقسام نشطة. أنشئ قسمًا أولًا من إعدادات
                         التذاكر.
                       </p>
                     )}

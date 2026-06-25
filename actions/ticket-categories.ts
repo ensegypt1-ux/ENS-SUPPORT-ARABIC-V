@@ -14,7 +14,7 @@ import type { ApiResponse, TicketCategoryDefinition, UserRole } from "@/types";
 
 async function requireSignedIn() {
   const session = await getSession();
-  if (!session?.user) throw new Error("مش مسموح");
+  if (!session?.user) throw new Error("غير مصرّح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
   const userId = (session.user as any)?.id ?? "unknown";
   return { session, role, userId };
@@ -22,7 +22,7 @@ async function requireSignedIn() {
 
 async function requireAdmin() {
   const session = await requirePermissionOrThrow("tickets.manage", {
-    message: "ممنوع: يلزم صلاحية إدارة التذاكر",
+    message: "ممنوع: يتطلب صلاحية إدارة التذاكر",
   });
   return (session.user as { id?: string })?.id ?? "unknown";
 }
@@ -105,7 +105,7 @@ export async function createTicketCategory(input: z.infer<typeof createTicketCat
     }
 
     const rawSlug = parsed.data.slug?.trim() || slugifyTicketCategory(parsed.data.name);
-    if (!rawSlug) return { success: false, error: "المعرّف مش صح" };
+    if (!rawSlug) return { success: false, error: "المعرّف غير صالح" };
     if (RESERVED_TICKET_CATEGORY_SLUGS.has(rawSlug)) {
       return { success: false, error: "المعرّف محجوز" };
     }
@@ -157,13 +157,13 @@ export async function updateTicketCategory(input: z.infer<typeof updateTicketCat
     }
 
     if (!ObjectId.isValid(parsed.data.id)) {
-      return { success: false, error: "معرّف الفئة مش صح" };
+      return { success: false, error: "معرّف الفئة غير صالح" };
     }
 
     const collection = await getCollection<TicketCategoryDefinition>("ticket_categories");
     const objectId = new ObjectId(parsed.data.id);
     const existing = await collection.findOne({ _id: objectId });
-    if (!existing) return { success: false, error: "مفيش الفئة" };
+    if (!existing) return { success: false, error: "لا يوجد الفئة" };
 
     const updateDoc: Partial<TicketCategoryDefinition> & Record<string, any> = {
       updatedAt: new Date(),
@@ -175,9 +175,9 @@ export async function updateTicketCategory(input: z.infer<typeof updateTicketCat
     if (typeof parsed.data.sortOrder === "number") updateDoc.sortOrder = parsed.data.sortOrder;
 
     if (typeof parsed.data.slug === "string") {
-      if (existing.isSystem) return { success: false, error: "مش ينفع تغيّر معرّف الفئة النظامية" };
+      if (existing.isSystem) return { success: false, error: "لا يمكن تغيّر معرّف الفئة النظامية" };
       const nextSlug = slugifyTicketCategory(parsed.data.slug);
-      if (!nextSlug) return { success: false, error: "المعرّف مش صح" };
+      if (!nextSlug) return { success: false, error: "المعرّف غير صالح" };
       if (RESERVED_TICKET_CATEGORY_SLUGS.has(nextSlug)) {
         return { success: false, error: "المعرّف محجوز" };
       }
@@ -206,13 +206,13 @@ export async function deleteTicketCategory(id: string) {
     await requireAdmin();
 
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "معرّف الفئة مش صح" };
+      return { success: false, error: "معرّف الفئة غير صالح" };
     }
 
     const collection = await getCollection<TicketCategoryDefinition>("ticket_categories");
     const existing = await collection.findOne({ _id: new ObjectId(id) });
-    if (!existing) return { success: false, error: "مفيش الفئة" };
-    if (existing.isSystem) return { success: false, error: "مش ينفع تمسح الفئات النظامية" };
+    if (!existing) return { success: false, error: "لا يوجد الفئة" };
+    if (existing.isSystem) return { success: false, error: "لا يمكن تمسح الفئات النظامية" };
 
     await collection.deleteOne({ _id: new ObjectId(id) });
 

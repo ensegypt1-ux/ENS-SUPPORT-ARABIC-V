@@ -196,7 +196,7 @@ function Composer({
       return;
     }
     if (!trimmed) {
-      toast.error("الرسالة مينفعش تكون فاضية");
+      toast.error("الرسالة مهل يمكنش تكون فاضية");
       return;
     }
 
@@ -217,7 +217,7 @@ function Composer({
             fd.append("file", file);
             const res = await uploadAttachment(ticketId, fd);
             if (!res.success || !res.data) {
-              throw new Error(res.error || `Failed to upload ${file.name}`);
+              throw new Error(res.error || `تعذّر رفع ${file.name}`);
             }
             return res.data._id.toString();
           })
@@ -231,7 +231,7 @@ function Composer({
       });
 
       if (!result.success) {
-        throw new Error(result.error || "مقدرناش ننشر التعليق");
+        throw new Error(result.error || "تعذّر نشر التعليق");
       }
 
       toast.success(parentCommentId ? "اتنشر الرد" : "اتنشر التعليق");
@@ -242,7 +242,7 @@ function Composer({
       router.refresh();
     } catch (err) {
       console.error(err);
-      toast.error(err instanceof Error ? err.message : "النشر مش ناجح");
+      toast.error(err instanceof Error ? err.message : "النشر غير ناجح");
     } finally {
       setIsSubmitting(false);
     }
@@ -413,11 +413,11 @@ export function CommentSection({
   const saveEdit = async (comment: Comment) => {
     const trimmed = editContent?.trim() ?? "";
     if (trimmed.length < 1) {
-      toast.error("التعليق مينفعش يكون فاضي");
+      toast.error("التعليق مهل يمكنش يكون فاضي");
       return;
     }
     if (trimmed.length > 2000) {
-      toast.error("التعليق لازم يكون أقل من 2000 حرف");
+      toast.error("التعليق يجب أن يكون أقل من 2000 حرف");
       return;
     }
 
@@ -432,12 +432,12 @@ export function CommentSection({
       });
 
       if (result.success) {
-        toast.success("التعليق اتحدّث");
+        toast.success("التعليق تم التحديث");
         setEditingId(null);
         setEditContent("");
         router.refresh();
       } else {
-        toast.error(result.error || "مقدرناش نحدّث التعليق");
+        toast.error(result.error || "تعذّر تحديث التعليق");
       }
     } catch (e) {
       console.error(e);

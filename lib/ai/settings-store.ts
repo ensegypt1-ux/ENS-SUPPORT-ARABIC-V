@@ -20,6 +20,7 @@ const DEFAULT_FEATURES: AIFeatureFlags = {
   chatbot: false,
   agentSuggest: true,
   ticketClassify: false,
+  guestLiveChat: true,
 };
 
 export const DEFAULT_CHATBOT_CONFIG: AIChatbotConfig = {
@@ -68,6 +69,7 @@ function normalizeAISettings(doc: AISettings): AISettings {
     chatProvider: doc.chatProvider ?? "openai",
     embeddingProvider: doc.embeddingProvider ?? "openai",
     ollamaBaseUrl: doc.ollamaBaseUrl || DEFAULT_OLLAMA_BASE_URL,
+    features: { ...DEFAULT_FEATURES, ...(doc.features ?? {}) },
     agent: mergeAgentConfig(doc.agent),
     chatbot: mergeChatbotConfig(doc.chatbot),
     reindexRequired: doc.reindexRequired ?? false,

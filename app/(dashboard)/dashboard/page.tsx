@@ -29,32 +29,24 @@ export default async function DashboardPage() {
       title: "تذاكر مفتوحة",
       value: tickets.filter((t) => t.status === "open").length,
       icon: AlertCircle,
-      iconColor: "text-warning",
-      iconBgColor: "bg-warning/15",
       description: "مستنيين ردّ",
     },
     {
       title: "شغّالين عليها",
       value: tickets.filter((t) => t.status === "in_progress").length,
       icon: Clock,
-      iconColor: "text-accent",
-      iconBgColor: "bg-accent/15",
       description: "قيد الشغل",
     },
     {
       title: "اتحلّت",
       value: tickets.filter((t) => t.status === "resolved").length,
       icon: CheckCircle2,
-      iconColor: "text-success",
-      iconBgColor: "bg-success/15",
       description: "تذاكر خلصت",
     },
     {
       title: "كل التذاكر",
       value: tickets.length,
       icon: Ticket,
-      iconColor: "text-info",
-      iconBgColor: "bg-info/15",
       description: "من الأول",
     },
   ];
@@ -96,9 +88,9 @@ export default async function DashboardPage() {
           {recentTickets?.length === 0 ? (
             <div className="text-center py-12">
               <Ticket className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-semibold">مفيش تذاكر بعد</h3>
+              <h3 className="mt-4 text-lg font-semibold">لا يوجد تذاكر بعد</h3>
               <p className="text-muted-foreground mt-2">
-                افتح أول تذكرة دعم ليك
+                افتح أول تذكرة دعم لك
               </p>
               <Button asChild className="mt-4">
                 <Link href="/dashboard/tickets/new">

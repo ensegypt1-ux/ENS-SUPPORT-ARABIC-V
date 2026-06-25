@@ -1,5 +1,7 @@
 "use client";
 
+import { DEV_PWA_CLEANUP_KEY } from "@/lib/pwa/constants";
+
 const SERVICE_WORKER_PATH = "/sw.js";
 const CACHE_PREFIX = "solvio-pwa-";
 
@@ -38,7 +40,8 @@ function isDevPwaEnabled() {
   return process.env.NEXT_PUBLIC_ENABLE_DEV_PWA === "true";
 }
 
-function shouldRegisterServiceWorker() {
+/** True when the app should keep an active service worker (prod or explicit dev PWA). */
+export function isPwaRuntimeEnabled() {
   return isProduction() || isDevPwaEnabled();
 }
 
@@ -77,13 +80,39 @@ export async function unregisterPwaServiceWorker() {
   return localRegistrations.length > 0;
 }
 
+/**
+ * In local dev (without NEXT_PUBLIC_ENABLE_DEV_PWA), remove any stale SW once
+ * per browser tab. Must NOT run on every navigation — unregister triggers
+ * controllerchange and was causing infinite full-page reload loops.
+ */
+export async function ensureDevServiceWorkerDisabled() {
+  if (isPwaRuntimeEnabled() || !supportsServiceWorker()) {
+    return false;
+  }
+
+  if (typeof window !== "undefined") {
+    try {
+      if (window.sessionStorage.getItem(DEV_PWA_CLEANUP_KEY) === "1") {
+        return false;
+      }
+      window.sessionStorage.setItem(DEV_PWA_CLEANUP_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const removed = await unregisterPwaServiceWorker();
+
+  return removed;
+}
+
 export async function registerPwaServiceWorker() {
   if (!canUseServiceWorker()) {
     return null;
   }
 
-  if (!shouldRegisterServiceWorker()) {
-    await unregisterPwaServiceWorker();
+  if (!isPwaRuntimeEnabled()) {
+    await ensureDevServiceWorkerDisabled();
     return null;
   }
 
@@ -98,11 +127,7 @@ export async function registerPwaServiceWorker() {
 }
 
 export async function getPwaServiceWorkerRegistration() {
-  if (!canUseServiceWorker()) {
-    return null;
-  }
-
-  if (!shouldRegisterServiceWorker()) {
+  if (!canUseServiceWorker() || !isPwaRuntimeEnabled()) {
     return null;
   }
 

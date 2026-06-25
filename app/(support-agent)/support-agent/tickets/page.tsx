@@ -56,32 +56,24 @@ export default async function SupportAgentTicketsPage({
           title: "إجمالي المعيّن",
       value: tickets.length,
       icon: TicketIcon,
-      iconColor: "text-sky-600",
-      iconBgColor: "bg-sky-50 dark:bg-sky-950",
       description: "التذاكر المعيّنة لك",
     },
     {
       title: "مفتوحة",
       value: openTickets.length,
       icon: AlertCircle,
-      iconColor: "text-amber-600",
-      iconBgColor: "bg-amber-50 dark:bg-amber-950",
       description: "في انتظار ردك",
     },
     {
       title: "قيد المعالجة",
       value: inProgressTickets.length,
       icon: Clock,
-      iconColor: "text-indigo-600",
-      iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
       description: "تعمل عليها حاليًا",
     },
     {
       title: "محلولة / مغلقة",
       value: resolvedTickets.length + closedTickets.length,
       icon: CheckCircle2,
-      iconColor: "text-emerald-600",
-      iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
       description: "تذاكر مكتملة",
     },
   ];
@@ -112,7 +104,7 @@ export default async function SupportAgentTicketsPage({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">طلباتي المعيّنة</h1>
+        <h1 className="text-2xl font-bold sm:text-3xl">التذاكر</h1>
         <p className="text-muted-foreground mt-1">
           إدارة والرد على التذاكر المعيّنة لك
         </p>
@@ -167,7 +159,7 @@ export default async function SupportAgentTicketsPage({
             {openTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش تذاكر مفتوحة
+                  لا يوجد تذاكر مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -194,7 +186,7 @@ export default async function SupportAgentTicketsPage({
             {scheduledMeetingTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش تذاكر باجتماع مجدول
+                  لا يوجد تذاكر باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -221,7 +213,7 @@ export default async function SupportAgentTicketsPage({
             {waitingTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش تذاكر في الانتظار
+                  لا يوجد تذاكر في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -248,7 +240,7 @@ export default async function SupportAgentTicketsPage({
             {inProgressTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش تذاكر قيد المعالجة
+                  لا يوجد تذاكر قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -275,7 +267,7 @@ export default async function SupportAgentTicketsPage({
             {resolvedTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش تذاكر محلولة
+                  لا يوجد تذاكر محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -302,7 +294,7 @@ export default async function SupportAgentTicketsPage({
             {closedTickets.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش تذاكر مغلقة
+                  لا يوجد تذاكر مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

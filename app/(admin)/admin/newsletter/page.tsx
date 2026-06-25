@@ -44,7 +44,7 @@ export default async function NewsletterPage() {
           <Table>
             <TableHeader className="bg-muted/30">
               <TableRow className="border-border/60">
-                <TableHead>الإيميل</TableHead>
+                <TableHead>البريد الإلكتروني</TableHead>
                 <TableHead>الحالة</TableHead>
                 <TableHead>تاريخ الاشتراك</TableHead>
               </TableRow>

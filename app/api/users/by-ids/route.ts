@@ -78,13 +78,13 @@ export async function POST(request: NextRequest) {
     const { userIds } = await request.json();
 
     if (!Array.isArray(userIds) || userIds.length === 0) {
-      return NextResponse.json({ error: "Invalid user IDs" }, { status: 400 });
+      return NextResponse.json({ error: "معرّفات المستخدمين غير صالحة" }, { status: 400 });
     }
 
     // Limit to reasonable number of users to prevent abuse
     if (userIds.length > 100) {
       return NextResponse.json(
-        { error: "Too many user IDs requested" },
+        { error: "عدد كبير من user IDs requested" },
         { status: 400 }
       );
     }
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching users by IDs:", error);
     return NextResponse.json(
-      { error: "Failed to fetch users" },
+      { error: "تعذّر جلب المستخدمين" },
       { status: 500 }
     );
   }

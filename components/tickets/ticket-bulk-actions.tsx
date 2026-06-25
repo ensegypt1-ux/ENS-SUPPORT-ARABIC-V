@@ -69,11 +69,11 @@ export function TicketBulkActions({
         startTransition(async () => {
             const result = await work();
             if (result.success) {
-                toast.success(result.message || "التذاكر اتحدّثت");
+                toast.success(result.message || "التذاكر تم تحديث");
                 onDone();
                 router.refresh();
             } else {
-                toast.error(result.error || result.message || "مقدرناش نحدّث التذاكر");
+                toast.error(result.error || result.message || "تعذّر تحديث التذاكر");
             }
         });
     };
@@ -176,7 +176,7 @@ export function TicketBulkActions({
                     )}
                     {agentsState === "loaded" && agents.length === 0 && (
                         <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                            مفيش وكلاء
+                            لا يوجد وكلاء
                         </div>
                     )}
                     {agents.map((agent) => (

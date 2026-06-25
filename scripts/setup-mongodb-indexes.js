@@ -207,6 +207,24 @@ async function setupIndexes() {
       "  ✅ Created index: idx_conversations_participants_last_message"
     );
 
+    await conversationsCollection.createIndex(
+      { guestSessionId: 1 },
+      {
+        name: "idx_conversations_guest_session_id",
+        unique: true,
+        sparse: true,
+      }
+    );
+    console.log("  ✅ Created index: idx_conversations_guest_session_id (unique sparse)");
+
+    await conversationsCollection.createIndex(
+      { source: 1, status: 1, lastMessageAt: -1 },
+      { name: "idx_conversations_source_status_last_message" }
+    );
+    console.log(
+      "  ✅ Created index: idx_conversations_source_status_last_message"
+    );
+
     const messagesCollection = db.collection("messages");
     await messagesCollection.createIndex(
       { id: 1 },

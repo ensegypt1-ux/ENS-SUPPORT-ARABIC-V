@@ -71,12 +71,12 @@ export function CategoryForm({ category }: CategoryFormProps) {
       }
 
       if (result.success) {
-        toast.success(isEditing ? "اتحدّث القسم" : "اتعمل القسم");
+        toast.success(isEditing ? "تم التحديث القسم" : "تم الإنشاء القسم");
         if (!isEditing && result.data?.id) {
           router.push(`/admin/knowledge-base/${result.data.id}`);
         }
       } else {
-        toast.error(result.error ?? "حصل خطأ");
+        toast.error(result.error ?? "حدث خطأ");
       }
     } finally {
       setIsLoading(false);

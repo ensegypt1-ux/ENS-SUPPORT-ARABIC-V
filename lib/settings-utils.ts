@@ -188,11 +188,11 @@ export async function getLogoUrls(): Promise<{
 }
 
 /**
- * Get favicon URL or fallback to default
+ * Get favicon URL or fallback to default ENS favicon
  */
-export async function getFaviconUrl(): Promise<string | null> {
+export async function getFaviconUrl(): Promise<string> {
   const settings = await getSystemSettings();
-  return settings.appearance.faviconUrl || null;
+  return settings.appearance.faviconUrl || ENS_BRAND.faviconUrl;
 }
 
 /**

@@ -1,17 +1,5 @@
-import { Loader2 } from "lucide-react";
+import { PageSpinner } from "@/components/ui/loading";
 
-/**
- * Auth Routes Loading State
- * Displays a loading spinner for authentication pages
- */
 export default function AuthLoading() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground">جاري التحميل...</p>
-      </div>
-    </div>
-  );
+  return <PageSpinner minHeight="min-h-screen" />;
 }
-

@@ -67,32 +67,24 @@ export default async function SupportAgentDashboardPage() {
           title: "إجمالي المعيّن",
           value: stats.totalAssigned,
           icon: TicketIcon,
-          iconColor: "text-info",
-          iconBgColor: "bg-info/15",
           description: "جميع التذاكر المعيّنة",
         },
         {
           title: "تذاكر مفتوحة",
           value: stats.openTickets,
           icon: AlertCircle,
-          iconColor: "text-warning",
-          iconBgColor: "bg-warning/15",
           description: "في انتظار الرد",
         },
         {
           title: "قيد المعالجة",
           value: stats.inProgressTickets,
           icon: Clock,
-          iconColor: "text-accent",
-          iconBgColor: "bg-accent/15",
           description: "قيد العمل",
         },
         {
           title: "محلولة",
           value: stats.resolvedTickets,
           icon: CheckCircle2,
-          iconColor: "text-success",
-          iconBgColor: "bg-success/15",
           description: "تذاكر مكتملة",
         },
       ]
@@ -128,7 +120,7 @@ export default async function SupportAgentDashboardPage() {
             <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
               <Link href="/support-agent/tickets">
                 عرض الكل
-                <ArrowRight className="ms-2 h-4 w-4" />
+                <ArrowRight className="ms-2 h-4 w-4 rtl:-scale-x-100" />
               </Link>
             </Button>
           </div>
@@ -138,7 +130,7 @@ export default async function SupportAgentDashboardPage() {
             <div className="text-center py-12">
               <TicketIcon className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-semibold">
-                مفيش تذاكر معيّنة
+                لا يوجد تذاكر معيّنة
               </h3>
               <p className="text-muted-foreground mt-2">
                 ليس لديك أي تذاكر معيّنة لك بعد

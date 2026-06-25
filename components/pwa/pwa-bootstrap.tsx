@@ -4,34 +4,101 @@ import { useEffect, useRef, useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  registerPwaServiceWorker,
-  unregisterPwaServiceWorker,
-} from "@/lib/pwa/client";
+import { isPwaRuntimeEnabled, registerPwaServiceWorker } from "@/lib/pwa/client";
 
-const DEV_SW_RESET_KEY = "__solvio_dev_sw_reset__";
 const OFFLINE_RETURN_TO_KEY = "__solvio_offline_return_to__";
-const DEV_PWA_ENABLED = process.env.NEXT_PUBLIC_ENABLE_DEV_PWA === "true";
+const OFFLINE_CONFIRM_MS = 2_500;
+const OFFLINE_PROBE_TIMEOUT_MS = 4_000;
 
+/** No-op in local dev unless NEXT_PUBLIC_ENABLE_DEV_PWA=true (see DevServiceWorkerReset). */
 export function PwaBootstrap() {
+  if (!isPwaRuntimeEnabled()) {
+    return null;
+  }
+
+  return <PwaBootstrapActive />;
+}
+
+function PwaBootstrapActive() {
   const [hasUpdate, setHasUpdate] = useState(false);
   const [isReloading, setIsReloading] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
-  const hasRefreshedRef = useRef(false);
+  const waitingForActivationRef = useRef(false);
+  const offlineConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const offlineRedirectingRef = useRef(false);
 
   useEffect(() => {
     let active = true;
+
     const isOnlineReachable = async () => {
+      if (!navigator.onLine) {
+        return false;
+      }
+
       try {
-        await fetch(`/?__online_check=${Date.now()}`, {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(
+          () => controller.abort(),
+          OFFLINE_PROBE_TIMEOUT_MS
+        );
+
+        const response = await fetch(`/?__online_check=${Date.now()}`, {
           method: "HEAD",
           cache: "no-store",
+          signal: controller.signal,
         });
-        return true;
+
+        clearTimeout(timeoutId);
+        return response.ok;
       } catch {
         return false;
       }
+    };
+
+    const clearOfflineConfirmTimer = () => {
+      if (offlineConfirmTimerRef.current) {
+        clearTimeout(offlineConfirmTimerRef.current);
+        offlineConfirmTimerRef.current = null;
+      }
+    };
+
+    const scheduleOfflineRedirect = () => {
+      if (offlineRedirectingRef.current || offlineConfirmTimerRef.current) {
+        return;
+      }
+
+      offlineConfirmTimerRef.current = setTimeout(() => {
+        offlineConfirmTimerRef.current = null;
+        if (!active || offlineRedirectingRef.current) {
+          return;
+        }
+
+        void (async () => {
+          const reachable = await isOnlineReachable();
+          if (!active || reachable) {
+            if (reachable) {
+              setIsOffline(false);
+            }
+            return;
+          }
+
+          setIsOffline(true);
+
+          if (window.location.pathname === "/offline") {
+            return;
+          }
+
+          offlineRedirectingRef.current = true;
+          window.sessionStorage.setItem(
+            OFFLINE_RETURN_TO_KEY,
+            `${window.location.pathname}${window.location.search}${window.location.hash}`
+          );
+          window.location.replace("/offline");
+        })();
+      }, OFFLINE_CONFIRM_MS);
     };
 
     const syncOfflineState = async () => {
@@ -39,35 +106,31 @@ export function PwaBootstrap() {
         return;
       }
 
-      let offline = !navigator.onLine;
-      if (offline) {
-        // navigator.onLine can briefly flap; verify with a real same-origin probe.
+      if (window.location.pathname === "/offline") {
         const reachable = await isOnlineReachable();
-        offline = !reachable;
-      }
+        if (!active) return;
 
-      if (!active) {
+        if (reachable) {
+          setIsOffline(false);
+          const fallbackPath = "/";
+          const returnTo =
+            window.sessionStorage.getItem(OFFLINE_RETURN_TO_KEY) || fallbackPath;
+          window.sessionStorage.removeItem(OFFLINE_RETURN_TO_KEY);
+          offlineRedirectingRef.current = true;
+          window.location.replace(returnTo);
+        } else {
+          setIsOffline(true);
+        }
         return;
       }
 
-      setIsOffline(offline);
-
-      if (offline && window.location.pathname !== "/offline") {
-        window.sessionStorage.setItem(
-          OFFLINE_RETURN_TO_KEY,
-          `${window.location.pathname}${window.location.search}${window.location.hash}`
-        );
-        window.location.replace("/offline");
+      if (!navigator.onLine) {
+        scheduleOfflineRedirect();
         return;
       }
 
-      if (!offline && window.location.pathname === "/offline") {
-        const fallbackPath = "/";
-        const returnTo =
-          window.sessionStorage.getItem(OFFLINE_RETURN_TO_KEY) || fallbackPath;
-        window.sessionStorage.removeItem(OFFLINE_RETURN_TO_KEY);
-        window.location.replace(returnTo);
-      }
+      clearOfflineConfirmTimer();
+      setIsOffline(false);
     };
 
     const monitorRegistration = (registration: ServiceWorkerRegistration) => {
@@ -100,22 +163,6 @@ export function PwaBootstrap() {
 
     const register = async () => {
       try {
-        if (process.env.NODE_ENV !== "production" && !DEV_PWA_ENABLED) {
-          const removed = await unregisterPwaServiceWorker();
-
-          if (
-            active &&
-            removed &&
-            navigator.serviceWorker.controller &&
-            !window.sessionStorage.getItem(DEV_SW_RESET_KEY)
-          ) {
-            window.sessionStorage.setItem(DEV_SW_RESET_KEY, "1");
-            window.location.reload();
-          }
-
-          return;
-        }
-
         const registration = await registerPwaServiceWorker();
         if (active && registration) {
           monitorRegistration(registration);
@@ -149,19 +196,20 @@ export function PwaBootstrap() {
     };
 
     const handleOffline = () => {
-      void syncOfflineState();
+      scheduleOfflineRedirect();
     };
 
     const handleOnline = () => {
+      clearOfflineConfirmTimer();
       void syncOfflineState();
     };
 
     const handleControllerChange = () => {
-      if (hasRefreshedRef.current) {
+      if (!waitingForActivationRef.current) {
         return;
       }
 
-      hasRefreshedRef.current = true;
+      waitingForActivationRef.current = false;
       window.location.reload();
     };
 
@@ -177,6 +225,7 @@ export function PwaBootstrap() {
 
     return () => {
       active = false;
+      clearOfflineConfirmTimer();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("offline", handleOffline);
       window.removeEventListener("online", handleOnline);
@@ -192,6 +241,7 @@ export function PwaBootstrap() {
 
     const waitingWorker = registrationRef.current?.waiting;
     if (waitingWorker) {
+      waitingForActivationRef.current = true;
       waitingWorker.postMessage({ type: "SKIP_WAITING" });
       return;
     }

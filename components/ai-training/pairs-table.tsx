@@ -79,7 +79,7 @@ export function PairsTable({
   const handleToggleActive = async (id: string, next: boolean) => {
     const result = await toggleAITrainingPairActive(id, next);
     if (result.success) {
-      toast.success(next ? "اتفعّل الزوج" : "اتعطّل الزوج");
+      toast.success(next ? "تم تفعيل الزوج" : "تم تعطيل الزوج");
       router.refresh();
     } else {
       toast.error(result.error ?? "تعذّر التحديث");
@@ -124,7 +124,7 @@ export function PairsTable({
       {/* Table */}
       {pairs.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/60 bg-muted/20 py-16 text-center">
-          <h3 className="text-base font-semibold">مفيش أزواج تدريب</h3>
+          <h3 className="text-base font-semibold">لا توجد أزواج تدريب</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             أضف أول زوج سؤال وجواب لبدء تدريب الذكاء الاصطناعي.
           </p>

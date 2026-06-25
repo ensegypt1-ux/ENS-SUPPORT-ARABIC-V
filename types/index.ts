@@ -131,6 +131,7 @@ export interface Ticket {
   isGuest?: boolean;
   guestName?: string;
   guestEmail?: string;
+  guestPhone?: string;
   // Secret bearer token that lets a guest view + reply to their ticket via the
   // public portal at /support/ticket/<token>. Generated for guest tickets only.
   guestAccessToken?: string;
@@ -514,6 +515,8 @@ export type NotificationType =
   | "meeting_cancelled"
   | "new_ticket"
   | "new_message"
+  | "guest_chat"
+  | "guest_chat_message"
   | "installation_status"
   | "customization_status"
   | "attachment"
@@ -637,6 +640,7 @@ export interface AIFeatureFlags {
   chatbot: boolean;
   agentSuggest: boolean;
   ticketClassify: boolean;
+  guestLiveChat: boolean;
 }
 
 export type AIChatbotPosition = "bottom-right" | "bottom-left";
@@ -1004,6 +1008,7 @@ export interface AISettingsPublic {
 
 export interface AIChatbotPublicConfig {
   enabled: boolean;
+  guestLiveChatEnabled: boolean;
   welcomeMessage: string;
   fallbackMessage: string;
   placeholder: string;

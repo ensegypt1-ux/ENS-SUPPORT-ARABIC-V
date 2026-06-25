@@ -47,21 +47,21 @@ export async function uploadMessageAttachment(
     });
 
     if (!session?.user) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "مفيش الرسالة" };
+      return { success: false, error: "لا يوجد الرسالة" };
     }
 
     if (message.senderId !== session.user.id) {
-      return { success: false, error: "تقدر ترفق ملفات برسائلك بس" };
+      return { success: false, error: "يمكنك ترفق ملفات برسائلك بس" };
     }
 
     const file = formData.get("file") as File | null;
     if (!file) {
-      return { success: false, error: "مفيش ملف مرفوع" };
+      return { success: false, error: "لا يوجد ملف مرفوع" };
     }
 
     const maxSize = 20 * 1024 * 1024;
@@ -128,7 +128,7 @@ export async function getMessageAttachments(messageId: string) {
   try {
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "مفيش الرسالة" };
+      return { success: false, error: "لا يوجد الرسالة" };
     }
 
     return {
@@ -152,7 +152,7 @@ export async function deleteMessageAttachment(
     });
 
     if (!session?.user) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     const messagesCollection = await getCollection<MessageDocument>("messages");
@@ -161,7 +161,7 @@ export async function deleteMessageAttachment(
     });
 
     if (!message) {
-      return { success: false, error: "مفيش المرفق" };
+      return { success: false, error: "لا يوجد المرفق" };
     }
 
     const attachment = (message.attachments || []).find(
@@ -169,7 +169,7 @@ export async function deleteMessageAttachment(
     );
 
     if (!attachment || attachment.uploaded_by !== session.user.id) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     if (attachment.thumbnail_url) {

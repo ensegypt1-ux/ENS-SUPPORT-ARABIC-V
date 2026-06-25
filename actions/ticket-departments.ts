@@ -14,7 +14,7 @@ import type { ApiResponse, TicketDepartmentDefinition, UserRole } from "@/types"
 
 async function requireSignedIn() {
   const session = await getSession();
-  if (!session?.user) throw new Error("مش مسموح");
+  if (!session?.user) throw new Error("غير مصرّح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
   const userId = (session.user as any)?.id ?? "unknown";
   return { session, role, userId };
@@ -22,7 +22,7 @@ async function requireSignedIn() {
 
 async function requireAdmin() {
   const session = await requirePermissionOrThrow("tickets.manage", {
-    message: "ممنوع: يلزم صلاحية إدارة التذاكر",
+    message: "ممنوع: يتطلب صلاحية إدارة التذاكر",
   });
   return (session.user as { id?: string })?.id ?? "unknown";
 }
@@ -112,7 +112,7 @@ export async function createTicketDepartment(
 
     const rawSlug =
       parsed.data.slug?.trim() || slugifyTicketDepartment(parsed.data.name);
-    if (!rawSlug) return { success: false, error: "المعرّف مش صح" };
+    if (!rawSlug) return { success: false, error: "المعرّف غير صالح" };
     if (RESERVED_TICKET_DEPARTMENT_SLUGS.has(rawSlug)) {
       return { success: false, error: "المعرّف محجوز" };
     }
@@ -169,7 +169,7 @@ export async function updateTicketDepartment(
     }
 
     if (!ObjectId.isValid(parsed.data.id)) {
-      return { success: false, error: "معرّف القسم مش صح" };
+      return { success: false, error: "معرّف القسم غير صالح" };
     }
 
     const collection = await getCollection<TicketDepartmentDefinition>(
@@ -177,7 +177,7 @@ export async function updateTicketDepartment(
     );
     const objectId = new ObjectId(parsed.data.id);
     const existing = await collection.findOne({ _id: objectId });
-    if (!existing) return { success: false, error: "مفيش القسم" };
+    if (!existing) return { success: false, error: "لا يوجد القسم" };
 
     const updateDoc: Partial<TicketDepartmentDefinition> & Record<string, any> = {
       updatedAt: new Date(),
@@ -192,9 +192,9 @@ export async function updateTicketDepartment(
 
     if (typeof parsed.data.slug === "string") {
       if (existing.isSystem)
-        return { success: false, error: "مش ينفع تغيّر معرّف القسم النظامي" };
+        return { success: false, error: "لا يمكن تغيّر معرّف القسم النظامي" };
       const nextSlug = slugifyTicketDepartment(parsed.data.slug);
-      if (!nextSlug) return { success: false, error: "المعرّف مش صح" };
+      if (!nextSlug) return { success: false, error: "المعرّف غير صالح" };
       if (RESERVED_TICKET_DEPARTMENT_SLUGS.has(nextSlug)) {
         return { success: false, error: "المعرّف محجوز" };
       }
@@ -224,16 +224,16 @@ export async function deleteTicketDepartment(id: string) {
     await requireAdmin();
 
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "معرّف القسم مش صح" };
+      return { success: false, error: "معرّف القسم غير صالح" };
     }
 
     const collection = await getCollection<TicketDepartmentDefinition>(
       "ticket_departments"
     );
     const existing = await collection.findOne({ _id: new ObjectId(id) });
-    if (!existing) return { success: false, error: "مفيش القسم" };
+    if (!existing) return { success: false, error: "لا يوجد القسم" };
     if (existing.isSystem)
-      return { success: false, error: "مش ينفع تمسح الأقسام النظامية" };
+      return { success: false, error: "لا يمكن تمسح الأقسام النظامية" };
 
     await collection.deleteOne({ _id: new ObjectId(id) });
 

@@ -155,7 +155,7 @@ export function SupportHomeHero({
           ) : (
             <p className="mt-4 text-[12px] text-muted-foreground sm:mt-5 sm:text-[13px]">
               <Ticket className="mb-0.5 inline h-3.5 w-3.5 text-primary/70" aria-hidden />{" "}
-              التذكرة بتتبعت بالإيميل — مش لازم حساب.
+              التذكرة تُرسل بالبريد الإلكتروني — لا يتطلب حساب.
             </p>
           )}
         </div>

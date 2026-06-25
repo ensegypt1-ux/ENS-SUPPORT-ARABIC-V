@@ -51,32 +51,24 @@ export default async function SupportAgentCustomizationPage({
       title: "إجمالي المعيّن",
       value: requests.length,
       icon: Wrench,
-      iconColor: "text-slate-600",
-      iconBgColor: "bg-slate-50 dark:bg-slate-950",
       description: "طلبات التخصيص المعيّنة لك",
     },
     {
       title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
-      iconColor: "text-amber-600",
-      iconBgColor: "bg-amber-50 dark:bg-amber-950",
       description: "في انتظار مراجعتك",
     },
     {
       title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
-      iconColor: "text-indigo-600",
-      iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
       description: "تعمل عليها حاليًا",
     },
     {
       title: "محلولة / مغلقة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
-      iconColor: "text-emerald-600",
-      iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
       description: "طلبات تخصيص مكتملة",
     },
   ];
@@ -162,7 +154,7 @@ export default async function SupportAgentCustomizationPage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص مفتوحة
+                  لا يوجد طلبات تخصيص مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -183,7 +175,7 @@ export default async function SupportAgentCustomizationPage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص باجتماع مجدول
+                  لا يوجد طلبات تخصيص باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -207,7 +199,7 @@ export default async function SupportAgentCustomizationPage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص في الانتظار
+                  لا يوجد طلبات تخصيص في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -228,7 +220,7 @@ export default async function SupportAgentCustomizationPage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص قيد المعالجة
+                  لا يوجد طلبات تخصيص قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -252,7 +244,7 @@ export default async function SupportAgentCustomizationPage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص محلولة
+                  لا يوجد طلبات تخصيص محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -273,7 +265,7 @@ export default async function SupportAgentCustomizationPage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات تخصيص مغلقة
+                  لا يوجد طلبات تخصيص مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

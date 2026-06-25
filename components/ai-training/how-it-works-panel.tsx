@@ -471,7 +471,7 @@ export function HowItWorksPanel({
                 <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-right">
                   <div className="flex items-center justify-end gap-2 text-sm font-medium text-primary">
                     <UserPlus className="h-4 w-4" />
-                    مش ينفع الحل
+                    لا يمكن الحل
                   </div>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                     <strong>لا</strong> ينشئ شيئاً. يسأل إن كان الزائر يريد
@@ -550,7 +550,7 @@ export function HowItWorksPanel({
               <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/40 p-2.5 text-xs">
                 <RefreshCw className="mt-0.5 h-3.5 w-3.5 shrink-0 text-info" />
                 <span>
-                  <strong>بديل:</strong> إن لم يُصنَّف قسم (أو كان مش صح)، أو
+                  <strong>بديل:</strong> إن لم يُصنَّف قسم (أو كان غير صالح)، أو
                   لا يغطيه أحد، تُتخطى التصفية ويُستخدم مجموعة الدعم كاملة —
                   لا تُترك تذكرة بدون تعيين لمجرد أن القسم بلا موظفين.
                 </span>

@@ -4,6 +4,7 @@ import PlausibleProvider from "next-plausible";
 import { Toaster } from "@/components/ui/sonner";
 import { Cairo, Geist_Mono } from "next/font/google";
 import { PwaBootstrap } from "@/components/pwa/pwa-bootstrap";
+import { DevServiceWorkerReset } from "@/components/pwa/dev-service-worker-reset";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { SettingsProvider } from "@/components/providers/settings-provider";
@@ -36,17 +37,24 @@ export async function generateViewport(): Promise<Viewport> {
   };
 }
 
+const PWA_ICON_192 = "/pwa-icons/192.png";
+const PWA_ICON_512 = "/pwa-icons/512.png";
+
 export async function generateMetadata(): Promise<Metadata> {
   const metadata = await getAppMetadata();
   const faviconUrl = await getFaviconUrl();
   const fallbackIcons = [
     {
-      url: "/pwa-icons/192",
+      url: faviconUrl,
+      sizes: "any",
+    },
+    {
+      url: PWA_ICON_192,
       sizes: "192x192",
       type: "image/png",
     },
     {
-      url: "/pwa-icons/512",
+      url: PWA_ICON_512,
       sizes: "512x512",
       type: "image/png",
     },
@@ -67,9 +75,9 @@ export async function generateMetadata(): Promise<Metadata> {
       statusBarStyle: "default",
     },
     icons: {
-      icon: faviconUrl ? [faviconUrl, ...fallbackIcons] : fallbackIcons,
-      shortcut: faviconUrl || "/pwa-icons/192",
-      apple: faviconUrl || "/pwa-icons/192",
+      icon: fallbackIcons,
+      shortcut: faviconUrl,
+      apple: faviconUrl,
     },
   };
 }
@@ -97,6 +105,7 @@ export default async function RootLayout({
         <style dangerouslySetInnerHTML={{ __html: cssVariables }} />
         {/* Inject custom CSS if defined */}
         {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
+        <DevServiceWorkerReset />
       </head>
       <body
         className={`${cairo.variable} ${geistMono.variable} font-sans antialiased min-h-screen`}

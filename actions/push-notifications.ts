@@ -114,7 +114,7 @@ export async function registerPushSubscription(
       data: {
         subscriptionCount,
       },
-      message: "إشعارات المتصفح اتفعّلت.",
+      message: "تم تفعيل إشعارات المتصفح.",
     };
   } catch (error) {
     console.error("Register push subscription error:", error);
@@ -152,7 +152,7 @@ export async function unregisterPushSubscription(
       data: {
         subscriptionCount,
       },
-      message: "إشعارات المتصفح اتعطّلت على الجهاز ده.",
+      message: "تم تعطيل إشعارات المتصفح على هذا الجهاز.",
     };
   } catch (error) {
     console.error("Unregister push subscription error:", error);

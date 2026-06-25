@@ -26,7 +26,7 @@ export async function scheduleMeeting(
 ): Promise<ApiResponse<Meeting>> {
   try {
     const session = await requirePermissionOrThrow("meetings.manage", {
-      message: "ممنوع: يلزم صلاحية إدارة الاجتماعات",
+      message: "ممنوع: يتطلب صلاحية إدارة الاجتماعات",
     });
     const userId = session.user.id;
 
@@ -39,7 +39,7 @@ export async function scheduleMeeting(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "مفيش تذكرة",
+        error: "لا توجد تذكرة",
       };
     }
 
@@ -233,7 +233,7 @@ export async function scheduleMeeting(
     return {
       success: true,
       data: serializedMeeting as unknown as Meeting,
-      message: "الاجتماع اتجدول",
+      message: "الاجتماع تم جدولة",
     };
   } catch (error) {
     console.error(
@@ -267,7 +267,7 @@ export async function getTicketMeetings(
     if (!request) {
       return {
         success: false,
-        error: "مفيش تذكرة",
+        error: "لا توجد تذكرة",
       };
     }
 
@@ -277,7 +277,7 @@ export async function getTicketMeetings(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك تشوف الاجتماعات دي",
+        error: "غير مصرّح لك تشوف الاجتماعات دي",
       };
     }
 
@@ -320,7 +320,7 @@ export async function updateMeeting(
   try {
     // Only admin/support can update meetings
     const session = await requirePermissionOrThrow("meetings.manage", {
-      message: "ممنوع: يلزم صلاحية إدارة الاجتماعات",
+      message: "ممنوع: يتطلب صلاحية إدارة الاجتماعات",
     });
     const userId = session.user.id;
 
@@ -336,7 +336,7 @@ export async function updateMeeting(
     if (!meeting) {
       return {
         success: false,
-        error: "مفيش الاجتماع",
+        error: "لا يوجد الاجتماع",
       };
     }
 
@@ -383,7 +383,7 @@ export async function updateMeeting(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "مفيش تذكرة for this meeting",
+        error: "لا توجد تذكرة for this meeting",
       };
     }
 
@@ -559,7 +559,7 @@ export async function updateMeeting(
     return {
       success: true,
       data: serializedMeeting as unknown as Meeting,
-      message: "الاجتماع اتحدّث",
+      message: "الاجتماع تم التحديث",
     };
   } catch (error) {
     console.error(
@@ -583,7 +583,7 @@ export async function deleteMeeting(
   try {
     // Only admin/support can delete meetings
     const session = await requirePermissionOrThrow("meetings.manage", {
-      message: "ممنوع: يلزم صلاحية إدارة الاجتماعات",
+      message: "ممنوع: يتطلب صلاحية إدارة الاجتماعات",
     });
     const userId = session.user.id;
 
@@ -596,7 +596,7 @@ export async function deleteMeeting(
     if (!meeting) {
       return {
         success: false,
-        error: "مفيش الاجتماع",
+        error: "لا يوجد الاجتماع",
       };
     }
 
@@ -608,7 +608,7 @@ export async function deleteMeeting(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "مفيش تذكرة for this meeting",
+        error: "لا توجد تذكرة for this meeting",
       };
     }
 
@@ -651,7 +651,7 @@ export async function deleteMeeting(
 
     return {
       success: true,
-      message: "الاجتماع اتمسح",
+      message: "الاجتماع تم الحذف",
     };
   } catch (error) {
     console.error(
@@ -687,7 +687,7 @@ export async function requestMeetingReschedule(
     if (!meeting) {
       return {
         success: false,
-        error: "مفيش الاجتماع",
+        error: "لا يوجد الاجتماع",
       };
     }
 
@@ -779,7 +779,7 @@ export async function requestMeetingReschedule(
     return {
       success: true,
       data: serializedMeeting as unknown as Meeting,
-      message: "طلب إعادة الجدولة اتبعت",
+      message: "طلب إعادة الجدولة تم الإرسال",
     };
   } catch (error) {
     console.error(
@@ -812,7 +812,7 @@ export async function confirmMeetingAttendance(
     });
 
     if (!meeting) {
-      return { success: false, error: "مفيش الاجتماع" };
+      return { success: false, error: "لا يوجد الاجتماع" };
     }
 
     if (meeting.status !== "scheduled") {

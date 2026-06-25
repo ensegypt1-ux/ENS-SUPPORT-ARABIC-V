@@ -23,14 +23,14 @@ function slugify(value: string) {
 
 async function requireSignedIn() {
   const session = await getSession();
-  if (!session?.user) throw new Error("مش مسموح");
+  if (!session?.user) throw new Error("غير مصرّح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
   return { session, role };
 }
 
 async function requireStaff() {
   const session = await requirePermissionOrThrow("services.manage", {
-    message: "ممنوع: يلزم صلاحية إدارة الخدمات",
+    message: "ممنوع: يتطلب صلاحية إدارة الخدمات",
   });
   const role = ((session.user as { role?: UserRole })?.role ?? "customer") as UserRole;
   return { session, role };
@@ -38,7 +38,7 @@ async function requireStaff() {
 
 async function requireAdmin() {
   const { session, role } = await requireStaff();
-  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
+  if (role !== "admin") throw new Error("ممنوع: يتطلب صلاحية المسؤول");
   return session;
 }
 
@@ -212,7 +212,7 @@ export async function getServiceBySlug(slug: string): Promise<
     const servicesCollection = await getCollection<Service>("services");
     const service = await servicesCollection.findOne({ slug, isActive: true });
     if (!service) {
-      return { success: false, error: "مفيش خدمة" };
+      return { success: false, error: "لا يوجد خدمة" };
     }
 
     return {
@@ -247,7 +247,7 @@ export async function createService(input: z.infer<typeof createServiceSchema>) 
 
     const rawSlug = parsed.data.slug?.trim() || slugify(parsed.data.name);
     if (!rawSlug) {
-      return { success: false, error: "المعرّف مش صح" };
+      return { success: false, error: "المعرّف غير صالح" };
     }
 
     const servicesCollection = await getCollection<Service>("services");
@@ -323,13 +323,13 @@ export async function updateService(input: z.infer<typeof updateServiceSchema>) 
     }
 
     if (!ObjectId.isValid(parsed.data.id)) {
-      return { success: false, error: "معرّف الخدمة مش صح" };
+      return { success: false, error: "معرّف الخدمة غير صالح" };
     }
 
     const servicesCollection = await getCollection<Service>("services");
     const objectId = new ObjectId(parsed.data.id);
     const existing = await servicesCollection.findOne({ _id: objectId });
-    if (!existing) return { success: false, error: "مفيش خدمة" };
+    if (!existing) return { success: false, error: "لا يوجد خدمة" };
 
     const updateDoc: Partial<Service> & Record<string, any> = {
       updatedAt: new Date(),
@@ -349,7 +349,7 @@ export async function updateService(input: z.infer<typeof updateServiceSchema>) 
 
     if (typeof parsed.data.slug === "string") {
       const nextSlug = slugify(parsed.data.slug);
-      if (!nextSlug) return { success: false, error: "المعرّف مش صح" };
+      if (!nextSlug) return { success: false, error: "المعرّف غير صالح" };
       if (nextSlug !== existing.slug) {
         const slugExists = await servicesCollection.findOne({ slug: nextSlug });
         if (slugExists) {
@@ -394,7 +394,7 @@ export async function deleteService(id: string) {
     await requireAdmin();
 
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "معرّف الخدمة مش صح" };
+      return { success: false, error: "معرّف الخدمة غير صالح" };
     }
 
     const servicesCollection = await getCollection<Service>("services");

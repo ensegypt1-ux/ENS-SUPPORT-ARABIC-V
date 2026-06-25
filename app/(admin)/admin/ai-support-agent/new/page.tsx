@@ -29,7 +29,7 @@ export default async function NewAITrainingPairPage() {
           زوج تدريب جديد
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          أضف سؤالاً والإجابة المعتمدة. سياتعمل التضمين تلقائياً.
+          أضف سؤالاً والإجابة المعتمدة. سيتم الإنشاء التضمين تلقائياً.
         </p>
       </div>
 

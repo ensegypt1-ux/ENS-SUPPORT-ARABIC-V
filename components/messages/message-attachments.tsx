@@ -50,7 +50,7 @@ export function MessageAttachments({
     setIsDeleting(true);
     const result = await deleteMessageAttachment(pendingDeleteId);
     if (result.success) {
-      toast.success("اتمسح المرفق");
+      toast.success("تم الحذف المرفق");
       setDeleteDialogOpen(false);
       setPendingDeleteId(null);
     } else {
@@ -145,7 +145,7 @@ export function MessageAttachments({
           <AlertDialogHeader>
             <AlertDialogTitle>حذف المرفق</AlertDialogTitle>
             <AlertDialogDescription>
-              متأكد من حذف هذا المرفق؟ مش هينفع الرجوع عن هذا الإجراء.
+              متأكد من حذف هذا المرفق؟ لا يمكن التراجع عن هذا الإجراء.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

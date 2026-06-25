@@ -90,7 +90,7 @@ const integrationSettingsSchema = z
 
         .string()
 
-        .url("رابط webhook مش صح")
+        .url("رابط webhook غير صالح")
 
         .optional()
 
@@ -108,7 +108,7 @@ const integrationSettingsSchema = z
 
         .string()
 
-        .url("رابط webhook مش صح")
+        .url("رابط webhook غير صالح")
 
         .optional()
 
@@ -296,17 +296,17 @@ export function IntegrationSettingsForm({
 
       if (result.success) {
 
-        toast.success("اتحدّثت إعدادات التكامل");
+        toast.success("تم تحديث إعدادات التكامل");
 
       } else {
 
-        toast.error(result.error || "مقدرناش نحدّث الإعدادات");
+        toast.error(result.error || "تعذّر تحديث الإعدادات");
 
       }
 
     } catch {
 
-      toast.error("حصل خطأ وإحنا بنحدّث الإعدادات");
+      toast.error("حدث خطأ وإحنا بنحدّث الإعدادات");
 
     } finally {
 
@@ -332,7 +332,7 @@ export function IntegrationSettingsForm({
 
       if (result.success) {
 
-        toast.success("اتبعت رسالة الاختبار على Slack");
+        toast.success("تم الإرسال رسالة الاختبار على Slack");
 
       } else {
 
@@ -342,7 +342,7 @@ export function IntegrationSettingsForm({
 
     } catch {
 
-      toast.error("حصل خطأ في اختبار Slack");
+      toast.error("حدث خطأ في اختبار Slack");
 
     } finally {
 
@@ -368,7 +368,7 @@ export function IntegrationSettingsForm({
 
       if (result.success) {
 
-        toast.success("اتبعت رسالة الاختبار على Discord");
+        toast.success("تم الإرسال رسالة الاختبار على Discord");
 
       } else {
 
@@ -378,7 +378,7 @@ export function IntegrationSettingsForm({
 
     } catch {
 
-      toast.error("حصل خطأ في اختبار Discord");
+      toast.error("حدث خطأ في اختبار Discord");
 
     } finally {
 

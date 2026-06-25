@@ -50,8 +50,8 @@ import {
   User,
   FileText,
   MessageSquare,
-  Loader2,
 } from "lucide-react";
+import { TicketsListPageSkeleton } from "@/components/ui/loading";
 
 type ContactStatus = ContactSubmission["status"];
 
@@ -99,7 +99,7 @@ function ContactSubmissionsTable({
   if (submissions.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        مفيش طلبات تواصل
+        لا يوجد طلبات تواصل
       </div>
     );
   }
@@ -125,7 +125,7 @@ function ContactSubmissionsTable({
               الموضوع
             </TableHead>
             <TableHead className={adminTableHeadClass} dir="rtl">
-              الإيميل
+              البريد الإلكتروني
             </TableHead>
             <TableHead className={adminTableHeadClass} dir="rtl">
               الاسم
@@ -269,7 +269,7 @@ export default function ContactPage() {
       const data = await getContactSubmissions();
       setSubmissions(data);
     } catch {
-      toast.error("مقدرناش نحمّل الطلبات");
+      toast.error("تعذّر تحميل الطلبات");
     } finally {
       setIsLoading(false);
     }
@@ -286,7 +286,7 @@ export default function ContactPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("متأكد إنك عايز تمسح الطلب ده؟")) return;
+    if (!confirm("هل أنت متأكد أنك تريد تمسح الطلب ده؟")) return;
 
     const result = await deleteContactSubmission(id);
     if (result.success) {
@@ -346,8 +346,8 @@ export default function ContactPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[300px] flex-1 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="space-y-6">
+        <TicketsListPageSkeleton />
       </div>
     );
   }
@@ -446,7 +446,7 @@ export default function ContactPage() {
                     <span className="font-medium">{selectedSubmission.name}</span>
                   </RtlIconText>
                 </DetailField>
-                <DetailField label="الإيميل">
+                <DetailField label="البريد الإلكتروني">
                   <RtlIconText icon={<Mail className="h-4 w-4" />}>
                     <a
                       href={`mailto:${selectedSubmission.email}`}

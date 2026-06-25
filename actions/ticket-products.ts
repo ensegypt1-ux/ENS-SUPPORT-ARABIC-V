@@ -13,7 +13,7 @@ import type { ApiResponse, TicketProductDefinition, UserRole } from "@/types";
 
 async function requireSignedIn() {
   const session = await getSession();
-  if (!session?.user) throw new Error("مش مسموح");
+  if (!session?.user) throw new Error("غير مصرّح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
   const userId = (session.user as any)?.id ?? "unknown";
   return { session, role, userId };
@@ -21,7 +21,7 @@ async function requireSignedIn() {
 
 async function requireAdmin() {
   const session = await requirePermissionOrThrow("tickets.manage", {
-    message: "ممنوع: يلزم صلاحية إدارة التذاكر",
+    message: "ممنوع: يتطلب صلاحية إدارة التذاكر",
   });
   return (session.user as { id?: string })?.id ?? "unknown";
 }
@@ -108,7 +108,7 @@ export async function createTicketProduct(
 
     const rawSlug =
       parsed.data.slug?.trim() || slugifyTicketProduct(parsed.data.name);
-    if (!rawSlug) return { success: false, error: "المعرّف مش صح" };
+    if (!rawSlug) return { success: false, error: "المعرّف غير صالح" };
     if (RESERVED_TICKET_PRODUCT_SLUGS.has(rawSlug)) {
       return { success: false, error: "المعرّف محجوز" };
     }
@@ -164,7 +164,7 @@ export async function updateTicketProduct(
     }
 
     if (!ObjectId.isValid(parsed.data.id)) {
-      return { success: false, error: "معرّف المنتج مش صح" };
+      return { success: false, error: "معرّف المنتج غير صالح" };
     }
 
     const collection = await getCollection<TicketProductDefinition>(
@@ -172,7 +172,7 @@ export async function updateTicketProduct(
     );
     const objectId = new ObjectId(parsed.data.id);
     const existing = await collection.findOne({ _id: objectId });
-    if (!existing) return { success: false, error: "مفيش المنتج" };
+    if (!existing) return { success: false, error: "لا يوجد المنتج" };
 
     const updateDoc: Partial<TicketProductDefinition> & Record<string, any> = {
       updatedAt: new Date(),
@@ -187,9 +187,9 @@ export async function updateTicketProduct(
 
     if (typeof parsed.data.slug === "string") {
       if (existing.isSystem)
-        return { success: false, error: "مش ينفع تغيّر معرّف المنتج النظامي" };
+        return { success: false, error: "لا يمكن تغيّر معرّف المنتج النظامي" };
       const nextSlug = slugifyTicketProduct(parsed.data.slug);
-      if (!nextSlug) return { success: false, error: "المعرّف مش صح" };
+      if (!nextSlug) return { success: false, error: "المعرّف غير صالح" };
       if (RESERVED_TICKET_PRODUCT_SLUGS.has(nextSlug)) {
         return { success: false, error: "المعرّف محجوز" };
       }
@@ -219,16 +219,16 @@ export async function deleteTicketProduct(id: string) {
     await requireAdmin();
 
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "معرّف المنتج مش صح" };
+      return { success: false, error: "معرّف المنتج غير صالح" };
     }
 
     const collection = await getCollection<TicketProductDefinition>(
       "ticket_products"
     );
     const existing = await collection.findOne({ _id: new ObjectId(id) });
-    if (!existing) return { success: false, error: "مفيش المنتج" };
+    if (!existing) return { success: false, error: "لا يوجد المنتج" };
     if (existing.isSystem)
-      return { success: false, error: "مش ينفع تمسح المنتجات النظامية" };
+      return { success: false, error: "لا يمكن تمسح المنتجات النظامية" };
 
     await collection.deleteOne({ _id: new ObjectId(id) });
 

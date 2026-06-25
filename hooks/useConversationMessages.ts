@@ -1,9 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import { createRequestScope, withTimeout } from "@/lib/async/request-scope";
 import { useSocketConnection } from "@/hooks/useSocketConnection";
 import type { Message, TypingIndicator } from "@/types/realtime";
+
+const MESSAGE_FETCH_TIMEOUT_MS = 20_000;
 
 export function useConversationMessages(
   conversationId: string | null,
@@ -14,41 +17,78 @@ export function useConversationMessages(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { socket } = useSocketConnection(userId);
+  const requestScopeRef = useRef(createRequestScope());
+  const hasLoadedRef = useRef(false);
+  const refreshRef = useRef<
+    (options?: { background?: boolean }) => Promise<void>
+  >(async () => {});
 
-  const refreshMessages = useCallback(async () => {
+  const refreshMessages = useCallback(
+    async (options?: { background?: boolean }) => {
+      const scope = requestScopeRef.current;
+      const requestId = scope.begin();
+
+      if (!conversationId || !userId) {
+        setMessages([]);
+        setTypingUsers([]);
+        setError(null);
+        setLoading(false);
+        hasLoadedRef.current = false;
+        return;
+      }
+
+      const showBlockingLoader = !options?.background || !hasLoadedRef.current;
+      if (showBlockingLoader) {
+        setLoading(true);
+      }
+
+      try {
+        const response = await withTimeout(
+          fetch(`/api/chat/conversations/${conversationId}/messages`, {
+            cache: "no-store",
+          }),
+          MESSAGE_FETCH_TIMEOUT_MS,
+          "تعذّر تحميل الرسائل — انتهت المهلة"
+        );
+
+        if (!response.ok) {
+          throw new Error("تعذّر تحميل الرسائل");
+        }
+
+        const payload = (await response.json()) as { messages: Message[] };
+
+        if (!scope.isActive(requestId)) return;
+
+        setMessages(payload.messages || []);
+        setError(null);
+        hasLoadedRef.current = true;
+      } catch (fetchError) {
+        if (!scope.isActive(requestId)) return;
+
+        console.error("Error fetching messages:", fetchError);
+        setError(fetchError as Error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [conversationId, userId]
+  );
+
+  refreshRef.current = refreshMessages;
+
+  useEffect(() => {
+    setMessages([]);
+    setTypingUsers([]);
+    setError(null);
+    hasLoadedRef.current = false;
+
     if (!conversationId || !userId) {
-      setMessages([]);
-      setTypingUsers([]);
       setLoading(false);
       return;
     }
 
-    try {
-      const response = await fetch(
-        `/api/chat/conversations/${conversationId}/messages`,
-        {
-          cache: "no-store",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to load messages");
-      }
-
-      const payload = (await response.json()) as { messages: Message[] };
-      setMessages(payload.messages || []);
-      setError(null);
-    } catch (fetchError) {
-      console.error("Error fetching messages:", fetchError);
-      setError(fetchError as Error);
-    } finally {
-      setLoading(false);
-    }
+    void refreshRef.current();
   }, [conversationId, userId]);
-
-  useEffect(() => {
-    refreshMessages();
-  }, [refreshMessages]);
 
   useEffect(() => {
     if (!socket || !conversationId || !userId) {
@@ -142,7 +182,7 @@ export function useConversationMessages(
 
     const handleConnect = () => {
       joinConversation();
-      refreshMessages();
+      void refreshRef.current({ background: true });
     };
 
     joinConversation();
@@ -166,7 +206,7 @@ export function useConversationMessages(
       socket.off("chat:messages:read", handleMessagesRead);
       socket.off("chat:typing:state", handleTypingState);
     };
-  }, [conversationId, refreshMessages, socket, userId]);
+  }, [conversationId, socket, userId]);
 
   const setTyping = useCallback(
     (isTyping: boolean) => {

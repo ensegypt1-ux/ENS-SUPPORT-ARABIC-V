@@ -11,7 +11,7 @@ export default function UnauthorizedPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/15">
             <ShieldAlert className="h-8 w-8 text-destructive" />
           </div>
-          <CardTitle className="text-2xl">مش مسموح</CardTitle>
+          <CardTitle className="text-2xl">غير مصرّح</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <p className="text-muted-foreground">

@@ -23,6 +23,7 @@ import { MeetingList } from "@/components/meetings/meeting-list";
 import { MeetingScheduler } from "@/components/meetings/meeting-scheduler";
 import { TicketDescription } from "@/components/tickets/ticket-description";
 import { NameWithRole } from "@/components/shared/name-with-role";
+import { GuestWhatsAppActions } from "@/components/shared/guest-whatsapp-actions";
 import { TicketStatusControl } from "@/components/admin/ticket-status-control";
 import { TicketPriorityControl } from "@/components/admin/ticket-priority-control";
 import {
@@ -305,6 +306,14 @@ export default async function SupportAgentTicketDetailPage({
                 <p className="text-xs text-muted-foreground">
                   {customer?.email}
                 </p>
+                {ticket?.guestPhone && (
+                  <div className="mt-3">
+                    <GuestWhatsAppActions
+                      phone={ticket.guestPhone}
+                      guestName={ticket.guestName || customer?.name}
+                    />
+                  </div>
+                )}
               </div>
 
               <Separator />

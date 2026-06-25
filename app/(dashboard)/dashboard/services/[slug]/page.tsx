@@ -79,34 +79,22 @@ export default async function DashboardServicePage({
     {
       title: "مفتوحة",
       value: openRequests.length,
-      icon: AlertCircle,
-      iconColor: "text-blue-600",
-      iconBgColor: "bg-blue-50 dark:bg-blue-950",
-      description: "في انتظار الإجراء",
+      icon: AlertCircle,      description: "في انتظار الإجراء",
     },
     {
       title: "قيد المعالجة",
       value: inProgressRequests.length,
-      icon: Clock,
-      iconColor: "text-amber-600",
-      iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "قيد العمل حاليًا",
+      icon: Clock,      description: "قيد العمل حاليًا",
     },
     {
       title: "محلولة",
       value: resolvedRequests.length,
-      icon: CheckCircle2,
-      iconColor: "text-emerald-600",
-      iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "اكتمل",
+      icon: CheckCircle2,      description: "اكتمل",
     },
     {
       title: "الكل",
       value: requests.length,
-      icon: Icon,
-      iconColor: "text-slate-600",
-      iconBgColor: "bg-slate-50 dark:bg-slate-950",
-      description: "جميع طلباتك",
+      icon: Icon,      description: "جميع طلباتك",
     },
   ];
 
@@ -175,7 +163,7 @@ export default async function DashboardServicePage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات مفتوحة
+                  لا يوجد طلبات مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -196,7 +184,7 @@ export default async function DashboardServicePage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات باجتماع مجدول
+                  لا يوجد طلبات باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -220,7 +208,7 @@ export default async function DashboardServicePage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات في الانتظار
+                  لا يوجد طلبات في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -238,7 +226,7 @@ export default async function DashboardServicePage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات قيد المعالجة
+                  لا يوجد طلبات قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -259,7 +247,7 @@ export default async function DashboardServicePage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات محلولة
+                  لا يوجد طلبات محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -277,7 +265,7 @@ export default async function DashboardServicePage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات مغلقة
+                  لا يوجد طلبات مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

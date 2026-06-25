@@ -9,8 +9,6 @@ export interface StatConfig {
   value: string | number;
   description?: string;
   icon: LucideIcon;
-  iconColor?: string;
-  iconBgColor?: string;
   trend?: {
     value: number;
     isPositive: boolean;

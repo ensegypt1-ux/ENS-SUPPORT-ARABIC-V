@@ -56,12 +56,12 @@ export function SecuritySettingsForm({ settings }: SecuritySettingsFormProps) {
       });
 
       if (result.success) {
-        toast.success("اتحدّثت إعدادات الأمان");
+        toast.success("تم تحديث إعدادات الأمان");
       } else {
-        toast.error(result.error || "مقدرناش نحدّث الإعدادات");
+        toast.error(result.error || "تعذّر تحديث الإعدادات");
       }
     } catch (error) {
-      toast.error("حصل خطأ وإحنا بنحدّث الإعدادات");
+      toast.error("حدث خطأ وإحنا بنحدّث الإعدادات");
     } finally {
       setIsLoading(false);
     }
@@ -97,8 +97,8 @@ export function SecuritySettingsForm({ settings }: SecuritySettingsFormProps) {
             />
 
             <PanelSwitchField
-              label="طلب التحقق من الإيميل"
-              description="لازم المستخدم يفعّل بريده قبل ما يدخل"
+              label="طلب التحقق من البريد الإلكتروني"
+              description="يجب على المستخدم يفعّل بريده قبل ما يدخل"
               control={
                 <Switch
                   id="requireEmailVerification"

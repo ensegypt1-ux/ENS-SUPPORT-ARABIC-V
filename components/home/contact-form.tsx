@@ -55,7 +55,7 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
         toast.error(result.message);
       }
     } catch (error) {
-      toast.error("حصل خطأ مش متوقع");
+      toast.error("حدث خطأ غير متوقع");
     } finally {
       setIsLoading(false);
     }
@@ -150,7 +150,7 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">تواصل معنا</CardTitle>
         <CardDescription>
-          هل لديك سؤال أو تحتاج مساعدة؟ املأ النموذج أدناه وسنعود إليك في أقرب وقت ممكن.
+          هل لديك سؤال أو تحتاج مساعدة؟ املأ النموذج أدناه وسنعود إلك في أقرب وقت ممكن.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -172,7 +172,7 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">الإيميل</label>
+              <label className="text-sm font-medium">البريد الإلكتروني</label>
               <div className="relative">
                 <Mail className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input

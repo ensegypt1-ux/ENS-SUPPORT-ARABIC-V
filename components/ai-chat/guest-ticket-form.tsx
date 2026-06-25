@@ -2,16 +2,19 @@
 
 import { useState } from "react";
 import { Loader2, Send } from "lucide-react";
+import type { Value } from "react-phone-number-input";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { InternationalPhoneField } from "@/components/shared/international-phone-field";
+import { validateInternationalPhone } from "@/lib/phone/international-phone";
 
 interface GuestTicketFormProps {
   visitorId: string;
   chatLogId?: string;
   defaultMessage?: string;
-  /** Department the agent inferred from the chat, used to route the ticket. */
   departmentSlug?: string;
   onSubmitted: (ticketNumber: string) => void;
   onCancel: () => void;
@@ -26,8 +29,9 @@ export function GuestTicketForm({
   onCancel,
 }: GuestTicketFormProps) {
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState<Value>();
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState(defaultMessage);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,15 +40,14 @@ export function GuestTicketForm({
     e.preventDefault();
     setError(null);
 
-    if (
-      !name.trim() ||
-      !email.trim() ||
-      subject.trim().length < 3 ||
-      message.trim().length < 5
-    ) {
-      setError(
-        " ملء جميع الحقول (الموضوع 3 أحرف على الأقل، الرسالة 5 أحرف على الأقل)."
-      );
+    const phoneResult = validateInternationalPhone(phone || "");
+    if (!phoneResult.ok) {
+      setPhoneError(phoneResult.error);
+      return;
+    }
+
+    if (message.trim().length < 5) {
+      setError("اكتب رسالة من 5 أحرف على الأقل.");
       return;
     }
 
@@ -54,9 +57,9 @@ export function GuestTicketForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          subject: subject.trim(),
+          name: name.trim() || "زائر",
+          phone: phoneResult.normalized,
+          email: email.trim() || undefined,
           message: message.trim(),
           visitorId,
           chatLogId,
@@ -65,12 +68,12 @@ export function GuestTicketForm({
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        setError(data.error ?? "تعذّر الإرسال التذكرة");
+        setError(data.error ?? "تعذّر إرسال التذكرة");
         return;
       }
       onSubmitted(data.data.ticketNumber);
     } catch {
-      setError("خطأ في الشبكة —  المحاولة مرة أخرى");
+      setError("خطأ في الشبكة — حاول مرة أخرى");
     } finally {
       setIsLoading(false);
     }
@@ -79,90 +82,96 @@ export function GuestTicketForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-3 rounded-2xl border border-border bg-card p-3 shadow-sm"
+      className="widget-message-in space-y-4 rounded-2xl border border-border/55 bg-background p-4 shadow-sm ring-1 ring-border/30"
     >
-      <p className="text-xs font-medium text-muted-foreground">
-        التحدث مع موظف — سنتواصل معك عبر الإيميل.
-      </p>
-
       <div className="space-y-1">
-        <Label htmlFor="guest-name" className="text-[11px]">
-          اسمك
-        </Label>
-        <Input
-          id="guest-name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="h-8 text-sm"
-          placeholder="أحمد محمد"
-          disabled={isLoading}
-        />
+        <p className="text-sm font-semibold tracking-tight text-foreground">
+          إرسال طلب دعم
+        </p>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          رقم الهاتف ورسالتك فقط — سنتواصل معك عبر WhatsApp في أقرب وقت.
+        </p>
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="guest-email" className="text-[11px]">
-          الإيميل
-        </Label>
-        <Input
-          id="guest-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="h-8 text-sm"
-          placeholder="your@email.com"
-          disabled={isLoading}
-        />
+      <InternationalPhoneField
+        value={phone}
+        onChange={setPhone}
+        error={phoneError}
+        onErrorChange={setPhoneError}
+        disabled={isLoading}
+      />
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="guest-name" className="text-xs font-medium">
+            الاسم <span className="font-normal text-muted-foreground">(اختياري)</span>
+          </Label>
+          <Input
+            id="guest-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="h-10 text-sm"
+            placeholder="أحمد محمد"
+            disabled={isLoading}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="guest-email" className="text-xs font-medium">
+            البريد <span className="font-normal text-muted-foreground">(اختياري)</span>
+          </Label>
+          <Input
+            id="guest-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="h-10 text-sm"
+            placeholder="you@email.com"
+            disabled={isLoading}
+            dir="ltr"
+          />
+        </div>
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="guest-subject" className="text-[11px]">
-          الموضوع
-        </Label>
-        <Input
-          id="guest-subject"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          className="h-8 text-sm"
-          placeholder="ملخص مختصر لمشكلتك"
-          disabled={isLoading}
-        />
-      </div>
-
-      <div className="space-y-1">
-        <Label htmlFor="guest-message" className="text-[11px]">
-          الرسالة
+      <div className="space-y-1.5">
+        <Label htmlFor="guest-message" className="text-xs font-medium">
+          كيف يمكننا مساعدتك؟ <span className="text-destructive">*</span>
         </Label>
         <Textarea
           id="guest-message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          rows={3}
-          className="resize-none text-sm"
-          placeholder="كيف يمكننا مساعدتك؟"
+          rows={4}
+          className="min-h-[96px] resize-none text-sm leading-relaxed"
+          placeholder="صف مشكلتك أو استفسارك…"
           disabled={isLoading}
         />
       </div>
 
-      {error && <p className="text-[11px] text-destructive">{error}</p>}
+      {error && (
+        <p className="rounded-lg bg-destructive/10 px-2.5 py-1.5 text-xs text-destructive">
+          {error}
+        </p>
+      )}
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 pt-1">
         <Button
           type="submit"
           size="sm"
-          className="flex-1"
+          className="h-10 flex-1 rounded-xl text-sm"
           disabled={isLoading}
         >
           {isLoading ? (
-            <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="me-1.5 h-4 w-4 animate-spin" />
           ) : (
-            <Send className="me-1.5 h-3.5 w-3.5" />
+            <Send className="me-1.5 h-4 w-4" />
           )}
-          إرسال
+          إرسال الطلب
         </Button>
         <Button
           type="button"
           variant="outline"
           size="sm"
+          className="h-10 rounded-xl"
           onClick={onCancel}
           disabled={isLoading}
         >

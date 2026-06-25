@@ -73,7 +73,7 @@ function parseCsv(text: string): ImportPair[] {
   const cIdx = normalized.indexOf("category");
 
   if (qIdx === -1 || aIdx === -1) {
-    throw new Error('ملف CSV لازم يحتوي على أعمدة "question" و"answer"');
+    throw new Error('ملف CSV يجب أن يحتوي على أعمدة "question" و"answer"');
   }
 
   return dataRows
@@ -93,7 +93,7 @@ function parsePairs(text: string): ImportPair[] {
     const data = JSON.parse(trimmed);
     const arr = Array.isArray(data) ? data : data.pairs;
     if (!Array.isArray(arr))
-      throw new Error('JSON لازم يكون مصفوفة أو { pairs: [...] }');
+      throw new Error('JSON يجب أن يكون مصفوفة أو { pairs: [...] }');
     return arr
       .filter((p) => p?.question && p?.answer)
       .map((p) => ({

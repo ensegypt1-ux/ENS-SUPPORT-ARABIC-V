@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
+  Activity,
   LayoutDashboard,
   Users,
   Settings,
@@ -126,6 +127,13 @@ export function AdminNav({ userRole, services }: AdminNavProps) {
           href: "/admin",
           icon: LayoutDashboard,
           roles: ["admin", "support"],
+        },
+        {
+          name: "مركز العمليات",
+          href: "/admin/operations",
+          icon: Activity,
+          roles: ["admin", "support"],
+          collapsedLabel: "عمليات",
         },
       ],
     },

@@ -61,6 +61,37 @@ export function isEmailServiceEnabled(settings: SystemSettings): boolean {
   return Boolean(settings.email?.enabled);
 }
 
+export function isEmailEnvKillSwitchActive(): boolean {
+  return process.env.EMAIL_NOTIFICATIONS_ENABLED === "false";
+}
+
+export function isEmailSmtpConfigured(): boolean {
+  return Boolean(
+    process.env.EMAIL_SERVER_HOST &&
+      process.env.EMAIL_SERVER_USER &&
+      process.env.EMAIL_SERVER_PASSWORD &&
+      process.env.EMAIL_FROM
+  );
+}
+
+export function getEmailDisabledReason(
+  settings: SystemSettings
+): string | null {
+  if (isEmailEnvKillSwitchActive()) {
+    return "البريد معطّل على مستوى الخادم (EMAIL_NOTIFICATIONS_ENABLED=false). عيّن القيمة true في .env.local أو احذف السطر للاعتماد على إعدادات لوحة التحكم.";
+  }
+
+  if (!settings.email?.enabled) {
+    return "إشعارات البريد معطّلة في إعدادات لوحة التحكم.";
+  }
+
+  if (!isEmailSmtpConfigured()) {
+    return "إعدادات خادم البريد غير مكتملة. راجع EMAIL_SERVER_* و EMAIL_FROM في .env.local.";
+  }
+
+  return null;
+}
+
 export async function shouldSendEmailNotification(
   key: EmailNotificationKey
 ): Promise<{ enabled: boolean; settings: SystemSettings }> {
@@ -78,7 +109,7 @@ export async function shouldSendEmailNotification(
 // Create reusable transporter
 const createTransporter = () => {
   if (!process.env.EMAIL_SERVER_HOST) {
-    throw new Error("Email server configuration is missing");
+    throw new Error("إعدادات خادم البريد غير مكتملة");
   }
 
   return nodemailer.createTransport({
@@ -93,9 +124,12 @@ const createTransporter = () => {
 };
 
 export async function sendEmail({ to, subject, html, text }: SendEmailOptions) {
-  // Check if email notifications are enabled
-  if (process.env.EMAIL_NOTIFICATIONS_ENABLED === "false") {
-    return { success: false, message: "Email notifications disabled" };
+  const { getSystemSettings } = await import("@/lib/settings-utils");
+  const settings = await getSystemSettings();
+  const disabledReason = getEmailDisabledReason(settings);
+
+  if (disabledReason) {
+    return { success: false, message: disabledReason };
   }
 
   try {
@@ -123,21 +157,21 @@ export const emailTemplates = {
     subject: `تذكرة جديدة: ${ticketNumber} - ${title}`,
     html: `
       <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">تذكرتك اتعملت</h2>
-        <p>شكراً على تواصلك — تذكرة الدعم جاهزة وهنراجعها ونرجعلك في أقرب وقت.</p>
+        <h2 style="color: #333;">تم إنشاء تذكرتك</h2>
+        <p>شكراً على تواصلك — تذكرة الدعم جاهزة وسنراجعها ونعود إلك في أقرب وقت.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
           <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
           <p style="margin: 5px 0;"><strong>الحالة:</strong> <span style="color: #10b981;">${STATUS_LABELS.open}</span></p>
         </div>
-        <p>سنراجع تذكرتك ونعود إليك في أقرب وقت.${
+        <p>سنراجع تذكرتك ونعود إلك في أقرب وقت.${
           viewUrl
-            ? " استخدم الزر تحت عشان تشوف الحالة وترد في أي وقت — من غير حساب."
-            : " تقدر تتابع التذكرة من حسابك."
+            ? " استخدم الزر تحت لمشاهدة الحالة وترد في أي وقت — بدون حساب."
+            : " يمكنك تتابع التذكرة من حسابك."
         }</p>
         ${ticketLinkButton(viewUrl, "عرض تذكرتك")}
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — متردّش على الإيميل ده.
+          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
         </p>
       </div>
     `,
@@ -154,8 +188,8 @@ export const emailTemplates = {
     subject: `تحدّثت حالة التذكرة: ${ticketNumber}`,
     html: `
       <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">حالة التذكرة اتحدّثت</h2>
-        <p>حالة تذكرة الدعم بتاعتك اتغيّرت.</p>
+        <h2 style="color: #333;">تم تحديث حالة التذكرة</h2>
+        <p>حالة تذكرة الدعم بتاعتك تغيّرت.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
           <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
@@ -175,11 +209,11 @@ export const emailTemplates = {
         ${ticketLinkButton(viewUrl, "عرض تذكرتك")}
         <p>${
           viewUrl
-            ? "استخدم الزر فوق عشان تشوف آخر التفاصيل وترد."
-            : "سجّل دخولك عشان تشوف تفاصيل التذكرة."
+            ? "استخدم الزر فوق لمشاهدة آخر التفاصيل وترد."
+            : "سجّل دخولك لمشاهدة تفاصيل التذكرة."
         }</p>
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — متردّش على الإيميل ده.
+          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
         </p>
       </div>
     `,
@@ -208,11 +242,11 @@ export const emailTemplates = {
         ${ticketLinkButton(viewUrl, "عرض والرد")}
         <p>${
           viewUrl
-            ? "استخدم الزر فوق عشان تشوف المحادثة وترد — من غير حساب."
-            : "سجّل دخولك عشان ترد على التعليق."
+            ? "استخدم الزر فوق لمشاهدة المحادثة وترد — بدون حساب."
+            : "سجّل دخولك للرد على التعليق."
         }</p>
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — متردّش على الإيميل ده.
+          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
         </p>
       </div>
     `,
@@ -224,11 +258,11 @@ export const emailTemplates = {
     assigneeName: string,
     ticketUrl?: string
   ) => ({
-    subject: `اتعيّنتلك تذكرة: ${ticketNumber}`,
+    subject: `تم تعيين تذكرة: ${ticketNumber}`,
     html: `
       <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">تذكرة جديدة معيّنة ليك</h2>
-        <p>اتعيّنتلك تذكرة دعم.</p>
+        <h2 style="color: #333;">تذكرة جديدة معيّنة لك</h2>
+        <p>تم تعيين تذكرة دعم.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
           <p style="margin: 5px 0;"><strong>العنوان:</strong> ${escapeHtml(title)}</p>
@@ -244,7 +278,7 @@ export const emailTemplates = {
             : ""
         }
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — متردّش على الإيميل ده.
+          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
         </p>
       </div>
     `,
@@ -264,8 +298,8 @@ export const emailTemplates = {
     subject: `اجتماع مجدول للتذكرة: ${ticketNumber}`,
     html: `
       <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">اتجدول اجتماع لتذكرتك</h2>
-        <p>اتجدول اجتماع لمناقشة تذكرتك.</p>
+        <h2 style="color: #333;">تم جدولة اجتماع لتذكرتك</h2>
+        <p>تم جدولة اجتماع لمناقشة تذكرتك.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
           <p style="margin: 5px 0;"><strong>عنوان التذكرة:</strong> ${escapeHtml(title)}</p>
@@ -301,9 +335,9 @@ export const emailTemplates = {
         `
             : ""
         }
-        <p>انضم للاجتماع في المعاد. تقدر تشوف التفاصيل من حسابك.</p>
+        <p>انضم للاجتماع في المعاد. يمكنك تشوف التفاصيل من حسابك.</p>
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — متردّش على الإيميل ده.
+          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
         </p>
       </div>
     `,
@@ -316,10 +350,10 @@ export const emailTemplates = {
     updatedFields: Record<string, string | number>,
     meetingLink?: string
   ) => ({
-    subject: `اتحدّث الاجتماع للتذكرة: ${ticketNumber}`,
+    subject: `تم التحديث الاجتماع للتذكرة: ${ticketNumber}`,
     html: `
       <div dir="rtl" lang="ar" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">تفاصيل الاجتماع اتحدّثت</h2>
+        <h2 style="color: #333;">تم تحديث تفاصيل الاجتماع</h2>
         <p>الاجتماع المرتبط بتذكرتك اتغيّر.</p>
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <p style="margin: 5px 0;"><strong>رقم التذكرة:</strong> ${escapeHtml(ticketNumber)}</p>
@@ -347,7 +381,7 @@ export const emailTemplates = {
             : ""
         }
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — متردّش على الإيميل ده.
+          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
         </p>
       </div>
     `,
@@ -374,7 +408,7 @@ export const emailTemplates = {
           <a href="${escapeHtml(ticketUrl)}" style="display: inline-block; background-color: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">عرض التذكرة</a>
         </div>
         <p style="color: #666; font-size: 12px; margin-top: 30px;">
-          رسالة تلقائية — متردّش على الإيميل ده.
+          رسالة تلقائية — لا ترد على هذا البريد الإلكتروني.
         </p>
       </div>
     `,
@@ -407,7 +441,7 @@ export const emailTemplates = {
         <!-- Content -->
         <div style="padding: 30px; background-color: #f9fafb;">
           <p style="color: #374151; font-size: 16px; margin-bottom: 20px;">
-            وصلت تذكرة دعم جديدة ومحتاجة متابعة.
+            وصلت تذكرة دعم جديدة وتحتاج متابعة.
           </p>
 
           <!-- Ticket Information -->
@@ -461,7 +495,7 @@ export const emailTemplates = {
                 <td style="padding: 8px 0; color: #111827;">${escapeHtml(customerName)}</td>
               </tr>
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">الإيميل:</td>
+                <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">البريد الإلكتروني:</td>
                 <td style="padding: 8px 0;"><a href="mailto:${escapeHtml(customerEmail)}" style="color: #667eea; text-decoration: none;">${escapeHtml(customerEmail)}</a></td>
               </tr>
               ${
@@ -534,7 +568,7 @@ export const emailTemplates = {
           </div>
 
           <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 20px;">
-            اضغط الزر فوق عشان تشوف التذكرة وترد من لوحة الإدارة.
+            اضغط الزر فوق لمشاهدة التذكرة وترد من لوحة الإدارة.
           </p>
         </div>
 
@@ -544,7 +578,7 @@ export const emailTemplates = {
             إشعار تلقائي من ${ENS_BRAND.portalTitle}.
           </p>
           <p style="color: #9ca3af; font-size: 11px; margin: 10px 0 0 0;">
-            متردّش على الإيميل ده.
+            لا ترد على هذا البريد الإلكتروني.
           </p>
         </div>
       </div>

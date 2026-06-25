@@ -25,16 +25,16 @@ import {
 } from "@/components/settings/settings-form-shell";
 
 const appearanceSettingsSchema = z.object({
-  primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex مش صح"),
-  secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex مش صح"),
-  accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex مش صح"),
-  successColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex مش صح"),
-  warningColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex مش صح"),
+  primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex غير صالح"),
+  secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex غير صالح"),
+  accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex غير صالح"),
+  successColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex غير صالح"),
+  warningColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex غير صالح"),
   infoColor: z
     .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "لون hex مش صح")
+    .regex(/^#[0-9A-Fa-f]{6}$/, "لون hex غير صالح")
     .optional(),
-  errorColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex مش صح"),
+  errorColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "لون hex غير صالح"),
   footerText: z.string().optional(),
   copyrightText: z.string().optional(),
   customCss: z.string().optional(),
@@ -138,7 +138,7 @@ export function AppearanceSettingsForm({
         toast.error(result.error || "تعذّر رفع أيقونة الموقع");
       }
     } catch {
-      toast.error("حصل خطأ وإحنا رفع أيقونة الموقع");
+      toast.error("حدث خطأ وإحنا رفع أيقونة الموقع");
     } finally {
       setIsUploadingFavicon(false);
       if (faviconInputRef.current) {
@@ -184,12 +184,12 @@ export function AppearanceSettingsForm({
           if (ic) set("--brand-info", ic);
         }
         router.refresh();
-        toast.success("اتحدّثت إعدادات المظهر");
+        toast.success("تم تحديث إعدادات المظهر");
       } else {
-        toast.error(result.error || "مقدرناش نحدّث الإعدادات");
+        toast.error(result.error || "تعذّر تحديث الإعدادات");
       }
     } catch {
-      toast.error("حصل خطأ وإحنا بنحدّث الإعدادات");
+      toast.error("حدث خطأ وإحنا بنحدّث الإعدادات");
     } finally {
       setIsLoading(false);
     }

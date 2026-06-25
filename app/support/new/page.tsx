@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `Create a Ticket | ${appName}`,
     description:
-      "أرسل تذكرة دعم — لا يلزم حساب. صِف مشكلتك وسيتابع فريقنا عبر البريد.",
+      "أرسل تذكرة دعم — لا يتطلب حساب. صِف مشكلتك وسيتابع فريقنا عبر البريد.",
   };
 }
 

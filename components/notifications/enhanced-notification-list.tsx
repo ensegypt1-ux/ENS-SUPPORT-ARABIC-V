@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -98,6 +98,8 @@ export function EnhancedNotificationList({
   >([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const hasLoadedRef = useRef(false);
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
   const [stats, setStats] = useState({ total: 0, unread: 0, read: 0 });
   const [pagination, setPagination] = useState({
@@ -120,47 +122,57 @@ export function EnhancedNotificationList({
     sortOrder: "desc",
   });
 
-  // Load notifications
-  const loadNotifications = async (page: number = 1) => {
-    setIsLoading(true);
-    try {
-      const [notificationResult, statsResult] = await Promise.all([
-        getNotifications({
-          userId,
-          page,
-          limit: pagination.limit,
-          type: filters.type !== "all" ? filters.type : undefined,
-          read: filters.read === "all" ? undefined : filters.read === "read",
-          search: filters.search || undefined,
-          dateFrom: filters.dateFrom,
-          dateTo: filters.dateTo,
-          sortBy: filters.sortBy,
-          sortOrder: filters.sortOrder,
-        }),
-        getNotificationStats(userId),
-      ]);
-
-      if (notificationResult.success && notificationResult.notifications) {
-        setNotifications(
-          notificationResult.notifications as NotificationWithStringId[]
-        );
-        setPagination(notificationResult.pagination!);
+  const loadNotifications = useCallback(
+    async (page: number = 1) => {
+      if (!hasLoadedRef.current) {
+        setIsLoading(true);
       }
+      setLoadError(null);
 
-      if (statsResult.success && statsResult.stats) {
-        setStats(statsResult.stats);
+      try {
+        const [notificationResult, statsResult] = await Promise.all([
+          getNotifications({
+            userId,
+            page,
+            limit: pagination.limit,
+            type: filters.type !== "all" ? filters.type : undefined,
+            read: filters.read === "all" ? undefined : filters.read === "read",
+            search: filters.search || undefined,
+            dateFrom: filters.dateFrom,
+            dateTo: filters.dateTo,
+            sortBy: filters.sortBy,
+            sortOrder: filters.sortOrder,
+          }),
+          getNotificationStats(userId),
+        ]);
+
+        if (notificationResult.success && notificationResult.notifications) {
+          setNotifications(
+            notificationResult.notifications as NotificationWithStringId[]
+          );
+          setPagination(notificationResult.pagination!);
+          hasLoadedRef.current = true;
+        } else {
+          setLoadError("تعذّر تحميل الإشعارات");
+        }
+
+        if (statsResult.success && statsResult.stats) {
+          setStats(statsResult.stats);
+        }
+      } catch {
+        setLoadError("تعذّر تحميل الإشعارات");
+        toast.error("تعذّر تحميل الإشعارات");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      toast.error("مقدرناش نحمّل الإشعارات");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [filters, pagination.limit, userId]
+  );
 
-  // Load on mount and filter changes
   useEffect(() => {
-    loadNotifications(1);
-  }, [filters]);
+    hasLoadedRef.current = false;
+    void loadNotifications(1);
+  }, [loadNotifications]);
 
   // Selection handlers
   const toggleSelect = (id: string) => {
@@ -188,11 +200,11 @@ export function EnhancedNotificationList({
     startTransition(async () => {
       const result = await bulkMarkAsRead(Array.from(selectedIds), userId);
       if (result.success) {
-        toast.success(`اتعلّم ${result.count} إشعار مقروء`);
+        toast.success(`تم التعليم ${result.count} إشعار مقروء`);
         setSelectedIds(new Set());
         loadNotifications(pagination.page);
       } else {
-        toast.error("مقدرناش نعلّم الإشعارات مقروءة");
+        toast.error("تعذّر تعليم الإشعارات مقروءة");
       }
     });
   };
@@ -203,11 +215,11 @@ export function EnhancedNotificationList({
     startTransition(async () => {
       const result = await bulkMarkAsUnread(Array.from(selectedIds), userId);
       if (result.success) {
-        toast.success(`اتعلّم ${result.count} إشعار مش مقروء`);
+        toast.success(`تم التعليم ${result.count} إشعار غير مقروءة`);
         setSelectedIds(new Set());
         loadNotifications(pagination.page);
       } else {
-        toast.error("مقدرناش نعلّم الإشعارات مش مقروءة");
+        toast.error("تعذّر تعليم الإشعارات غير مقروءةة");
       }
     });
   };
@@ -221,11 +233,11 @@ export function EnhancedNotificationList({
         userId
       );
       if (result.success) {
-        toast.success(`اتمسح ${result.count} إشعار`);
+        toast.success(`تم الحذف ${result.count} إشعار`);
         setSelectedIds(new Set());
         loadNotifications(pagination.page);
       } else {
-        toast.error("مقدرناش نمسح الإشعارات");
+        toast.error("تعذّر حذف الإشعارات");
       }
     });
   };
@@ -234,11 +246,11 @@ export function EnhancedNotificationList({
     startTransition(async () => {
       const result = await deleteAllReadNotifications(userId);
       if (result.success) {
-        toast.success(`اتمسح ${result.count} إشعار مقروء`);
+        toast.success(`تم الحذف ${result.count} إشعار مقروء`);
         setShowDeleteAllDialog(false);
         loadNotifications(1);
       } else {
-        toast.error("مقدرناش نمسح الإشعارات المقروءة");
+        toast.error("تعذّر حذف الإشعارات المقروءة");
       }
     });
   };
@@ -352,7 +364,7 @@ export function EnhancedNotificationList({
         )}
 
         {/* Notifications List */}
-        {isLoading ? (
+        {isLoading && notifications.length === 0 ? (
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
               <Card key={i}>
@@ -368,19 +380,33 @@ export function EnhancedNotificationList({
               </Card>
             ))}
           </div>
+        ) : loadError && notifications.length === 0 ? (
+          <Card>
+            <CardContent className="py-10 text-center">
+              <p className="text-sm font-medium">{loadError}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={() => void loadNotifications(1)}
+              >
+                إعادة المحاولة
+              </Button>
+            </CardContent>
+          </Card>
         ) : notifications.length === 0 ? (
           <Card>
             <CardContent className="text-center">
               <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">
-                مفيش إشعارات
+                لا يوجد إشعارات
               </h3>
               <p className="text-muted-foreground">
                 {filters.search ||
                 filters.type !== "all" ||
                 filters.read !== "all"
                   ? "جرّب تعديل عوامل التصفية"
-                  : "مفيش إشعارات لسه"}
+                  : "لا يوجد إشعارات لا تزال"}
               </p>
             </CardContent>
           </Card>
@@ -518,7 +544,7 @@ export function EnhancedNotificationList({
           <AlertDialogHeader>
             <AlertDialogTitle>حذف جميع الإشعارات المقروءة؟</AlertDialogTitle>
             <AlertDialogDescription>
-              هيتمسح {stats.read} إشعار مقروء نهائي — مش هتقدر ترجع.
+              سيتمسح {stats.read} إشعار مقروء نهائي — لن تتمكن من الاسترجاع.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

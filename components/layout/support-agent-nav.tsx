@@ -119,13 +119,13 @@ export function SupportAgentNav({
       ],
     },
     {
-      section: "العمل المُسند",
+      section: "العمل المطلوب",
       items: [
         {
-          name: "طلباتي",
+          name: "التذاكر",
           href: "/support-agent/tickets",
           icon: Ticket,
-          collapsedLabel: "تذاكر",
+          collapsedLabel: "التذاكر",
         },
         {
           name: "الرسائل",

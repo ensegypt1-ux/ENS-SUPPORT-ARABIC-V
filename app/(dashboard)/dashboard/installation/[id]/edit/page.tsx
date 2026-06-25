@@ -19,7 +19,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
+import { FormPageSkeleton, LoadingButtonContent } from "@/components/ui/loading";
+import { UI } from "@/lib/strings";
 import Link from "next/link";
 import { toast } from "sonner";
 import { notFound } from "next/navigation";
@@ -109,22 +111,18 @@ export default function EditInstallationPage({
         return;
       }
 
-      toast.success("اتحدّث طلب التثبيت!");
+      toast.success("تم التحديث طلب التثبيت!");
       router.push(`/dashboard/installation/${ticketId}`);
       router.refresh();
     } catch (error: any) {
-      setError(error.message || "حصل خطأ مش متوقع");
-      toast.error(error.message || "حصل خطأ مش متوقع");
+      setError(error.message || "حدث خطأ غير متوقع");
+      toast.error(error.message || "حدث خطأ غير متوقع");
       setIsSubmitting(false);
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <FormPageSkeleton fields={4} />;
   }
 
   return (
@@ -273,18 +271,13 @@ export default function EditInstallationPage({
               >
                 إلغاء
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (
+              <Button type="submit" className="gap-2" disabled={isSubmitting}>
+                <LoadingButtonContent loading={isSubmitting} loadingLabel={UI.saving}>
                   <>
-                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
-                    جاري الحفظ...
+                    <Save className="h-4 w-4" />
+                    <span>حفظ التغييرات</span>
                   </>
-                ) : (
-                  <>
-                    <Save className="me-2 h-4 w-4" />
-                    حفظ التغييرات
-                  </>
-                )}
+                </LoadingButtonContent>
               </Button>
             </div>
           </form>

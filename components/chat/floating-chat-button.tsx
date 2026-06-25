@@ -84,10 +84,20 @@ export function FloatingChatButton({ className }: FloatingChatButtonProps) {
         className
       )}
     >
-      {/* AI Chat Window */}
-      {showAiChat && (
-        <ChatWindow config={aiConfig} onClose={() => setShowAiChat(false)} />
-      )}
+      {/* AI Chat Window — keep mounted so guest live chat session survives close/reopen */}
+      <div
+        className={cn(
+          "transition-all duration-300",
+          showAiChat
+            ? "opacity-100 translate-y-0"
+            : "pointer-events-none fixed -bottom-[9999px] opacity-0"
+        )}
+        aria-hidden={!showAiChat}
+      >
+        {aiConfig && (
+          <ChatWindow config={aiConfig} onClose={() => setShowAiChat(false)} />
+        )}
+      </div>
 
       {/* Launcher (hidden while AI window is open — it has its own close) */}
       {!showAiChat && (

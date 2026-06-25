@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
 import { SystemSettings } from "@/types/settings";
+import { ENS_BRAND } from "@/lib/ens-brand";
 import { resolvePublicSupportEmail } from "@/lib/support-email";
 
 interface WhatsAppSettings {
@@ -117,7 +118,7 @@ export function useLogoUrls() {
 // Hook to get favicon URL
 export function useFaviconUrl() {
   const { settings } = useSettings();
-  return settings.appearance.faviconUrl || null;
+  return settings.appearance.faviconUrl || ENS_BRAND.faviconUrl;
 }
 
 // Hook to get company info

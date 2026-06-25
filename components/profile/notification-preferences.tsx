@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Bell,
   Laptop,
@@ -51,7 +52,7 @@ function ChannelSelector({
       >
         {[
           { value: "both", label: "كلاهما" },
-          { value: "email", label: "الإيميل" },
+          { value: "email", label: "البريد الإلكتروني" },
           { value: "in_app", label: "داخل التطبيق" },
           { value: "none", label: "لا شيء" },
         ].map((option) => (
@@ -93,7 +94,9 @@ export function NotificationPreferences() {
     "both" | "email" | "in_app" | "none"
   >();
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const {
     permission: pushPermission,
     isSupported: pushSupported,
@@ -108,23 +111,43 @@ export function NotificationPreferences() {
 
   // Load current preferences
   useEffect(() => {
+    let active = true;
+
     const loadPreferences = async () => {
       setIsLoading(true);
-      const result = await getUserPreferences();
-      if (result.success && result.data) {
-        setClickBehavior(result.data.notifications?.clickBehavior || "detail");
-        const ch = result.data.notifications?.channels;
-        setChannelsDefault(ch?.default || "both");
-        setChannelsComment(ch?.comment);
-        setChannelsMeetingScheduled(ch?.meetingScheduled);
-        setChannelsMeetingUpdated(ch?.meetingUpdated);
-        setChannelsAttachment(ch?.attachment);
+      setLoadError(null);
+      try {
+        const result = await getUserPreferences();
+        if (!active) return;
+
+        if (result.success && result.data) {
+          setClickBehavior(result.data.notifications?.clickBehavior || "detail");
+          const ch = result.data.notifications?.channels;
+          setChannelsDefault(ch?.default || "both");
+          setChannelsComment(ch?.comment);
+          setChannelsMeetingScheduled(ch?.meetingScheduled);
+          setChannelsMeetingUpdated(ch?.meetingUpdated);
+          setChannelsAttachment(ch?.attachment);
+        } else {
+          setLoadError(result.error || "تعذّر تحميل التفضيلات");
+        }
+      } catch {
+        if (active) {
+          setLoadError("تعذّر تحميل التفضيلات");
+        }
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
       }
-      setIsLoading(false);
     };
 
-    loadPreferences();
-  }, []);
+    void loadPreferences();
+
+    return () => {
+      active = false;
+    };
+  }, [reloadKey]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -142,7 +165,7 @@ export function NotificationPreferences() {
     });
 
     if (result.success) {
-      toast.success("اتحدّث تفضيلات الإشعارات");
+      toast.success("تم التحديث تفضيلات الإشعارات");
     } else {
       toast.error(result.error || "تعذّر التحديث التفضيلات");
     }
@@ -156,12 +179,31 @@ export function NotificationPreferences() {
           <div className="p-1.5 rounded-lg bg-primary/10">
             <Bell className="h-4 w-4 text-primary" />
           </div>
-          <h3 className="font-medium text-foreground">
-            تفضيلات الإشعارات
-          </h3>
+          <h3 className="font-medium text-foreground">تفضيلات الإشعارات</h3>
         </div>
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <div className="space-y-3 py-4">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-6">
+        <div className="flex flex-col items-center justify-center py-10 text-center">
+          <p className="text-sm font-medium text-foreground">{loadError}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-4 rounded-lg"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            إعادة المحاولة
+          </Button>
         </div>
       </div>
     );

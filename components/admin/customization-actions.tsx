@@ -43,7 +43,7 @@ export function CustomizationActions({ requestId }: CustomizationActionsProps) {
       const result = await deleteTicket(requestId);
 
       if (result.success) {
-        toast.success("اتمسح طلب التخصيص");
+        toast.success("تم الحذف طلب التخصيص");
         router.push("/admin/customization");
         router.refresh();
       } else {
@@ -94,7 +94,7 @@ export function CustomizationActions({ requestId }: CustomizationActionsProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>متأكد؟</AlertDialogTitle>
             <AlertDialogDescription>
-              مش هينفع الرجوع عن هذا الإجراء. سياتمسح طلب التخصيص وجميع
+              لا يمكن التراجع عن هذا الإجراء. سيتم الحذف طلب التخصيص وجميع
               التعليقات والمرفقات وسجل النشاط المرتبط به نهائيًا.
             </AlertDialogDescription>
           </AlertDialogHeader>

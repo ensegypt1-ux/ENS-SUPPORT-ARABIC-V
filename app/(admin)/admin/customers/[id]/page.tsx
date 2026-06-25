@@ -446,7 +446,7 @@ export default async function CustomerDetailPage({
         <CardContent>
           {serializedTickets.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
-              مفيش تذاكر دعم لهذا العميل
+              لا يوجد تذاكر دعم لهذا العميل
             </p>
           ) : (
             <div className="space-y-3">
@@ -509,7 +509,7 @@ export default async function CustomerDetailPage({
           <CardContent>
             {serializedSessions.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                مفيش جلسات
+                لا يوجد جلسات
               </p>
             ) : (
               <div className="space-y-3">

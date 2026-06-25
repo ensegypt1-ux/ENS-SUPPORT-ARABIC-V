@@ -232,7 +232,7 @@ export const DEFAULT_SETTINGS: Omit<
     logoStorageKey: undefined,
     logoDarkUrl: undefined,
     logoDarkStorageKey: undefined,
-    faviconUrl: undefined,
+    faviconUrl: ENS_BRAND.faviconUrl,
     faviconStorageKey: undefined,
 
     // Text Customization

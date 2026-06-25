@@ -76,10 +76,10 @@ export function ArticleForm({
       }
 
       if (result.success) {
-        toast.success(isEditing ? "اتحدّث المقال" : "اتعمل المقال");
+        toast.success(isEditing ? "تم التحديث المقال" : "تم الإنشاء المقال");
         router.push(`/admin/knowledge-base/${categoryId}`);
       } else {
-        toast.error(result.error ?? "حصل خطأ");
+        toast.error(result.error ?? "حدث خطأ");
       }
     } finally {
       setIsLoading(false);

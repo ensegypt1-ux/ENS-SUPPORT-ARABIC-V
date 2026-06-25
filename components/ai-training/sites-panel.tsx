@@ -77,7 +77,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
         try {
           await navigator.clipboard.writeText(value);
           setCopied(true);
-          toast.success(`اتنسخ ${label}`);
+          toast.success(`تم النسخ ${label}`);
           setTimeout(() => setCopied(false), 2000);
         } catch {
           toast.error("تعذّر النسخ — انسخ يدويًا");
@@ -150,7 +150,7 @@ function SiteDialog({
         ? await updateSite(site._id, payload)
         : await createSite(payload);
       if (result.success) {
-        toast.success(isEditing ? "اتحدّث الموقع" : "اتعمل الموقع");
+        toast.success(isEditing ? "تم التحديث الموقع" : "تم الإنشاء الموقع");
         setOpen(false);
         onSaved();
       } else {
@@ -277,7 +277,7 @@ export function SitesPanel({
     try {
       const result = await rotateSiteKey(id);
       if (result.success) {
-        toast.success("اتدوّر المفتاح — حدّث كود التضمين على الموقع");
+        toast.success("تم التدوير المفتاح — حدّث كود التضمين على الموقع");
         await refresh();
       } else {
         toast.error(result.error ?? "تعذّر تدوير المفتاح");
@@ -292,7 +292,7 @@ export function SitesPanel({
     try {
       const result = await deleteSite(id);
       if (result.success) {
-        toast.success("اتمسح الموقع");
+        toast.success("تم الحذف الموقع");
         await refresh();
       } else {
         toast.error(result.error ?? "تعذّر الحذف");
@@ -355,7 +355,7 @@ export function SitesPanel({
             <div className="rounded-lg border border-dashed border-border py-10 text-center">
               <Globe className="mx-auto mb-3 h-8 w-8 text-muted-foreground/50" />
               <p className="text-sm text-muted-foreground">
-                مفيش مواقع بعد. استخدم المقتطف العام أعلاه، أو أضف موقعًا
+                لا يوجد مواقع بعد. استخدم المقتطف العام أعلاه، أو أضف موقعًا
                 لتحديد نطاق الإجابات لكل موقع.
               </p>
             </div>

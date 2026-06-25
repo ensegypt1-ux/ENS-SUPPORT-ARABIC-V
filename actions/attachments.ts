@@ -39,7 +39,7 @@ export async function uploadTicketAttachments(
       return {
         success: true,
         data: [],
-        message: "مفيش ملفات للرفع",
+        message: "لا يوجد ملفات للرفع",
       };
     }
 
@@ -49,7 +49,7 @@ export async function uploadTicketAttachments(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "مفيش تذكرة",
+        error: "لا توجد تذكرة",
       };
     }
 
@@ -60,7 +60,7 @@ export async function uploadTicketAttachments(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك ترفع ملفات على التذكرة دي",
+        error: "غير مصرّح لك ترفع ملفات على التذكرة دي",
       };
     }
 
@@ -311,7 +311,7 @@ export async function uploadAttachment(
     if (!file) {
       return {
         success: false,
-        error: "مفيش ملف مرفوع",
+        error: "لا يوجد ملف مرفوع",
       };
     }
 
@@ -321,7 +321,7 @@ export async function uploadAttachment(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "مفيش تذكرة",
+        error: "لا توجد تذكرة",
       };
     }
 
@@ -332,7 +332,7 @@ export async function uploadAttachment(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك ترفع ملفات على التذكرة دي",
+        error: "غير مصرّح لك ترفع ملفات على التذكرة دي",
       };
     }
 
@@ -443,7 +443,7 @@ export async function getTicketAttachments(
     if (!request) {
       return {
         success: false,
-        error: "مفيش تذكرة",
+        error: "لا توجد تذكرة",
       };
     }
 
@@ -453,7 +453,7 @@ export async function getTicketAttachments(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك تشوف مرفقات التذكرة دي",
+        error: "غير مصرّح لك تشوف مرفقات التذكرة دي",
       };
     }
 
@@ -504,7 +504,7 @@ export async function deleteAttachment(
     if (!attachment) {
       return {
         success: false,
-        error: "مفيش المرفق",
+        error: "لا يوجد المرفق",
       };
     }
 
@@ -513,7 +513,7 @@ export async function deleteAttachment(
     if (userRole === "customer" && attachment.userId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك تمسح المرفق ده",
+        error: "غير مصرّح لك تمسح المرفق ده",
       };
     }
 
@@ -534,7 +534,7 @@ export async function deleteAttachment(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "مفيش تذكرة for this attachment",
+        error: "لا توجد تذكرة for this attachment",
       };
     }
 

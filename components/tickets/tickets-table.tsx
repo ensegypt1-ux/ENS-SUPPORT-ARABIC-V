@@ -65,7 +65,7 @@ export function TicketsTable({
   if (tickets.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        مفيش تذاكر
+        لا يوجد تذاكر
       </div>
     );
   }

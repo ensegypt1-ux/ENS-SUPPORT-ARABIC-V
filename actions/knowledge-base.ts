@@ -25,9 +25,9 @@ function slugify(value: string) {
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("مش مسموح");
+  if (!session?.user) throw new Error("غير مصرّح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
+  if (role !== "admin") throw new Error("ممنوع: يتطلب صلاحية المسؤول");
   return session;
 }
 
@@ -108,7 +108,7 @@ export async function getPublishedKBArticle(
       slug: articleSlug,
       isPublished: true,
     });
-    if (!article) return { success: false, error: "مفيش المقال" };
+    if (!article) return { success: false, error: "لا يوجد المقال" };
     return { success: true, data: article };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -172,7 +172,7 @@ export async function getKBCategoryAdmin(
     if (ObjectId.isValid(categoryId)) {
       category = await col.findOne({ _id: new ObjectId(categoryId) });
     }
-    if (!category) return { success: false, error: "مفيش الفئة" };
+    if (!category) return { success: false, error: "لا يوجد الفئة" };
     return { success: true, data: category };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -205,7 +205,7 @@ export async function getKBArticleAdmin(
     if (ObjectId.isValid(articleId)) {
       article = await col.findOne({ _id: new ObjectId(articleId) });
     }
-    if (!article) return { success: false, error: "مفيش المقال" };
+    if (!article) return { success: false, error: "لا يوجد المقال" };
     return { success: true, data: article };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -266,7 +266,7 @@ export async function updateKBCategory(
       return { success: false, error: parsed.error.issues[0]?.message };
 
     if (!ObjectId.isValid(id))
-      return { success: false, error: "معرّف الفئة مش صح" };
+      return { success: false, error: "معرّف الفئة غير صالح" };
 
     const col = await getCollection<KBCategory>("kb_categories");
 
@@ -297,7 +297,7 @@ export async function deleteKBCategory(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "معرّف الفئة مش صح" };
+      return { success: false, error: "معرّف الفئة غير صالح" };
 
     const col = await getCollection<KBCategory>("kb_categories");
     const articleCol = await getCollection<KBArticle>("kb_articles");
@@ -379,7 +379,7 @@ export async function updateKBArticle(
       return { success: false, error: parsed.error.issues[0]?.message };
 
     if (!ObjectId.isValid(id))
-      return { success: false, error: "معرّف المقال مش صح" };
+      return { success: false, error: "معرّف المقال غير صالح" };
 
     const col = await getCollection<KBArticle>("kb_articles");
 
@@ -421,7 +421,7 @@ export async function deleteKBArticle(id: string): Promise<ApiResponse<void>> {
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id))
-      return { success: false, error: "معرّف المقال مش صح" };
+      return { success: false, error: "معرّف المقال غير صالح" };
 
     const col = await getCollection<KBArticle>("kb_articles");
     await col.deleteOne({ _id: new ObjectId(id) });
@@ -447,7 +447,7 @@ export async function uploadKBImage(
     const session = await requireAdminOrSupport();
     const file = formData.get("file") as File;
     if (!file) {
-      return { success: false, error: "مفيش ملف مرفوع" };
+      return { success: false, error: "لا يوجد ملف مرفوع" };
     }
 
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];

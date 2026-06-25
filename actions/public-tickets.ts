@@ -172,7 +172,7 @@ export async function createPublicTicket(
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.issues[0]?.message || "إرسال مش صح",
+        error: parsed.error.issues[0]?.message || "إرسال غير صالح",
       };
     }
     const data = parsed.data;
@@ -227,7 +227,7 @@ export async function createPublicTicket(
       if (!verification.success) {
         return {
           success: false,
-          error: verification.error || "رمز شراء مش صح",
+          error: verification.error || "رمز شراء غير صالح",
         };
       }
       purchaseVerification = verification.data;
@@ -271,7 +271,7 @@ export async function createPublicTicket(
 
 // ─── Guest ticket portal (token-authed, no login) ──────────────────────────
 
-const NOT_FOUND = "رابط التذكرة هذا مش صح أو منتهي الصلاحية.";
+const NOT_FOUND = "رابط التذكرة هذا غير صالح أو منتهي الصلاحية.";
 
 /** Resolve a guest ticket by its bearer token. Guest tickets always live in
  * the `tickets` collection (see createAgentTicket). */
@@ -357,7 +357,7 @@ export async function addGuestTicketComment(
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.issues[0]?.message || "رسالة مش صحة",
+        error: parsed.error.issues[0]?.message || "رسالة غير صالحة",
       };
     }
 

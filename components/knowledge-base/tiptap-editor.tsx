@@ -90,11 +90,11 @@ export function TiptapEditor({
 
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
-      toast.error("مسموح بس صور (JPEG, PNG, GIF, WebP)");
+      toast.error("يُسمح فقط صور (JPEG, PNG, GIF, WebP)");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("حجم الصورة لازم يكون أقل من 5 ميجابايت");
+      toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
       return;
     }
 
@@ -105,7 +105,7 @@ export function TiptapEditor({
       const result = await uploadKBImage(formData);
       if (result.success && result.data) {
         editor.chain().focus().setImage({ src: result.data.url }).run();
-        toast.success("اتضافت الصورة");
+        toast.success("تمت الإضافةت الصورة");
       } else {
         toast.error(result.error ?? "تعذّر رفع الصورة");
       }

@@ -12,12 +12,21 @@ import { getSession } from "@/lib/auth-utils";
 import {
   createConversationRecord,
   createMessageRecord,
+  ensureConversationAccess,
   ensureConversationParticipant,
   getConversationSummaryForUser,
   getMessageForConversationUser,
 } from "@/lib/chat/server";
 import {
+  claimGuestConversation,
+  archiveGuestConversation,
+  deleteGuestConversation,
+} from "@/lib/chat/guest-chat";
+import { notifyStaffOfGuestConversation } from "@/lib/chat/guest-notifications";
+import {
+  emitConversationRemovedToParticipants,
   emitConversationSummaryToParticipants,
+  emitConversationSummaryToStaff,
   emitMessageCreated,
   emitMessagesRead,
 } from "@/lib/socket/server";
@@ -47,7 +56,7 @@ export async function createConversation(data: { participantIds: string[] }) {
   try {
     const session = await getSession();
     if (!session?.user?.id) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     const userRole = ((session.user as User).role || "customer") as UserRole;
@@ -58,7 +67,7 @@ export async function createConversation(data: { participantIds: string[] }) {
     if (allParticipantIds.length < 2) {
       return {
         success: false,
-        error: "لازم تضمّ المحادثة مشاركين على الأقل",
+        error: "يجب أن تضمّ المحادثة مشاركين على الأقل",
       };
     }
 
@@ -103,7 +112,7 @@ export async function createConversation(data: { participantIds: string[] }) {
     };
   } catch (error) {
     console.error("Failed to create conversation:", error);
-    return { success: false, error: "حصل خطأ مش متوقع" };
+    return { success: false, error: "حدث خطأ غير متوقع" };
   }
 }
 
@@ -118,18 +127,39 @@ export async function sendMessage(data: {
   try {
     const session = await getSession();
     if (!session?.user?.id) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
-    const conversation = await ensureConversationParticipant(
+    const userRole = ((session.user as User).role || "customer") as UserRole;
+
+    let conversation = await ensureConversationParticipant(
       data.conversationId,
       session.user.id
     );
 
     if (!conversation) {
+      conversation = await ensureConversationAccess(data.conversationId, {
+        type: "user",
+        userId: session.user.id,
+        role: userRole,
+      });
+    }
+
+    if (!conversation) {
       return {
         success: false,
-        error: "إنت مش مشارك في المحادثة دي",
+        error: "أنت لست مشاركًا في هذه المحادثة",
+      };
+    }
+
+    if (
+      conversation.source === "guest_widget" &&
+      conversation.status === "unclaimed" &&
+      (userRole === "support" || userRole === "admin")
+    ) {
+      return {
+        success: false,
+        error: "يجب استلام المحادثة قبل الرد",
       };
     }
 
@@ -152,6 +182,13 @@ export async function sendMessage(data: {
 
     emitMessageCreated(message);
     await emitConversationSummaryToParticipants(data.conversationId);
+    if (conversation.source === "guest_widget") {
+      const { getAllStaffUserIds } = await import("@/lib/socket/presence-utils");
+      await emitConversationSummaryToStaff(
+        data.conversationId,
+        await getAllStaffUserIds()
+      );
+    }
 
     try {
       const recipientIds = conversation.participantIds.filter(
@@ -200,7 +237,7 @@ export async function sendMessage(data: {
     return { success: true, data: message };
   } catch (error) {
     console.error("تعذّر الإرسال الرسالة:", error);
-    return { success: false, error: "حصل خطأ مش متوقع" };
+    return { success: false, error: "حدث خطأ غير متوقع" };
   }
 }
 
@@ -214,18 +251,23 @@ export async function markMessagesAsRead(data: {
   try {
     const session = await getSession();
     if (!session?.user?.id) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
-    const conversation = await ensureConversationParticipant(
-      data.conversationId,
-      session.user.id
-    );
+    const userRole = ((session.user as User).role || "customer") as UserRole;
+
+    const conversation =
+      (await ensureConversationParticipant(data.conversationId, session.user.id)) ||
+      (await ensureConversationAccess(data.conversationId, {
+        type: "user",
+        userId: session.user.id,
+        role: userRole,
+      }));
 
     if (!conversation) {
       return {
         success: false,
-        error: "إنت مش مشارك في المحادثة دي",
+        error: "أنت لست مشاركًا في هذه المحادثة",
       };
     }
 
@@ -248,6 +290,108 @@ export async function markMessagesAsRead(data: {
     return { success: true };
   } catch (error) {
     console.error("Failed to mark messages as read:", error);
-    return { success: false, error: "حصل خطأ مش متوقع" };
+    return { success: false, error: "حدث خطأ غير متوقع" };
+  }
+}
+
+export async function claimGuestConversationAction(conversationId: string) {
+  try {
+    const session = await getSession();
+    if (!session?.user?.id) {
+      return { success: false, error: "غير مصرّح" };
+    }
+
+    const userRole = ((session.user as User).role || "customer") as UserRole;
+    if (userRole !== "support" && userRole !== "admin") {
+      return { success: false, error: "ممنوع" };
+    }
+
+    const result = await claimGuestConversation(
+      conversationId,
+      session.user.id
+    );
+
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
+
+    await emitConversationSummaryToParticipants(conversationId);
+    await notifyStaffOfGuestConversation(conversationId);
+    revalidateMessagePages();
+
+    return { success: true, data: { conversationId } };
+  } catch (error) {
+    console.error("Failed to claim guest conversation:", error);
+    return { success: false, error: "حدث خطأ غير متوقع" };
+  }
+}
+
+export async function archiveGuestConversationAction(conversationId: string) {
+  try {
+    const session = await getSession();
+    if (!session?.user?.id) {
+      return { success: false, error: "غير مصرّح" };
+    }
+
+    const userRole = ((session.user as User).role || "customer") as UserRole;
+    if (userRole !== "support" && userRole !== "admin") {
+      return { success: false, error: "ممنوع" };
+    }
+
+    const { getParticipantIdsForConversation } = await import("@/lib/chat/server");
+    const participantIds = await getParticipantIdsForConversation(conversationId);
+
+    const result = await archiveGuestConversation(
+      conversationId,
+      session.user.id,
+      userRole
+    );
+
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
+
+    emitConversationRemovedToParticipants(participantIds, conversationId);
+    revalidateMessagePages();
+
+    return { success: true, data: { conversationId } };
+  } catch (error) {
+    console.error("Failed to archive guest conversation:", error);
+    return { success: false, error: "حدث خطأ غير متوقع" };
+  }
+}
+
+export async function deleteGuestConversationAction(conversationId: string) {
+  try {
+    const session = await getSession();
+    if (!session?.user?.id) {
+      return { success: false, error: "غير مصرّح" };
+    }
+
+    const userRole = ((session.user as User).role || "customer") as UserRole;
+    if (userRole !== "support" && userRole !== "admin") {
+      return { success: false, error: "ممنوع" };
+    }
+
+    const result = await deleteGuestConversation(
+      conversationId,
+      session.user.id,
+      userRole
+    );
+
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
+
+    emitConversationRemovedToParticipants(
+      result.participantIds || [],
+      conversationId
+    );
+    revalidateMessagePages();
+
+    return { success: true, data: { conversationId } };
+  } catch (error) {
+    console.error("Failed to delete guest conversation:", error);
+    return { success: false, error: "حدث خطأ غير متوقع" };
   }
 }

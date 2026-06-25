@@ -42,14 +42,14 @@ export function DeleteUserDialog({
       const result = await deleteUser(user.id);
 
       if (result.success) {
-        toast.success(result.message || "اتمسح المستخدم");
+        toast.success(result.message || "تم الحذف المستخدم");
         onOpenChange(false);
         router.refresh();
       } else {
         toast.error(result.error || "تعذّر الحذف المستخدم");
       }
     } catch (error: any) {
-      toast.error(error.message || "حصل خطأ مش متوقع");
+      toast.error(error.message || "حدث خطأ غير متوقع");
     } finally {
       setIsDeleting(false);
     }
@@ -61,12 +61,12 @@ export function DeleteUserDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>متأكد؟</AlertDialogTitle>
           <AlertDialogDescription>
-            مش هينفع الرجوع عن هذا الإجراء. سياتمسح حساب {entityLabel} الخاص
+            لا يمكن التراجع عن هذا الإجراء. سيتم الحذف حساب {entityLabel} الخاص
             بـ <strong>{user?.name}</strong> ({user?.email}) نهائيًا وإزالة
             بياناته من النظام.
             <br />
             <br />
-            ملاحظة: التذاكر والتعليقات اللي عملها {entityLabel} ده هتفضل محفوظة عشان سلامة البيانات.
+            ملاحظة: التذاكر والتعليقات اللي أنشأها {entityLabel} هذا ستبقى محفوظة لضمان البيانات.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

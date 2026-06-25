@@ -10,9 +10,9 @@ import { SITES_COLLECTION, generateSiteKey } from "@/lib/ai/sites";
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("مش مسموح");
+  if (!session?.user) throw new Error("غير مصرّح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
+  if (role !== "admin") throw new Error("ممنوع: يتطلب صلاحية المسؤول");
   return session;
 }
 
@@ -94,7 +94,7 @@ export async function updateSite(
 ): Promise<ApiResponse<AISitePublic>> {
   try {
     await requireAdmin();
-    if (!ObjectId.isValid(id)) return { success: false, error: "المعرّف مش صح" };
+    if (!ObjectId.isValid(id)) return { success: false, error: "المعرّف غير صالح" };
     const parsed = updateSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message };
@@ -110,7 +110,7 @@ export async function updateSite(
       { $set: set },
       { returnDocument: "after" }
     );
-    if (!doc) return { success: false, error: "مفيش الموقع" };
+    if (!doc) return { success: false, error: "لا يوجد الموقع" };
     revalidateAI();
     return { success: true, data: toPublic(doc) };
   } catch (error: any) {
@@ -124,14 +124,14 @@ export async function rotateSiteKey(
 ): Promise<ApiResponse<AISitePublic>> {
   try {
     await requireAdmin();
-    if (!ObjectId.isValid(id)) return { success: false, error: "المعرّف مش صح" };
+    if (!ObjectId.isValid(id)) return { success: false, error: "المعرّف غير صالح" };
     const col = await getCollection<AISite>(SITES_COLLECTION);
     const doc = await col.findOneAndUpdate(
       { _id: new ObjectId(id) },
       { $set: { key: generateSiteKey(), updatedAt: new Date() } },
       { returnDocument: "after" }
     );
-    if (!doc) return { success: false, error: "مفيش الموقع" };
+    if (!doc) return { success: false, error: "لا يوجد الموقع" };
     revalidateAI();
     return { success: true, data: toPublic(doc) };
   } catch (error: any) {
@@ -147,7 +147,7 @@ export async function rotateSiteKey(
 export async function deleteSite(id: string): Promise<ApiResponse<null>> {
   try {
     await requireAdmin();
-    if (!ObjectId.isValid(id)) return { success: false, error: "المعرّف مش صح" };
+    if (!ObjectId.isValid(id)) return { success: false, error: "المعرّف غير صالح" };
 
     const assigned = await countSiteSources(id);
     if (assigned > 0) {
@@ -159,7 +159,7 @@ export async function deleteSite(id: string): Promise<ApiResponse<null>> {
 
     const col = await getCollection<AISite>(SITES_COLLECTION);
     const res = await col.deleteOne({ _id: new ObjectId(id) });
-    if (res.deletedCount === 0) return { success: false, error: "مفيش" };
+    if (res.deletedCount === 0) return { success: false, error: "الموقع غير موجود" };
     revalidateAI();
     return { success: true, data: null };
   } catch (error: any) {

@@ -28,9 +28,9 @@ const scopeSchema = z.object({
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("مش مسموح");
+  if (!session?.user) throw new Error("غير مصرّح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
+  if (role !== "admin") throw new Error("ممنوع: يتطلب صلاحية المسؤول");
   return session;
 }
 
@@ -81,7 +81,7 @@ export async function uploadAndIndexFile(
 
     const file = formData.get("file");
     if (!(file instanceof File)) {
-      return { success: false, error: "مفيش ملف مرفوع" };
+      return { success: false, error: "لا يوجد ملف مرفوع" };
     }
     const rawName = (formData.get("name") as string | null)?.trim();
     const filename = file.name;
@@ -208,7 +208,7 @@ export async function deleteFile(id: string): Promise<ApiResponse<void>> {
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "معرّف الملف مش صح" };
+      return { success: false, error: "معرّف الملف غير صالح" };
     }
     const col = await getCollection<AIFile>(COLLECTION);
     await col.deleteOne({ _id: new ObjectId(id) });
@@ -227,7 +227,7 @@ export async function updateFileSite(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "معرّف الملف مش صح" };
+      return { success: false, error: "معرّف الملف غير صالح" };
     }
     const parsed = scopeSchema.safeParse(input);
     if (!parsed.success) {
@@ -236,7 +236,7 @@ export async function updateFileSite(
 
     const col = await getCollection<AIFile>(COLLECTION);
     const existing = await col.findOne({ _id: new ObjectId(id) });
-    if (!existing) return { success: false, error: "مفيش الملف" };
+    if (!existing) return { success: false, error: "لا يوجد الملف" };
     if (existing.status === "processing") {
       return {
         success: false,
@@ -255,7 +255,7 @@ export async function updateFileSite(
       update,
       { returnDocument: "after" }
     );
-    if (!doc) return { success: false, error: "مفيش الملف" };
+    if (!doc) return { success: false, error: "لا يوجد الملف" };
 
     await updateFileEmbeddingsSiteScope(id, siteId);
     revalidateAI();

@@ -100,13 +100,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     try {
       const res = await updateProfile(values);
       if (res.success) {
-        toast.success(res.message || "اتحدّث الملف الشخصي");
+        toast.success(res.message || "تم التحديث الملف الشخصي");
         router.refresh();
       } else {
         toast.error(res.error || "تعذّر التحديث الملف الشخصي");
       }
     } catch {
-      toast.error("حصل خطأ مش متوقع أثناء تحديث الملف الشخصي");
+      toast.error("حدث خطأ غير متوقع أثناء تحديث الملف الشخصي");
     } finally {
       setIsSaving(false);
     }
@@ -116,13 +116,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     try {
       const res = await changePassword(values);
       if (res.success) {
-        toast.success(res.message || "اتحدّث كلمة المرور");
+        toast.success(res.message || "تم التحديث كلمة المرور");
         passwordForm.reset();
       } else {
         toast.error(res.error || "تعذّر التحديث كلمة المرور");
       }
     } catch {
-      toast.error("حصل خطأ مش متوقع أثناء تحديث كلمة المرور");
+      toast.error("حدث خطأ غير متوقع أثناء تحديث كلمة المرور");
     } finally {
       setIsChangingPassword(false);
     }
@@ -138,7 +138,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       fd.append("file", file);
       const res = await uploadProfileAvatar(fd);
       if (res.success) {
-        toast.success(res.message || "اتحدّث الصورة الرمزية");
+        toast.success(res.message || "تم التحديث الصورة الرمزية");
         if (res.data?.url) {
           setImageUrl(res.data.url);
           form.setValue("image", res.data.url);
@@ -156,7 +156,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         toast.error(res.error || "تعذّر رفع الصورة الرمزية");
       }
     } catch {
-      toast.error("حصل خطأ مش متوقع أثناء رفع الصورة الرمزية");
+      toast.error("حدث خطأ غير متوقع أثناء رفع الصورة الرمزية");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -260,7 +260,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                          الإيميل
+                          البريد الإلكتروني
                         </FormLabel>
                         <FormControl>
                           <Input

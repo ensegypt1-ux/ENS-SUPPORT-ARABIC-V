@@ -29,9 +29,9 @@ const MAX_PAGES_CEILING = 500;
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("مش مسموح");
+  if (!session?.user) throw new Error("غير مصرّح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
+  if (role !== "admin") throw new Error("ممنوع: يتطلب صلاحية المسؤول");
   return session;
 }
 
@@ -148,15 +148,15 @@ export async function reindexWebSource(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "معرّف المصدر مش صح" };
+      return { success: false, error: "معرّف المصدر غير صالح" };
     }
     if (isWebSourceCrawling(id)) {
-      return { success: false, error: "المصدر ده بيتفهرس دلوقتي" };
+      return { success: false, error: "المصدر ده بيتفهرس حاليًا" };
     }
 
     const col = await getCollection<AIWebSource>(COLLECTION);
     const source = await col.findOne({ _id: new ObjectId(id) });
-    if (!source) return { success: false, error: "مفيش مصدر الويب" };
+    if (!source) return { success: false, error: "لا يوجد مصدر الويب" };
 
     await col.updateOne(
       { _id: new ObjectId(id) },
@@ -178,7 +178,7 @@ export async function updateWebSourceSite(
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "معرّف المصدر مش صح" };
+      return { success: false, error: "معرّف المصدر غير صالح" };
     }
     const parsed = scopeSchema.safeParse(input);
     if (!parsed.success) {
@@ -193,7 +193,7 @@ export async function updateWebSourceSite(
 
     const col = await getCollection<AIWebSource>(COLLECTION);
     const source = await col.findOne({ _id: new ObjectId(id) });
-    if (!source) return { success: false, error: "مفيش مصدر الويب" };
+    if (!source) return { success: false, error: "لا يوجد مصدر الويب" };
     if (source.status === "crawling" || source.status === "queued") {
       return {
         success: false,
@@ -212,7 +212,7 @@ export async function updateWebSourceSite(
       update,
       { returnDocument: "after" }
     );
-    if (!doc) return { success: false, error: "مفيش مصدر الويب" };
+    if (!doc) return { success: false, error: "لا يوجد مصدر الويب" };
 
     await updateWebSourceEmbeddingsSiteScope(id, siteId);
     revalidateAI();
@@ -226,7 +226,7 @@ export async function deleteWebSource(id: string): Promise<ApiResponse<void>> {
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "معرّف المصدر مش صح" };
+      return { success: false, error: "معرّف المصدر غير صالح" };
     }
     if (isWebSourceCrawling(id)) {
       return {

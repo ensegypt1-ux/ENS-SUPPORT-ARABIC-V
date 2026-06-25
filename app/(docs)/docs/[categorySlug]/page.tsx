@@ -80,7 +80,7 @@ export default async function CategoryPage({ params }: PageProps) {
         {/* Articles */}
         {articles.length === 0 ? (
           <p className="mt-10 text-muted-foreground">
-            مفيش مقالات في هذا القسم بعد.
+            لا يوجد مقالات في هذا القسم بعد.
           </p>
         ) : (
           <ol className="mt-10 space-y-3">

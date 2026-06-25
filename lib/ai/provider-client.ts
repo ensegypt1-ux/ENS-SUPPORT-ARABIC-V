@@ -37,7 +37,7 @@ function fingerprint(key: string): string {
 function buildOpenAIClient(apiKey: string): OpenAI {
   if (!isLikelyValidApiKey(apiKey)) {
     throw new Error(
-      "OpenAI API key not configured. Open AI Training → Settings to add your key."
+      "مفتاح OpenAI غير مُعد. افتح إعدادات الذكاء الاصطناعي لإضافة المفتاح."
     );
   }
   return new OpenAI({ apiKey });
@@ -46,7 +46,7 @@ function buildOpenAIClient(apiKey: string): OpenAI {
 function buildOllamaClient(baseURL: string, apiKey: string): OpenAI {
   if (!baseURL) {
     throw new Error(
-      "Ollama base URL not configured. Open AI Training → Settings."
+      "عنوان Ollama غير مُعد. افتح إعدادات الذكاء الاصطناعي."
     );
   }
   // Ollama ignores the key but the SDK requires a non-empty string.
@@ -59,7 +59,7 @@ export async function getChatClient(): Promise<ResolvedClient> {
   if (settings.chatProvider === "ollama") {
     const model = settings.ollamaChatModel?.trim();
     if (!model) {
-      throw new Error("Ollama chat model not set. Open AI Training → Settings.");
+      throw new Error("نموذج محادثة Ollama غير مُعد. افتح إعدادات الذكاء الاصطناعي.");
     }
     const ollamaKey = getDecryptedOllamaApiKey(settings);
     const cacheKey = `ollama|${settings.ollamaBaseUrl}|${fingerprint(ollamaKey)}`;
@@ -87,7 +87,7 @@ export async function getEmbeddingClient(): Promise<ResolvedClient> {
     const model = settings.ollamaEmbeddingModel?.trim();
     if (!model) {
       throw new Error(
-        "Ollama embedding model not set. Open AI Training → Settings."
+        "نموذج تضمين Ollama غير مُعد. افتح إعدادات الذكاء الاصطناعي."
       );
     }
     const ollamaKey = getDecryptedOllamaApiKey(settings);

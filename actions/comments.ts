@@ -43,7 +43,7 @@ export async function addComment(
     if (!request || !kind || !collectionName) {
       return {
         success: false,
-        error: "مفيش تذكرة",
+        error: "لا توجد تذكرة",
       };
     }
 
@@ -53,7 +53,7 @@ export async function addComment(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك تعلّق على التذكرة دي",
+        error: "غير مصرّح لك تعلّق على التذكرة دي",
       };
     }
 
@@ -61,7 +61,7 @@ export async function addComment(
     if (validatedData.isInternal && userRole === "customer") {
       return {
         success: false,
-        error: "مش مسموح لك تعمل ملاحظات داخلية",
+        error: "غير مصرّح لك تعمل ملاحظات داخلية",
       };
     }
 
@@ -76,7 +76,7 @@ export async function addComment(
       if (!parentComment) {
         return {
           success: false,
-          error: "مفيش التعليق الأصلي",
+          error: "لا يوجد التعليق الأصلي",
         };
       }
     }
@@ -332,7 +332,7 @@ export async function addComment(
     return {
       success: true,
       data: serializedComment as unknown as Comment,
-      message: "التعليق اتضاف",
+      message: "التعليق تمت الإضافة",
     };
   } catch (error: unknown) {
     console.error("Error adding comment:", error);
@@ -360,7 +360,7 @@ export async function getTicketComments(
     if (!request) {
       return {
         success: false,
-        error: "مفيش تذكرة",
+        error: "لا توجد تذكرة",
       };
     }
 
@@ -370,7 +370,7 @@ export async function getTicketComments(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك تشوف التعليقات دي",
+        error: "غير مصرّح لك تشوف التعليقات دي",
       };
     }
 
@@ -425,7 +425,7 @@ export async function deleteComment(
     if (userRole === "customer") {
       return {
         success: false,
-        error: "مش مسموح لك تمسح التعليقات",
+        error: "غير مصرّح لك تمسح التعليقات",
       };
     }
 
@@ -437,7 +437,7 @@ export async function deleteComment(
     if (!existingComment) {
       return {
         success: false,
-        error: "مفيش التعليق",
+        error: "لا يوجد التعليق",
       };
     }
 
@@ -448,7 +448,7 @@ export async function deleteComment(
     if (result.deletedCount === 0) {
       return {
         success: false,
-        error: "مفيش التعليق",
+        error: "لا يوجد التعليق",
       };
     }
 
@@ -456,7 +456,7 @@ export async function deleteComment(
 
     return {
       success: true,
-      message: "التعليق اتمسح",
+      message: "التعليق تم الحذف",
     };
   } catch (error: unknown) {
     console.error("Error deleting comment:", error);
@@ -481,7 +481,7 @@ export async function updateComment(
     // Validate ticket access
     const { request, kind, collectionName } = await findRequestById(ticketId);
     if (!request || !kind || !collectionName) {
-      return { success: false, error: "مفيش تذكرة" };
+      return { success: false, error: "لا توجد تذكرة" };
     }
 
     // Validate content using existing rules
@@ -500,14 +500,14 @@ export async function updateComment(
       ticketId,
     });
     if (!existing) {
-      return { success: false, error: "مفيش التعليق" };
+      return { success: false, error: "لا يوجد التعليق" };
     }
 
     // Authorization: only author can edit own comment
     if (existing.userId !== userId) {
       return {
         success: false,
-        error: "تقدر تعدّل تعليقاتك بس",
+        error: "يمكنك تعدّل تعليقاتك بس",
       };
     }
 
@@ -602,7 +602,7 @@ export async function updateComment(
     return {
       success: true,
       data: serialized as unknown as Comment,
-      message: "التعليق اتحدّث",
+      message: "التعليق تم التحديث",
     };
   } catch (error: unknown) {
     console.error("Error updating comment:", error);

@@ -11,6 +11,7 @@ import { createBulkNotifications, createNotification } from "@/lib/notifications
 import { getUserIdsByRole } from "@/lib/user-utils";
 import { assignByDepartment } from "@/lib/ai/assign-by-department";
 import { attachTicketToLog } from "@/lib/ai/chat-log";
+import { validateInternationalPhone } from "@/lib/phone/international-phone";
 import type {
   ApiResponse,
   Ticket,
@@ -21,7 +22,9 @@ import type {
 
 export interface CreateAgentTicketInput {
   name: string;
-  email: string;
+  email?: string;
+  /** Egyptian mobile in E.164 (+20…) — primary contact for guest tickets. */
+  phone?: string;
   /** Short title-ish summary of the issue. */
   summary: string;
   /** Full problem description. */
@@ -66,6 +69,24 @@ export async function createAgentTicket(
     return { success: false, error: "الملخص والتفاصيل مطلوبان" };
   }
 
+  const email = input.email?.trim() || undefined;
+  let guestPhone: string | undefined;
+  if (input.phone?.trim()) {
+    const phoneResult = validateInternationalPhone(input.phone);
+    if (!phoneResult.ok) {
+      return { success: false, error: phoneResult.error };
+    }
+    guestPhone = phoneResult.normalized;
+  }
+
+  const isGuest = !input.customerId || input.customerId === "guest";
+  if (isGuest && !guestPhone && !email) {
+    return {
+      success: false,
+      error: "مطلوب رقم WhatsApp أو البريد الإلكتروني",
+    };
+  }
+
   let departmentSlug = input.departmentSlug?.trim() || undefined;
   if (departmentSlug) {
     const valid = await validateTicketDepartmentForTicketCreation(
@@ -86,9 +107,6 @@ export async function createAgentTicket(
   const now = new Date();
   const _id = new ObjectId();
   const title = summary.length > 80 ? `${summary.slice(0, 80)}...` : summary;
-  const isGuest = !input.customerId || input.customerId === "guest";
-  // Bearer token for the public ticket portal — guests have no account to log
-  // into, so this lets them view + reply via /support/ticket/<token>.
   const guestAccessToken = isGuest ? randomBytes(32).toString("hex") : undefined;
 
   const ticket: Ticket = {
@@ -112,7 +130,8 @@ export async function createAgentTicket(
     lastActivityAt: now,
     isGuest,
     guestName: input.name,
-    guestEmail: input.email,
+    guestEmail: email,
+    guestPhone,
     guestAccessToken,
   };
 
@@ -201,7 +220,7 @@ export async function createAgentTicket(
     await sendAdminNewTicketEmails({
       ticket,
       customerName: input.name || "غير معروف",
-      customerEmail: input.email || "غير معروف",
+      customerEmail: email || guestPhone || "غير معروف",
       ticketUrl: `${baseUrl}${paths.adminDetail}`,
     });
 

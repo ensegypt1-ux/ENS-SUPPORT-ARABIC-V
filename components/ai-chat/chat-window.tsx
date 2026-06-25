@@ -2,13 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { ArrowUp, Loader2, X, Sparkles } from "lucide-react";
+import { ArrowUp, Headset, Loader2, Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { resolveWidgetTheme } from "@/lib/ai/widget-theme";
 import type { AIChatbotPublicConfig } from "@/types";
 import { useChatSession, type ChatMessage } from "./use-chat-session";
 import { ChatMessageBubble } from "./chat-message";
 import { GuestTicketForm } from "./guest-ticket-form";
+import { StableGuestLiveChatPanel } from "./stable-guest-live-chat-panel";
+import {
+  SupportOnlineProvider,
+  useSupportOnline,
+} from "./support-online-context";
+import { useGuestLiveChat } from "./use-guest-live-chat";
 
 const COMPOSER_TEXTAREA_MIN_HEIGHT = 24;
 const COMPOSER_TEXTAREA_MAX_HEIGHT = 112;
@@ -30,6 +36,110 @@ interface ChatWindowProps {
   siteKey?: string;
   /** Host origin the widget is embedded on (for optional domain validation). */
   host?: string;
+}
+
+function ChatHeaderSubtitle({
+  isLiveChat,
+  isConnected,
+}: {
+  isLiveChat: boolean;
+  isConnected: boolean;
+}) {
+  const supportOnline = useSupportOnline();
+
+  if (isLiveChat) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-white/90">
+        <span
+          className={cn(
+            "h-1.5 w-1.5 rounded-full",
+            isConnected
+              ? "bg-emerald-400 shadow-[0_0_0_2px_rgba(255,255,255,0.25)]"
+              : "bg-amber-300 animate-pulse"
+          )}
+        />
+        {isConnected ? "متصل بفريق الدعم" : "جاري الاتصال…"}
+      </span>
+    );
+  }
+
+  if (supportOnline === null) return null;
+
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-white/90">
+      <span
+        className={cn(
+          "h-1.5 w-1.5 rounded-full",
+          supportOnline ? "bg-emerald-400" : "bg-white/45"
+        )}
+      />
+      {supportOnline
+        ? "الدعم متاح — محادثة مباشرة"
+        : "الدعم غير متاح — أرسل تذكرة"}
+    </span>
+  );
+}
+
+function ThinkingIndicator({ headerGradient }: { headerGradient: string }) {
+  return (
+    <div className="widget-message-in flex items-end gap-2">
+      <div
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white shadow-sm ring-2 ring-background"
+        style={{ background: headerGradient }}
+      >
+        <Sparkles className="h-3.5 w-3.5" />
+      </div>
+      <div className="rounded-2xl rounded-es-md border border-border/45 bg-background px-3.5 py-2.5 shadow-sm">
+        <div className="flex items-center gap-1">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="widget-typing-dot h-1.5 w-1.5 rounded-full bg-muted-foreground/55"
+              style={{ animationDelay: `${i * 0.14}s` }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LiveChatHandoffButton({
+  hasLiveChatSession,
+  pendingLiveChat,
+  showTicketForm,
+  hydrated,
+  lastUserMessage,
+  onHandoff,
+}: {
+  hasLiveChatSession: boolean;
+  pendingLiveChat: boolean;
+  showTicketForm: boolean;
+  hydrated: boolean;
+  lastUserMessage: string;
+  onHandoff: (options: { lastMessage?: string }) => void;
+}) {
+  const supportOnline = useSupportOnline();
+  if (
+    !supportOnline ||
+    hasLiveChatSession ||
+    pendingLiveChat ||
+    showTicketForm ||
+    !hydrated
+  ) {
+    return null;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onHandoff({ lastMessage: lastUserMessage })}
+      className="group flex w-full items-center justify-center gap-2 rounded-xl bg-primary/10 px-3 py-2.5 text-[12px] font-semibold text-primary ring-1 ring-primary/20 transition-all hover:bg-primary/15 hover:ring-primary/30 active:scale-[0.98]"
+    >
+      <Headset className="h-4 w-4 transition-transform group-hover:scale-105" />
+      التحدث مع موظف الدعم الآن
+    </button>
+  );
 }
 
 export function ChatWindow({
@@ -66,6 +176,16 @@ export function ChatWindow({
   const composerRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  const guestLiveChat = useGuestLiveChat({
+    guestSessionId: visitorId,
+    storageNamespace,
+    guestLiveChatEnabled: config.guestLiveChatEnabled,
+  });
+
+  const hasLiveChatSession = Boolean(guestLiveChat.session?.guestPhone?.trim());
+  const showLiveChatPanel =
+    hasLiveChatSession || Boolean(guestLiveChat.pendingLiveChat);
+
   const theme = resolveWidgetTheme(config.primaryColor, config.accentColor);
   const headerTitle =
     config.headerTitle?.trim() || config.businessName?.trim() || "المحادثة المباشرة";
@@ -92,7 +212,48 @@ export function ChatWindow({
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages, showTicketForm]);
+  }, [messages, showTicketForm, showLiveChatPanel, guestLiveChat.messages]);
+
+  const handleHumanHandoff = async (options: {
+    chatLogId?: string;
+    departmentSlug?: string;
+    lastMessage?: string;
+  }) => {
+    setHandoffDepartment(options.departmentSlug);
+    setLastUserMessage(options.lastMessage || lastUserMessage);
+
+    if (hasLiveChatSession || guestLiveChat.pendingLiveChat) {
+      return;
+    }
+
+    if (config.guestLiveChatEnabled) {
+      const result = await guestLiveChat.requestLiveChat({
+        chatLogId: options.chatLogId,
+        departmentSlug: options.departmentSlug,
+      });
+
+      if (result.success) {
+        setShowTicketForm(false);
+        addMessage({
+          role: "system",
+          content: "تم فتح محادثة مباشرة مع فريق الدعم. اكتب رسالتك أدناه.",
+        });
+        return;
+      }
+
+      if (result.offline) {
+        setShowTicketForm(true);
+        addMessage({
+          role: "system",
+          content:
+            "فريق الدعم غير متاح حاليًا. يمكنك إرسال طلب وسنتواصل معك عبر WhatsApp.",
+        });
+        return;
+      }
+    }
+
+    setShowTicketForm(true);
+  };
 
   const resizeComposer = useCallback(() => {
     const textarea = inputRef.current;
@@ -172,10 +333,10 @@ export function ChatWindow({
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setError(data.error ?? "حصل خطأ ما");
+        setError(data.error ?? "حدث خطأ ما");
         addMessage({
           role: "system",
-          content: data.error ?? "حصل خطأ ما",
+          content: data.error ?? "حدث خطأ ما",
         });
         return;
       }
@@ -203,8 +364,11 @@ export function ChatWindow({
       // The customer agreed to talk to a human → open the ticket form,
       // pre-routed to the department the agent inferred from the chat.
       if (payload.escalated) {
-        setHandoffDepartment(payload.suggestedDepartmentSlug);
-        setShowTicketForm(true);
+        await handleHumanHandoff({
+          chatLogId: payload.logId,
+          departmentSlug: payload.suggestedDepartmentSlug,
+          lastMessage: question,
+        });
       }
     } catch {
       setError("خطأ في الشبكة");
@@ -218,7 +382,7 @@ export function ChatWindow({
     setShowTicketForm(false);
     addMessage({
       role: "system",
-      content: `شكراً! اتعمل التذكرة ${ticketNumber} — سنرد عليك بالإيميل قريباً.`,
+      content: `شكرًا! تم إنشاء التذكرة ${ticketNumber} — سنرد عليك عبر البريد الإلكتروني قريبًا.`,
     });
   };
 
@@ -258,82 +422,124 @@ export function ChatWindow({
   };
 
   return (
+    <SupportOnlineProvider enabled={config.guestLiveChatEnabled}>
     <div
       className={cn(
-        "flex flex-col overflow-hidden rounded-3xl border border-border/60 bg-background shadow-2xl",
-        // Embedded: fill the iframe (sized by public/widget.js) instead of
-        // capping against 100vh, which inside the iframe is only the iframe's
-        // own (small) height and squishes the window short.
+        "flex flex-col overflow-hidden rounded-2xl border border-border/50 bg-background shadow-[0_12px_48px_-16px_rgba(15,23,42,0.35)] ring-1 ring-black/[0.04]",
         embedded
-          ? "w-full h-full max-h-full"
+          ? "h-full max-h-full w-full"
           : sizeMode === "configured"
             ? "max-w-full"
-          : "w-[22rem] h-[34rem] max-h-[calc(100vh-8rem)]"
+            : "h-[36rem] max-h-[calc(100vh-6rem)] w-[24rem]"
       )}
       style={configuredSizeStyle}
     >
-      {/* Header — inset, floating rounded bar */}
-      <div className="relative px-3 pt-3">
-        <header
-          className="flex items-center justify-between rounded-2xl px-4 py-3 text-white"
-          style={{ background: theme.headerGradient }}
-        >
-          <p className="text-base font-semibold leading-tight">
-            {headerTitle}
-          </p>
-          <button
-            type="button"
-            onClick={onClose}
-            title="إغلاق"
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-white/30"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </header>
-
-        {/* Avatar straddling the header's bottom edge */}
-        <div className="absolute -bottom-5 start-1/2 -translate-x-1/2">
-          <div className="h-12 w-12 overflow-hidden rounded-full bg-white p-0.5 shadow-md ring-2 ring-white">
+      <header
+        className="relative shrink-0 overflow-hidden px-4 py-3 text-white"
+        style={{ background: theme.headerGradient }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,rgba(255,255,255,0.14),transparent_55%)]" />
+        <div className="relative flex items-center gap-3">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full ring-2 ring-white/25 shadow-md">
             {config.headerAvatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={config.headerAvatarUrl}
                 alt={headerTitle}
-                className="h-full w-full rounded-full object-cover"
+                className="h-full w-full object-cover"
               />
             ) : (
               <div
-                className="flex h-full w-full items-center justify-center rounded-full text-white"
+                className="flex h-full w-full items-center justify-center"
                 style={{ background: theme.headerGradient }}
               >
-                <Sparkles className="h-5 w-5" />
+                <Sparkles className="h-4 w-4" />
+              </div>
+            )}
+            {hasLiveChatSession && (
+              <span
+                className={cn(
+                  "absolute bottom-0 end-0 h-2.5 w-2.5 rounded-full border-2 border-white/90",
+                  guestLiveChat.isConnected ? "bg-emerald-400" : "bg-amber-300"
+                )}
+              />
+            )}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-[14px] font-semibold leading-tight">
+              {hasLiveChatSession ? "محادثة مباشرة" : headerTitle}
+            </h2>
+            {(config.guestLiveChatEnabled || hasLiveChatSession) && (
+              <div className="mt-0.5">
+                <ChatHeaderSubtitle
+                  isLiveChat={hasLiveChatSession}
+                  isConnected={guestLiveChat.isConnected}
+                />
               </div>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* Messages */}
+          <button
+            type="button"
+            onClick={onClose}
+            title="إغلاق"
+            aria-label="إغلاق المحادثة"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 active:scale-95"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </header>
+
       <div
-        ref={scrollRef}
-        className="flex-1 space-y-3 overflow-y-auto bg-background px-4 pb-4 pt-9"
-      >
-        {messages.map((m: ChatMessage) => (
-          <ChatMessageBubble
-            key={m.id}
-            message={m}
-            primaryColor={config.primaryColor}
-            accentColor={config.accentColor}
-            onFeedback={handleFeedback}
-          />
-        ))}
-        {isLoading && (
-          <div className="flex items-center gap-2 ps-9 text-xs text-muted-foreground">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            جارٍ التفكير...
-          </div>
+        className={cn(
+          "flex min-h-0 flex-1 flex-col overflow-hidden",
+          !hasLiveChatSession && "bg-muted/20"
         )}
-        {showTicketForm && hydrated && (
+      >
+        <div
+          ref={scrollRef}
+          className={cn(
+            "min-h-0 flex-1 overflow-y-auto",
+            hasLiveChatSession
+              ? "flex flex-col"
+              : "space-y-2.5 px-3 py-3"
+          )}
+        >
+        {!hasLiveChatSession &&
+          messages.map((m: ChatMessage) => (
+            <ChatMessageBubble
+              key={m.id}
+              message={m}
+              primaryColor={config.primaryColor}
+              accentColor={config.accentColor}
+              onFeedback={handleFeedback}
+            />
+          ))}
+        {!hasLiveChatSession && isLoading && (
+          <ThinkingIndicator headerGradient={theme.headerGradient} />
+        )}
+        {showLiveChatPanel && (
+          <StableGuestLiveChatPanel
+            session={guestLiveChat.session}
+            messages={guestLiveChat.messages}
+            bootstrapping={guestLiveChat.bootstrapping}
+            error={guestLiveChat.error}
+            primaryColor={theme.primary}
+            headerGradient={theme.headerGradient}
+            onSend={guestLiveChat.sendMessage}
+            onUpdateProfile={guestLiveChat.updateProfile}
+            onStartLiveChat={async (fields) => {
+              const result = await guestLiveChat.startLiveChat(fields);
+              if (!result.success) {
+                throw new Error(guestLiveChat.error || "تعذّر بدء المحادثة");
+              }
+            }}
+            onTyping={guestLiveChat.setTyping}
+          />
+        )}
+        {!hasLiveChatSession && showTicketForm && hydrated && (
           <GuestTicketForm
             visitorId={visitorId}
             chatLogId={lastLogId}
@@ -343,58 +549,67 @@ export function ChatWindow({
             onCancel={() => setShowTicketForm(false)}
           />
         )}
-      </div>
+        <LiveChatHandoffButton
+          hasLiveChatSession={hasLiveChatSession}
+          pendingLiveChat={Boolean(guestLiveChat.pendingLiveChat)}
+          showTicketForm={showTicketForm}
+          hydrated={hydrated}
+          lastUserMessage={lastUserMessage}
+          onHandoff={handleHumanHandoff}
+        />
+        </div>
 
-      {error && (
-        <p className="border-t border-destructive/20 bg-destructive/5 px-3 py-1.5 text-[11px] text-destructive">
-          {error}
-        </p>
-      )}
-
-      {/* Input */}
-      <div className="space-y-2 px-4 pb-3 pt-2">
-        <form
-          ref={composerRef}
-          onSubmit={handleSend}
-          className="relative rounded-[1.75rem] border-2 bg-background py-2.5 ps-4 pe-12"
-          style={{ borderColor: theme.primary }}
-        >
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleInputKeyDown}
-            placeholder={config.placeholder}
-            aria-label="رسالة المحادثة"
-            className="block max-h-28 min-h-6 w-full resize-none overflow-y-auto bg-transparent text-[15px] font-medium leading-6 text-foreground caret-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground"
-            disabled={isLoading || !hydrated}
-            maxLength={500}
-            autoComplete="off"
-            rows={1}
-          />
-          <button
-            type="submit"
-            aria-label="إرسال الرسالة"
-            title="إرسال الرسالة"
-            className="absolute bottom-2 end-2 flex h-8 w-8 items-center justify-center rounded-full text-white shadow-sm transition-all enabled:hover:brightness-110 enabled:active:scale-95 disabled:opacity-30 disabled:saturate-50"
-            style={{ backgroundColor: theme.sendButton }}
-            disabled={isLoading || !input.trim() || !hydrated}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <ArrowUp className="h-4 w-4" />
-            )}
-          </button>
-        </form>
-
-        {/* Footer */}
-        {config.showPoweredBy && config.footerText?.trim() && (
-          <p className="text-center text-[11px] text-muted-foreground/70">
-            {config.footerText}
+        {error && (
+          <p className="shrink-0 border-t border-destructive/20 bg-destructive/5 px-3 py-1.5 text-[11px] text-destructive">
+            {error}
           </p>
+        )}
+
+        {!hasLiveChatSession && (
+          <div className="shrink-0 border-t border-border/40 bg-background/95 px-3 pb-3 pt-2 backdrop-blur-md">
+            <form
+              ref={composerRef}
+              onSubmit={handleSend}
+              className="flex items-end gap-2 rounded-2xl border border-border/55 bg-background p-1.5 shadow-sm transition-[border-color,box-shadow] focus-within:border-primary/35 focus-within:ring-2 focus-within:ring-primary/10"
+            >
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleInputKeyDown}
+                placeholder={config.placeholder}
+                aria-label="رسالة المحادثة"
+                className="block max-h-28 min-h-6 flex-1 resize-none overflow-y-auto bg-transparent px-2 py-1.5 text-[13px] leading-relaxed text-foreground caret-foreground outline-none placeholder:text-muted-foreground/75"
+                disabled={isLoading || !hydrated}
+                maxLength={500}
+                autoComplete="off"
+                rows={1}
+              />
+              <button
+                type="submit"
+                aria-label="إرسال الرسالة"
+                title="إرسال الرسالة"
+                className="mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white shadow-md transition-all enabled:hover:brightness-110 enabled:active:scale-95 disabled:opacity-35"
+                style={{ backgroundColor: theme.sendButton }}
+                disabled={isLoading || !input.trim() || !hydrated}
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <ArrowUp className="h-4 w-4" />
+                )}
+              </button>
+            </form>
+
+            {config.showPoweredBy && config.footerText?.trim() && (
+              <p className="mt-2 text-center text-[10px] text-muted-foreground/65">
+                {config.footerText}
+              </p>
+            )}
+          </div>
         )}
       </div>
     </div>
+    </SupportOnlineProvider>
   );
 }

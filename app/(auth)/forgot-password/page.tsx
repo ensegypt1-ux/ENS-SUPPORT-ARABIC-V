@@ -18,11 +18,12 @@ import { Loader2, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { translateAuthError } from "@/lib/auth-errors";
 import Link from "next/link";
 import { toast } from "sonner";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email("ادخل إيميل صح"),
+  email: z.string().email("أدخل بريدًا إلكترونيًا صالحًا"),
 });
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
@@ -51,16 +52,21 @@ export default function ForgotPasswordPage() {
       });
 
       if (result?.error) {
-        setError(result.error.message || "تعذّر إرسال الإيميل");
+        setError(
+          translateAuthError(result.error.message) ||
+            "تعذّر إرسال البريد الإلكتروني"
+        );
         setIsLoading(false);
         return;
       }
 
       setSuccess(true);
-      toast.success("اتبعتلك الإيميل");
+      toast.success("تم إرسال البريد الإلكتروني");
       setIsLoading(false);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "حصل خطأ. جرّب تاني.";
+      const message = translateAuthError(
+        err instanceof Error ? err.message : null
+      ) || "حدث خطأ. أعد المحاولة.";
       setError(message);
       setIsLoading(false);
     }
@@ -73,16 +79,16 @@ export default function ForgotPasswordPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center">
-                اتحقق من الإيميل
+                تحقّق من بريدك الإلكتروني
               </CardTitle>
               <CardDescription className="text-center">
-                بعتنا لك لينك تغيير كلمة المرور على الإيميل.
+                أرسلنا رابط تغيير كلمة المرور إلى بريدك الإلكتروني.
               </CardDescription>
             </CardHeader>
             <CardFooter className="flex justify-center">
               <Link href="/login">
                 <Button variant="outline" className="w-full">
-                  رجوع للدخول
+                  رجوع إلى تسجيل الدخول
                 </Button>
               </Link>
             </CardFooter>
@@ -101,7 +107,7 @@ export default function ForgotPasswordPage() {
               نسيت كلمة المرور
             </CardTitle>
             <CardDescription className="text-center">
-              ادخل إيميلك وهنبعتلك لينك لتغيير كلمة المرور
+              أدخل البريد الإلكتروني وسنرسل لك رابطًا لتغيير كلمة المرور
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -112,7 +118,7 @@ export default function ForgotPasswordPage() {
                 </Alert>
               )}
               <div className="space-y-2">
-                <Label htmlFor="email">الإيميل</Label>
+                <Label htmlFor="email">البريد الإلكتروني</Label>
                 <Input
                   id="email"
                   type="email"
@@ -132,10 +138,10 @@ export default function ForgotPasswordPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="me-2 h-4 w-4 animate-spin" />
-                    بيتبعت...
+                    جاري الإرسال…
                   </>
                 ) : (
-                  "ابعت لينك التغيير"
+                  "أرسل رابط التغيير"
                 )}
               </Button>
 
@@ -145,7 +151,7 @@ export default function ForgotPasswordPage() {
                   className="flex items-center text-sm text-muted-foreground hover:text-primary"
                 >
                   <ArrowLeft className="me-2 h-4 w-4" />
-                  رجوع للدخول
+                  رجوع إلى تسجيل الدخول
                 </Link>
               </div>
             </CardFooter>

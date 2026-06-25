@@ -20,7 +20,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
+import { FormPageSkeleton, LoadingButtonContent } from "@/components/ui/loading";
+import { UI } from "@/lib/strings";
 import Link from "next/link";
 import { toast } from "sonner";
 import { notFound } from "next/navigation";
@@ -115,11 +117,11 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
         return;
       }
 
-      toast.success("اتحدّث الطلب!");
+      toast.success("تم التحديث الطلب!");
       router.push(`/dashboard/services/${serviceSlug}/${ticketId}`);
       router.refresh();
     } catch (e) {
-      const message = e instanceof Error ? e.message : "حصل خطأ مش متوقع";
+      const message = e instanceof Error ? e.message : "حدث خطأ غير متوقع";
       setError(message);
       toast.error(message);
       setIsSubmitting(false);
@@ -134,11 +136,7 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
   ];
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold">جاري التحميل...</h1>
-      </div>
-    );
+    return <FormPageSkeleton fields={4} />;
   }
 
   return (
@@ -227,13 +225,13 @@ export default function EditServiceRequestPage({ params }: EditServiceRequestPag
             </div>
 
             <div className="flex justify-end">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 me-2 animate-spin" />
-                ) : (
-                  <Save className="h-4 w-4 me-2" />
-                )}
-                Save
+              <Button type="submit" className="gap-2" disabled={isSubmitting}>
+                <LoadingButtonContent loading={isSubmitting} loadingLabel={UI.saving}>
+                  <>
+                    <Save className="h-4 w-4" />
+                    <span>حفظ التغييرات</span>
+                  </>
+                </LoadingButtonContent>
               </Button>
             </div>
           </form>

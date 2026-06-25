@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Suspense } from "react";
 import { getSettings } from "@/actions/settings";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SettingsTabSkeleton } from "@/components/ui/loading";
 import { getAllServices } from "@/actions/services";
 import { AdminPageHeader } from "@/components/layout/admin-page-header";
 import {
@@ -28,6 +28,10 @@ import {
   adminTabTriggerClass,
 } from "@/components/ui/arabic-ux";
 import { EmailSettingsForm } from "@/components/settings/email-settings-form";
+import {
+  isEmailEnvKillSwitchActive,
+  isEmailSmtpConfigured,
+} from "@/lib/email";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TicketSettingsForm } from "@/components/settings/ticket-settings-form";
 import { AccessSettingsForm } from "@/components/settings/access-settings-form";
@@ -67,9 +71,9 @@ export default async function SettingsPage() {
       <div className="p-6">
         <Card>
           <CardHeader>
-            <CardTitle>مقدرناش نحمّل الإعدادات</CardTitle>
+            <CardTitle>تعذّر تحميل الإعدادات</CardTitle>
             <CardDescription>
-              {settingsResult.error || "مقدرناش نحمّل الإعدادات"}
+              {settingsResult.error || "تعذّر تحميل الإعدادات"}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -115,88 +119,75 @@ export default async function SettingsPage() {
 
         {/* General Settings */}
         <TabsContent value="general">
-          <Suspense fallback={<SettingsSkeleton />}>
+          <Suspense fallback={<SettingsTabSkeleton />}>
             <GeneralSettingsForm settings={settings} />
           </Suspense>
         </TabsContent>
 
         {/* Ticket Settings */}
         <TabsContent value="tickets">
-          <Suspense fallback={<SettingsSkeleton />}>
+          <Suspense fallback={<SettingsTabSkeleton />}>
             <TicketSettingsForm settings={settings} />
           </Suspense>
         </TabsContent>
 
         {/* Email Settings */}
         <TabsContent value="email">
-          <Suspense fallback={<SettingsSkeleton />}>
-            <EmailSettingsForm settings={settings} />
+          <Suspense fallback={<SettingsTabSkeleton />}>
+            <EmailSettingsForm
+              settings={settings}
+              serverEmailDisabled={isEmailEnvKillSwitchActive()}
+              smtpConfigured={isEmailSmtpConfigured()}
+            />
           </Suspense>
         </TabsContent>
 
         {/* File Upload Settings */}
         <TabsContent value="files">
-          <Suspense fallback={<SettingsSkeleton />}>
+          <Suspense fallback={<SettingsTabSkeleton />}>
             <FileUploadSettingsForm settings={settings} />
           </Suspense>
         </TabsContent>
 
         {/* Security Settings */}
         <TabsContent value="security">
-          <Suspense fallback={<SettingsSkeleton />}>
+          <Suspense fallback={<SettingsTabSkeleton />}>
             <SecuritySettingsForm settings={settings} />
           </Suspense>
         </TabsContent>
 
         {/* Appearance Settings */}
         <TabsContent value="appearance">
-          <Suspense fallback={<SettingsSkeleton />}>
+          <Suspense fallback={<SettingsTabSkeleton />}>
             <AppearanceSettingsForm settings={settings} />
           </Suspense>
         </TabsContent>
 
         {/* Integration Settings */}
         <TabsContent value="integrations">
-          <Suspense fallback={<SettingsSkeleton />}>
+          <Suspense fallback={<SettingsTabSkeleton />}>
             <IntegrationSettingsForm settings={settings} />
           </Suspense>
         </TabsContent>
 
         <TabsContent value="services">
-          <Suspense fallback={<SettingsSkeleton />}>
+          <Suspense fallback={<SettingsTabSkeleton />}>
             <ServicesSettingsForm services={services} />
           </Suspense>
         </TabsContent>
 
         <TabsContent value="updates">
-          <Suspense fallback={<SettingsSkeleton />}>
+          <Suspense fallback={<SettingsTabSkeleton />}>
             <UpdatesSettingsForm settings={settings} />
           </Suspense>
         </TabsContent>
 
         <TabsContent value="access">
-          <Suspense fallback={<SettingsSkeleton />}>
+          <Suspense fallback={<SettingsTabSkeleton />}>
             <AccessSettingsForm />
           </Suspense>
         </TabsContent>
       </Tabs>
     </div>
-  );
-}
-
-function SettingsSkeleton() {
-  return (
-    <Card>
-      <CardHeader>
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-4 w-96 mt-2" />
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-      </CardContent>
-    </Card>
   );
 }

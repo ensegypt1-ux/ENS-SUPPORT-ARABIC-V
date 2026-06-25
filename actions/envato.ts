@@ -37,7 +37,7 @@ export async function verifyPurchaseCodeAction(
     if (trimmedCode.length === 0) {
       return {
         success: false,
-        error: "رمز الشراء ما ينفعش يكون فاضي",
+        error: "رمز الشراء ما هل يمكنش يكون فاضي",
       };
     }
 
@@ -60,7 +60,7 @@ export async function verifyPurchaseCodeAction(
     console.error("Purchase code verification error:", error);
     return {
       success: false,
-      error: "حصل خطأ مش متوقع. جرّب تاني.",
+      error: "حدث خطأ غير متوقع. أعد المحاولة.",
     };
   }
 }

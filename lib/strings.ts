@@ -4,15 +4,15 @@ import type { TicketPriority, TicketStatus } from "@/types";
 export const STATUS_LABELS: Record<TicketStatus, string> = {
   open: "مفتوحة",
   scheduled_meeting: "اجتماع محجوز",
-  in_progress: "شغّالين عليها",
-  waiting_on_customer: "مستنيين ردّ العميل",
-  resolved: "اتحلّت",
-  closed: "مقفولة",
+  in_progress: "قيد المعالجة",
+  waiting_on_customer: "بانتظار رد العميل",
+  resolved: "تم الحل",
+  closed: "مغلقة",
 };
 
 /** Ticket priority — short badges */
 export const PRIORITY_LABELS: Record<TicketPriority, string> = {
-  urgent: "عاجل",
+  urgent: "عاجلة",
   high: "عالية",
   medium: "متوسطة",
   low: "منخفضة",
@@ -23,7 +23,7 @@ export const PRIORITY_FORM_LABELS: Record<TicketPriority, string> = {
   low: "منخفضة — وقت مرن",
   medium: "متوسطة — خلال أيام",
   high: "عالية — خلال 24 ساعة",
-  urgent: "عاجلة — محتاجة حل فوري",
+  urgent: "عاجلة — تتطلب حلًا فوريًا",
 };
 
 /** Ticket categories */
@@ -40,24 +40,25 @@ export const CATEGORY_LABELS: Record<string, string> = {
 export const UI = {
   save: "حفظ",
   cancel: "إلغاء",
-  delete: "مسح",
+  delete: "حذف",
   edit: "تعديل",
-  create: "إضافة",
+  create: "إنشاء",
   update: "تحديث",
   search: "بحث",
-  filter: "فلتر",
-  loading: "بيحمّل...",
-  noResults: "مفيش نتائج",
+  filter: "تصفية",
+  loading: "جاري التحميل…",
+  saving: "جاري الحفظ…",
+  noResults: "لا توجد نتائج",
   confirm: "تأكيد",
   back: "رجوع",
-  next: "اللي جاي",
-  previous: "اللي فات",
+  next: "التالي",
+  previous: "السابق",
   submit: "إرسال",
-  close: "قفل",
+  close: "إغلاق",
   view: "عرض",
-  download: "تحميل",
+  download: "تنزيل",
   upload: "رفع",
-  yes: "أيوه",
+  yes: "نعم",
   no: "لا",
   all: "الكل",
   actions: "إجراءات",
@@ -66,14 +67,14 @@ export const UI = {
   category: "النوع",
   date: "التاريخ",
   name: "الاسم",
-  email: "الإيميل",
+  email: "البريد الإلكتروني",
   password: "كلمة المرور",
   description: "الوصف",
   title: "العنوان",
   settings: "الإعدادات",
-  profile: "حسابي",
-  logout: "خروج",
-  login: "دخول",
+  profile: "الملف الشخصي",
+  logout: "تسجيل الخروج",
+  login: "تسجيل الدخول",
   register: "إنشاء حساب",
   dashboard: "لوحة التحكم",
   tickets: "التذاكر",
@@ -81,32 +82,32 @@ export const UI = {
   services: "الخدمات",
   notifications: "الإشعارات",
   error: "خطأ",
-  success: "تم",
+  success: "نجاح",
   warning: "تنبيه",
   info: "معلومة",
   required: "مطلوب",
   optional: "اختياري",
   selectAll: "تحديد الكل",
   clearAll: "مسح الكل",
-  showMore: "عرض أكتر",
+  showMore: "عرض المزيد",
   showLess: "عرض أقل",
-  tryAgain: "جرّب تاني",
+  tryAgain: "أعد المحاولة",
   goHome: "الصفحة الرئيسية",
-  somethingWentWrong: "حصل خطأ",
-  unauthorized: "مش مسموح",
-  notFound: "مش موجود",
-  pageNotFound: "الصفحة دي مش موجودة",
+  somethingWentWrong: "حدث خطأ",
+  unauthorized: "غير مصرّح",
+  notFound: "غير موجود",
+  pageNotFound: "الصفحة غير موجودة",
 } as const;
 
 export const FALLBACKS = {
   unknownUser: "مستخدم",
   unknownCustomer: "عميل",
-  unassigned: "مش متعيّن",
+  unassigned: "غير معيّن",
 } as const;
 
 /** Ticket detail & workflow */
 export const TICKET_UI = {
-  openedBy: "فتحها",
+  openedBy: "أُنشئت بواسطة",
   lastActivity: "آخر تحديث",
   description: "الوصف",
   comments: "التعليقات",
@@ -115,75 +116,75 @@ export const TICKET_UI = {
   history: "السجل",
   logs: "السجل",
   customer: "العميل",
-  assignedTo: "متعيّن لـ",
+  assignedTo: "مُعيَّن إلى",
   department: "القسم",
   product: "المنتج",
-  created: "تاريخ الفتح",
+  created: "تاريخ الإنشاء",
   resolved: "تاريخ الحل",
   tags: "الوسوم",
-  purchaseCode: "كود الشراء",
+  purchaseCode: "رمز الشراء",
   scheduleMeetingHint:
-    "تقدر تحجز مكالمة Zoom أو Google Meet مع العميل من هنا.",
-  backToTickets: "رجوع للتذاكر",
+    "يمكنك جدولة مكالمة عبر Zoom أو Google Meet مع العميل من هنا.",
+  backToTickets: "العودة إلى التذاكر",
   version: "الإصدار",
   license: "الترخيص",
   category: "النوع",
   ticketInfo: "بيانات التذكرة",
   status: "الحالة",
   priority: "الأولوية",
-  purchaseVerified: "الشراء متأكد",
+  purchaseVerified: "تم التحقق من الشراء",
   country: "البلد",
 } as const;
 
 /** Admin service request forms */
 export const FORM_UI = {
-  selectCustomer: "اختار العميل",
-  selectCustomerHint: "مين صاحب الطلب؟",
-  searchCustomers: "دور على عميل...",
-  selectCustomerPlaceholder: "اختار عميل",
-  noCustomersFound: "مفيش عملاء",
+  selectCustomer: "اختر العميل",
+  selectCustomerHint: "من صاحب هذا الطلب؟",
+  searchCustomers: "ابحث عن عميل…",
+  selectCustomerPlaceholder: "اختر عميلًا",
+  noCustomersFound: "لا يوجد عملاء",
   ticketsCount: "تذكرة",
   installationDetails: "تفاصيل التثبيت",
   customizationDetails: "تفاصيل التخصيص",
   requestTitle: "عنوان الطلب",
   requestTitleHint: "عنوان واضح يميّز الطلب",
-  requestTitlePlaceholder: "مثال: تثبيت البوابة على السيرفر",
-  customizationTitlePlaceholder: "مثال: تخصيص شاشة الدخول",
-  requirements: "المطلوب",
-  requirementsPlaceholder: "اكتب تفاصيل التثبيت أو التخصيص...",
+  requestTitlePlaceholder: "مثال: تثبيت البوابة على الخادم",
+  customizationTitlePlaceholder: "مثال: تخصيص شاشة تسجيل الدخول",
+  requirements: "المتطلبات",
+  requirementsPlaceholder: "اكتب تفاصيل التثبيت أو التخصيص…",
   securityNote:
-    "متشاركش كلمات المرور هنا. استخدم قناة آمنة للبيانات الحساسة.",
-  attachments: "مرفقات",
-  attachmentsHint: "ارفع ملفات أو Screenshots تساعد في التنفيذ",
+    "لا تشارك كلمات المرور هنا. استخدم قناة آمنة للبيانات الحساسة.",
+  attachments: "المرفقات",
+  attachmentsHint: "ارفع ملفات أو لقطات شاشة تساعد في التنفيذ",
   productInfo: "بيانات المنتج",
-  productInfoHint: "عشان نتحقق من الشراء",
+  productInfoHint: "للتحقق من الشراء",
   productName: "اسم المنتج",
   productNamePlaceholder: "مثال: إضافة المتجر",
   productVersion: "إصدار المنتج",
   productVersionPlaceholder: "مثال: 1.0.0",
-  purchaseCode: "كود الشراء",
-  purchaseCodePlaceholder: "كود Envato",
+  purchaseCode: "رمز الشراء",
+  purchaseCodePlaceholder: "رمز Envato",
   priority: "الأولوية",
-  selectPriority: "اختار الأولوية",
+  selectPriority: "اختر الأولوية",
   timezone: "المنطقة الزمنية",
-  selectTimezone: "اختار المنطقة",
+  selectTimezone: "اختر المنطقة الزمنية",
   createRequest: "إنشاء الطلب",
-  creating: "بيترفع...",
-  createFailed: "مقدرناش نعمل الطلب",
+  creating: "جاري الإنشاء…",
+  createFailed: "تعذّر إنشاء الطلب",
   createInstallationTitle: "طلب تثبيت جديد",
   createCustomizationTitle: "طلب تخصيص جديد",
   adminBreadcrumb: "الإدارة",
   installationBreadcrumb: "التثبيت",
   customizationBreadcrumb: "التخصيص",
   newRequestBreadcrumb: "طلب جديد",
-  priorityHint: "قد إيه الطلب مستعجل؟",
+  priorityHint: "ما مدى استعجال هذا الطلب؟",
   timezoneHint: "لجدولة المكالمات والاجتماعات",
-  purchaseCodeHint: "كود Envato للتحقق",
-  uploadPartialFail: "الطلب اتعمل بس بعض الملفات مترفعتش",
-  uploadSuccess: "الطلب اتعمل مع",
+  purchaseCodeHint: "رمز Envato للتحقق",
+  uploadPartialFail: "تم إنشاء الطلب، لكن بعض الملفات لم تُرفع",
+  uploadSuccess: "تم إنشاء الطلب مع",
   attachmentWord: "مرفق",
-  createSuccess: "الطلب اتعمل",
-  unexpectedError: "حصل خطأ مش متوقع",
+  createSuccess: "تم إنشاء الطلب",
+  unexpectedError: "حدث خطأ غير متوقع",
 } as const;
 
 export const EDIT_FORM_UI = {
@@ -193,11 +194,11 @@ export const EDIT_FORM_UI = {
   editCustomizationDesc: "عدّل تفاصيل طلب التخصيص.",
   requestDetails: "تفاصيل الطلب",
   updateRequest: "تحديث الطلب",
-  updating: "بيتحدّث...",
+  updating: "جاري التحديث…",
   createServiceRequest: (serviceName: string) => `طلب ${serviceName} جديد`,
 } as const;
 
-export const AR_LOCALE = "ar-EG";
+export const AR_LOCALE = "ar-SA";
 
 export const DATE_FORMAT_LABELS: Record<string, string> = {
   "MMM dd, yyyy": "٠١ يناير ٢٠٢٤",
@@ -211,18 +212,3 @@ export function getDateFormatLabel(format: string): string {
   return DATE_FORMAT_LABELS[format] ?? format;
 }
 
-export function formatDate(
-  date: Date | string | number,
-  options?: Intl.DateTimeFormatOptions
-): string {
-  const d = date instanceof Date ? date : new Date(date);
-  return d.toLocaleDateString(AR_LOCALE, options);
-}
-
-export function formatDateTime(
-  date: Date | string | number,
-  options?: Intl.DateTimeFormatOptions
-): string {
-  const d = date instanceof Date ? date : new Date(date);
-  return d.toLocaleString(AR_LOCALE, options);
-}

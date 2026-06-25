@@ -75,7 +75,7 @@ export function TicketStatusControl({
       );
 
       if (result.success) {
-        toast.success("اتحدّث حالة التذكرة");
+        toast.success("تم التحديث حالة التذكرة");
         router.refresh();
       } else {
         toast.error(result.error || "تعذّر التحديث حالة التذكرة");
@@ -154,14 +154,14 @@ export function TicketStatusControl({
             </Label>
             <Textarea
               id="status-message"
-              placeholder="أضف رسالة لتضمينها في إشعار الإيميل..."
+              placeholder="أضف رسالة لتضمينها في إشعار البريد الإلكتروني..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
               className="resize-none"
             />
             <p className="text-xs text-muted-foreground">
-              ستُضمَّن هذه الرسالة في إشعار الإيميل المرسل للعميل.
+              ستُضمَّن هذه الرسالة في إشعار البريد الإلكتروني المرسل للعميل.
             </p>
           </div>
 

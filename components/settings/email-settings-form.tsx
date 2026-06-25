@@ -14,6 +14,7 @@ import { Loader2, Send, Mail } from "lucide-react";
 import { updateSettings, testEmailSettings } from "@/actions/settings";
 import { PanelSwitchField } from "@/components/ui/panel-form";
 import { PageSectionLabel } from "@/components/ui/arabic-ux";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   SettingsFormCard,
   SettingsSaveBar,
@@ -26,16 +27,22 @@ const emailSettingsSchema = z.object({
   notifyOnNewComment: z.boolean(),
   notifyOnTicketAssignment: z.boolean(),
   notifyOnTicketResolution: z.boolean(),
-  adminNotificationEmail: z.string().email("عنوان بريد إلكتروني مش صح"),
+  adminNotificationEmail: z.string().email("عنوان بريد إلكتروني غير صالح"),
 });
 
 type EmailSettingsFormData = z.infer<typeof emailSettingsSchema>;
 
 interface EmailSettingsFormProps {
   settings: SystemSettings;
+  serverEmailDisabled?: boolean;
+  smtpConfigured?: boolean;
 }
 
-export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
+export function EmailSettingsForm({
+  settings,
+  serverEmailDisabled = false,
+  smtpConfigured = true,
+}: EmailSettingsFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
 
@@ -59,12 +66,12 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
       });
 
       if (result.success) {
-        toast.success("اتحدّثت إعدادات البريد");
+        toast.success("تم تحديث إعدادات البريد");
       } else {
-        toast.error(result.error || "مقدرناش نحدّث الإعدادات");
+        toast.error(result.error || "تعذّر تحديث الإعدادات");
       }
     } catch (error) {
-      toast.error("حصل خطأ وإحنا بنحدّث الإعدادات");
+      toast.error("حدث خطأ وإحنا بنحدّث الإعدادات");
     } finally {
       setIsLoading(false);
     }
@@ -77,12 +84,12 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
       const result = await testEmailSettings();
 
       if (result.success) {
-        toast.success("اتبعت بريد الاختبار — شيّك على الوارد.");
+        toast.success("تم الإرسال بريد الاختبار — شيّك على الوارد.");
       } else {
         toast.error(result.error || "تعذّر الإرسال بريد الاختبار");
       }
     } catch (error) {
-      toast.error("حصل خطأ وإحنا إرسال بريد الاختبار");
+      toast.error("حدث خطأ وإحنا إرسال بريد الاختبار");
     } finally {
       setIsTesting(false);
     }
@@ -95,14 +102,63 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
       icon={<Mail className="h-5 w-5 text-blue-500" />}
       iconWrapperClassName="rounded-md bg-blue-500/10"
       title="إعدادات البريد"
-      description="اضبط إشعارات الإيميل للتذاكر والتحديثات"
+      description="اضبط إشعارات البريد الإلكتروني للتذاكر والتحديثات"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {serverEmailDisabled ? (
+          <Alert variant="destructive">
+            <AlertTitle>البريد معطّل على مستوى الخادم</AlertTitle>
+            <AlertDescription>
+              <code dir="ltr" className="text-xs">
+                EMAIL_NOTIFICATIONS_ENABLED=false
+              </code>{" "}
+              في ملف{" "}
+              <code dir="ltr" className="text-xs">
+                .env.local
+              </code>
+              . عيّن القيمة{" "}
+              <code dir="ltr" className="text-xs">
+                true
+              </code>{" "}
+              أو احذف السطر، ثم أعد تشغيل الخادم.
+            </AlertDescription>
+          </Alert>
+        ) : null}
+
+        {!smtpConfigured ? (
+          <Alert variant="destructive">
+            <AlertTitle>إعدادات SMTP غير مكتملة</AlertTitle>
+            <AlertDescription>
+              أكمل{" "}
+              <code dir="ltr" className="text-xs">
+                EMAIL_SERVER_HOST
+              </code>
+              ،{" "}
+              <code dir="ltr" className="text-xs">
+                EMAIL_SERVER_USER
+              </code>
+              ،{" "}
+              <code dir="ltr" className="text-xs">
+                EMAIL_SERVER_PASSWORD
+              </code>{" "}
+              و{" "}
+              <code dir="ltr" className="text-xs">
+                EMAIL_FROM
+              </code>{" "}
+              في{" "}
+              <code dir="ltr" className="text-xs">
+                .env.local
+              </code>
+              .
+            </AlertDescription>
+          </Alert>
+        ) : null}
+
         {/* Master Toggle Section */}
         <div className="space-y-4">
           <PageSectionLabel>خدمة البريد</PageSectionLabel>
           <PanelSwitchField
-            label="تفعيل إشعارات الإيميل"
+            label="تفعيل إشعارات البريد الإلكتروني"
             description="إرسال إشعارات بريدية لأحداث التذاكر"
             control={
               <Switch
@@ -134,7 +190,7 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
               className="input-ltr h-11 bg-background/80 border-input/50 focus:border-primary transition-colors"
             />
             <p className="text-xs text-muted-foreground">
-              الإيميل لاستلام إشعارات المسؤول
+              البريد الإلكتروني لاستلام إشعارات المسؤول
             </p>
             {errors.adminNotificationEmail && (
               <p className="text-sm text-destructive">
@@ -232,7 +288,12 @@ export function EmailSettingsForm({ settings }: EmailSettingsFormProps) {
               type="button"
               variant="outline"
               onClick={handleTestEmail}
-              disabled={isTesting || !emailEnabled}
+              disabled={
+                isTesting ||
+                !emailEnabled ||
+                serverEmailDisabled ||
+                !smtpConfigured
+              }
               className="h-11 gap-2 px-5"
             >
               {isTesting ? (

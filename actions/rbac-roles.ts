@@ -20,7 +20,7 @@ import { revalidatePath } from "next/cache";
 export async function getRbacRoles(scope?: RbacRoleScope): Promise<ApiResponse<RbacRole[]>> {
   try {
     const session = await requirePermissionOrThrow("rbac.manage", {
-      message: "ممنوع: يلزم صلاحية إدارة RBAC",
+      message: "ممنوع: يتطلب صلاحية إدارة RBAC",
     });
     await ensureSystemRbacRoles(session.user.id);
     const roles = await listRbacRoles(scope);
@@ -36,7 +36,7 @@ export async function createRbacRoleAction(
 ): Promise<ApiResponse<RbacRole>> {
   try {
     const session = await requirePermissionOrThrow("rbac.manage", {
-      message: "ممنوع: يلزم صلاحية إدارة RBAC",
+      message: "ممنوع: يتطلب صلاحية إدارة RBAC",
     });
     const role = await createRbacRole(input, session.user.id);
     revalidatePath("/admin/settings");
@@ -55,7 +55,7 @@ export async function updateRbacRoleAction(options: {
 }): Promise<ApiResponse<RbacRole | null>> {
   try {
     const session = await requirePermissionOrThrow("rbac.manage", {
-      message: "ممنوع: يلزم صلاحية إدارة RBAC",
+      message: "ممنوع: يتطلب صلاحية إدارة RBAC",
     });
     const updated = await updateRbacRole(
       options.roleId,
@@ -77,7 +77,7 @@ export async function updateRbacRoleAction(options: {
 export async function deleteRbacRoleAction(roleId: string): Promise<ApiResponse<{ success: true }>> {
   try {
     const session = await requirePermissionOrThrow("rbac.manage", {
-      message: "ممنوع: يلزم صلاحية إدارة RBAC",
+      message: "ممنوع: يتطلب صلاحية إدارة RBAC",
     });
     await deleteRbacRole(roleId, session.user.id);
     revalidatePath("/admin/settings");
@@ -103,7 +103,7 @@ export async function getAssignableRbacRoles(
 > {
   try {
     const session = await requirePermissionOrThrow("users.manage", {
-      message: "ممنوع: يلزم صلاحية إدارة المستخدمين",
+      message: "ممنوع: يتطلب صلاحية إدارة المستخدمين",
     });
     await ensureSystemRbacRoles(session.user.id);
     const roles = await listRbacRoles(scope);

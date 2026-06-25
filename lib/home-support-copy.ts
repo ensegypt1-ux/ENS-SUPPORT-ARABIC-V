@@ -1,14 +1,14 @@
-/** Homepage copy — Egyptian Arabic, ENS official support center tone. */
+/** Homepage copy — professional Arabic, ENS official support center tone. */
 export const HOME_COPY = {
   status: {
-    maintenance: "في صيانة دلوقتي",
-    allOperational: "كل أنظمة الدعم شغّالة",
+    maintenance: "الخدمة قيد الصيانة حاليًا",
+    allOperational: "جميع أنظمة الدعم تعمل بشكل طبيعي",
   },
   hero: {
     badge: "الدعم الرسمي لعملاء ENS",
-    title: "إزاي نقدر نساعدك؟",
-    subtitle: "دور في قاعدة المعرفة، افتح تذكرة، أو تابع طلبك.",
-    journey: ["دور في قاعدة المعرفة", "افتح تذكرة", "تابع طلبك"],
+    title: "كيف يمكننا مساعدتك؟",
+    subtitle: "ابحث في قاعدة المعرفة، افتح تذكرة، أو تابع طلبك.",
+    journey: ["ابحث في قاعدة المعرفة", "افتح تذكرة", "تابع طلبك"],
     searchLabel: "ابحث في موارد الدعم",
     searchPlaceholder: "ENSMenu، تفعيل، طلبات، فوترة…",
     searchButton: "بحث",
@@ -17,13 +17,13 @@ export const HOME_COPY = {
     secondaryCta: "طلباتي",
     secondaryCtaGuest: "تابع طلباتك",
     ensMenuCta: "دعم ENSMenu",
-    loggedInGreeting: "أهلاً",
+    loggedInGreeting: "مرحبًا",
   },
   kb: {
     title: "قاعدة معرفة ENS",
-    description: "حلول جاهزة — ابدأ هنا قبل ما تفتح تذكرة.",
-    browseAll: "كل الأقسام",
-    empty: "قاعدة المعرفة لسه بتتجهّز. افتح تذكرة وهنساعدك.",
+    description: "حلول جاهزة — ابدأ هنا قبل فتح تذكرة.",
+    browseAll: "جميع الأقسام",
+    empty: "قاعدة المعرفة قيد الإعداد. افتح تذكرة وسيساعدك فريق الدعم.",
     topicsLabel: "أنواع الطلبات",
   },
   faq: {
@@ -32,9 +32,10 @@ export const HOME_COPY = {
   },
   contact: {
     title: "تواصل مع الدعم",
-    description: "للأسئلة العامة — ابعت رسالة. للمشاكل اللي محتاجة متابعة — افتح تذكرة.",
-    formTitle: "رسالة للفريق",
-    emailLabel: "إيميل الدعم",
+    description:
+      "للاستفسارات العامة — أرسل رسالة. للمشكلات التي تتطلب متابعة — افتح تذكرة.",
+    formTitle: "رسالة إلى الفريق",
+    emailLabel: "بريد الدعم",
   },
   searchChips: ["ENSMenu", "تفعيل", "طلبات"] as const,
 } as const;

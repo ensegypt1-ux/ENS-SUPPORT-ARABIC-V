@@ -33,7 +33,7 @@ export function TicketPriorityControl({
       const result = await updateTicketPriority(ticketId, value);
 
       if (result.success) {
-        toast.success("اتحدّث أولوية التذكرة");
+        toast.success("تم التحديث أولوية التذكرة");
         router.refresh();
       } else {
         toast.error(result.error || "تعذّر التحديث أولوية التذكرة");

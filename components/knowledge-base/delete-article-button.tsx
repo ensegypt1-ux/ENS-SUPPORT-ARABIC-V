@@ -33,7 +33,7 @@ export function DeleteArticleButton({
     try {
       const result = await deleteKBArticle(id);
       if (result.success) {
-        toast.success("اتمسح المقال");
+        toast.success("تم الحذف المقال");
         router.refresh();
       } else {
         toast.error(result.error ?? "تعذّر الحذف");
@@ -54,7 +54,7 @@ export function DeleteArticleButton({
         <AlertDialogHeader>
           <AlertDialogTitle>حذف المقال</AlertDialogTitle>
           <AlertDialogDescription>
-            متأكد من مسح <strong>{title}</strong>؟ مش هينفع ترجع عن الإجراء ده.
+            هل أنت متأكد من حذف <strong>{title}</strong>؟ لا يمكن التراجع عن هذا الإجراء.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

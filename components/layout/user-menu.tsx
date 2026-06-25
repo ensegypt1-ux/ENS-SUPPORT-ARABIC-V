@@ -122,7 +122,7 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
                 الحساب
               </span>
             ) : (
-              <div className="flex-1 text-start">
+              <div className="flex-1 text-end">
                 <NameWithRole
                   name={displayName}
                   role={user.role}
@@ -133,9 +133,13 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
             )}
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="start" forceMount>
+        <DropdownMenuContent
+          className="w-56 text-end"
+          align="end"
+          forceMount
+        >
           <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1 text-start">
+            <div className="flex flex-col space-y-1 text-end">
               <NameWithRole
                 name={displayName}
                 role={user.role}
@@ -148,21 +152,31 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push(profilePath)}>
-            <User className="h-4 w-4" />
-            <span>حسابي</span>
+          <DropdownMenuItem
+            className="justify-start gap-2"
+            onClick={() => router.push(profilePath)}
+          >
+            <span className="flex-1 text-end">حسابي</span>
+            <User className="h-4 w-4 shrink-0" />
           </DropdownMenuItem>
           <DropdownMenuItem
+            className="justify-start gap-2"
             disabled={!settingsPath}
             onClick={() => settingsPath && router.push(settingsPath)}
           >
-            <Settings className="h-4 w-4" />
-            <span>الإعدادات</span>
+            <span className="flex-1 text-end">الإعدادات</span>
+            <Settings className="h-4 w-4 shrink-0" />
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleSignOut} disabled={isLoading}>
-            <LogOut className="h-4 w-4 rtl:-scale-x-100" />
-            <span>{isLoading ? "بيطلع..." : "خروج"}</span>
+          <DropdownMenuItem
+            className="justify-start gap-2"
+            onClick={handleSignOut}
+            disabled={isLoading}
+          >
+            <span className="flex-1 text-end">
+              {isLoading ? "بيطلع..." : "خروج"}
+            </span>
+            <LogOut className="h-4 w-4 shrink-0 rtl:-scale-x-100" />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -179,9 +193,13 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="start" forceMount>
+      <DropdownMenuContent
+        className="w-56 text-end"
+        align="end"
+        forceMount
+      >
         <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1 text-start">
+          <div className="flex flex-col space-y-1 text-end">
             <NameWithRole
               name={displayName}
               role={user.role}
@@ -194,21 +212,31 @@ export function UserMenu({ user, variant = "header" }: UserMenuProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push(profilePath)}>
-          <User className="h-4 w-4" />
-          <span>حسابي</span>
+        <DropdownMenuItem
+          className="justify-start gap-2"
+          onClick={() => router.push(profilePath)}
+        >
+          <span className="flex-1 text-end">حسابي</span>
+          <User className="h-4 w-4 shrink-0" />
         </DropdownMenuItem>
         <DropdownMenuItem
+          className="justify-start gap-2"
           disabled={!settingsPath}
           onClick={() => settingsPath && router.push(settingsPath)}
         >
-          <Settings className="h-4 w-4" />
-          <span>الإعدادات</span>
+          <span className="flex-1 text-end">الإعدادات</span>
+          <Settings className="h-4 w-4 shrink-0" />
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut} disabled={isLoading}>
-          <LogOut className="h-4 w-4 rtl:-scale-x-100" />
-          <span>{isLoading ? "بيطلع..." : "خروج"}</span>
+        <DropdownMenuItem
+          className="justify-start gap-2"
+          onClick={handleSignOut}
+          disabled={isLoading}
+        >
+          <span className="flex-1 text-end">
+            {isLoading ? "بيطلع..." : "خروج"}
+          </span>
+          <LogOut className="h-4 w-4 shrink-0 rtl:-scale-x-100" />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

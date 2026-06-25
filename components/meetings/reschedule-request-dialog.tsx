@@ -68,7 +68,7 @@ export function RescheduleRequestDialog({
 
       // Check if the date is in the future
       if (preferredDateTime <= new Date()) {
-        toast.error("لازم يكون الوقت المفضل في المستقبل");
+        toast.error("يجب أن يكون الوقت المفضل في المستقبل");
         setIsSubmitting(false);
         return;
       }
@@ -80,7 +80,7 @@ export function RescheduleRequestDialog({
       );
 
       if (result.success) {
-        toast.success("اتبعت طلب إعادة الجدولة");
+        toast.success("تم الإرسال طلب إعادة الجدولة");
         form.reset();
         onOpenChange(false);
         router.refresh();
@@ -89,7 +89,7 @@ export function RescheduleRequestDialog({
       }
     } catch (error) {
       console.error("Error submitting reschedule request:", error);
-      toast.error("حصل خطأ وإنت إرسال الطلب");
+      toast.error("حدث خطأ وإنت إرسال الطلب");
     } finally {
       setIsSubmitting(false);
     }

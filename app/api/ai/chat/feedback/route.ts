@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { success: false, error: "Invalid JSON" },
+      { success: false, error: "البيانات المرسلة غير صالحة" },
       { status: 400 }
     );
   }

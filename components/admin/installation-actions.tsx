@@ -43,7 +43,7 @@ export function InstallationActions({ requestId }: InstallationActionsProps) {
       const result = await deleteTicket(requestId);
 
       if (result.success) {
-        toast.success("اتمسح طلب التثبيت");
+        toast.success("تم الحذف طلب التثبيت");
         router.push("/admin/installation");
         router.refresh();
       } else {
@@ -94,7 +94,7 @@ export function InstallationActions({ requestId }: InstallationActionsProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>متأكد؟</AlertDialogTitle>
             <AlertDialogDescription>
-              مش هينفع الرجوع عن هذا الإجراء. سياتمسح طلب التثبيت وجميع
+              لا يمكن التراجع عن هذا الإجراء. سيتم الحذف طلب التثبيت وجميع
               التعليقات والمرفقات وسجل النشاط المرتبط به نهائيًا.
             </AlertDialogDescription>
           </AlertDialogHeader>

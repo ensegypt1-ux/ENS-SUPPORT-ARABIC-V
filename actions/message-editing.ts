@@ -25,24 +25,24 @@ export async function editMessage(
     });
 
     if (!session?.user) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     if (!newContent.trim()) {
-      return { success: false, error: "محتوى الرسالة ما ينفعش يكون فاضي" };
+      return { success: false, error: "محتوى الرسالة ما هل يمكنش يكون فاضي" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "مفيش الرسالة" };
+      return { success: false, error: "لا يوجد الرسالة" };
     }
 
     if (message.senderId !== session.user.id) {
-      return { success: false, error: "تقدر تعدّل رسائلك بس" };
+      return { success: false, error: "يمكنك تعدّل رسائلك بس" };
     }
 
     if (message.isDeleted) {
-      return { success: false, error: "مش ينفع تعدّل رسالة اتمسحت" };
+      return { success: false, error: "لا يمكن تعدّل رسالة تم الحذفت" };
     }
 
     const now = new Date().toISOString();
@@ -88,12 +88,12 @@ export async function getMessageEditHistory(
     });
 
     if (!session?.user) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "مفيش الرسالة" };
+      return { success: false, error: "لا يوجد الرسالة" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -101,7 +101,7 @@ export async function getMessageEditHistory(
       session.user.id
     );
     if (!conversation) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     return {
@@ -125,20 +125,20 @@ export async function deleteMessage(
     });
 
     if (!session?.user) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "مفيش الرسالة" };
+      return { success: false, error: "لا يوجد الرسالة" };
     }
 
     if (message.senderId !== session.user.id) {
-      return { success: false, error: "تقدر تمسح رسائلك بس" };
+      return { success: false, error: "يمكنك تمسح رسائلك بس" };
     }
 
     if (message.isDeleted) {
-      return { success: false, error: "الرسالة اتمسحت أصلاً" };
+      return { success: false, error: "الرسالة تم الحذفت أصلاً" };
     }
 
     message.isDeleted = true;

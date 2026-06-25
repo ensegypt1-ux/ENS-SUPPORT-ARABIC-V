@@ -57,32 +57,24 @@ export default async function CustomizationPage({
       title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
-      iconColor: "text-blue-600",
-      iconBgColor: "bg-blue-50 dark:bg-blue-950",
       description: "في انتظار المراجعة",
     },
     {
       title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
-      iconColor: "text-amber-600",
-      iconBgColor: "bg-amber-50 dark:bg-amber-950",
       description: "قيد العمل",
     },
     {
       title: "مكتملة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
-      iconColor: "text-green-600",
-      iconBgColor: "bg-green-50 dark:bg-green-950",
       description: "محلولة أو مغلقة",
     },
     {
       title: "إجمالي الطلبات",
       value: requests.length,
       icon: Wrench,
-      iconColor: "text-slate-600",
-      iconBgColor: "bg-slate-50 dark:bg-slate-950",
       description: "جميع طلبات التخصيص",
     },
   ];
@@ -140,7 +132,7 @@ export default async function CustomizationPage({
           <CardContent className="py-12 text-center">
             <Wrench className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="mt-4 text-lg font-semibold">
-              مفيش طلبات تخصيص بعد
+              لا يوجد طلبات تخصيص بعد
             </h3>
             <p className="text-muted-foreground mt-2">
               ابدأ بإنشاء أول طلب تخصيص لك
@@ -199,7 +191,7 @@ export default async function CustomizationPage({
               {openRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش طلبات مفتوحة
+                    لا يوجد طلبات مفتوحة
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -226,7 +218,7 @@ export default async function CustomizationPage({
               {scheduledMeetingRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش طلبات باجتماع مجدول
+                    لا يوجد طلبات باجتماع مجدول
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -253,7 +245,7 @@ export default async function CustomizationPage({
               {waitingRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش طلبات في الانتظار
+                    لا يوجد طلبات في الانتظار
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -280,7 +272,7 @@ export default async function CustomizationPage({
               {inProgressRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش طلبات قيد المعالجة
+                    لا يوجد طلبات قيد المعالجة
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -307,7 +299,7 @@ export default async function CustomizationPage({
               {resolvedRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش طلبات محلولة
+                    لا يوجد طلبات محلولة
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -334,7 +326,7 @@ export default async function CustomizationPage({
               {closedRequests.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش طلبات مغلقة
+                    لا يوجد طلبات مغلقة
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (

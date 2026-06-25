@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
+import { WidgetLauncherSkeleton } from "@/components/ui/loading";
 import { ChatWindow } from "@/components/ai-chat/chat-window";
 import { cn } from "@/lib/utils";
 import type { AIChatbotPublicConfig } from "@/types";
@@ -46,13 +47,9 @@ function readSiteKey(): string {
 export default function EmbedPage() {
   const [config, setConfig] = useState<AIChatbotPublicConfig | null>(null);
   const [open, setOpen] = useState(false);
-  const [hostOrigin, setHostOrigin] = useState("");
-  const [siteKey, setSiteKey] = useState("");
-
-  useEffect(() => {
-    setHostOrigin(readHostOrigin());
-    setSiteKey(readSiteKey());
-  }, []);
+  const [hostOrigin] = useState(() => readHostOrigin());
+  const [siteKey] = useState(() => readSiteKey());
+  const storageNamespace = [hostOrigin, siteKey].filter(Boolean).join("::");
 
   // The widget renders inside a same-origin iframe that injects no chrome. When
   // the embedder's OS is in dark mode, next-themes (defaultTheme="system") adds
@@ -115,7 +112,11 @@ export default function EmbedPage() {
 
   const handleClose = useCallback(() => setOpen(false), []);
 
-  if (!config?.enabled) return null;
+  if (!config) {
+    return <WidgetLauncherSkeleton />;
+  }
+
+  if (!config.enabled) return null;
 
   return (
     <>
@@ -129,7 +130,15 @@ export default function EmbedPage() {
           config.position === "bottom-left" ? "items-start" : "items-end"
         )}
       >
-        {open && (
+        <div
+          className={cn(
+            "w-full transition-opacity duration-200",
+            open
+              ? "opacity-100"
+              : "pointer-events-none fixed -bottom-[9999px] opacity-0"
+          )}
+          aria-hidden={!open}
+        >
           <ChatWindow
             config={config}
             onClose={handleClose}
@@ -137,15 +146,11 @@ export default function EmbedPage() {
             appOrigin={
               typeof window !== "undefined" ? window.location.origin : ""
             }
-            // Scope the bot's answers to this site's knowledge (+ global).
             siteKey={siteKey}
             host={hostOrigin}
-            // Scope the conversation to the embedding site + key so different
-            // host sites (or keys) don't share one history via the same-origin
-            // iframe.
-            storageNamespace={[hostOrigin, siteKey].filter(Boolean).join("::")}
+            storageNamespace={storageNamespace}
           />
-        )}
+        </div>
 
         {!open && (
           <button

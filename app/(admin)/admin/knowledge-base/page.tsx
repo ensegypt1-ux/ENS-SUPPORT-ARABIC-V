@@ -30,24 +30,18 @@ export default async function KnowledgeBasePage() {
       title: "إجمالي الفئات",
       value: categories.length,
       icon: FolderOpen,
-      iconColor: "text-info",
-      iconBgColor: "bg-info/15",
       description: "أقسام قاعدة المعرفة",
     },
     {
       title: "منشور",
       value: publishedCategories,
       icon: CheckCircle2,
-      iconColor: "text-success",
-      iconBgColor: "bg-success/15",
       description: "مرئي للعملاء",
     },
     {
       title: "إجمالي المقالات",
       value: totalArticles,
       icon: FileText,
-      iconColor: "text-primary",
-      iconBgColor: "bg-primary/15",
       description: "في جميع الفئات",
     },
   ];
@@ -74,7 +68,7 @@ export default async function KnowledgeBasePage() {
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
             <BookOpen className="h-7 w-7 text-muted-foreground/50" />
           </div>
-          <h3 className="text-lg font-semibold">مفيش فئات لسه</h3>
+          <h3 className="text-lg font-semibold">لا يوجد فئات لا تزال</h3>
           <p className="mb-5 mt-1 max-w-xs text-sm text-muted-foreground">
             أنشئ أول فئة لبدء بناء قاعدة المعرفة.
           </p>
@@ -124,7 +118,7 @@ export default async function KnowledgeBasePage() {
                   </p>
                 ) : (
                   <p className="mt-2.5 text-sm italic text-muted-foreground/60">
-                    مفيش وصف
+                    لا يوجد وصف
                   </p>
                 )}
               </div>

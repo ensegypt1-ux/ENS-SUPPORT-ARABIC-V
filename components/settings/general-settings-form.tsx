@@ -40,7 +40,7 @@ const generalSettingsSchema = z.object({
   siteDescription: z.string().min(1, "وصف الموقع مطلوب"),
   supportEmail: z.union([
     z.literal(""),
-    z.string().email("عنوان بريد إلكتروني مش صح"),
+    z.string().email("عنوان بريد إلكتروني غير صالح"),
   ]),
   companyName: z.string().min(1, "اسم الشركة مطلوب"),
   timezone: z.string().min(1, "المنطقة الزمنية مطلوبة"),
@@ -86,12 +86,12 @@ export function GeneralSettingsForm({ settings }: GeneralSettingsFormProps) {
 
       if (result.success) {
         router.refresh();
-        toast.success("اتحدّثت الإعدادات");
+        toast.success("تم تحديث الإعدادات");
       } else {
-        toast.error(result.error || "مقدرناش نحدّث الإعدادات");
+        toast.error(result.error || "تعذّر تحديث الإعدادات");
       }
     } catch {
-      toast.error("حصل خطأ وإحنا بنحدّث الإعدادات");
+      toast.error("حدث خطأ وإحنا بنحدّث الإعدادات");
     } finally {
       setIsLoading(false);
     }
@@ -205,7 +205,7 @@ export function GeneralSettingsForm({ settings }: GeneralSettingsFormProps) {
               {/* Support Email */}
               <div className="space-y-2">
                 <Label htmlFor="supportEmail" className="text-sm font-medium">
-                  الإيميل للدعم
+                  البريد الإلكتروني للدعم
                 </Label>
                 <Input
                   id="supportEmail"

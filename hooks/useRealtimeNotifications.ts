@@ -7,11 +7,13 @@ import {
   markAllBellNotificationsAsRead,
   markBellNotificationAsRead,
 } from "@/actions/notifications-bell";
+import { createRequestScope, withTimeout } from "@/lib/async/request-scope";
 import { useSocketConnection } from "@/hooks/useSocketConnection";
 import type { ClientNotification } from "@/types/realtime";
 
 const BELL_NOTIFICATIONS_LIMIT = 50;
 const BELL_REFRESH_FRESH_MS = 1_500;
+const BELL_FETCH_TIMEOUT_MS = 20_000;
 
 type BellNotificationsResult = Awaited<ReturnType<typeof getBellNotifications>>;
 
@@ -57,7 +59,11 @@ function loadBellNotifications(
     }
   }
 
-  const request = getBellNotifications(limit).then((result) => {
+  const request = withTimeout(
+    getBellNotifications(limit),
+    BELL_FETCH_TIMEOUT_MS,
+    "تعذّر تحميل الإشعارات — انتهت المهلة"
+  ).then((result) => {
     if (result.success) {
       bellNotificationsCache.set(cacheKey, {
         fetchedAt: Date.now(),
@@ -89,10 +95,17 @@ export function useRealtimeNotifications(
   const [notifications, setNotifications] = useState<ClientNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const latestRefreshIdRef = useRef(0);
+  const requestScopeRef = useRef(createRequestScope());
+  const hasLoadedRef = useRef(false);
+  const refreshRef = useRef<
+    (options?: { force?: boolean; background?: boolean }) => Promise<void>
+  >(async () => {});
+  const onCreatedRef = useRef(options?.onNotificationCreated);
   const { socket, isConnected } = useSocketConnection(userId);
   const allowedTypes = options?.allowedTypes;
-  const onNotificationCreated = options?.onNotificationCreated;
+  const allowedTypesKey = allowedTypes?.join(",") ?? "all";
+
+  onCreatedRef.current = options?.onNotificationCreated;
 
   const filterNotifications = useCallback(
     (items: ClientNotification[]) => {
@@ -107,43 +120,69 @@ export function useRealtimeNotifications(
     [allowedTypes]
   );
 
-  const refreshNotifications = useCallback(async (refreshOptions?: { force?: boolean }) => {
-    const refreshId = latestRefreshIdRef.current + 1;
-    latestRefreshIdRef.current = refreshId;
+  const refreshNotifications = useCallback(
+    async (refreshOptions?: { force?: boolean; background?: boolean }) => {
+      const scope = requestScopeRef.current;
+      const requestId = scope.begin();
 
-    try {
-      const result = await loadBellNotifications(
-        userId,
-        BELL_NOTIFICATIONS_LIMIT,
-        refreshOptions
-      );
-      if (!result.success) {
-        throw new Error("Failed to fetch notifications");
-      }
-
-      if (refreshId !== latestRefreshIdRef.current) {
+      if (!userId) {
+        setNotifications([]);
+        setError(null);
+        setLoading(false);
+        hasLoadedRef.current = false;
         return;
       }
 
-      setNotifications(filterNotifications(result.notifications));
-      setError(null);
-    } catch (refreshError) {
-      if (refreshId !== latestRefreshIdRef.current) {
-        return;
+      const showBlockingLoader =
+        !refreshOptions?.background || !hasLoadedRef.current;
+
+      if (showBlockingLoader) {
+        setLoading(true);
       }
 
-      console.error("Failed to refresh notifications:", refreshError);
-      setError(refreshError as Error);
-    } finally {
-      if (refreshId === latestRefreshIdRef.current) {
+      try {
+        const result = await loadBellNotifications(
+          userId,
+          BELL_NOTIFICATIONS_LIMIT,
+          refreshOptions
+        );
+
+        if (!scope.isActive(requestId)) return;
+
+        if (!result.success) {
+          throw new Error("تعذّر تحميل الإشعارات");
+        }
+
+        setNotifications(filterNotifications(result.notifications));
+        setError(null);
+        hasLoadedRef.current = true;
+      } catch (refreshError) {
+        if (!scope.isActive(requestId)) return;
+
+        console.error("Failed to refresh notifications:", refreshError);
+        setError(refreshError as Error);
+      } finally {
         setLoading(false);
       }
-    }
-  }, [filterNotifications, userId]);
+    },
+    [filterNotifications, userId]
+  );
+
+  refreshRef.current = refreshNotifications;
 
   useEffect(() => {
-    void refreshNotifications();
-  }, [refreshNotifications]);
+    if (!userId) {
+      setNotifications([]);
+      setError(null);
+      setLoading(false);
+      hasLoadedRef.current = false;
+      return;
+    }
+
+    hasLoadedRef.current = false;
+    setError(null);
+    void refreshRef.current();
+  }, [userId, allowedTypesKey]);
 
   useEffect(() => {
     if (!socket) {
@@ -159,7 +198,7 @@ export function useRealtimeNotifications(
         return;
       }
 
-      onNotificationCreated?.(notification);
+      onCreatedRef.current?.(notification);
 
       setNotifications((current) => {
         const next = current.filter((entry) => entry.id !== notification.id);
@@ -181,12 +220,14 @@ export function useRealtimeNotifications(
       notificationIds: string[];
     }) => {
       setNotifications((current) =>
-        current.filter((notification) => !notificationIds.includes(notification.id))
+        current.filter(
+          (notification) => !notificationIds.includes(notification.id)
+        )
       );
     };
 
     const handleConnect = () => {
-      void refreshNotifications();
+      void refreshRef.current({ background: true });
     };
 
     socket.on("notification:created", handleCreated);
@@ -200,7 +241,7 @@ export function useRealtimeNotifications(
       socket.off("notification:deleted", handleDeleted);
       socket.off("connect", handleConnect);
     };
-  }, [allowedTypes, onNotificationCreated, refreshNotifications, socket]);
+  }, [allowedTypes, socket]);
 
   const unreadCount = useMemo(
     () => notifications.filter((notification) => !notification.read).length,
@@ -225,7 +266,7 @@ export function useRealtimeNotifications(
       await markBellNotificationAsRead(notificationId);
     } catch (markError) {
       console.error("Failed to mark notification as read:", markError);
-      void refreshNotifications({ force: true });
+      void refreshRef.current({ force: true, background: true });
     }
   };
 
@@ -244,7 +285,7 @@ export function useRealtimeNotifications(
       await markAllBellNotificationsAsRead();
     } catch (markError) {
       console.error("Failed to mark all notifications as read:", markError);
-      void refreshNotifications({ force: true });
+      void refreshRef.current({ force: true, background: true });
     }
   };
 

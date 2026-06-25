@@ -27,6 +27,7 @@ import { MeetingScheduler } from "@/components/meetings/meeting-scheduler";
 import { MeetingList } from "@/components/meetings/meeting-list";
 import { TicketDescription } from "@/components/tickets/ticket-description";
 import { NameWithRole } from "@/components/shared/name-with-role";
+import { GuestWhatsAppActions } from "@/components/shared/guest-whatsapp-actions";
 import {
   DetailFieldLabel,
   MetaSeparator,
@@ -339,6 +340,14 @@ export default async function AdminTicketDetailPage({
               <p className="mt-0.5 text-xs text-muted-foreground">
                 {customer.email}
               </p>
+            )}
+            {ticket?.guestPhone && (
+              <div className="mt-3">
+                <GuestWhatsAppActions
+                  phone={ticket.guestPhone}
+                  guestName={ticket.guestName || customer?.name}
+                />
+              </div>
             )}
           </div>
 

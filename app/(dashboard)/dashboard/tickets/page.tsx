@@ -58,32 +58,24 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
       title: STATUS_LABELS.open,
       value: openTickets.length,
       icon: AlertCircle,
-      iconColor: "text-blue-600",
-      iconBgColor: "bg-blue-50 dark:bg-blue-950",
       description: "تذاكر نشطة",
     },
     {
       title: STATUS_LABELS.in_progress,
       value: inProgressTickets.length,
       icon: Clock,
-      iconColor: "text-amber-600",
-      iconBgColor: "bg-amber-50 dark:bg-amber-950",
       description: STATUS_LABELS.in_progress,
     },
     {
       title: STATUS_LABELS.resolved,
       value: resolvedTickets.length,
       icon: CheckCircle2,
-      iconColor: "text-green-600",
-      iconBgColor: "bg-green-50 dark:bg-green-950",
       description: "اتحلّت",
     },
     {
       title: STATUS_LABELS.closed,
       value: closedTickets.length,
       icon: XCircle,
-      iconColor: "text-slate-600",
-      iconBgColor: "bg-slate-50 dark:bg-slate-950",
       description: "مكتملة",
     },
   ];
@@ -138,7 +130,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
         <Card>
           <CardContent className="py-12 text-center">
             <TicketIcon className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-semibold">مفيش تذاكر لسه</h3>
+            <h3 className="mt-4 text-lg font-semibold">لا يوجد تذاكر لا تزال</h3>
             <p className="text-muted-foreground mt-2">
               افتح أول تذكرة دعم
             </p>
@@ -190,7 +182,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {openTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش تذاكر مفتوحة
+                    لا يوجد تذاكر مفتوحة
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -211,7 +203,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {scheduledMeetingTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش تذاكر {STATUS_LABELS.scheduled_meeting}
+                    لا يوجد تذاكر {STATUS_LABELS.scheduled_meeting}
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -232,7 +224,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {waitingTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش تذاكر {STATUS_LABELS.waiting_on_customer}
+                    لا يوجد تذاكر {STATUS_LABELS.waiting_on_customer}
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -253,7 +245,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {inProgressTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش تذاكر {STATUS_LABELS.in_progress}
+                    لا يوجد تذاكر {STATUS_LABELS.in_progress}
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -274,7 +266,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {resolvedTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش تذاكر {STATUS_LABELS.resolved}
+                    لا يوجد تذاكر {STATUS_LABELS.resolved}
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (
@@ -295,7 +287,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
               {closedTickets.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
-                    مفيش تذاكر {STATUS_LABELS.closed}
+                    لا يوجد تذاكر {STATUS_LABELS.closed}
                   </CardContent>
                 </Card>
               ) : viewMode === "table" ? (

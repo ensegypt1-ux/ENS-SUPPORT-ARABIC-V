@@ -108,8 +108,8 @@ export function NotificationList({
               <Bell className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
               <h3 className="text-lg font-semibold mb-2">
                 {filter === "unread"
-                  ? "مفيش إشعارات مش مقروءة"
-                  : "مفيش إشعارات لسه"}
+                  ? "لا يوجد إشعارات غير مقروءةة"
+                  : "لا يوجد إشعارات لا تزال"}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {filter === "unread"

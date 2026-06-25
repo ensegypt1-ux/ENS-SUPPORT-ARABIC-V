@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+const isWindows = process.platform === "win32";
 
 /**
  * Domains allowed to embed the chat widget (`/embed`) in an iframe.
@@ -24,8 +25,32 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
-  async headers() {
+  async redirects() {
     return [
+      {
+        source: "/192",
+        destination: "/pwa-icons/192.png",
+        permanent: false,
+      },
+      {
+        source: "/512",
+        destination: "/pwa-icons/512.png",
+        permanent: false,
+      },
+      {
+        source: "/pwa-icons/192",
+        destination: "/pwa-icons/192.png",
+        permanent: true,
+      },
+      {
+        source: "/pwa-icons/512",
+        destination: "/pwa-icons/512.png",
+        permanent: true,
+      },
+    ];
+  },
+  async headers() {
+    const securityHeaders = [
       {
         source: "/embed",
         headers: [
@@ -36,11 +61,31 @@ const nextConfig: NextConfig = {
         ],
       },
     ];
+
+    if (process.env.NODE_ENV === "development") {
+      securityHeaders.push({
+        source: "/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store, must-revalidate",
+          },
+        ],
+      });
+    }
+
+    return securityHeaders;
   },
   reactCompiler: true,
   experimental: {
-    // Limit parallel static-generation workers (prevents Windows worker crashes).
-    cpus: 4,
+    // Next.js 16 enables reactDebugChannel by default. When a document is served
+    // with transferSize === 0 (SW/disk cache), createDebugChannel() calls
+    // location.reload() if it cannot restore from sessionStorage — causing
+    // infinite full-page reload loops on every panel route in dev.
+    reactDebugChannel: false,
+    // Windows: parallel workers can crash with exit code 3221226505
+    // (STATUS_STACK_BUFFER_OVERRUN) during page-data collection.
+    cpus: isWindows ? 1 : 4,
     workerThreads: false,
     serverActions: {
       bodySizeLimit: "20mb", // Increase from default 1MB to 20MB for file uploads

@@ -33,7 +33,7 @@ export function DeleteCategoryButton({
     try {
       const result = await deleteKBCategory(id);
       if (result.success) {
-        toast.success("اتمسح القسم");
+        toast.success("تم الحذف القسم");
         router.refresh();
       } else {
         toast.error(result.error ?? "تعذّر الحذف");
@@ -55,7 +55,7 @@ export function DeleteCategoryButton({
           <AlertDialogTitle>حذف القسم</AlertDialogTitle>
           <AlertDialogDescription>
             متأكد من حذف <strong>{title}</strong>؟ سيؤدي هذا
-            أيضاً إلى حذف جميع المقالات في هذا القسم. مش هينفع الرجوع عن
+            أيضاً إلى حذف جميع المقالات في هذا القسم. لا يمكن التراجع عن
             هذا الإجراء.
           </AlertDialogDescription>
         </AlertDialogHeader>

@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Download, RefreshCw, LayoutDashboard } from "lucide-react";
+import { RefreshCw, LayoutDashboard } from "lucide-react";
 import { ENS_BRAND } from "@/lib/ens-brand";
 
 interface AnalyticsHeaderProps {
@@ -26,10 +26,6 @@ export function AnalyticsHeader({ days }: AnalyticsHeaderProps) {
 
   const handleRefresh = () => {
     router.refresh();
-  };
-
-  const handleExport = () => {
-    // TODO: Implement export functionality
   };
 
   return (
@@ -59,11 +55,6 @@ export function AnalyticsHeader({ days }: AnalyticsHeaderProps) {
 
         <Button variant="ghost" size="sm" className="h-9" onClick={handleRefresh}>
           <RefreshCw className="h-4 w-4" />
-        </Button>
-
-        <Button variant="outline" size="sm" className="h-9" onClick={handleExport}>
-          <Download className="h-4 w-4 me-2" />
-          تصدير
         </Button>
 
         <Button asChild variant="outline" size="sm" className="h-9">

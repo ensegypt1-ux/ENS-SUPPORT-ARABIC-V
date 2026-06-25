@@ -12,6 +12,7 @@ import { createChatLog } from "@/lib/ai/chat-log";
 import { runAgent } from "@/lib/ai/agent";
 import { resolveChatScopeByKey, SITES_COLLECTION } from "@/lib/ai/sites";
 import { createAgentTicket } from "@/lib/ai/create-agent-ticket";
+import { validateInternationalPhone } from "@/lib/phone/international-phone";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type {
   AIDomainAccuracyStats,
@@ -28,9 +29,9 @@ import type {
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("مش مسموح");
+  if (!session?.user) throw new Error("غير مصرّح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
+  if (role !== "admin") throw new Error("ممنوع: يتطلب صلاحية المسؤول");
   return session;
 }
 
@@ -41,6 +42,7 @@ export async function getChatbotPublicConfig(): Promise<AIChatbotPublicConfig> {
   const config = getChatbotConfig(settings);
   return {
     enabled: settings.features.chatbot === true && settings.agent.enabled,
+    guestLiveChatEnabled: settings.features.guestLiveChat !== false,
     welcomeMessage: config.welcomeMessage,
     fallbackMessage: config.fallbackMessage,
     placeholder: config.placeholder,
@@ -96,12 +98,12 @@ export async function handleChatbotQuery(
   try {
     const parsed = handleChatSchema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, error: "طلب مش صح" };
+      return { success: false, error: "طلب غير صالح" };
     }
 
     const settings = await getOrCreateAISettings();
     if (!settings.features.chatbot || !settings.agent.enabled) {
-      return { success: false, error: "روبوت المحادثة معطّل" };
+      return { success: false, error: "المساعد الذكي غير مفعّل" };
     }
 
     const config = getChatbotConfig(settings);
@@ -193,13 +195,13 @@ export async function handleChatbotQuery(
 
 const guestTicketSchema = z.object({
   name: z.string().min(1).max(100),
-  email: z.string().email().max(200),
-  /** Becomes the ticket title (kept distinct from the message body). */
-  subject: z.string().min(3).max(150),
+  phone: z.string().min(7).max(30),
+  email: z.string().email().max(200).optional().or(z.literal("")),
+  /** Optional — derived from message when omitted. */
+  subject: z.string().min(3).max(150).optional(),
   message: z.string().min(5).max(5000),
   visitorId: z.string().max(100).optional(),
   chatLogId: z.string().max(100).optional(),
-  /** Department the agent inferred from the conversation (best-effort). */
   departmentSlug: z.string().max(80).optional(),
 });
 
@@ -220,7 +222,7 @@ export async function createGuestTicket(
 
     const settings = await getOrCreateAISettings();
     if (!settings.features.chatbot) {
-      return { success: false, error: "روبوت المحادثة معطّل" };
+      return { success: false, error: "المساعد الذكي غير مفعّل" };
     }
     const config = getChatbotConfig(settings);
 
@@ -236,13 +238,25 @@ export async function createGuestTicket(
       };
     }
 
-    const { name, email, subject, message, chatLogId, departmentSlug } =
+    const { name, email, phone, subject, message, chatLogId, departmentSlug } =
       parsed.data;
+
+    const phoneResult = validateInternationalPhone(phone);
+    if (!phoneResult.ok) {
+      return { success: false, error: phoneResult.error };
+    }
+
+    const summary =
+      subject?.trim() ||
+      message.trim().split("\n")[0]?.slice(0, 80) ||
+      "طلب دعم من المحادثة";
+
     const session = await getSession();
     const res = await createAgentTicket({
       name,
-      email,
-      summary: subject,
+      email: email?.trim() || undefined,
+      phone: phoneResult.normalized,
+      summary,
       details: message,
       departmentSlug,
       customerId: session?.user?.id ?? undefined,
@@ -280,11 +294,11 @@ export async function submitChatFeedback(
   try {
     const parsed = feedbackSchema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, error: "ملاحظات مش صحة" };
+      return { success: false, error: "ملاحظات غير صالحة" };
     }
     const { logId, visitorId, sessionId, feedback } = parsed.data;
     if (!ObjectId.isValid(logId)) {
-      return { success: false, error: "هدف الملاحظات مش صح" };
+      return { success: false, error: "هدف الملاحظات غير صالح" };
     }
 
     const col = await getCollection<AIChatLog>("ai_chat_logs");
@@ -298,7 +312,7 @@ export async function submitChatFeedback(
     );
 
     if (res.matchedCount === 0) {
-      return { success: false, error: "مفيش المحادثة" };
+      return { success: false, error: "لا يوجد المحادثة" };
     }
     return { success: true, data: { feedback } };
   } catch (error: any) {

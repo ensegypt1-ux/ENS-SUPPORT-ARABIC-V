@@ -21,9 +21,9 @@ const RUNS_COLLECTION = "ai_eval_runs";
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session?.user) throw new Error("مش مسموح");
+  if (!session?.user) throw new Error("غير مصرّح");
   const role = ((session.user as any)?.role ?? "customer") as UserRole;
-  if (role !== "admin") throw new Error("ممنوع: يلزم صلاحية المسؤول");
+  if (role !== "admin") throw new Error("ممنوع: يتطلب صلاحية المسؤول");
   return session;
 }
 
@@ -114,7 +114,7 @@ export async function deleteEvalCase(id: string): Promise<ApiResponse<void>> {
   try {
     await requireAdmin();
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: "معرّف الحالة مش صح" };
+      return { success: false, error: "معرّف الحالة غير صالح" };
     }
     const col = await getCollection<AIEvalCase>(CASES_COLLECTION);
     await col.deleteOne({ _id: new ObjectId(id) });

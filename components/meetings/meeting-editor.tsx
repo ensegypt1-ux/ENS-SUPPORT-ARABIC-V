@@ -75,7 +75,7 @@ export function MeetingEditor({
     const result = await updateMeeting(meeting._id.toString(), data);
 
     if (result.success) {
-      toast.success("اتحدّث الاجتماع");
+      toast.success("تم التحديث الاجتماع");
       onOpenChange(false);
       router.refresh();
     } else {

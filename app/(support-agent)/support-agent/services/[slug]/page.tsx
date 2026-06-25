@@ -72,34 +72,22 @@ export default async function SupportAgentServicePage({
     {
       title: "إجمالي المعيّن",
       value: requests.length,
-      icon: Icon,
-      iconColor: "text-slate-600",
-      iconBgColor: "bg-slate-50 dark:bg-slate-950",
-      description: `طلبات ${service.name} المعيّنة لك`,
+      icon: Icon,      description: `طلبات ${service.name} المعيّنة لك`,
     },
     {
       title: "مفتوحة",
       value: openRequests.length,
-      icon: AlertCircle,
-      iconColor: "text-amber-600",
-      iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "في انتظار مراجعتك",
+      icon: AlertCircle,      description: "في انتظار مراجعتك",
     },
     {
       title: "قيد المعالجة",
       value: inProgressRequests.length,
-      icon: Clock,
-      iconColor: "text-indigo-600",
-      iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "تعمل عليها حاليًا",
+      icon: Clock,      description: "تعمل عليها حاليًا",
     },
     {
       title: "محلولة / مغلقة",
       value: resolvedRequests.length + closedRequests.length,
-      icon: CheckCircle2,
-      iconColor: "text-emerald-600",
-      iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "طلبات مكتملة",
+      icon: CheckCircle2,      description: "طلبات مكتملة",
     },
   ];
 
@@ -166,7 +154,7 @@ export default async function SupportAgentServicePage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات مفتوحة
+                  لا يوجد طلبات مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -187,7 +175,7 @@ export default async function SupportAgentServicePage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات باجتماع مجدول
+                  لا يوجد طلبات باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -211,7 +199,7 @@ export default async function SupportAgentServicePage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات في الانتظار
+                  لا يوجد طلبات في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -232,7 +220,7 @@ export default async function SupportAgentServicePage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات قيد المعالجة
+                  لا يوجد طلبات قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -253,7 +241,7 @@ export default async function SupportAgentServicePage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات محلولة
+                  لا يوجد طلبات محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -274,7 +262,7 @@ export default async function SupportAgentServicePage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات مغلقة
+                  لا يوجد طلبات مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

@@ -33,7 +33,7 @@ export function DeletePairButton({
     try {
       const result = await deleteAITrainingPair(id);
       if (result.success) {
-        toast.success("اتمسح الزوج");
+        toast.success("تم الحذف الزوج");
         router.refresh();
       } else {
         toast.error(result.error ?? "تعذّر الحذف");
@@ -58,7 +58,7 @@ export function DeletePairButton({
         <AlertDialogHeader>
           <AlertDialogTitle>حذف زوج التدريب</AlertDialogTitle>
           <AlertDialogDescription>
-            حذف <strong>{question.slice(0, 80)}</strong>؟ مش هينفع الرجوع عن
+            حذف <strong>{question.slice(0, 80)}</strong>؟ لا يمكن التراجع عن
             هذا الإجراء.
           </AlertDialogDescription>
         </AlertDialogHeader>

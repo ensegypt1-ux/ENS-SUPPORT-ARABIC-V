@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import type { SessionUser } from "@/lib/auth";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UserMenu } from "@/components/layout/user-menu";
 import type { HeaderSection } from "@/types/landing-page";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -22,6 +23,7 @@ import {
   navLinkClassName,
   type PortalNavLink,
 } from "@/lib/public-portal-nav";
+import { buildWhatsAppUrl } from "@/lib/phone/international-phone";
 
 interface PublicHeaderProps {
   variant?: "landing" | "auth";
@@ -37,12 +39,14 @@ export function PublicHeader({ variant = "landing", header }: PublicHeaderProps)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [currentHash, setCurrentHash] = useState("");
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { data: session, isPending } = useSession();
   const whatsapp = useWhatsAppSettings();
   const { name: companyName } = useCompanyInfo();
 
-  const isLoggedIn = Boolean(session?.user);
+  const isLoggedIn = mounted && Boolean(session?.user);
+  const showAuthSkeleton = !mounted || isPending;
   const h = header;
   const signInText = h?.signInText ?? "دخول";
   const ctaLabel = h?.ctaButtonText ?? PORTAL_PRIMARY_CTA.label;
@@ -63,12 +67,15 @@ export function PublicHeader({ variant = "landing", header }: PublicHeaderProps)
 
   const whatsappUrl =
     whatsapp?.enabled && whatsapp.phoneNumber
-      ? `https://wa.me/${whatsapp.phoneNumber
-          .replace(/[^\d+]/g, "")
-          .replace("+", "")}?text=${encodeURIComponent(
-          whatsapp.defaultMessage || "مرحباً! لدي استفسار.",
-        )}`
+      ? buildWhatsAppUrl(
+          whatsapp.phoneNumber,
+          whatsapp.defaultMessage || "مرحباً! لدي استفسار."
+        )
       : null;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -221,8 +228,8 @@ export function PublicHeader({ variant = "landing", header }: PublicHeaderProps)
             <ThemeToggle withLabel={false} />
           </div>
 
-          {isPending ? (
-            <div className="h-9 w-24 animate-pulse rounded-full bg-muted/50" />
+          {showAuthSkeleton ? (
+            <Skeleton className="h-9 w-24 rounded-full" />
           ) : session?.user ? (
             <div className="hidden items-center gap-2 md:flex">
               {(session.user as SessionUser).role !== "admin" &&
@@ -338,7 +345,7 @@ export function PublicHeader({ variant = "landing", header }: PublicHeaderProps)
             <ThemeToggle withLabel={true} />
           </div>
 
-          {!isPending && session?.user ? (
+          {!showAuthSkeleton && session?.user ? (
             <div className="mt-4 border-t border-border/60 pt-3">
               <div className="rounded-xl bg-muted/40 px-3.5 py-2.5">
                 <p className="text-[13px] font-semibold text-foreground">

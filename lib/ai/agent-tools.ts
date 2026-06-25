@@ -44,7 +44,7 @@ export interface ToolDef {
 function fmtResults(
   rows: { title: string; content: string; score?: number }[]
 ): string {
-  if (rows.length === 0) return "مفيش نتائج مطابقة.";
+  if (rows.length === 0) return "لا توجد نتائج مطابقة.";
   return rows
     .map(
       (r, i) =>

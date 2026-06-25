@@ -182,7 +182,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
         }
       } catch (error) {
         console.error("Failed to fetch customers:", error);
-        toast.error("مقدرناش نحمّل العملاء");
+        toast.error("تعذّر تحميل العملاء");
       } finally {
         setLoadingCustomers(false);
       }
@@ -272,13 +272,13 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
         toast.success("كود الشراء متأكد!");
       } else {
         setPurchaseCodeVerified(false);
-        setPurchaseCodeError(result.error || "التحقق مش ناجح");
-        toast.error(result.error || "التحقق مش ناجح");
+        setPurchaseCodeError(result.error || "التحقق غير ناجح");
+        toast.error(result.error || "التحقق غير ناجح");
       }
     } catch {
       setPurchaseCodeVerified(false);
-      setPurchaseCodeError("حصل خطأ في التحقق");
-      toast.error("حصل خطأ في التحقق");
+      setPurchaseCodeError("حدث خطأ في التحقق");
+      toast.error("حدث خطأ في التحقق");
     } finally {
       setIsVerifyingPurchaseCode(false);
     }
@@ -286,7 +286,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
 
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) {
-      toast.error("اسم الفئة لازم");
+      toast.error("اسم الفئة مطلوب");
       return;
     }
     setAddingCategory(true);
@@ -296,7 +296,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
         slug: newCategorySlug.trim() || undefined,
       });
       if (result.success) {
-        toast.success("اتضافت الفئة");
+        toast.success("تمت الإضافةت الفئة");
         const slug = (newCategorySlug.trim() || slugify(newCategoryName)).trim();
         setAddCategoryOpen(false);
         setNewCategoryName("");
@@ -309,10 +309,10 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
           );
         }
       } else {
-        toast.error(result.error || "مقدرناش نضيف الفئة");
+        toast.error(result.error || "تعذّر إضافة الفئة");
       }
     } catch {
-      toast.error("مقدرناش نضيف الفئة");
+      toast.error("تعذّر إضافة الفئة");
     } finally {
       setAddingCategory(false);
     }
@@ -328,8 +328,8 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
         : await createTicket(data);
 
       if (!result.success) {
-        setError(result.error || "مقدرناش نعمل التذكرة");
-        toast.error(result.error || "مقدرناش نعمل التذكرة");
+        setError(result.error || "تعذّر إنشاء التذكرة");
+        toast.error(result.error || "تعذّر إنشاء التذكرة");
         setIsSubmitting(false);
         return;
       }
@@ -348,19 +348,19 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
         const uploadResult = await uploadTicketAttachments(ticketId, formData);
         if (!uploadResult.success) {
           toast.warning(
-            `التذكرة اتعملت بس بعض الملفات مترفعتش${
+            `تم إنشاء التذكرة ولكن بعض الملفات لم تُرفع${
               uploadResult.error ? `: ${uploadResult.error}` : ""
             }`,
           );
         } else if (uploadResult.data && uploadResult.data.length > 0) {
           toast.success(
-            `التذكرة اتعملت مع ${uploadResult.data.length} ${FORM_UI.attachmentWord}`,
+            `تم إنشاء التذكرة مع ${uploadResult.data.length} ${FORM_UI.attachmentWord}`,
           );
         } else {
-          toast.success("التذكرة اتعملت");
+          toast.success("تم إنشاء التذكرة");
         }
       } else {
-        toast.success("التذكرة اتعملت");
+        toast.success("تم إنشاء التذكرة");
       }
 
       router.push(`${ticketsHref}/${ticketId}`);
@@ -687,7 +687,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                     disabled={isSubmitting}
                   >
                     <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder={`اختار ${UI.category}`} />
+                      <SelectValue placeholder={`اختر ${UI.category}`} />
                     </SelectTrigger>
                     <SelectContent>
                       {loadingCategories ? (
@@ -696,7 +696,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                         </SelectItem>
                       ) : categories.length === 0 ? (
                         <SelectItem value="general" disabled>
-                          مفيش فئات
+                          لا يوجد فئات
                         </SelectItem>
                       ) : (
                         categories.map((cat) => (
@@ -733,7 +733,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                     disabled={isSubmitting || loadingDepartments}
                   >
                     <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder={`اختار ${TICKET_UI.department}`} />
+                      <SelectValue placeholder={`اختر ${TICKET_UI.department}`} />
                     </SelectTrigger>
                     <SelectContent>
                       {loadingDepartments ? (
@@ -742,7 +742,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                         </SelectItem>
                       ) : departments.length === 0 ? (
                         <SelectItem value="__empty" disabled>
-                          مفيش أقسام
+                          لا يوجد أقسام
                         </SelectItem>
                       ) : (
                         departments.map((d) => (
@@ -766,7 +766,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                     disabled={isSubmitting || loadingProducts}
                   >
                     <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder={`اختار ${TICKET_UI.product}`} />
+                      <SelectValue placeholder={`اختر ${TICKET_UI.product}`} />
                     </SelectTrigger>
                     <SelectContent>
                       {loadingProducts ? (
@@ -775,7 +775,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                         </SelectItem>
                       ) : products.length === 0 ? (
                         <SelectItem value="__empty" disabled>
-                          مفيش منتجات
+                          لا يوجد منتجات
                         </SelectItem>
                       ) : (
                         products.map((p) => (
@@ -799,7 +799,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                     disabled={isSubmitting}
                     placeholder={
                       isAdmin
-                        ? "اختار المنطقة الزمنية للعميل"
+                        ? "اختر المنطقة الزمنية للعميل"
                         : FORM_UI.selectTimezone
                     }
                   />
@@ -824,7 +824,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="me-2 h-4 w-4 animate-spin" />
-                      {isAdmin ? FORM_UI.creating : "بيتبعت..."}
+                      {isAdmin ? FORM_UI.creating : "جاري الإرسال..."}
                     </>
                   ) : isAdmin ? (
                     "افتح تذكرة"
@@ -857,7 +857,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
             <DialogHeader>
               <DialogTitle>فئة جديدة</DialogTitle>
               <DialogDescription>
-                ضيف فئة تذكرة جديدة. هتظهر في قوائم فتح التذاكر.
+                أضف فئة تذكرة جديدة. ستظهر في قوائم فتح التذاكر.
               </DialogDescription>
             </DialogHeader>
 
@@ -880,7 +880,7 @@ export function TicketForm({ variant = "customer" }: TicketFormProps) {
                   disabled={addingCategory}
                 />
                 <p className="text-xs text-muted-foreground">
-                  لو سيبته فاضي، هيتعمل من الاسم.
+                  إذا سيبته فاضي، هيتعمل من الاسم.
                 </p>
               </div>
             </div>

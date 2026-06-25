@@ -172,7 +172,7 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
       });
 
       if (result.success) {
-        toast.success("اتضاف الخدمة");
+        toast.success("تمت الإضافة الخدمة");
         createForm.reset({ name: "", slug: "", iconKey: "briefcase", description: "" });
         router.refresh();
       } else {
@@ -189,9 +189,9 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
     const result = await updateService({ id: service.id, isActive: next });
     if (result.success) {
       router.refresh();
-      toast.success(next ? "اتفعّلت الخدمة" : "اتعطّلت الخدمة");
+      toast.success(next ? "تم تفعيل الخدمة" : "تم تعطيل الخدمة");
     } else {
-      toast.error(result.error || "مقدرناش نحدّث الخدمة");
+      toast.error(result.error || "تعذّر تحديث الخدمة");
     }
   };
 
@@ -201,7 +201,7 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
       const result = await deleteService(service.id);
       if (result.success) {
         router.refresh();
-        toast.success("اتمسحت الخدمة");
+        toast.success("تم الحذفت الخدمة");
       } else {
         toast.error(result.error || "تعذّر الحذف الخدمة");
       }
@@ -226,14 +226,14 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
       });
 
       if (result.success) {
-        toast.success("اتحدّثت الخدمة");
+        toast.success("تم تحديث الخدمة");
         setEditingService(null);
         router.refresh();
       } else {
-        toast.error(result.error || "مقدرناش نحدّث الخدمة");
+        toast.error(result.error || "تعذّر تحديث الخدمة");
       }
     } catch {
-      toast.error("مقدرناش نحدّث الخدمة");
+      toast.error("تعذّر تحديث الخدمة");
     } finally {
       setSavingEdit(false);
     }
@@ -427,7 +427,7 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
                   {sortedServices.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={5} className="py-10 text-center text-muted-foreground" dir="rtl">
-                        مفيش خدمات
+                        لا يوجد خدمات
                       </TableCell>
                     </TableRow>
                   )}
@@ -493,7 +493,7 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
               <Button type="submit" disabled={savingEdit} className="gap-2">
                 {savingEdit ? (
                   <>
-                    <span>بيتحفظ...</span>
+                    <span>جاري الحفظ...</span>
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </>
                 ) : (
@@ -522,7 +522,7 @@ export function ServicesSettingsForm({ services }: { services: ServiceRow[] }) {
               <span className="font-medium text-foreground">
                 {deleteServiceTarget?.name}
               </span>{" "}
-              نهائياً. مش هينفع الرجوع عن هذا الإجراء.
+              نهائياً. لا يمكن التراجع عن هذا الإجراء.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

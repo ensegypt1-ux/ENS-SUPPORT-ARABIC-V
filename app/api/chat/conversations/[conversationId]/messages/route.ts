@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth-utils";
+import type { SessionUser } from "@/lib/auth";
 import { getConversationMessagesForUser } from "@/lib/chat/server";
 
 export const dynamic = "force-dynamic";
@@ -25,9 +26,14 @@ export async function GET(
     }
 
     const { conversationId } = await context.params;
+    const role = ((session.user as SessionUser).role || "customer") as
+      | "customer"
+      | "support"
+      | "admin";
     const messages = await getConversationMessagesForUser(
       conversationId,
-      session.user.id
+      session.user.id,
+      role
     );
 
     if (!messages) {

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, Home, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { translateAuthError } from "@/lib/auth-errors";
 
 /**
  * Auth Routes Error Boundary
@@ -29,13 +30,13 @@ export default function AuthError({
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/15">
             <AlertTriangle className="h-8 w-8 text-destructive" />
           </div>
-          <CardTitle className="text-2xl">مشكلة في الدخول</CardTitle>
+          <CardTitle className="text-2xl">مشكلة في تسجيل الدخول</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              حصل خطأ وإنت بتدخل. جرّب تاني أو كلم الدعم لو لسه في مشكلة.
+              حدث خطأ أثناء تسجيل الدخول. أعد المحاولة أو تواصل مع الدعم إذا استمرت المشكلة.
             </AlertDescription>
           </Alert>
 
@@ -45,7 +46,7 @@ export default function AuthError({
                 تفاصيل الخطأ (بيئة التطوير):
               </p>
               <p className="text-xs font-mono text-destructive break-all">
-                {error.message}
+                {translateAuthError(error.message)}
               </p>
             </div>
           )}
@@ -59,7 +60,7 @@ export default function AuthError({
           <div className="flex flex-col gap-2 pt-4">
             <Button onClick={() => reset()} className="gap-2 w-full">
               <RefreshCw className="h-4 w-4" />
-              جرّب تاني
+              أعد المحاولة
             </Button>
             <Button variant="outline" asChild className="w-full">
               <Link href="/" className="gap-2">
@@ -71,7 +72,7 @@ export default function AuthError({
 
           <div className="pt-4 border-t text-center">
             <p className="text-sm text-muted-foreground">
-              محتاج مساعدة؟ <Link href="/dashboard/tickets/new" className="text-primary hover:underline">كلم الدعم</Link>
+              تحتاج مساعدة؟ <Link href="/dashboard/tickets/new" className="text-primary hover:underline">تواصل مع الدعم</Link>
             </p>
           </div>
         </CardContent>

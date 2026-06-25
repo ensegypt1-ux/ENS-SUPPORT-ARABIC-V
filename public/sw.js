@@ -1,6 +1,6 @@
 const CACHE_NAME = "solvio-pwa-v4";
 const OFFLINE_URL = "/offline";
-const PRECACHE_URLS = [OFFLINE_URL, "/manifest.webmanifest", "/pwa-icons/192"];
+const PRECACHE_URLS = [OFFLINE_URL, "/manifest.webmanifest", "/pwa-icons/192.png"];
 const FOREGROUND_PUSH_EVENT = "solvio:push:foreground";
 
 self.addEventListener("install", (event) => {
@@ -127,8 +127,8 @@ function normalizePushPayload(payload) {
   return {
     title: payload.title || "New notification",
     body: payload.body || "You have a new update.",
-    icon: payload.icon || "/pwa-icons/192",
-    badge: payload.badge || "/pwa-icons/192",
+    icon: payload.icon || "/pwa-icons/192.png",
+    badge: payload.badge || "/pwa-icons/192.png",
     tag: payload.tag || payload.notificationId || "solvio-notification",
     notificationId: payload.notificationId || null,
     data: {

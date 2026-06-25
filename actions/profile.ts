@@ -79,7 +79,7 @@ export async function getCurrentUserProfile(): Promise<ApiResponse<User>> {
       user = await users.findOne({ _id: new ObjectId(userId) } as any);
     }
     if (!user) {
-      return { success: false, error: "مفيش المستخدم" };
+      return { success: false, error: "لا يوجد المستخدم" };
     }
     // Serialize to plain object to avoid Date/ObjectId issues
     const serialized = JSON.parse(JSON.stringify(user));
@@ -115,7 +115,7 @@ export async function updateProfile(
       }
     }
     if (!existing) {
-      return { success: false, error: "مفيش المستخدم" };
+      return { success: false, error: "لا يوجد المستخدم" };
     }
 
     // Ensure email uniqueness if changed
@@ -127,7 +127,7 @@ export async function updateProfile(
       if (emailInUse) {
         return {
           success: false,
-          error: "يوجد مستخدم بهذا الإيميل بالفعل",
+          error: "يوجد مستخدم بهذا البريد الإلكتروني بالفعل",
         };
       }
     }
@@ -194,7 +194,7 @@ export async function updateProfile(
     revalidatePath("/admin");
     revalidatePath("/dashboard");
 
-    return { success: true, message: "الملف الشخصي اتحدّث" };
+    return { success: true, message: "الملف الشخصي تم التحديث" };
   } catch (error: any) {
     console.error("updateProfile error:", error);
     return {
@@ -218,7 +218,7 @@ export async function uploadProfileAvatar(
 
     const file = formData.get("file");
     if (!(file instanceof File)) {
-      return { success: false, error: "مفيش ملف مرفوع" };
+      return { success: false, error: "لا يوجد ملف مرفوع" };
     }
 
     const uploaded = await uploadFile({ file, folder: "avatars", userId });

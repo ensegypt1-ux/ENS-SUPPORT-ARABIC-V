@@ -53,7 +53,7 @@ export function AccountStatusBulkActions({
                 withReason,
             );
             if (result.success) {
-                toast.success(result.message || "اتحدّث الحالة");
+                toast.success(result.message || "تم التحديث الحالة");
                 setConfirm(null);
                 setReason("");
                 onDone();
@@ -114,8 +114,8 @@ export function AccountStatusBulkActions({
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                             {confirm === "banned"
-                                ? `هنحظر ${count} ${targetLabel}، ونخرّجهم فوراً، ومش هيقدروا يدخلوا لحد ما تفعّلهم تاني.`
-                                : `هنعطّل ${count} ${targetLabel}، ونخرّجهم فوراً، ومش هيقدروا يدخلوا لحد ما تفعّلهم تاني.`}
+                                ? `سيتم حظر ${count} ${targetLabel}، وسيتم تسجيل خروجهم فوراً، ولن يتمكنوا يدخلوا لحد ما إعادة تفعيلهم.`
+                                : `سيتم تعطيل ${count} ${targetLabel}، وسيتم تسجيل خروجهم فوراً، ولن يتمكنوا يدخلوا لحد ما إعادة تفعيلهم.`}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <div className="space-y-2">

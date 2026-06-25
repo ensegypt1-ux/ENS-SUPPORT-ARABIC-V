@@ -5,10 +5,10 @@ import { z } from "zod";
 import { ObjectId } from "mongodb";
 
 const contactSchema = z.object({
-  name: z.string().min(2, "الاسم لازم يكون حرفين على الأقل"),
+  name: z.string().min(2, "الاسم يجب أن يكون حرفين على الأقل"),
   email: z.string().email("اكتب بريد إلكتروني صحيح"),
-  subject: z.string().min(5, "الموضوع لازم يكون 5 أحرف على الأقل"),
-  message: z.string().min(10, "الرسالة لازم تكون 10 أحرف على الأقل"),
+  subject: z.string().min(5, "الموضوع يجب أن يكون 5 أحرف على الأقل"),
+  message: z.string().min(10, "الرسالة يجب أن تكون 10 أحرف على الأقل"),
 });
 
 export interface ContactSubmission {
@@ -50,7 +50,7 @@ export async function submitContact(formData: {
     console.error("Contact submission error:", error);
     return {
       success: false,
-      message: "حصل خطأ. جرّب تاني.",
+      message: "حدث خطأ. أعد المحاولة.",
     };
   }
 }
@@ -101,7 +101,7 @@ export async function deleteContactSubmission(id: string) {
 
     await collection.deleteOne({ _id: new ObjectId(id) } as Record<string, unknown>);
 
-    return { success: true, message: "الإرسال اتمسح" };
+    return { success: true, message: "الإرسال تم الحذف" };
   } catch (error) {
     console.error("Delete contact submission error:", error);
     return { success: false, message: "تعذّر حذف الإرسال" };

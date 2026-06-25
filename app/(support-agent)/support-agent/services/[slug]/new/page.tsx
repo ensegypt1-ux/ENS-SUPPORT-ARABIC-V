@@ -152,16 +152,16 @@ export default function SupportAgentNewServiceRequestPage({
         const uploadResult = await uploadTicketAttachments(ticketId, formData);
         if (!uploadResult.success) {
           toast.warning(
-            `اتعمل الطلب لكن تعذّر رفع بعض الملفات: ${uploadResult.error}`
+            `تم الإنشاء الطلب لكن تعذّر رفع بعض الملفات: ${uploadResult.error}`
           );
         }
       }
 
-      toast.success("اتعمل الطلب!");
+      toast.success("تم الإنشاء الطلب!");
       router.push(`/support-agent/services/${slug}/${ticketId}`);
       router.refresh();
     } catch (e) {
-      const message = e instanceof Error ? e.message : "حصل خطأ مش متوقع";
+      const message = e instanceof Error ? e.message : "حدث خطأ غير متوقع";
       setError(message);
       toast.error(message);
       setIsSubmitting(false);

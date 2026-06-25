@@ -156,32 +156,24 @@ export default async function AdminDashboardPage() {
           title: "تذاكر مفتوحة",
           value: stats.openTickets,
           icon: AlertCircle,
-          iconColor: "text-warning",
-          iconBgColor: "bg-warning/15",
           description: "في انتظار الرد",
         },
         {
           title: "عاجلة",
           value: stats.urgentTickets,
           icon: AlertTriangle,
-          iconColor: "text-destructive",
-          iconBgColor: "bg-destructive/15",
           description: "تتطلب اهتمامًا فوريًا",
         },
         {
           title: "قيد المعالجة",
           value: stats.inProgressTickets,
           icon: Clock,
-          iconColor: "text-accent",
-          iconBgColor: "bg-accent/15",
           description: "قيد العمل",
         },
         {
           title: "محلولة",
           value: stats.resolvedTickets,
           icon: CheckCircle2,
-          iconColor: "text-success",
-          iconBgColor: "bg-success/15",
           description: "تذاكر مكتملة",
         },
       ]
@@ -193,7 +185,7 @@ export default async function AdminDashboardPage() {
       <DashboardGreeting
         name={userName}
         initialGreeting={getGreeting()}
-        subtitle="إليك ما يحدث في مكتب الدعم اليوم."
+        subtitle="إلك ما يحدث في مكتب الدعم اليوم."
       />
 
       {/* Key Metrics - Single Row */}
@@ -222,7 +214,7 @@ export default async function AdminDashboardPage() {
           <CardContent>
             {recentTickets.length === 0 ? (
               <p className="text-center text-muted-foreground py-8 text-sm">
-                مفيش تذاكر بعد
+                لا يوجد تذاكر بعد
               </p>
             ) : (
               <div className="space-y-3">
@@ -288,7 +280,7 @@ export default async function AdminDashboardPage() {
           <CardContent>
             {recentUsers.length === 0 ? (
               <p className="text-center text-muted-foreground py-8 text-sm">
-                مفيش مستخدمون جدد
+                لا يوجد مستخدمون جدد
               </p>
             ) : (
               <div className="space-y-3">
@@ -347,7 +339,7 @@ export default async function AdminDashboardPage() {
           <CardContent>
             {priorityDist.length === 0 ? (
               <p className="text-center text-muted-foreground py-8 text-sm">
-                مفيش بيانات
+                لا يوجد بيانات
               </p>
             ) : (
               <div className="flex flex-col items-center">
@@ -386,7 +378,8 @@ export default async function AdminDashboardPage() {
                       });
 
                       return sortedDist.map((item) => {
-                        const percentage = item.count / total;
+                        const percentage =
+                          total > 0 ? item.count / total : 0;
                         const segmentLength = percentage * circumference;
                         const gapLength = circumference - segmentLength;
 
@@ -461,7 +454,8 @@ export default async function AdminDashboardPage() {
                     });
 
                     return sortedDist.map((item) => {
-                      const percentage = Math.round((item.count / total) * 100);
+                      const percentage =
+                        total > 0 ? Math.round((item.count / total) * 100) : 0;
 
                       return (
                         <div
@@ -507,7 +501,7 @@ export default async function AdminDashboardPage() {
           <CardContent>
             {statusDist.length === 0 ? (
               <p className="text-center text-muted-foreground py-8 text-sm">
-                مفيش بيانات
+                لا يوجد بيانات
               </p>
             ) : (
               <div className="flex flex-col">
@@ -536,7 +530,8 @@ export default async function AdminDashboardPage() {
                     };
 
                     return statusDist.map((item) => {
-                      const percentage = Math.round((item.count / total) * 100);
+                      const percentage =
+                        total > 0 ? Math.round((item.count / total) * 100) : 0;
                       return (
                         <div key={item.status} className="flex items-center gap-2 min-w-0">
                           <div

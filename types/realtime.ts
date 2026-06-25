@@ -1,4 +1,6 @@
 export type ConversationType = "direct" | "group";
+export type ConversationSource = "user" | "guest_widget";
+export type GuestConversationStatus = "unclaimed" | "claimed" | "closed";
 
 export type UserSummary = {
   id: string;
@@ -36,6 +38,15 @@ export type Conversation = {
   updated_at: string;
   last_message_at: string | null;
   lastMessage?: ConversationMessageSummary | null;
+  source?: ConversationSource;
+  guest_session_id?: string;
+  guest_name?: string;
+  guest_email?: string;
+  guest_phone?: string;
+  guest_status?: GuestConversationStatus;
+  assigned_agent_id?: string | null;
+  chat_log_id?: string;
+  department_slug?: string;
 };
 
 export type ConversationWithParticipants = Conversation & {
@@ -101,6 +112,12 @@ export type UserPresenceState = {
   user_id: string;
   status: "online" | "offline" | "away";
   last_seen: string;
+  updated_at: string;
+};
+
+export type GuestPresenceState = {
+  conversation_id: string;
+  status: "online" | "offline";
   updated_at: string;
 };
 

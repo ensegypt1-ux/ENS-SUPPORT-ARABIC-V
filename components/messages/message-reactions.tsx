@@ -21,6 +21,8 @@ interface MessageReactionsProps {
   messageId: string;
   currentUserId: string;
   reactions: MessageReaction[];
+  /** picker: add-reaction control only; display: existing chips only */
+  variant?: "full" | "picker" | "display";
 }
 
 const COMMON_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🎉", "🔥", "👏"];
@@ -29,6 +31,7 @@ export function MessageReactions({
   messageId,
   currentUserId,
   reactions,
+  variant = "full",
 }: MessageReactionsProps) {
   const handleReaction = async (emoji: string) => {
     const result = await toggleMessageReaction(messageId, emoji);
@@ -46,12 +49,15 @@ export function MessageReactions({
   }, {} as Record<string, MessageReaction[]>);
 
   const hasReactions = Object.keys(groupedReactions).length > 0;
+  const showDisplay = variant === "full" || variant === "display";
+  const showPicker = variant === "full" || variant === "picker";
+
+  if (!showDisplay && !showPicker) return null;
 
   return (
-    <div className="flex items-center gap-1 flex-wrap">
-      {/* Display existing reactions */}
-      {hasReactions && (
-        <div className="flex gap-1 flex-wrap">
+    <div className="flex flex-wrap items-center gap-1">
+      {showDisplay && hasReactions && (
+        <div className="flex flex-wrap gap-1">
           {Object.entries(groupedReactions).map(([emoji, reactions]) => {
             const userReacted = reactions.some((r) => r.user_id === currentUserId);
             const count = reactions.length;
@@ -61,46 +67,47 @@ export function MessageReactions({
                 key={emoji}
                 variant={userReacted ? "default" : "outline"}
                 size="sm"
-                className="h-7 px-2 text-sm"
+                className="h-6 px-1.5 text-xs"
                 onClick={() => handleReaction(emoji)}
                 title={reactions.map((r) => r.user_name).join(", ")}
               >
-                <span className="me-1">{emoji}</span>
-                <span className="text-xs">{count}</span>
+                <span className="me-0.5">{emoji}</span>
+                <span className="text-[10px]">{count}</span>
               </Button>
             );
           })}
         </div>
       )}
 
-      {/* Add reaction button */}
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0"
-            title="إضافة تفاعل"
-          >
-            <Smile className="h-4 w-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-2" align="start">
-          <div className="grid grid-cols-4 gap-1">
-            {COMMON_EMOJIS.map((emoji) => (
-              <Button
-                key={emoji}
-                variant="ghost"
-                size="sm"
-                className="h-10 w-10 p-0 text-xl hover:bg-accent"
-                onClick={() => handleReaction(emoji)}
-              >
-                {emoji}
-              </Button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
+      {showPicker && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 rounded-md text-muted-foreground hover:text-foreground"
+              title="إضافة تفاعل"
+            >
+              <Smile className="h-3.5 w-3.5" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-2" align="start">
+            <div className="grid grid-cols-4 gap-1">
+              {COMMON_EMOJIS.map((emoji) => (
+                <Button
+                  key={emoji}
+                  variant="ghost"
+                  size="sm"
+                  className="h-10 w-10 p-0 text-xl hover:bg-accent"
+                  onClick={() => handleReaction(emoji)}
+                >
+                  {emoji}
+                </Button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
     </div>
   );
 }

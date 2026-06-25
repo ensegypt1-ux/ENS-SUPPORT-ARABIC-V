@@ -20,7 +20,7 @@ export function RegenerateButton() {
           toast.success("جميع الأزواج لديها تضمينات بالفعل");
         } else {
           toast.success(
-            `اتولّدت ${result.data.regenerated}` +
+            `تم توليد ${result.data.regenerated}` +
               (result.data.failed ? `، ${result.data.failed}` : "")
           );
         }

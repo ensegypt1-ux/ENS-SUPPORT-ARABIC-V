@@ -78,32 +78,24 @@ export default async function AdminInstallationPage({
       title: "إجمالي الطلبات",
       value: requests.length,
       icon: Download,
-      iconColor: "text-sky-600",
-      iconBgColor: "bg-sky-50 dark:bg-sky-950",
       description: "جميع تذاكر التثبيت",
     },
     {
       title: "مفتوحة",
       value: openRequests.length,
       icon: AlertCircle,
-      iconColor: "text-amber-600",
-      iconBgColor: "bg-amber-50 dark:bg-amber-950",
       description: "في انتظار الإجراء",
     },
     {
       title: "قيد المعالجة",
       value: inProgressRequests.length,
       icon: Clock,
-      iconColor: "text-indigo-600",
-      iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
       description: "قيد التثبيت",
     },
     {
       title: "مكتملة",
       value: resolvedRequests.length + closedRequests.length,
       icon: CheckCircle2,
-      iconColor: "text-emerald-600",
-      iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
       description: "تم التثبيت",
     },
   ];
@@ -173,7 +165,7 @@ export default async function AdminInstallationPage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات مفتوحة
+                  لا يوجد طلبات مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -197,7 +189,7 @@ export default async function AdminInstallationPage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات باجتماع مجدول
+                  لا يوجد طلبات باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -221,7 +213,7 @@ export default async function AdminInstallationPage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات في الانتظار
+                  لا يوجد طلبات في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -245,7 +237,7 @@ export default async function AdminInstallationPage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات قيد المعالجة
+                  لا يوجد طلبات قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -269,7 +261,7 @@ export default async function AdminInstallationPage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات محلولة
+                  لا يوجد طلبات محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -293,7 +285,7 @@ export default async function AdminInstallationPage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات مغلقة
+                  لا يوجد طلبات مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

@@ -343,12 +343,12 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
       });
 
       if (result.success) {
-        toast.success("اتحدّثت إعدادات التذاكر");
+        toast.success("تم تحديث إعدادات التذاكر");
       } else {
-        toast.error(result.error || "مقدرناش نحدّث الإعدادات");
+        toast.error(result.error || "تعذّر تحديث الإعدادات");
       }
     } catch (error) {
-      toast.error("حصل خطأ وإحنا بنحدّث الإعدادات");
+      toast.error("حدث خطأ وإحنا بنحدّث الإعدادات");
     } finally {
       setIsLoading(false);
     }
@@ -362,7 +362,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         slug: data.slug,
       });
       if (result.success) {
-        toast.success("اتضاف الفئة");
+        toast.success("تمت الإضافة الفئة");
         createCategoryForm.reset({ name: "", slug: "" });
         setAddCategoryOpen(false);
         await refreshCategories();
@@ -406,15 +406,15 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
       if (!editingCategory.isSystem) payload.slug = data.slug;
       const result = await updateTicketCategory(payload);
       if (result.success) {
-        toast.success("اتحدّثت الفئة");
+        toast.success("تم تحديث الفئة");
         setEditingCategory(null);
         await refreshCategories();
         router.refresh();
       } else {
-        toast.error(result.error || "مقدرناش نحدّث الفئة");
+        toast.error(result.error || "تعذّر تحديث الفئة");
       }
     } catch {
-      toast.error("مقدرناش نحدّث الفئة");
+      toast.error("تعذّر تحديث الفئة");
     } finally {
       setSavingCategory(false);
     }
@@ -426,7 +426,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
     try {
       const result = await deleteTicketCategory(deleteCategoryTarget.id);
       if (result.success) {
-        toast.success("اتمسحت الفئة");
+        toast.success("تم الحذفت الفئة");
         setDeleteCategoryTarget(null);
         await refreshCategories();
         router.refresh();
@@ -445,14 +445,14 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
     try {
       const result = await updateTicketCategory({ id: category.id, isActive: next });
       if (result.success) {
-        toast.success(next ? "اتفعّلت الفئة" : "اتعطّلت الفئة");
+        toast.success(next ? "تم تفعيل الفئة" : "تم تعطيل الفئة");
         await refreshCategories();
         router.refresh();
       } else {
-        toast.error(result.error || "مقدرناش نحدّث الفئة");
+        toast.error(result.error || "تعذّر تحديث الفئة");
       }
     } catch {
-      toast.error("مقدرناش نحدّث الفئة");
+      toast.error("تعذّر تحديث الفئة");
     } finally {
       setTogglingCategoryId(null);
     }
@@ -466,7 +466,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         slug: data.slug,
       });
       if (result.success) {
-        toast.success("اتضاف القسم");
+        toast.success("تمت الإضافة القسم");
         createDepartmentForm.reset({ name: "", slug: "" });
         setAddDepartmentOpen(false);
         await refreshDepartments();
@@ -510,15 +510,15 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
       if (!editingDepartment.isSystem) payload.slug = data.slug;
       const result = await updateTicketDepartment(payload);
       if (result.success) {
-        toast.success("اتحدّث القسم");
+        toast.success("تم التحديث القسم");
         setEditingDepartment(null);
         await refreshDepartments();
         router.refresh();
       } else {
-        toast.error(result.error || "مقدرناش نحدّث القسم");
+        toast.error(result.error || "تعذّر تحديث القسم");
       }
     } catch {
-      toast.error("مقدرناش نحدّث القسم");
+      toast.error("تعذّر تحديث القسم");
     } finally {
       setSavingDepartment(false);
     }
@@ -530,7 +530,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
     try {
       const result = await deleteTicketDepartment(deleteDepartmentTarget.id);
       if (result.success) {
-        toast.success("اتمسح القسم");
+        toast.success("تم الحذف القسم");
         setDeleteDepartmentTarget(null);
         await refreshDepartments();
         router.refresh();
@@ -555,14 +555,14 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         isActive: next,
       });
       if (result.success) {
-        toast.success(next ? "اتفعّل القسم" : "اتعطّل القسم");
+        toast.success(next ? "تم تفعيل القسم" : "تم تعطيل القسم");
         await refreshDepartments();
         router.refresh();
       } else {
-        toast.error(result.error || "مقدرناش نحدّث القسم");
+        toast.error(result.error || "تعذّر تحديث القسم");
       }
     } catch {
-      toast.error("مقدرناش نحدّث القسم");
+      toast.error("تعذّر تحديث القسم");
     } finally {
       setTogglingDepartmentId(null);
     }
@@ -576,7 +576,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         slug: data.slug,
       });
       if (result.success) {
-        toast.success("اتضاف المنتج");
+        toast.success("تمت الإضافة المنتج");
         createProductForm.reset({ name: "", slug: "" });
         setAddProductOpen(false);
         await refreshProducts();
@@ -620,15 +620,15 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
       if (!editingProduct.isSystem) payload.slug = data.slug;
       const result = await updateTicketProduct(payload);
       if (result.success) {
-        toast.success("اتحدّث المنتج");
+        toast.success("تم التحديث المنتج");
         setEditingProduct(null);
         await refreshProducts();
         router.refresh();
       } else {
-        toast.error(result.error || "مقدرناش نحدّث المنتج");
+        toast.error(result.error || "تعذّر تحديث المنتج");
       }
     } catch {
-      toast.error("مقدرناش نحدّث المنتج");
+      toast.error("تعذّر تحديث المنتج");
     } finally {
       setSavingProduct(false);
     }
@@ -640,7 +640,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
     try {
       const result = await deleteTicketProduct(deleteProductTarget.id);
       if (result.success) {
-        toast.success("اتمسح المنتج");
+        toast.success("تم الحذف المنتج");
         setDeleteProductTarget(null);
         await refreshProducts();
         router.refresh();
@@ -665,14 +665,14 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
         isActive: next,
       });
       if (result.success) {
-        toast.success(next ? "اتفعّل المنتج" : "اتعطّل المنتج");
+        toast.success(next ? "تم تفعيل المنتج" : "تم تعطيل المنتج");
         await refreshProducts();
         router.refresh();
       } else {
-        toast.error(result.error || "مقدرناش نحدّث المنتج");
+        toast.error(result.error || "تعذّر تحديث المنتج");
       }
     } catch {
-      toast.error("مقدرناش نحدّث المنتج");
+      toast.error("تعذّر تحديث المنتج");
     } finally {
       setTogglingProductId(null);
     }
@@ -1319,7 +1319,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                 <Button type="submit" disabled={savingCategory} className="gap-2">
                   {savingCategory ? (
                     <>
-                      <span>بيتحفظ...</span>
+                      <span>جاري الحفظ...</span>
                       <Loader2 className="h-4 w-4 animate-spin" />
                     </>
                   ) : (
@@ -1344,11 +1344,11 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
             <AlertDialogHeader>
               <AlertDialogTitle>حذف الفئة؟</AlertDialogTitle>
               <AlertDialogDescription>
-                هيتمسح{" "}
+                سيتمسح{" "}
                 <span className="font-medium text-foreground">
                   {deleteCategoryTarget?.name}
                 </span>{" "}
-                نهائياً. مش هينفع الرجوع عن هذا الإجراء.
+                نهائياً. لا يمكن التراجع عن هذا الإجراء.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -1498,7 +1498,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                 <Button type="submit" disabled={savingDepartment} className="gap-2">
                   {savingDepartment ? (
                     <>
-                      <span>بيتحفظ...</span>
+                      <span>جاري الحفظ...</span>
                       <Loader2 className="h-4 w-4 animate-spin" />
                     </>
                   ) : (
@@ -1523,11 +1523,11 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
             <AlertDialogHeader>
               <AlertDialogTitle>حذف القسم؟</AlertDialogTitle>
               <AlertDialogDescription>
-                هيتمسح{" "}
+                سيتمسح{" "}
                 <span className="font-medium text-foreground">
                   {deleteDepartmentTarget?.name}
                 </span>{" "}
-                نهائياً. مش هينفع الرجوع عن هذا الإجراء.
+                نهائياً. لا يمكن التراجع عن هذا الإجراء.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -1677,7 +1677,7 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
                 <Button type="submit" disabled={savingProduct} className="gap-2">
                   {savingProduct ? (
                     <>
-                      <span>بيتحفظ...</span>
+                      <span>جاري الحفظ...</span>
                       <Loader2 className="h-4 w-4 animate-spin" />
                     </>
                   ) : (
@@ -1702,11 +1702,11 @@ export function TicketSettingsForm({ settings }: TicketSettingsFormProps) {
             <AlertDialogHeader>
               <AlertDialogTitle>حذف المنتج؟</AlertDialogTitle>
               <AlertDialogDescription>
-                هيتمسح{" "}
+                سيتمسح{" "}
                 <span className="font-medium text-foreground">
                   {deleteProductTarget?.name}
                 </span>{" "}
-                نهائياً. مش هينفع الرجوع عن هذا الإجراء.
+                نهائياً. لا يمكن التراجع عن هذا الإجراء.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

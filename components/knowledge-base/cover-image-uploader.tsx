@@ -19,11 +19,11 @@ export function CoverImageUploader({ value, onChange }: CoverImageUploaderProps)
 
   const handleFile = async (file: File) => {
     if (!allowedTypes.includes(file.type)) {
-      toast.error("مسموح بس صور (JPEG, PNG, GIF, WebP)");
+      toast.error("يُسمح فقط صور (JPEG, PNG, GIF, WebP)");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("لازم يكون حجم الصورة أقل من 5 ميجابايت");
+      toast.error("يجب أن يكون حجم الصورة أقل من 5 ميجابايت");
       return;
     }
 

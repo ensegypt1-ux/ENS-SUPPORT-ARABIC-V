@@ -48,7 +48,7 @@ export function TestAIPanel({
         <PanelSectionHeader
           title="محادثة اختبار مباشرة"
           icon={<MessageSquare className="h-4 w-4 text-primary" />}
-          description="جرّب الأسئلة زي العميل. احفظ الإعدادات قبل الاختبار — بيستخدم الإعدادات الحية."
+          description="جرّب الأسئلة زي العميل. احفظ الإعدادات قبل الاختبار — يستخدم الإعدادات الحية."
           actions={
             <Button
               type="button"
@@ -66,7 +66,7 @@ export function TestAIPanel({
       <CardContent className="space-y-3">
         {config && !config.enabled && (
           <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-400">
-            روبوت المحادثة متعطّل في الإعدادات. فعّل الوكيل عشان تجرّب الردود
+            المساعد الذكي غير مفعّل في الإعدادات. فعّل الوكيل لتجربة الردود
             المباشرة.
           </div>
         )}
@@ -74,7 +74,7 @@ export function TestAIPanel({
           {testConfig === null ? (
             <div className="flex h-136 items-center justify-center text-sm text-muted-foreground">
               <Loader2 className="me-2 h-4 w-4 animate-spin" />
-              بيحمّل الإعدادات الحية…
+              جاري التحميل الإعدادات الحية…
             </div>
           ) : (
             <ChatWindow

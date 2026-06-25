@@ -173,7 +173,7 @@ function AddSourceDialog({
     }
     const pages = Math.round(Number(maxPages));
     if (!Number.isFinite(pages) || pages < 1 || pages > MAX_PAGES_CEILING) {
-      toast.error(`الحد الأقصى للصفحات لازم يكون بين 1 و${MAX_PAGES_CEILING}`);
+      toast.error(`الحد الأقصى للصفحات يجب أن يكون بين 1 و${MAX_PAGES_CEILING}`);
       return;
     }
     setSubmitting(true);
@@ -339,7 +339,7 @@ export function WebSourcesPanel({
     try {
       const result = await deleteWebSource(id);
       if (result.success) {
-        toast.success("اتشالت إزالة المصدر");
+        toast.success("تم الحذف إزالة المصدر");
         await refresh();
         router.refresh();
       } else {
@@ -364,7 +364,7 @@ export function WebSourcesPanel({
         siteId: nextSiteId || undefined,
       });
       if (result.success && result.data) {
-        toast.success("اتحدّث نطاق المصدر");
+        toast.success("تم التحديث نطاق المصدر");
         setSources((prev) =>
           prev.map((s) => (s._id === id ? result.data! : s))
         );
@@ -401,7 +401,7 @@ export function WebSourcesPanel({
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-12 text-center">
               <Globe className="mb-3 h-8 w-8 text-muted-foreground/60" />
               <p className="text-sm font-medium text-foreground">
-                مفيش مواقع بعد
+                لا يوجد مواقع بعد
               </p>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
                 أضف موقع وثائق أو مركز مساعدة أو أي رابط عام. يزحف الذكاء
@@ -458,7 +458,7 @@ export function WebSourcesPanel({
                           <AlertDialogTitle>إزالة مصدر الويب</AlertDialogTitle>
                           <AlertDialogDescription>
                             حذف <strong>{s.name}</strong> وجميع {s.chunksIndexed}{" "}
-                            جزءًا مضمّنًا من قاعدة المعرفة؟ مش هينفع الرجوع عن
+                            جزءًا مضمّنًا من قاعدة المعرفة؟ لا يمكن التراجع عن
                             هذا الإجراء.
                           </AlertDialogDescription>
                         </AlertDialogHeader>

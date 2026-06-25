@@ -40,7 +40,7 @@ export function NewsletterForm({
         toast.error(result.message);
       }
     } catch {
-      toast.error("حصل خطأ مش متوقع");
+      toast.error("حدث خطأ غير متوقع");
     } finally {
       setIsLoading(false);
     }

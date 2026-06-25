@@ -4,25 +4,30 @@ import { Server } from "socket.io";
 
 import { auth } from "@/lib/auth";
 import {
+  ensureConversationAccess,
   ensureConversationParticipant,
   getConversationSummaryForUser,
   getParticipantIdsForConversation,
 } from "@/lib/chat/server";
+import { validateGuestAccess } from "@/lib/chat/guest-chat";
 import { findRequestById } from "@/lib/request-utils";
 import type {
   ClientToServerEvents,
   InterServerEvents,
   ServerToClientEvents,
   SocketData,
+  SocketGuestUser,
   SocketSessionUser,
 } from "@/lib/socket/types";
 import type {
   ClientNotification,
+  GuestPresenceState,
   Message,
   SerializedComment,
   TypingIndicator,
   UserPresenceState,
 } from "@/types/realtime";
+import type { UserRole } from "@/types";
 
 type AppSocketServer = Server<
   ClientToServerEvents,
@@ -37,9 +42,15 @@ type PresenceEntry = {
   lastSeen: Date;
 };
 
+type GuestPresenceEntry = {
+  sockets: Set<string>;
+  lastSeen: Date;
+};
+
 const socketGlobals = globalThis as typeof globalThis & {
   __socketServer?: AppSocketServer;
   __presenceEntries?: Map<string, PresenceEntry>;
+  __guestPresenceEntries?: Map<string, GuestPresenceEntry>;
   __typingEntries?: Map<string, Map<string, TypingIndicator>>;
   __typingTimeouts?: Map<string, NodeJS.Timeout>;
 };
@@ -50,6 +61,14 @@ function getPresenceEntries() {
   }
 
   return socketGlobals.__presenceEntries;
+}
+
+function getGuestPresenceEntries() {
+  if (!socketGlobals.__guestPresenceEntries) {
+    socketGlobals.__guestPresenceEntries = new Map();
+  }
+
+  return socketGlobals.__guestPresenceEntries;
 }
 
 function getTypingEntries() {
@@ -66,6 +85,10 @@ function getTypingTimeouts() {
   }
 
   return socketGlobals.__typingTimeouts;
+}
+
+function roomForStaffInbox() {
+  return "staff:inbox";
 }
 
 function roomForUser(userId: string) {
@@ -117,6 +140,78 @@ function getPresenceSnapshot() {
   );
 }
 
+export function getOnlineUserIds(): string[] {
+  return Array.from(getPresenceEntries().keys());
+}
+
+function toGuestPresenceState(
+  conversationId: string,
+  entry: GuestPresenceEntry
+): GuestPresenceState {
+  return {
+    conversation_id: conversationId,
+    status: entry.sockets.size > 0 ? "online" : "offline",
+    updated_at: entry.lastSeen.toISOString(),
+  };
+}
+
+function getGuestPresenceSnapshot(): GuestPresenceState[] {
+  return Array.from(getGuestPresenceEntries().entries())
+    .filter(([, entry]) => entry.sockets.size > 0)
+    .map(([conversationId, entry]) =>
+      toGuestPresenceState(conversationId, entry)
+    );
+}
+
+export function isGuestConversationOnline(conversationId: string): boolean {
+  const entry = getGuestPresenceEntries().get(conversationId);
+  return (entry?.sockets.size || 0) > 0;
+}
+
+function emitGuestPresence(
+  io: AppSocketServer,
+  conversationId: string,
+  entry: GuestPresenceEntry
+) {
+  const payload = toGuestPresenceState(conversationId, entry);
+  io.to(roomForConversation(conversationId)).emit("guest:presence:updated", payload);
+  io.emit("guest:presence:updated", payload);
+}
+
+function markGuestOnline(io: AppSocketServer, conversationId: string, socketId: string) {
+  const guestPresenceEntries = getGuestPresenceEntries();
+  const existing = guestPresenceEntries.get(conversationId) || {
+    sockets: new Set<string>(),
+    lastSeen: new Date(),
+  };
+
+  existing.sockets.add(socketId);
+  existing.lastSeen = new Date();
+  guestPresenceEntries.set(conversationId, existing);
+  emitGuestPresence(io, conversationId, existing);
+}
+
+function markGuestOffline(
+  io: AppSocketServer,
+  conversationId: string,
+  socketId: string
+) {
+  const guestPresenceEntries = getGuestPresenceEntries();
+  const existing = guestPresenceEntries.get(conversationId);
+  if (!existing) return;
+
+  existing.sockets.delete(socketId);
+  existing.lastSeen = new Date();
+
+  if (existing.sockets.size === 0) {
+    guestPresenceEntries.delete(conversationId);
+  } else {
+    guestPresenceEntries.set(conversationId, existing);
+  }
+
+  emitGuestPresence(io, conversationId, existing);
+}
+
 function getTypingUsers(conversationId: string) {
   return Array.from(
     getTypingEntries().get(conversationId)?.values() || []
@@ -135,12 +230,12 @@ function emitTypingState(io: AppSocketServer, conversationId: string) {
 function setTypingState(
   io: AppSocketServer,
   conversationId: string,
-  user: SocketSessionUser,
+  actor: { id: string; name: string | null },
   isTyping: boolean
 ) {
   const typingEntries = getTypingEntries();
   const typingTimeouts = getTypingTimeouts();
-  const timeoutKey = `${conversationId}:${user.id}`;
+  const timeoutKey = `${conversationId}:${actor.id}`;
 
   if (typingTimeouts.has(timeoutKey)) {
     clearTimeout(typingTimeouts.get(timeoutKey));
@@ -150,7 +245,7 @@ function setTypingState(
   if (!isTyping) {
     const conversationTyping = typingEntries.get(conversationId);
     if (conversationTyping) {
-      conversationTyping.delete(user.id);
+      conversationTyping.delete(actor.id);
       if (conversationTyping.size === 0) {
         typingEntries.delete(conversationId);
       }
@@ -162,17 +257,17 @@ function setTypingState(
 
   const conversationTyping =
     typingEntries.get(conversationId) || new Map<string, TypingIndicator>();
-  conversationTyping.set(user.id, {
+  conversationTyping.set(actor.id, {
     conversation_id: conversationId,
-    user_id: user.id,
-    user_name: user.name || null,
+    user_id: actor.id,
+    user_name: actor.name,
     updated_at: new Date().toISOString(),
   });
   typingEntries.set(conversationId, conversationTyping);
   emitTypingState(io, conversationId);
 
   const timeout = setTimeout(() => {
-    setTypingState(io, conversationId, user, false);
+    setTypingState(io, conversationId, actor, false);
   }, 5000);
 
   typingTimeouts.set(timeoutKey, timeout);
@@ -232,6 +327,40 @@ async function getSocketSessionUser(headersObject: Record<string, string | strin
   } satisfies SocketSessionUser;
 }
 
+type GuestAuthPayload = {
+  type?: string;
+  guestSessionId?: string;
+  guestAccessToken?: string;
+  conversationId?: string;
+};
+
+async function getSocketGuestUser(
+  authPayload: GuestAuthPayload
+): Promise<SocketGuestUser | null> {
+  if (
+    authPayload.type !== "guest" ||
+    !authPayload.guestSessionId ||
+    !authPayload.guestAccessToken ||
+    !authPayload.conversationId
+  ) {
+    return null;
+  }
+
+  const conversation = await validateGuestAccess({
+    guestSessionId: authPayload.guestSessionId,
+    guestAccessToken: authPayload.guestAccessToken,
+    conversationId: authPayload.conversationId,
+  });
+
+  if (!conversation) return null;
+
+  return {
+    guestSessionId: authPayload.guestSessionId,
+    conversationId: authPayload.conversationId,
+    displayName: conversation.guestName?.trim() || "زائر",
+  };
+}
+
 export function getSocketServer() {
   return socketGlobals.__socketServer || null;
 }
@@ -252,17 +381,25 @@ export function initializeSocketServer(httpServer: HttpServer) {
 
   io.use(async (socket, next) => {
     try {
+      const authPayload = (socket.handshake.auth || {}) as GuestAuthPayload;
       const user = await getSocketSessionUser(
         socket.request.headers as Record<string, string | string[] | undefined>
       );
 
-      if (!user) {
-        next(new Error("Unauthorized"));
+      if (user) {
+        socket.data.user = user;
+        next();
         return;
       }
 
-      socket.data.user = user;
-      next();
+      const guest = await getSocketGuestUser(authPayload);
+      if (guest) {
+        socket.data.guest = guest;
+        next();
+        return;
+      }
+
+      next(new Error("Unauthorized"));
     } catch {
       next(new Error("Unauthorized"));
     }
@@ -270,6 +407,61 @@ export function initializeSocketServer(httpServer: HttpServer) {
 
   io.on("connection", (socket) => {
     const user = socket.data.user;
+    const guest = socket.data.guest;
+
+    if (guest) {
+      markGuestOnline(io, guest.conversationId, socket.id);
+      socket.join(roomForConversation(guest.conversationId));
+      socket.emit("chat:typing:state", {
+        conversationId: guest.conversationId,
+        typingUsers: getTypingUsers(guest.conversationId),
+      });
+
+      socket.on("chat:conversation:join", async ({ conversationId }) => {
+        if (conversationId !== guest.conversationId) return;
+        socket.join(roomForConversation(conversationId));
+        socket.emit("chat:typing:state", {
+          conversationId,
+          typingUsers: getTypingUsers(conversationId),
+        });
+      });
+
+      socket.on("chat:conversation:leave", ({ conversationId }) => {
+        if (conversationId !== guest.conversationId) return;
+        socket.leave(roomForConversation(conversationId));
+        setTypingState(
+          io,
+          conversationId,
+          { id: `guest:${guest.guestSessionId}`, name: guest.displayName },
+          false
+        );
+      });
+
+      socket.on("chat:typing:set", async ({ conversationId, isTyping }) => {
+        if (conversationId !== guest.conversationId) return;
+        setTypingState(
+          io,
+          conversationId,
+          { id: `guest:${guest.guestSessionId}`, name: guest.displayName },
+          isTyping
+        );
+      });
+
+      socket.on("disconnect", () => {
+        markGuestOffline(io, guest.conversationId, socket.id);
+        setTypingState(
+          io,
+          guest.conversationId,
+          { id: `guest:${guest.guestSessionId}`, name: guest.displayName },
+          false
+        );
+      });
+
+      return;
+    }
+
+    if (!user) return;
+
     const presenceEntries = getPresenceEntries();
     const existing = presenceEntries.get(user.id) || {
       sockets: new Set<string>(),
@@ -283,14 +475,19 @@ export function initializeSocketServer(httpServer: HttpServer) {
     presenceEntries.set(user.id, existing);
 
     socket.join(roomForUser(user.id));
+    if (user.role === "admin" || user.role === "support") {
+      socket.join(roomForStaffInbox());
+    }
     socket.emit("presence:snapshot", getPresenceSnapshot());
+    socket.emit("guest:presence:snapshot", getGuestPresenceSnapshot());
     io.emit("presence:updated", toPresenceState(user.id, existing));
 
     socket.on("chat:conversation:join", async ({ conversationId }) => {
-      const conversation = await ensureConversationParticipant(
-        conversationId,
-        user.id
-      );
+      const conversation = await ensureConversationAccess(conversationId, {
+        type: "user",
+        userId: user.id,
+        role: user.role as UserRole | undefined,
+      });
 
       if (!conversation) {
         return;
@@ -309,10 +506,11 @@ export function initializeSocketServer(httpServer: HttpServer) {
     });
 
     socket.on("chat:typing:set", async ({ conversationId, isTyping }) => {
-      const conversation = await ensureConversationParticipant(
-        conversationId,
-        user.id
-      );
+      const conversation = await ensureConversationAccess(conversationId, {
+        type: "user",
+        userId: user.id,
+        role: user.role as UserRole | undefined,
+      });
 
       if (!conversation) {
         return;
@@ -372,12 +570,65 @@ export async function emitConversationSummaryToParticipants(conversationId: stri
   const participantIds = await getParticipantIdsForConversation(conversationId);
   await Promise.all(
     participantIds.map(async (userId) => {
-      const summary = await getConversationSummaryForUser(conversationId, userId);
+      if (userId.startsWith("guest:")) return;
+      const summary = await getConversationSummaryForUser(
+        conversationId,
+        userId,
+        undefined
+      );
       if (summary) {
         io.to(roomForUser(userId)).emit("chat:conversation:upsert", summary);
       }
     })
   );
+}
+
+export async function emitConversationSummaryToStaff(
+  conversationId: string,
+  staffUserIds?: string[]
+) {
+  const io = getSocketServer();
+  if (!io) return;
+
+  const { findStaffMembersByIds } = await import("@/lib/socket/presence-utils");
+  const staffMembers = await findStaffMembersByIds(staffUserIds ?? []);
+
+  const emittedUserIds = new Set<string>();
+
+  await Promise.all(
+    staffMembers.map(async ({ userId, role }) => {
+      if (emittedUserIds.has(userId)) return;
+      emittedUserIds.add(userId);
+
+      const summary = await getConversationSummaryForUser(
+        conversationId,
+        userId,
+        role
+      );
+      if (summary) {
+        io.to(roomForUser(userId)).emit("chat:conversation:upsert", summary);
+      }
+    })
+  );
+}
+
+export function emitGuestInboxChanged(conversationId: string) {
+  const io = getSocketServer();
+  if (!io) return;
+
+  io.to(roomForStaffInbox()).emit("chat:guest:inbox:changed", {
+    conversationId,
+  });
+  emitOpsCenterChanged();
+}
+
+export function emitOpsCenterChanged() {
+  const io = getSocketServer();
+  if (!io) return;
+
+  io.to(roomForStaffInbox()).emit("ops:center:changed", {
+    at: new Date().toISOString(),
+  });
 }
 
 export function emitConversationRemovedToParticipants(
@@ -390,10 +641,13 @@ export function emitConversationRemovedToParticipants(
   }
 
   participantIds.forEach((userId) => {
+    if (userId.startsWith("guest:")) return;
     io.to(roomForUser(userId)).emit("chat:conversation:removed", {
       conversationId,
     });
   });
+
+  io.emit("chat:conversation:removed", { conversationId });
 }
 
 export function emitMessageCreated(message: Message) {

@@ -92,7 +92,7 @@ export async function createTicket(
       if (!verificationResult.success) {
         return {
           success: false,
-          error: verificationResult.error || "رمز شراء مش صح",
+          error: verificationResult.error || "رمز شراء غير صالح",
         };
       }
 
@@ -373,7 +373,7 @@ export async function createTicket(
     return {
       success: true,
       data: serializedTicket as any,
-      message: "التذكرة اتعملت",
+      message: "تم إنشاء التذكرة",
     };
   } catch (error: any) {
     console.error("Error creating ticket:", error);
@@ -603,7 +603,7 @@ export async function getTicketById(
     if (!request) {
       return {
         success: false,
-        error: "مفيش تذكرة",
+        error: "لا توجد تذكرة",
       };
     }
 
@@ -611,7 +611,7 @@ export async function getTicketById(
     if (userRole === "customer" && request.customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك تشوف التذكرة دي",
+        error: "غير مصرّح لك تشوف التذكرة دي",
       };
     }
 
@@ -651,7 +651,7 @@ export async function updateTicket(
     if (!ticket) {
       return {
         success: false,
-        error: "مفيش تذكرة",
+        error: "لا توجد تذكرة",
       };
     }
 
@@ -659,7 +659,7 @@ export async function updateTicket(
     if (userRole === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك تحدّث التذكرة دي",
+        error: "غير مصرّح لك تحدّث التذكرة دي",
       };
     }
 
@@ -803,7 +803,7 @@ export async function updateTicket(
     return {
       success: true,
       data: result as Ticket,
-      message: "التذكرة اتحدّثت",
+      message: "التذكرة تم تحديث",
     };
   } catch (error: any) {
     console.error("Error updating ticket:", error);
@@ -840,7 +840,7 @@ export async function updateCustomizationContent(
     if (!ticket || lookup.kind !== "customization" || !lookup.collectionName) {
       return {
         success: false,
-        error: "مفيش طلب تخصيص",
+        error: "لا يوجد طلب تخصيص",
       };
     }
 
@@ -848,7 +848,7 @@ export async function updateCustomizationContent(
     if (ticket.customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك تحدّث طلب التخصيص ده",
+        error: "غير مصرّح لك تحدّث طلب التخصيص ده",
       };
     }
 
@@ -898,7 +898,7 @@ export async function updateCustomizationContent(
     return {
       success: true,
       data: updated as Ticket,
-      message: "طلب التخصيص اتحدّث",
+      message: "طلب التخصيص تم التحديث",
     };
   } catch (error: any) {
     console.error("Error updating customization request:", error);
@@ -935,7 +935,7 @@ export async function updateInstallationContent(
     if (!ticket || lookup.kind !== "installation" || !lookup.collectionName) {
       return {
         success: false,
-        error: "مفيش طلب تثبيت",
+        error: "لا يوجد طلب تثبيت",
       };
     }
 
@@ -943,7 +943,7 @@ export async function updateInstallationContent(
     if (ticket.customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك تحدّث طلب التثبيت ده",
+        error: "غير مصرّح لك تحدّث طلب التثبيت ده",
       };
     }
 
@@ -993,7 +993,7 @@ export async function updateInstallationContent(
     return {
       success: true,
       data: updated as Ticket,
-      message: "طلب التثبيت اتحدّث",
+      message: "طلب التثبيت تم التحديث",
     };
   } catch (error: any) {
     console.error("Error updating installation request:", error);

@@ -18,12 +18,12 @@ export const auth = betterAuth({
       const { sendEmail } = await import("@/lib/email");
       await sendEmail({
         to: user.email,
-        subject: "Reset your password",
+        subject: "إعادة تعيين كلمة المرور",
         html: `
-          <h1>Reset your password</h1>
-          <p>Click the link below to reset your password:</p>
-          <a href="${url}">Reset Password</a>
-          <p>If you didn't ask to reset your password, you can ignore this email.</p>
+          <h1>إعادة تعيين كلمة المرور</h1>
+          <p>اضغط على الرابط أدناه لتعيين كلمة مرور جديدة:</p>
+          <a href="${url}">تعيين كلمة المرور</a>
+          <p>إذا لم تطلب إعادة التعيين، يمكنك تجاهل هذا البريد.</p>
         `,
       });
     },
@@ -78,8 +78,8 @@ export const auth = betterAuth({
               throw new APIError("FORBIDDEN", {
                 message:
                   status === "banned"
-                    ? "Your account has been banned. Please contact support."
-                    : "Your account has been disabled. Please contact support.",
+                    ? "تم حظر حسابك. تواصل مع فريق الدعم."
+                    : "تم تعطيل حسابك. تواصل مع فريق الدعم.",
               });
             }
           } catch (err) {
@@ -107,12 +107,12 @@ export const auth = betterAuth({
         const { sendEmail } = await import("@/lib/email");
         await sendEmail({
           to: user.email,
-          subject: "Verify your email address",
+          subject: "تأكيد البريد الإلكتروني",
           html: `
-            <h1>Welcome to Support App!</h1>
-            <p>Please verify your email address by clicking the link below:</p>
-            <a href="${url}">Verify Email</a>
-            <p>If you didn't create an account, you can safely ignore this email.</p>
+            <h1>مرحبًا بك في بوابة الدعم</h1>
+            <p>يرجى تأكيد بريدك الإلكتروني بالضغط على الرابط أدناه:</p>
+            <a href="${url}">تأكيد البريد الإلكتروني</a>
+            <p>إذا لم تنشئ حسابًا، يمكنك تجاهل هذا البريد.</p>
           `,
         });
       },

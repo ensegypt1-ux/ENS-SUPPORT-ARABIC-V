@@ -182,7 +182,7 @@ export async function dispatchUserNotification(params: {
       if (!isEmailServiceEnabled(settings)) {
         results.email = {
           success: false,
-          error: "Email notifications disabled",
+          error: "إشعارات البريد معطّلة",
         };
       } else if (to) {
         const sent = await sendEmail({

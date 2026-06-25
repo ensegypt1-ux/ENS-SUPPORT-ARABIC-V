@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { success: false, error: "Invalid JSON" },
+      { success: false, error: "البيانات المرسلة غير صالحة" },
       { status: 400 }
     );
   }
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   const result = await handleChatbotQuery(body as any, { ip, userAgent });
 
   if (!result.success) {
-    const isRate = result.error?.startsWith("Too many");
+    const isRate = result.error?.startsWith("عدد كبير من");
     return NextResponse.json(result, { status: isRate ? 429 : 400 });
   }
 

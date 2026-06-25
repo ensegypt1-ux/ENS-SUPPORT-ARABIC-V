@@ -46,7 +46,7 @@ export function MessageEditDialog({
     }
 
     if (content === message.content) {
-      toast.info("مفيش تغييرات");
+      toast.info("لا يوجد تغييرات");
       onOpenChange(false);
       return;
     }
@@ -56,7 +56,7 @@ export function MessageEditDialog({
       const result = await editMessage(message.id, content);
       
       if (result.success) {
-        toast.success("اتحدّث الرسالة");
+        toast.success("تم التحديث الرسالة");
         onOpenChange(false);
         onSuccess?.();
       } else {

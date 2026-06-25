@@ -25,16 +25,16 @@ export async function addMessageReaction(
     });
 
     if (!session?.user) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     if (!emoji || emoji.length > 10) {
-      return { success: false, error: "رمز تعبيري مش صح" };
+      return { success: false, error: "رمز تعبيري غير صالح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "مفيش الرسالة" };
+      return { success: false, error: "لا يوجد الرسالة" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -42,7 +42,7 @@ export async function addMessageReaction(
       session.user.id
     );
     if (!conversation) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     const exists = (message.reactions || []).some(
@@ -93,12 +93,12 @@ export async function removeMessageReaction(
     });
 
     if (!session?.user) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "مفيش الرسالة" };
+      return { success: false, error: "لا يوجد الرسالة" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -106,7 +106,7 @@ export async function removeMessageReaction(
       session.user.id
     );
     if (!conversation) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     message.reactions = (message.reactions || []).filter(
@@ -145,13 +145,13 @@ export async function getMessageReactions(
     });
 
     if (!session?.user) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     const message = await getMessageDocument(messageId);
 
     if (!message) {
-      return { success: false, error: "مفيش الرسالة" };
+      return { success: false, error: "لا يوجد الرسالة" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -159,7 +159,7 @@ export async function getMessageReactions(
       session.user.id
     );
     if (!conversation) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     return {
@@ -184,12 +184,12 @@ export async function toggleMessageReaction(
     });
 
     if (!session?.user) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     const message = await getMessageDocument(messageId);
     if (!message) {
-      return { success: false, error: "مفيش الرسالة" };
+      return { success: false, error: "لا يوجد الرسالة" };
     }
 
     const conversation = await ensureConversationParticipant(
@@ -197,7 +197,7 @@ export async function toggleMessageReaction(
       session.user.id
     );
     if (!conversation) {
-      return { success: false, error: "مش مسموح" };
+      return { success: false, error: "غير مصرّح" };
     }
 
     const exists = (message.reactions || []).some(

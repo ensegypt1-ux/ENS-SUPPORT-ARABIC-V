@@ -28,7 +28,7 @@ export default function NotFound() {
           <div className="space-y-2">
             <p className="text-6xl font-bold text-muted-foreground/20">404</p>
             <p className="text-muted-foreground">
-              الصفحة دي مش موجودة أو اتنقلت.
+              الصفحة دي غير موجودة أو اتنقلت.
             </p>
           </div>
 

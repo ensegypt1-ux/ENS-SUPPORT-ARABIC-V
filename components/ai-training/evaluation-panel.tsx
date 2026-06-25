@@ -106,7 +106,7 @@ function AddCaseDialog({
         siteId: siteId || undefined,
       });
       if (result.success) {
-        toast.success("اتضاف الحالة");
+        toast.success("تمت الإضافة الحالة");
         setQuestion("");
         setExpectedAnswer("");
         setCategory("");
@@ -423,7 +423,7 @@ export function EvaluationPanel({
         <CardContent>
           {cases.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
-              مفيش حالات بعد. أضف بعض الأسئلة التمثيلية مع إجاباتها
+              لا يوجد حالات بعد. أضف بعض الأسئلة التمثيلية مع إجاباتها
               المثالية، ثم شغّل التقييم للحصول على معدل نجاح ودرجات لكل إجابة.
             </div>
           ) : (
@@ -454,7 +454,7 @@ export function EvaluationPanel({
                         <AlertDialogHeader>
                           <AlertDialogTitle>حذف الحالة</AlertDialogTitle>
                           <AlertDialogDescription>
-                            حذف حالة التقييم هذه؟ مش هينفع الرجوع عن هذا الإجراء.
+                            حذف حالة التقييم هذه؟ لا يمكن التراجع عن هذا الإجراء.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

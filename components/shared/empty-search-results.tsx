@@ -22,18 +22,18 @@ export function EmptySearchResults({
       <div className="mb-4 rounded-full bg-muted p-3">
         <Search className="h-6 w-6 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-semibold">مفيش {entityName}</h3>
+      <h3 className="text-lg font-semibold">لا يوجد {entityName}</h3>
       <p className="mt-1 max-w-sm text-muted-foreground">
         {searchQuery ? (
           <>
-            مفيش {entityName} مطابق لـ{" "}
+            لا يوجد {entityName} مطابق لـ{" "}
             <span className="font-medium text-foreground">
               &quot;{searchQuery}&quot;
             </span>
             . جرّب كلمة تانية.
           </>
         ) : (
-          <>مفيش {entityName} مطابق للفلتر ده. غيّر الفلتر وجرب.</>
+          <>لا يوجد {entityName} مطابق لعامل التصفية الحالي. غيّر التصفية وحاول مرة أخرى.</>
         )}
       </p>
     </div>

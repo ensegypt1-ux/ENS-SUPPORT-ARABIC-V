@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-const emailMsg = "دخل إيميل صح";
-const passwordMin6 = "كلمة المرور لازم تكون 6 حروف على الأقل";
-const passwordMin8 = "كلمة المرور لازم تكون 8 حروف على الأقل";
+const emailMsg = "دخل البريد الإلكتروني صح";
+const passwordMin6 = "كلمة المرور يجب أن تكون 6 حروف على الأقل";
+const passwordMin8 = "كلمة المرور يجب أن تكون 8 حروف على الأقل";
 const passwordComplex =
-  "لازم فيه حرف كبير وحرف صغير ورقم";
-const passwordMismatch = "كلمتا المرور مش متطابقين";
-const nameMin2 = "الاسم لازم يكون حرفين على الأقل";
+  "يجب أن يحتوي حرف كبير وحرف صغير ورقم";
+const passwordMismatch = "كلمتا المرور غير متطابقين";
+const nameMin2 = "الاسم يجب أن يكون حرفين على الأقل";
 
 export const loginSchema = z.object({
   email: z.string().email(emailMsg),
@@ -17,7 +17,7 @@ export const registerSchema = z
   .object({
     name: z.string().min(2, nameMin2),
     email: z.string().email(emailMsg),
-    country: z.string().min(1, "اختار الدولة"),
+    country: z.string().min(1, "اختر الدولة"),
     password: z
       .string()
       .min(8, passwordMin8)
@@ -52,7 +52,7 @@ export const createUserSchema = z
       data.role !== "support" ||
       (!!data.departmentSlugs && data.departmentSlugs.length > 0),
     {
-      message: "اختار قسم واحد على الأقل",
+      message: "اختر قسم واحد على الأقل",
       path: ["departmentSlugs"],
     }
   );
@@ -90,7 +90,7 @@ export const updateUserSchema = z
       data.role !== "support" ||
       (!!data.departmentSlugs && data.departmentSlugs.length > 0),
     {
-      message: "اختار قسم واحد على الأقل",
+      message: "اختر قسم واحد على الأقل",
       path: ["departmentSlugs"],
     }
   );
@@ -102,18 +102,18 @@ export const updateProfileSchema = z.object({
     .string()
     .min(7, "رقم التليفون قصير أوي")
     .max(20, "رقم التليفون طويل أوي")
-    .regex(/^[+]?[\d\s\-()]+$/, "رقم التليفون مش صح")
+    .regex(/^[+]?[\d\s\-()]+$/, "رقم التليفون غير صالح")
     .optional()
     .or(z.literal("")),
   envatoUsername: z
     .string()
-    .min(3, "يوزر Envato لازم يكون 3 حروف على الأقل")
+    .min(3, "يوزر Envato يجب أن يكون 3 حروف على الأقل")
     .max(30, "يوزر Envato طويل أوي")
     .regex(/^[A-Za-z0-9_]+$/, "حروف وأرقام و _ بس")
     .optional()
     .or(z.literal("")),
   country: z.string().optional().or(z.literal("")),
-  image: z.string().url("اللينك مش صح").optional().or(z.literal("")),
+  image: z.string().url("الرابط غير صالح").optional().or(z.literal("")),
 });
 
 export const changePasswordSchema = z
@@ -141,18 +141,18 @@ const purchaseCodeField = z
       return purchaseCodeRegex.test(val);
     },
     {
-      message: "كود الشراء مش صح. لازم يكون كود Envato (UUID).",
+      message: "كود الشراء غير صالح. يجب أن يكون كود Envato (UUID).",
     }
   );
 
 const commonRequestFields = {
   title: z
     .string()
-    .min(5, "العنوان لازم يكون 5 حروف على الأقل")
+    .min(5, "العنوان يجب أن يكون 5 حروف على الأقل")
     .max(200, "العنوان طويل أوي"),
   description: z
     .string()
-    .min(20, "الوصف لازم يكون 20 حرف على الأقل")
+    .min(20, "الوصف يجب أن يكون 20 حرف على الأقل")
     .max(5000, "الوصف طويل أوي"),
   priority: z.enum(["low", "medium", "high", "urgent"]),
   purchaseCode: purchaseCodeField,
@@ -170,10 +170,10 @@ const ticketBaseSchema = z.object({
 export const createTicketSchema = ticketBaseSchema.extend({
   category: z
     .string()
-    .min(1, "اختار النوع")
+    .min(1, "اختر النوع")
     .max(50, "النوع طويل أوي")
     .refine((val) => val !== "service", {
-      message: "نوع مش صح",
+      message: "نوع غير صالح",
     }),
 });
 
@@ -181,9 +181,9 @@ export const createPublicTicketSchema = createTicketSchema.extend({
   name: z.string().min(1, "الاسم مطلوب").max(100, "الاسم طويل أوي"),
   email: z
     .string()
-    .min(1, "الإيميل مطلوب")
+    .min(1, "البريد الإلكتروني مطلوب")
     .email(emailMsg)
-    .max(200, "الإيميل طويل أوي"),
+    .max(200, "البريد الإلكتروني طويل أوي"),
 });
 
 export const guestCommentSchema = z.object({
@@ -198,13 +198,13 @@ export const createInstallationRequestSchema = ticketBaseSchema;
 export const createCustomizationRequestSchema = ticketBaseSchema;
 
 export const adminCreateTicketSchema = ticketBaseSchema.extend({
-  customerId: z.string().min(1, "اختار العميل"),
+  customerId: z.string().min(1, "اختر العميل"),
   category: z
     .string()
-    .min(1, "اختار النوع")
+    .min(1, "اختر النوع")
     .max(50, "النوع طويل أوي")
     .refine((val) => val !== "service", {
-      message: "نوع مش صح",
+      message: "نوع غير صالح",
     }),
 });
 
@@ -227,11 +227,11 @@ export const updateTicketSchema = z.object({
 export const updateCustomizationSchema = z.object({
   title: z
     .string()
-    .min(5, "العنوان لازم يكون 5 حروف على الأقل")
+    .min(5, "العنوان يجب أن يكون 5 حروف على الأقل")
     .max(200, "العنوان طويل أوي"),
   description: z
     .string()
-    .min(20, "الوصف لازم يكون 20 حرف على الأقل")
+    .min(20, "الوصف يجب أن يكون 20 حرف على الأقل")
     .max(5000, "الوصف طويل أوي"),
   priority: z.enum(["low", "medium", "high", "urgent"]),
   productName: z.string().optional(),
@@ -241,11 +241,11 @@ export const updateCustomizationSchema = z.object({
 export const updateInstallationSchema = z.object({
   title: z
     .string()
-    .min(5, "العنوان لازم يكون 5 حروف على الأقل")
+    .min(5, "العنوان يجب أن يكون 5 حروف على الأقل")
     .max(200, "العنوان طويل أوي"),
   description: z
     .string()
-    .min(20, "الوصف لازم يكون 20 حرف على الأقل")
+    .min(20, "الوصف يجب أن يكون 20 حرف على الأقل")
     .max(5000, "الوصف طويل أوي"),
   priority: z.enum(["low", "medium", "high", "urgent"]),
   productName: z.string().optional(),
@@ -264,11 +264,11 @@ export const createCommentSchema = z.object({
 
 export const createMeetingSchema = z.object({
   platform: z.enum(["zoom", "google_meet"], {
-    message: "اختار منصة الاجتماع",
+    message: "اختر منصة الاجتماع",
   }),
   title: z
     .string()
-    .min(3, "العنوان لازم يكون 3 حروف على الأقل")
+    .min(3, "العنوان يجب أن يكون 3 حروف على الأقل")
     .max(200, "العنوان طويل أوي"),
   description: z.string().max(1000, "الوصف طويل أوي").optional(),
   scheduledAt: z.coerce.date(),
@@ -277,7 +277,7 @@ export const createMeetingSchema = z.object({
     .min(15, "المدة 15 دقيقة على الأقل")
     .max(480, "المدة 8 ساعات كحد أقصى")
     .optional(),
-  meetingLink: z.string().url("اللينك مش صح").optional().or(z.literal("")),
+  meetingLink: z.string().url("الرابط غير صالح").optional().or(z.literal("")),
   timezone: z.string().optional(),
 });
 
@@ -285,7 +285,7 @@ export const updateMeetingSchema = z.object({
   platform: z.enum(["zoom", "google_meet"]).optional(),
   title: z
     .string()
-    .min(3, "العنوان لازم يكون 3 حروف على الأقل")
+    .min(3, "العنوان يجب أن يكون 3 حروف على الأقل")
     .max(200, "العنوان طويل أوي")
     .optional(),
   description: z.string().max(1000, "الوصف طويل أوي").optional(),
@@ -295,7 +295,7 @@ export const updateMeetingSchema = z.object({
     .min(15, "المدة 15 دقيقة على الأقل")
     .max(480, "المدة 8 ساعات كحد أقصى")
     .optional(),
-  meetingLink: z.string().url("اللينك مش صح").optional().or(z.literal("")),
+  meetingLink: z.string().url("الرابط غير صالح").optional().or(z.literal("")),
   timezone: z.string().optional(),
   status: z.enum(["scheduled", "completed", "cancelled"]).optional(),
   cancellationReason: z.string().max(500).optional(),

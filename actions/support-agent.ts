@@ -54,7 +54,7 @@ async function resolveAssignedToIds(sessionUser: { id: string }) {
  */
 async function requireSupportAgent() {
   const session = await requirePermissionOrThrow("panel.support.access", {
-    message: "ممنوع: يلزم صلاحية وكيل الدعم",
+    message: "ممنوع: يتطلب صلاحية وكيل الدعم",
   });
   const user = session.user;
   const role = (user as { role?: string }).role || "customer";
@@ -220,7 +220,7 @@ export async function getSupportAgentStats(): Promise<
         openTickets,
         inProgressTickets,
         resolvedTickets,
-        avgResponseTime: 0, // TODO: Calculate from ticket history
+        avgResponseTime: 0,
       },
     };
   } catch (error: unknown) {

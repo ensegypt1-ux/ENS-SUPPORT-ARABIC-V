@@ -24,7 +24,11 @@ import type {
   AdminCreateTicketFormData,
   TicketStatus,
 } from "@/types";
-import { getUserIdsByRole } from "@/lib/user-utils";
+import {
+  getUserIdsByRole,
+  serializeUserDocument,
+  serializeUserDocuments,
+} from "@/lib/user-utils";
 import { STATUS_LABELS } from "@/lib/strings";
 import { deleteTicketAttachments } from "@/actions/attachments";
 import {
@@ -43,7 +47,7 @@ import { hashPassword as betterAuthHashPassword } from "better-auth/crypto";
 async function requireAdminOrSupport() {
   const session = await requirePermissionOrThrow(
     ["panel.admin.access", "panel.support.access"],
-    { any: true, message: "ممنوع: يلزم صلاحية الموظفين" },
+    { any: true, message: "ممنوع: يتطلب صلاحية الموظفين" },
   );
   const user = session.user as User;
   const role = user.role || "customer";
@@ -60,7 +64,7 @@ export async function getAllTickets(filters?: {
 }): Promise<ApiResponse<Ticket[]>> {
   try {
     await requirePermissionOrThrow("tickets.view_all", {
-      message: "ممنوع: يلزم صلاحية عرض التذاكر",
+      message: "ممنوع: يتطلب صلاحية عرض التذاكر",
     });
     await requireAdminOrSupport();
 
@@ -125,7 +129,7 @@ export async function getCustomizationRequests(filters?: {
 }): Promise<ApiResponse<Ticket[]>> {
   try {
     await requirePermissionOrThrow("tickets.view_all", {
-      message: "ممنوع: يلزم صلاحية عرض التذاكر",
+      message: "ممنوع: يتطلب صلاحية عرض التذاكر",
     });
     await requireAdminOrSupport();
 
@@ -200,7 +204,7 @@ export async function getInstallationRequests(filters?: {
 }): Promise<ApiResponse<Ticket[]>> {
   try {
     await requirePermissionOrThrow("tickets.view_all", {
-      message: "ممنوع: يلزم صلاحية عرض التذاكر",
+      message: "ممنوع: يتطلب صلاحية عرض التذاكر",
     });
     await requireAdminOrSupport();
 
@@ -272,7 +276,7 @@ export async function getAllUsers(filters?: {
 }): Promise<ApiResponse<User[]>> {
   try {
     await requirePermissionOrThrow("users.view", {
-      message: "ممنوع: يلزم صلاحية الوصول للمستخدمين",
+      message: "ممنوع: يتطلب صلاحية الوصول للمستخدمين",
     });
 
     const usersCollection = await getCollection<User>("user");
@@ -294,15 +298,9 @@ export async function getAllUsers(filters?: {
       .sort({ createdAt: -1 })
       .toArray();
 
-    // Ensure all users have an id field (fallback to _id.toString() if missing or "undefined")
-    const usersWithId = users.map((user) => ({
-      ...user,
-      id: user.id && user.id !== "undefined" ? user.id : user._id?.toString(),
-    }));
-
     return {
       success: true,
-      data: usersWithId as User[],
+      data: serializeUserDocuments(users),
     };
   } catch (error) {
     const errorMessage =
@@ -506,12 +504,12 @@ export async function adminCreateTicket(
 
     if (!customer) {
       console.error(
-        "[AdminCreateTicket] مفيش العميل for ID:",
+        "[AdminCreateTicket] لا يوجد العميل for ID:",
         validatedData.customerId,
       );
       return {
         success: false,
-        error: "مفيش العميل",
+        error: "لا يوجد العميل",
       };
     }
 
@@ -636,8 +634,8 @@ export async function adminCreateTicket(
 
     // Send real-time notification to customer
     try {
-      let notificationTitle = "تذكرة دعم جديدة اتعملت";
-      let notificationBody = `اتعملت لك تذكرة دعم: ${validatedData.title}`;
+      let notificationTitle = "تذكرة دعم جديدة تم إنشاء";
+      let notificationBody = `تم إنشاء لك تذكرة دعم: ${validatedData.title}`;
       let url = `/dashboard/tickets/${idString}`;
       const data: Record<string, string> = {
         ticketId: idString,
@@ -646,14 +644,14 @@ export async function adminCreateTicket(
       };
 
       if (kind === "installation") {
-        notificationTitle = "طلب تثبيت جديد اتعمل";
-        notificationBody = `اتعمل لك طلب تثبيت: ${validatedData.title}`;
+        notificationTitle = "طلب تثبيت جديد تم الإنشاء";
+        notificationBody = `تم الإنشاء لك طلب تثبيت: ${validatedData.title}`;
         url = `/dashboard/installation/${idString}`;
         data.installationId = idString;
         data.url = url;
       } else if (kind === "customization") {
-        notificationTitle = "طلب تخصيص جديد اتعمل";
-        notificationBody = `اتعمل لك طلب تخصيص: ${validatedData.title}`;
+        notificationTitle = "طلب تخصيص جديد تم الإنشاء";
+        notificationBody = `تم الإنشاء لك طلب تخصيص: ${validatedData.title}`;
         url = `/dashboard/customization/${idString}`;
         data.customizationId = idString;
         data.url = url;
@@ -722,7 +720,7 @@ export async function adminCreateTicket(
     return {
       success: true,
       data: serializedTicket as unknown as Ticket,
-      message: "التذكرة اتعملت",
+      message: "تم إنشاء التذكرة",
     };
   } catch (error) {
     const errorMessage =
@@ -743,13 +741,13 @@ export async function assignTicket(
   try {
     await requirePermissionOrThrow(["tickets.assign", "tickets.manage"], {
       any: true,
-      message: "ممنوع: يلزم صلاحية تعيين التذاكر",
+      message: "ممنوع: يتطلب صلاحية تعيين التذاكر",
     });
     const { user } = await requireAdminOrSupport();
 
     const { request, kind, collectionName } = await findRequestById(ticketId);
     if (!request || !collectionName || !kind) {
-      throw new Error("مفيش تذكرة");
+      throw new Error("لا توجد تذكرة");
     }
 
     const ticketsCollection = await getCollection<Ticket>(collectionName);
@@ -770,7 +768,7 @@ export async function assignTicket(
       });
 
       if (!assignedUser) {
-        return { success: false, error: "مفيش المُعيَّن" };
+        return { success: false, error: "لا يوجد المُعيَّن" };
       }
 
       normalizedAssignedToId = assignedUser.id || assignedUser._id.toString();
@@ -911,14 +909,14 @@ export async function updateTicketStatus(
       ["tickets.change_status", "tickets.manage"],
       {
         any: true,
-        message: "ممنوع: يلزم صلاحية حالة التذكرة",
+        message: "ممنوع: يتطلب صلاحية حالة التذكرة",
       },
     );
     const { user } = await requireAdminOrSupport();
 
     const { request, kind, collectionName } = await findRequestById(ticketId);
     if (!request || !collectionName || !kind) {
-      throw new Error("مفيش تذكرة");
+      throw new Error("لا توجد تذكرة");
     }
 
     const ticketsCollection = await getCollection<Ticket>(collectionName);
@@ -930,7 +928,7 @@ export async function updateTicketStatus(
       return {
         success: true,
         data: JSON.parse(JSON.stringify(ticket)) as Ticket,
-        message: "حالة التذكرة ما اتغيّرتش",
+        message: "حالة التذكرة ما تغيّرتش",
       };
     }
 
@@ -1159,14 +1157,14 @@ export async function updateTicketPriority(
       ["tickets.change_priority", "tickets.manage"],
       {
         any: true,
-        message: "ممنوع: يلزم صلاحية أولوية التذاكر",
+        message: "ممنوع: يتطلب صلاحية أولوية التذاكر",
       },
     );
     const { user } = await requireAdminOrSupport();
 
     const { request, kind, collectionName } = await findRequestById(ticketId);
     if (!request || !collectionName || !kind) {
-      throw new Error("مفيش تذكرة");
+      throw new Error("لا توجد تذكرة");
     }
 
     const ticketsCollection = await getCollection<Ticket>(collectionName);
@@ -1313,7 +1311,7 @@ export async function getDashboardStats(): Promise<
         totalSupport,
         totalAdmins,
         recentUsersCount,
-        avgResponseTime: 0, // TODO: Calculate from ticket history
+        avgResponseTime: 0,
       },
     };
   } catch (error) {
@@ -1344,15 +1342,9 @@ export async function getRecentUsers(
       .limit(limit)
       .toArray();
 
-    // Ensure all users have an id field (fallback to _id.toString() if missing or "undefined")
-    const usersWithId = users.map((user) => ({
-      ...user,
-      id: user.id && user.id !== "undefined" ? user.id : user._id?.toString(),
-    }));
-
     return {
       success: true,
-      data: usersWithId as User[],
+      data: serializeUserDocuments(users),
     };
   } catch (error) {
     const errorMessage =
@@ -1489,7 +1481,7 @@ export async function createUser(
 ): Promise<ApiResponse<User>> {
   try {
     await requirePermissionOrThrow("users.manage", {
-      message: "ممنوع: يلزم صلاحية إدارة المستخدمين",
+      message: "ممنوع: يتطلب صلاحية إدارة المستخدمين",
     });
 
     // Validate input
@@ -1505,7 +1497,7 @@ export async function createUser(
     if (existingUser) {
       return {
         success: false,
-        error: "يوجد مستخدم بهذا الإيميل بالفعل",
+        error: "يوجد مستخدم بهذا البريد الإلكتروني بالفعل",
       };
     }
 
@@ -1558,13 +1550,17 @@ export async function createUser(
       _id: created._id,
     });
 
+    if (!finalUser) {
+      throw new Error("User was updated but could not be fetched back");
+    }
+
     revalidatePath("/admin/users");
     revalidatePath("/admin/customers");
 
     return {
       success: true,
-      data: finalUser as User,
-      message: "المستخدم اتعمل",
+      data: serializeUserDocument(finalUser),
+      message: "المستخدم تم الإنشاء",
     };
   } catch (error) {
     const errorMessage =
@@ -1586,7 +1582,7 @@ export async function updateUser(
 ): Promise<ApiResponse<User>> {
   try {
     await requirePermissionOrThrow("users.manage", {
-      message: "ممنوع: يلزم صلاحية إدارة المستخدمين",
+      message: "ممنوع: يتطلب صلاحية إدارة المستخدمين",
     });
 
     // Validate input
@@ -1599,7 +1595,7 @@ export async function updateUser(
     if (!existingUser) {
       return {
         success: false,
-        error: "مفيش المستخدم",
+        error: "لا يوجد المستخدم",
       };
     }
 
@@ -1613,7 +1609,7 @@ export async function updateUser(
       if (emailInUse) {
         return {
           success: false,
-          error: "يوجد مستخدم بهذا الإيميل بالفعل",
+          error: "يوجد مستخدم بهذا البريد الإلكتروني بالفعل",
         };
       }
     }
@@ -1691,6 +1687,9 @@ export async function updateUser(
 
     // Get updated user
     const updatedUser = await usersCollection.findOne({ id: userId });
+    if (!updatedUser) {
+      throw new Error("User was updated but could not be fetched back");
+    }
 
     revalidatePath("/admin/users");
     revalidatePath("/admin/customers");
@@ -1699,8 +1698,8 @@ export async function updateUser(
 
     return {
       success: true,
-      data: updatedUser as User,
-      message: "المستخدم اتحدّث",
+      data: serializeUserDocument(updatedUser),
+      message: "المستخدم تم التحديث",
     };
   } catch (error) {
     const errorMessage =
@@ -1719,7 +1718,7 @@ export async function updateUser(
 export async function deleteUser(userId: string): Promise<ApiResponse<void>> {
   try {
     const session = await requirePermissionOrThrow("users.manage", {
-      message: "ممنوع: يلزم صلاحية إدارة المستخدمين",
+      message: "ممنوع: يتطلب صلاحية إدارة المستخدمين",
     });
     const currentUser = session.user as { id: string };
 
@@ -1727,7 +1726,7 @@ export async function deleteUser(userId: string): Promise<ApiResponse<void>> {
     if (currentUser.id === userId) {
       return {
         success: false,
-        error: "مش ينفع تمسح حسابك",
+        error: "لا يمكن تمسح حسابك",
       };
     }
 
@@ -1738,7 +1737,7 @@ export async function deleteUser(userId: string): Promise<ApiResponse<void>> {
     if (!userToDelete) {
       return {
         success: false,
-        error: "مفيش المستخدم",
+        error: "لا يوجد المستخدم",
       };
     }
 
@@ -1763,7 +1762,7 @@ export async function deleteUser(userId: string): Promise<ApiResponse<void>> {
 
     return {
       success: true,
-      message: "المستخدم اتمسح",
+      message: "المستخدم تم الحذف",
     };
   } catch (error) {
     const errorMessage =
@@ -1796,15 +1795,11 @@ export async function getUserDetails(userId: string) {
     if (!user) {
       return {
         success: false,
-        error: "مفيش المستخدم",
+        error: "لا يوجد المستخدم",
       };
     }
 
-    // Ensure user has an id field
-    const userWithId = {
-      ...user,
-      id: user.id || user._id?.toString(),
-    };
+    const userWithId = serializeUserDocument(user);
 
     // Use the user's id field for queries (now guaranteed to exist)
     const userIdForQuery = userWithId.id;
@@ -1885,7 +1880,7 @@ export async function getUserDetails(userId: string) {
     return {
       success: true,
       data: {
-        user: userWithId as User,
+        user: userWithId,
         tickets: tickets.map((t) => ({
           ...t,
           id: t._id.toString(),
@@ -1929,7 +1924,7 @@ export async function deleteTicket(
   try {
     const { role } = await requireAdminOrSupport();
     if (role !== "admin") {
-      throw new Error("ممنوع: يلزم صلاحية المسؤول");
+      throw new Error("ممنوع: يتطلب صلاحية المسؤول");
     }
 
     const { request, kind, collectionName } = await findRequestById(ticketId);
@@ -1937,7 +1932,7 @@ export async function deleteTicket(
     if (!request || !collectionName || !kind) {
       return {
         success: false,
-        error: "مفيش تذكرة",
+        error: "لا توجد تذكرة",
       };
     }
 
@@ -1969,7 +1964,7 @@ export async function deleteTicket(
 
     return {
       success: true,
-      message: "الطلب اتمسح",
+      message: "الطلب تم الحذف",
     };
   } catch (error) {
     const errorMessage =
@@ -2003,7 +1998,7 @@ export async function getTicketHistory(
   try {
     const session = await getSession();
     if (!session?.user) {
-      throw new Error("مش مسموح");
+      throw new Error("غير مصرّح");
     }
 
     const userId = session.user.id;
@@ -2015,7 +2010,7 @@ export async function getTicketHistory(
     if (!request) {
       return {
         success: false,
-        error: "مفيش تذكرة",
+        error: "لا توجد تذكرة",
       };
     }
 
@@ -2023,7 +2018,7 @@ export async function getTicketHistory(
     if (role === "customer" && (request as Ticket).customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح: تقدر تشوف سجل تذاكرك بس",
+        error: "غير مصرّح: يمكنك تشوف سجل تذاكرك بس",
       };
     }
 
@@ -2131,7 +2126,7 @@ export async function bulkUpdateUserStatus(
       return { success: false, error: "ما اتحددش مستخدمين" };
     }
     if (!ACCOUNT_STATUSES.includes(status)) {
-      return { success: false, error: "حالة مش صحة" };
+      return { success: false, error: "حالة غير صالحة" };
     }
 
     const currentUserId = (session.user as { id: string }).id;
@@ -2140,7 +2135,7 @@ export async function bulkUpdateUserStatus(
     if (targetIds.length === 0) {
       return {
         success: false,
-        error: "مش ينفع تغيّر حالة حسابك",
+        error: "لا يمكن تغيّر حالة حسابك",
       };
     }
 
@@ -2201,7 +2196,7 @@ export async function getAssignableAgents(): Promise<
   try {
     await requirePermissionOrThrow(["tickets.assign", "tickets.manage"], {
       any: true,
-      message: "ممنوع: يلزم صلاحية تعيين التذاكر",
+      message: "ممنوع: يتطلب صلاحية تعيين التذاكر",
     });
 
     const usersCollection = await getCollection<User>("user");
@@ -2236,7 +2231,7 @@ function summarizeBulk(
   return {
     success: failed === 0,
     data: { success, failed },
-    message: `${success} تذكرة ${verb === "تحديث" ? "اتحدّث" : verb === "تعيين" ? "اتعيّن" : "اتغيّر"}${failed > 0 ? `، وتعذّر ${failed}` : ""}`,
+    message: `${success} تذكرة ${verb === "تحديث" ? "تم التحديث" : verb === "تعيين" ? "اتعيّن" : "اتغيّر"}${failed > 0 ? `، وتعذّر ${failed}` : ""}`,
   };
 }
 
@@ -2254,7 +2249,7 @@ export async function bulkUpdateTicketStatus(
   try {
     await requirePermissionOrThrow(["tickets.change_status", "tickets.manage"], {
       any: true,
-      message: "ممنوع: يلزم صلاحية حالة التذكرة",
+      message: "ممنوع: يتطلب صلاحية حالة التذكرة",
     });
     if (!Array.isArray(ticketIds) || ticketIds.length === 0) {
       return { success: false, error: "ما اتحددتش تذاكر" };
@@ -2284,7 +2279,7 @@ export async function bulkUpdateTicketPriority(
   try {
     await requirePermissionOrThrow(
       ["tickets.change_priority", "tickets.manage"],
-      { any: true, message: "ممنوع: يلزم صلاحية أولوية التذاكر" },
+      { any: true, message: "ممنوع: يتطلب صلاحية أولوية التذاكر" },
     );
     if (!Array.isArray(ticketIds) || ticketIds.length === 0) {
       return { success: false, error: "ما اتحددتش تذاكر" };
@@ -2314,7 +2309,7 @@ export async function bulkAssignTickets(
   try {
     await requirePermissionOrThrow(["tickets.assign", "tickets.manage"], {
       any: true,
-      message: "ممنوع: يلزم صلاحية تعيين التذاكر",
+      message: "ممنوع: يتطلب صلاحية تعيين التذاكر",
     });
     if (!Array.isArray(ticketIds) || ticketIds.length === 0) {
       return { success: false, error: "ما اتحددتش تذاكر" };

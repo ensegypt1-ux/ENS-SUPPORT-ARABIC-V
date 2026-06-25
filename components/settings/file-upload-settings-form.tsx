@@ -82,12 +82,12 @@ export function FileUploadSettingsForm({
       });
 
       if (result.success) {
-        toast.success("اتحدّثت إعدادات رفع الملفات");
+        toast.success("تم تحديث إعدادات رفع الملفات");
       } else {
-        toast.error(result.error || "مقدرناش نحدّث الإعدادات");
+        toast.error(result.error || "تعذّر تحديث الإعدادات");
       }
     } catch (error) {
-      toast.error("حصل خطأ وإحنا بنحدّث الإعدادات");
+      toast.error("حدث خطأ وإحنا بنحدّث الإعدادات");
     } finally {
       setIsLoading(false);
     }
@@ -252,7 +252,7 @@ export function FileUploadSettingsForm({
 
             {allowedFileTypes.length === 0 && (
               <p className="text-xs text-muted-foreground text-center py-2">
-                مفيش أنواع ملفات. ضيف نوع واحد على الأقل.
+                لا يوجد أنواع ملفات. أضف نوع واحد على الأقل.
               </p>
             )}
           </div>

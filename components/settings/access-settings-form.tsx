@@ -183,7 +183,7 @@ export function AccessSettingsForm() {
           toast.error(result.error || "تعذّر الإنشاء الدور");
           return;
         }
-        toast.success("اتعمل الدور");
+        toast.success("تم الإنشاء الدور");
       } else if (selectedRole) {
         const result = await updateRbacRoleAction({
           roleId: selectedRole._id,
@@ -192,10 +192,10 @@ export function AccessSettingsForm() {
           permissions: data.permissions,
         });
         if (!result.success) {
-          toast.error(result.error || "مقدرناش نحدّث الدور");
+          toast.error(result.error || "تعذّر تحديث الدور");
           return;
         }
-        toast.success("اتحدّث الدور");
+        toast.success("تم التحديث الدور");
       }
       setDialogOpen(false);
       await load();
@@ -220,7 +220,7 @@ export function AccessSettingsForm() {
         toast.error(result.error || "تعذّر الحذف الدور");
         return;
       }
-      toast.success("اتمسح الدور");
+      toast.success("تم الحذف الدور");
       setDeleteTarget(null);
       await load();
     } finally {
@@ -457,7 +457,7 @@ export function AccessSettingsForm() {
             <AlertDialogTitle>حذف الدور</AlertDialogTitle>
             <AlertDialogDescription>
               {deleteTarget
-                ? `حذف «${deleteTarget.name}»؟ مش هينفع الرجوع عن هذا الإجراء.`
+                ? `حذف «${deleteTarget.name}»؟ لا يمكن التراجع عن هذا الإجراء.`
                 : "حذف هذا الدور؟"}
             </AlertDialogDescription>
           </AlertDialogHeader>

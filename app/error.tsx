@@ -29,11 +29,11 @@ export default function Error({
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/15">
             <AlertTriangle className="h-8 w-8 text-destructive" />
           </div>
-          <CardTitle className="text-2xl">حصل خطأ ما!</CardTitle>
+          <CardTitle className="text-2xl">حدث خطأ ما!</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <p className="text-muted-foreground">
-            حصل خطأ مش متوقع. لا تقلق، لقد سجّلنا المشكلة وسنقوم بمراجعتها.
+            حدث خطأ غير متوقع. لا تقلق، لقد سجّلنا المشكلة وسنقوم بمراجعتها.
           </p>
           
           {process.env.NODE_ENV === "development" && (

@@ -64,7 +64,7 @@ async function bootstrap() {
     handle(req, res, parsedUrl).catch((error) => {
       console.error("Failed to handle request:", error);
       res.statusCode = 500;
-      res.end("Internal Server Error");
+      res.end("خطأ داخلي في الخادم");
     });
   });
 

@@ -47,15 +47,15 @@ export async function ensureDefaultTicketCategories() {
 }
 
 export async function validateTicketCategoryForTicketCreation(category: string) {
-  if (!category) return { ok: false as const, error: "Category is required" };
+  if (!category) return { ok: false as const, error: "النوع مطلوب" };
   if (RESERVED_TICKET_CATEGORY_SLUGS.has(category)) {
-    return { ok: false as const, error: "Invalid category" };
+    return { ok: false as const, error: "نوع غير صالح" };
   }
 
   await ensureDefaultTicketCategories();
   const collection = await getCollection<TicketCategoryDefinition>("ticket_categories");
   const found = await collection.findOne({ slug: category, isActive: true });
-  if (!found) return { ok: false as const, error: "Invalid category" };
+  if (!found) return { ok: false as const, error: "نوع غير صالح" };
   return { ok: true as const };
 }
 

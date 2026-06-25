@@ -72,34 +72,22 @@ export default async function AdminServicePage({
     {
       title: "إجمالي الطلبات",
       value: requests.length,
-      icon: Icon,
-      iconColor: "text-slate-600",
-      iconBgColor: "bg-slate-50 dark:bg-slate-950",
-      description: `جميع تذاكر ${service.name}`,
+      icon: Icon,      description: `جميع تذاكر ${service.name}`,
     },
     {
       title: "مفتوحة",
       value: openRequests.length,
-      icon: AlertCircle,
-      iconColor: "text-amber-600",
-      iconBgColor: "bg-amber-50 dark:bg-amber-950",
-      description: "في انتظار الإجراء",
+      icon: AlertCircle,      description: "في انتظار الإجراء",
     },
     {
       title: "قيد المعالجة",
       value: inProgressRequests.length,
-      icon: Clock,
-      iconColor: "text-indigo-600",
-      iconBgColor: "bg-indigo-50 dark:bg-indigo-950",
-      description: "قيد العمل",
+      icon: Clock,      description: "قيد العمل",
     },
     {
       title: "مكتملة",
       value: resolvedRequests.length + closedRequests.length,
-      icon: CheckCircle2,
-      iconColor: "text-emerald-600",
-      iconBgColor: "bg-emerald-50 dark:bg-emerald-950",
-      description: "محلولة أو مغلقة",
+      icon: CheckCircle2,      description: "محلولة أو مغلقة",
     },
   ];
 
@@ -170,7 +158,7 @@ export default async function AdminServicePage({
             {openRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات مفتوحة
+                  لا يوجد طلبات مفتوحة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -191,7 +179,7 @@ export default async function AdminServicePage({
             {scheduledMeetingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات باجتماع مجدول
+                  لا يوجد طلبات باجتماع مجدول
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -215,7 +203,7 @@ export default async function AdminServicePage({
             {waitingRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات في الانتظار
+                  لا يوجد طلبات في الانتظار
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -233,7 +221,7 @@ export default async function AdminServicePage({
             {inProgressRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات قيد المعالجة
+                  لا يوجد طلبات قيد المعالجة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -254,7 +242,7 @@ export default async function AdminServicePage({
             {resolvedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات محلولة
+                  لا يوجد طلبات محلولة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (
@@ -272,7 +260,7 @@ export default async function AdminServicePage({
             {closedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  مفيش طلبات مغلقة
+                  لا يوجد طلبات مغلقة
                 </CardContent>
               </Card>
             ) : viewMode === "table" ? (

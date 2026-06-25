@@ -142,5 +142,3 @@ export async function testChatConnection(): Promise<{
   }
 }
 
-/** @deprecated use {@link testEmbeddingConnection} */
-export const testApiKeyConnection = testEmbeddingConnection;

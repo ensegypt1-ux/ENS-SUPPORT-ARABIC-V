@@ -54,7 +54,7 @@ async function ensureServiceExistsForRole(serviceSlug: string, role: UserRole) {
     isActive: true,
     roles: role,
   });
-  if (!service) throw new Error("مفيش خدمة");
+  if (!service) throw new Error("لا يوجد خدمة");
   return service;
 }
 
@@ -712,8 +712,8 @@ export async function createServiceRequestForStaff(
       await createNotification({
         userId: validatedData.customerId,
         type: "new_ticket",
-        title: "طلب خدمة اتعمل",
-        body: `طلب خدمة اتعمل لك: ${validatedData.title}`,
+        title: "طلب خدمة تم الإنشاء",
+        body: `طلب خدمة تم الإنشاء لك: ${validatedData.title}`,
         data: {
           ticketId: insertedId.toString(),
           ticketNumber,
@@ -796,7 +796,7 @@ export async function updateServiceContent(
     const ticket = lookup.request;
 
     if (!ticket || !lookup.kind || !lookup.collectionName) {
-      return { success: false, error: "مفيش طلب خدمة" };
+      return { success: false, error: "لا يوجد طلب خدمة" };
     }
 
     const isMatchingService =
@@ -805,12 +805,12 @@ export async function updateServiceContent(
       (lookup.kind === "customization" && serviceSlug === "customization") ||
       (lookup.kind === "installation" && serviceSlug === "installation");
     if (!isMatchingService)
-      return { success: false, error: "مفيش طلب خدمة" };
+      return { success: false, error: "لا يوجد طلب خدمة" };
 
     if (role === "customer" && ticket.customerId !== userId) {
       return {
         success: false,
-        error: "مش مسموح لك تحدّث الطلب ده",
+        error: "غير مصرّح لك تحدّث الطلب ده",
       };
     }
 

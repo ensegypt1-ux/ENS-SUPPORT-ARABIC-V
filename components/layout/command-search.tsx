@@ -120,7 +120,7 @@ export function CommandSearch({
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput placeholder="البحث في الصفحات..." />
       <CommandList>
-        <CommandEmpty>مفيش نتائج.</CommandEmpty>
+        <CommandEmpty>لا توجد نتائج.</CommandEmpty>
         {Array.from(sections.entries()).map(([section, items]) => (
           <CommandGroup key={section} heading={section}>
             {items.map((item) => (

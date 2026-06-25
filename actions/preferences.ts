@@ -24,7 +24,7 @@ export async function getUserPreferences(): Promise<
     if (!user) {
       return {
         success: false,
-        error: "مفيش المستخدم",
+        error: "لا يوجد المستخدم",
       };
     }
 
@@ -72,7 +72,7 @@ export async function updateUserPreferences(
     if (!user) {
       return {
         success: false,
-        error: "مفيش المستخدم",
+        error: "لا يوجد المستخدم",
       };
     }
 

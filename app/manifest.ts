@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { getPublicSystemSettings } from "@/lib/settings-utils";
+import { getFaviconUrl, getPublicSystemSettings } from "@/lib/settings-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +15,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     settings.general.siteDescription || "Customer support and ticket management";
   const themeColor = settings.appearance.primaryColor || "#3b82f6";
   const backgroundColor = settings.appearance.secondaryColor || "#ffffff";
+  const faviconUrl = await getFaviconUrl();
 
   return {
     id: "/",
@@ -31,17 +32,22 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     categories: ["business", "productivity", "communication"],
     icons: [
       {
-        src: "/pwa-icons/192",
+        src: faviconUrl,
+        sizes: "any",
+        type: "image/x-icon",
+      },
+      {
+        src: "/pwa-icons/192.png",
         sizes: "192x192",
         type: "image/png",
       },
       {
-        src: "/pwa-icons/512",
+        src: "/pwa-icons/512.png",
         sizes: "512x512",
         type: "image/png",
       },
       {
-        src: "/pwa-icons/512",
+        src: "/pwa-icons/512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
