@@ -105,6 +105,7 @@ export function NotificationPreferences() {
     subscriptionCount,
     loading: pushLoading,
     busy: pushBusy,
+    statusError: pushStatusError,
     enablePush,
     disablePush,
   } = usePushNotifications();
@@ -397,6 +398,13 @@ export function NotificationPreferences() {
                       و`VAPID_SUBJECT` على الخادم قبل تفعيل إشعارات
                       المتصفح.
                     </p>
+                  </div>
+                )}
+
+                {pushStatusError && (
+                  <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+                    <Shield className="mt-0.5 h-4 w-4 shrink-0" />
+                    <p>{pushStatusError}</p>
                   </div>
                 )}
 

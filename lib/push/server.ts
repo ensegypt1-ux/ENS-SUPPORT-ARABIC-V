@@ -105,6 +105,19 @@ export async function countPushSubscriptionsForUser(userId: string) {
   return collection.countDocuments({ userId });
 }
 
+export async function hasPushSubscriptionForUser(
+  userId: string,
+  endpoint: string,
+) {
+  const collection =
+    await getCollection<StoredPushSubscription>("push_subscriptions");
+  const stored = await collection.findOne({
+    userId,
+    endpoint: endpoint.trim(),
+  });
+  return Boolean(stored);
+}
+
 export async function upsertPushSubscription(
   userId: string,
   subscription: PushSubscriptionPayload,

@@ -18,7 +18,7 @@ import type { KBCategory } from "@/types";
 
 const schema = z.object({
   title: z.string().min(1, "العنوان مطلوب").max(100),
-  description: z.string().max(500).optional(),
+  description: z.string().max(1000).optional(),
   icon: z.string().max(10).optional(),
   coverImage: z
     .string()

@@ -2,17 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Loader2, ShieldAlert } from "lucide-react";
+import { Bell, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import type { ClientNotification } from "@/types/realtime";
 import { NotificationItem } from "./notification-item";
@@ -36,25 +34,16 @@ const SUPPORT_ALLOWED_TYPES = [
 interface NotificationBellProps {
   userId: string;
   userRole?: string;
-  basePath?: string; // e.g., "/dashboard/notifications", "/admin/notifications", etc.
-  clickBehavior?: "detail" | "direct"; // User preference for click behavior
+  basePath?: string;
+  clickBehavior?: "detail" | "direct";
 }
 
-const FOREGROUND_PUSH_EVENT = "solvio:push:foreground";
 const MAX_REMEMBERED_NOTIFICATION_IDS = 300;
-
-type PushForegroundPayload = {
-  notificationId?: string | null;
-  title?: string;
-  body?: string;
-  tag?: string;
-  data?: Record<string, unknown> | null;
-};
 
 function getNotificationDestination(
   notification: ClientNotification,
   basePath: string,
-  clickBehavior: "detail" | "direct"
+  clickBehavior: "detail" | "direct",
 ) {
   const mongoNotificationId =
     typeof notification.data?.notificationId === "string"
@@ -88,17 +77,6 @@ export function NotificationBell({
   const announcedIdsRef = useRef<string[]>([]);
   const announcedIdSetRef = useRef<Set<string>>(new Set());
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const {
-    permission: pushPermission,
-    isSupported: pushSupported,
-    isConfigured: pushConfigured,
-    isSubscribed: pushSubscribed,
-    loading: pushLoading,
-    busy: pushBusy,
-    enablePush,
-    disablePush,
-  } = usePushNotifications({ enabled: menuOpen });
 
   const allowedTypes =
     userRole === "support" ? SUPPORT_ALLOWED_TYPES : undefined;
@@ -186,7 +164,10 @@ export function NotificationBell({
 
   const showForegroundAlert = useCallback(
     (notification: ClientNotification) => {
-      if (typeof document !== "undefined" && document.visibilityState !== "visible") {
+      if (
+        typeof document !== "undefined" &&
+        document.visibilityState !== "visible"
+      ) {
         return;
       }
 
@@ -202,7 +183,7 @@ export function NotificationBell({
       const destination = getNotificationDestination(
         notification,
         basePath,
-        clickBehavior
+        clickBehavior,
       );
 
       void playNotificationSound();
@@ -218,7 +199,7 @@ export function NotificationBell({
           : undefined,
       });
     },
-    [basePath, clickBehavior, playNotificationSound, rememberAnnouncedId, router]
+    [basePath, clickBehavior, playNotificationSound, rememberAnnouncedId, router],
   );
 
   const {
@@ -235,13 +216,6 @@ export function NotificationBell({
   });
 
   const recentNotifications = notifications.slice(0, 5);
-  const isPushBlocked = pushPermission === "denied" && !pushSubscribed;
-  const pushToggleDisabled =
-    pushLoading ||
-    pushBusy ||
-    !pushSupported ||
-    (!pushConfigured && !pushSubscribed) ||
-    isPushBlocked;
 
   useEffect(() => {
     const unlockAudio = () => {
@@ -264,65 +238,6 @@ export function NotificationBell({
   }, [ensureAudioContext]);
 
   useEffect(() => {
-    if (!("serviceWorker" in navigator)) {
-      return;
-    }
-
-    const handleServiceWorkerMessage = (
-      event: MessageEvent<{ type?: string; payload?: PushForegroundPayload }>
-    ) => {
-      if (event.data?.type !== FOREGROUND_PUSH_EVENT || !event.data.payload) {
-        return;
-      }
-
-      const payload = event.data.payload;
-      const payloadData =
-        payload.data && typeof payload.data === "object" ? payload.data : null;
-      const fallbackId =
-        typeof payload.tag === "string" && payload.tag
-          ? `push:${payload.tag}`
-          : `push:${Date.now()}`;
-      const id =
-        (typeof payload.notificationId === "string" &&
-          payload.notificationId) ||
-        (typeof payloadData?.notificationId === "string" &&
-          payloadData.notificationId) ||
-        fallbackId;
-
-      showForegroundAlert({
-        id,
-        user_id: userId,
-        type:
-          typeof payloadData?.source === "string" ? payloadData.source : "push",
-        title:
-          typeof payload.title === "string" && payload.title
-            ? payload.title
-            : "إشعار جديد",
-        body:
-          typeof payload.body === "string" && payload.body
-            ? payload.body
-            : "فيه تحديث جديد.",
-        data: payloadData,
-        read: false,
-        created_at: new Date().toISOString(),
-        read_at: null,
-      });
-    };
-
-    navigator.serviceWorker.addEventListener(
-      "message",
-      handleServiceWorkerMessage
-    );
-
-    return () => {
-      navigator.serviceWorker.removeEventListener(
-        "message",
-        handleServiceWorkerMessage
-      );
-    };
-  }, [showForegroundAlert, userId]);
-
-  useEffect(() => {
     return () => {
       if (audioContextRef.current) {
         void audioContextRef.current.close().catch(() => undefined);
@@ -331,18 +246,22 @@ export function NotificationBell({
     };
   }, []);
 
+  const handleMenuOpenChange = (open: boolean) => {
+    setMenuOpen(open);
+    if (open) {
+      void refreshNotifications();
+    }
+  };
+
   return (
-    <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+    <DropdownMenu open={menuOpen} onOpenChange={handleMenuOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-6 w-6" />
           {unreadCount > 0 && (
-            <>
-              {/* Badge count */}
-              <span className="absolute -top-1 -end-1 h-5 w-5 rounded-full bg-blue-700 text-destructive-foreground text-xs text-white font-medium flex items-center justify-center">
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </span>
-            </>
+            <span className="absolute -top-1 -end-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-700 text-xs font-medium text-white">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
           )}
         </Button>
       </DropdownMenuTrigger>
@@ -350,7 +269,6 @@ export function NotificationBell({
         align="end"
         className="w-80 overflow-hidden p-0 md:w-96"
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold">الإشعارات</h3>
@@ -376,7 +294,6 @@ export function NotificationBell({
 
         <DropdownMenuSeparator className="m-0" />
 
-        {/* Loading State */}
         {loading && notifications.length === 0 && (
           <div className="space-y-3 p-4">
             {[1, 2, 3].map((i) => (
@@ -391,7 +308,6 @@ export function NotificationBell({
           </div>
         )}
 
-        {/* Error State */}
         {!loading && notificationsError && notifications.length === 0 && (
           <div className="space-y-3 px-4 py-8 text-center">
             <ShieldAlert className="mx-auto h-8 w-8 text-destructive/80" />
@@ -410,10 +326,7 @@ export function NotificationBell({
           </div>
         )}
 
-        {/* Empty State */}
-        {!loading &&
-          !notificationsError &&
-          notifications.length === 0 && (
+        {!loading && !notificationsError && notifications.length === 0 && (
           <div className="px-4 py-12 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
               <Bell className="h-5 w-5 text-muted-foreground" />
@@ -425,10 +338,9 @@ export function NotificationBell({
           </div>
         )}
 
-        {/* Notifications List */}
         {!loading && recentNotifications.length > 0 && (
           <div className="max-h-90 space-y-0.5 overflow-y-auto p-1.5">
-            {recentNotifications?.map((notification) => (
+            {recentNotifications.map((notification) => (
               <NotificationItem
                 key={notification.id}
                 notification={notification}
@@ -440,62 +352,18 @@ export function NotificationBell({
           </div>
         )}
 
-        {/* View All Link */}
         {!loading && notifications.length > 0 && (
-          <button
-            type="button"
-            className="w-full cursor-pointer py-2.5 text-center text-sm font-medium text-blue-700 transition-colors hover:bg-muted/50 dark:text-blue-400"
-            onClick={() => router.push(basePath)}
-          >
-            عرض جميع الإشعارات
-          </button>
+          <>
+            <DropdownMenuSeparator className="m-0" />
+            <button
+              type="button"
+              className="w-full cursor-pointer py-2.5 text-center text-sm font-medium text-blue-700 transition-colors hover:bg-muted/50 dark:text-blue-400"
+              onClick={() => router.push(basePath)}
+            >
+              عرض جميع الإشعارات
+            </button>
+          </>
         )}
-
-        {/* Browser notifications */}
-        <DropdownMenuSeparator className="m-0" />
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-sm font-medium leading-tight">
-                إشعارات المتصفح
-              </p>
-              <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
-                {pushSupported
-                  ? pushSubscribed
-                    ? "مفعّلة على هذا الجهاز."
-                    : "احصل على تنبيهات أثناء وجود التطبيق في الخلفية."
-                  : "غير مدعومة في هذا المتصفح."}
-              </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              {(pushLoading || pushBusy) && (
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-              )}
-              <Switch
-                checked={pushSubscribed}
-                disabled={pushToggleDisabled}
-                aria-label="تفعيل إشعارات المتصفح"
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    void enablePush();
-                    return;
-                  }
-                  void disablePush();
-                }}
-              />
-            </div>
-          </div>
-
-          {isPushBlocked && (
-            <div className="mt-2 flex items-start gap-2 rounded-md border border-amber-200/70 bg-amber-50 px-2.5 py-2 text-[11px] text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300">
-              <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <p>
-                محظورة في إعدادات المتصفح. أعد تفعيلها لهذا الموقع، ثم
-                جرّب التبديل مرة أخرى.
-              </p>
-            </div>
-          )}
-        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

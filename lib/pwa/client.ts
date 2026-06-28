@@ -139,6 +139,58 @@ export async function getPwaServiceWorkerRegistration() {
   return registerPwaServiceWorker();
 }
 
+/**
+ * Service worker registration for Web Push — works whenever the browser
+ * supports it (secure context / localhost), even when full PWA runtime is
+ * disabled in local dev.
+ */
+export async function getPushServiceWorkerRegistration() {
+  if (!canUseServiceWorker()) {
+    return null;
+  }
+
+  try {
+    let registration = await navigator.serviceWorker.getRegistration("/");
+    if (!registration) {
+      registration = await navigator.serviceWorker.register(SERVICE_WORKER_PATH, {
+        scope: "/",
+      });
+    }
+
+    await navigator.serviceWorker.ready;
+
+    if (!registration.active) {
+      await new Promise<void>((resolve, reject) => {
+        const worker = registration!.installing || registration!.waiting;
+        if (!worker) {
+          resolve();
+          return;
+        }
+
+        const timeout = window.setTimeout(() => {
+          reject(new Error("Service worker activation timed out."));
+        }, 15_000);
+
+        worker.addEventListener("statechange", () => {
+          if (worker.state === "activated" || registration!.active) {
+            window.clearTimeout(timeout);
+            resolve();
+          }
+          if (worker.state === "redundant") {
+            window.clearTimeout(timeout);
+            reject(new Error("Service worker became redundant."));
+          }
+        });
+      });
+    }
+
+    return registration;
+  } catch (error) {
+    console.error("[push] service worker registration failed:", error);
+    return null;
+  }
+}
+
 export function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = `${base64String}${padding}`

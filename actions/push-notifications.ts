@@ -6,6 +6,7 @@ import { requireAuth } from "@/lib/auth-utils";
 import {
   countPushSubscriptionsForUser,
   deletePushSubscription,
+  hasPushSubscriptionForUser,
   isWebPushConfigured,
   sendPushNotificationToSubscription,
   upsertPushSubscription,
@@ -16,6 +17,8 @@ import type { ApiResponse, UserRole } from "@/types";
 type PushNotificationStatus = {
   configured: boolean;
   subscriptionCount: number;
+  /** True when the provided push endpoint is saved for the current user. */
+  currentDeviceRegistered: boolean;
 };
 
 function getNotificationsPathForRole(role: UserRole) {
@@ -29,20 +32,29 @@ function getNotificationsPathForRole(role: UserRole) {
   }
 }
 
-export async function getPushNotificationStatus(): Promise<
-  ApiResponse<PushNotificationStatus>
-> {
+export async function getPushNotificationStatus(
+  endpoint?: string | null,
+): Promise<ApiResponse<PushNotificationStatus>> {
   try {
     const session = await requireAuth();
-    const subscriptionCount = await countPushSubscriptionsForUser(
-      session.user.id
-    );
+    const userId = session.user.id;
+    const subscriptionCount = await countPushSubscriptionsForUser(userId);
+
+    let currentDeviceRegistered = false;
+    const trimmedEndpoint = endpoint?.trim();
+    if (trimmedEndpoint) {
+      currentDeviceRegistered = await hasPushSubscriptionForUser(
+        userId,
+        trimmedEndpoint,
+      );
+    }
 
     return {
       success: true,
       data: {
         configured: isWebPushConfigured(),
         subscriptionCount,
+        currentDeviceRegistered,
       },
     };
   } catch (error) {
@@ -76,8 +88,20 @@ export async function registerPushSubscription(
     await upsertPushSubscription(
       session.user.id,
       subscription,
-      requestHeaders.get("user-agent") || undefined
+      requestHeaders.get("user-agent") || undefined,
     );
+
+    const stored = await hasPushSubscriptionForUser(
+      session.user.id,
+      subscription.endpoint,
+    );
+
+    if (!stored) {
+      return {
+        success: false,
+        error: "تعذّر حفظ اشتراك الإشعارات في قاعدة البيانات.",
+      };
+    }
 
     const role = (
       (session.user as { role?: UserRole }).role || "customer"
