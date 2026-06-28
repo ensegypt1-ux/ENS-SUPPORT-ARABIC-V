@@ -1,13 +1,46 @@
-import { ObjectId } from "mongodb";
+import { ObjectId, type Collection } from "mongodb";
 import { getCollection } from "@/lib/db";
 import { FALLBACKS } from "@/lib/strings";
 import { toPlainObject } from "@/lib/serialization";
 import type { User as UserType, UserRole } from "@/types";
 
 type UserLike = Record<string, unknown> & {
-  _id?: { toString(): string };
+  _id?: ObjectId | { toString(): string };
   id?: string;
 };
+
+type UserIdentifiable = {
+  _id?: ObjectId | { toString(): string };
+  id?: string;
+};
+
+/** All string identifiers that may reference the same user document. */
+export function collectUserIdVariants(user: UserIdentifiable): string[] {
+  const ids = new Set<string>();
+  if (user.id && user.id !== "undefined") {
+    ids.add(String(user.id));
+  }
+  const rawId = user._id;
+  if (rawId) {
+    ids.add(
+      rawId instanceof ObjectId ? rawId.toString() : rawId.toString(),
+    );
+  }
+  return Array.from(ids);
+}
+
+/** Resolve a user by canonical `id` or Mongo `_id` (legacy records). */
+export async function findUserDocumentByAnyId(
+  usersCollection: Pick<Collection, "findOne">,
+  userId: string,
+): Promise<UserLike | null> {
+  const queries: Record<string, unknown>[] = [{ id: userId }];
+  if (ObjectId.isValid(userId)) {
+    queries.push({ _id: new ObjectId(userId) });
+  }
+  const user = await usersCollection.findOne({ $or: queries });
+  return user as UserLike | null;
+}
 
 /** Convert a MongoDB user document into a plain JSON-safe User for client props. */
 export function serializeUserDocument(user: UserLike): UserType {
@@ -29,6 +62,13 @@ export function serializeUserDocuments(users: UserLike[]): UserType[] {
  * @param userIds - Array of user IDs to fetch
  * @returns Record mapping user IDs to user information
  */
+export async function findUserByAnyId(
+  userId: string,
+): Promise<UserLike | null> {
+  const usersCollection = await getCollection("user");
+  return findUserDocumentByAnyId(usersCollection, userId);
+}
+
 export async function fetchUsersByIds(
   userIds: string[]
 ): Promise<Record<string, { name: string; email: string; role: string }>> {

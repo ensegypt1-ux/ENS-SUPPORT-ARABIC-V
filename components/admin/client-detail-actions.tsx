@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import type { User } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
@@ -14,14 +13,8 @@ interface ClientDetailActionsProps {
 }
 
 export function ClientDetailActions({ user, isAdmin }: ClientDetailActionsProps) {
-  const router = useRouter();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
-  const handleDeleteSuccess = () => {
-    // Redirect to customers list after successful deletion
-    router.push("/admin/customers");
-  };
 
   return (
     <div className="flex items-center gap-2">
@@ -42,7 +35,6 @@ export function ClientDetailActions({ user, isAdmin }: ClientDetailActionsProps)
         </Button>
       )}
 
-      {/* Edit Customer Dialog */}
       {isAdmin && (
         <UserFormDialog
           open={editDialogOpen}
@@ -53,19 +45,13 @@ export function ClientDetailActions({ user, isAdmin }: ClientDetailActionsProps)
         />
       )}
 
-      {/* Delete Customer Dialog */}
       {isAdmin && (
         <DeleteUserDialog
           open={deleteDialogOpen}
-          onOpenChange={(open) => {
-            setDeleteDialogOpen(open);
-            if (!open && !user) {
-              // If dialog closed and user was deleted, redirect
-              handleDeleteSuccess();
-            }
-          }}
+          onOpenChange={setDeleteDialogOpen}
           user={user}
           entityLabel="عميل"
+          redirectTo="/admin/customers"
         />
       )}
     </div>

@@ -47,6 +47,7 @@ export function ClientCard({ client }: ClientCardProps) {
   const { data: session } = useSession();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [removed, setRemoved] = useState(false);
   const canManageCustomer = (session?.user as { role?: string } | undefined)?.role === "admin";
   const getInitials = (name: string) => {
     return name
@@ -56,6 +57,10 @@ export function ClientCard({ client }: ClientCardProps) {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  if (removed) {
+    return null;
+  }
 
   return (
     <div className="group relative flex flex-col bg-card/50 backdrop-blur-sm border border-border rounded-xl p-5 hover:shadow-md hover:border-primary/20 transition-all duration-300">
@@ -211,6 +216,7 @@ export function ClientCard({ client }: ClientCardProps) {
         onOpenChange={setDeleteDialogOpen}
         user={client}
         entityLabel="Customer"
+        onDeleted={() => setRemoved(true)}
       />
     </div>
   );

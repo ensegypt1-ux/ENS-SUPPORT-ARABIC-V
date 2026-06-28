@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { deleteUser } from "@/actions/admin";
 import type { User } from "@/types";
 import {
@@ -22,6 +22,10 @@ interface DeleteUserDialogProps {
   onOpenChange: (open: boolean) => void;
   user: User | null;
   entityLabel?: string;
+  /** Called immediately after a successful delete, before navigation/refresh. */
+  onDeleted?: (userId: string) => void;
+  /** Navigate away before refresh (e.g. detail pages). Uses replace, not push. */
+  redirectTo?: string;
 }
 
 export function DeleteUserDialog({
@@ -29,34 +33,54 @@ export function DeleteUserDialog({
   onOpenChange,
   user,
   entityLabel = "مستخدم",
+  onDeleted,
+  redirectTo,
 }: DeleteUserDialogProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const deletingRef = useRef(false);
 
-  const handleDelete = async () => {
-    if (!user) return;
+  const handleDelete = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    if (!user || isDeleting || deletingRef.current) return;
 
+    deletingRef.current = true;
     setIsDeleting(true);
 
+    const deletedUserId = user.id;
+
     try {
-      const result = await deleteUser(user.id);
+      const result = await deleteUser(deletedUserId);
 
       if (result.success) {
         toast.success(result.message || "تم الحذف المستخدم");
         onOpenChange(false);
+        onDeleted?.(deletedUserId);
+        if (redirectTo) {
+          router.replace(redirectTo);
+        }
         router.refresh();
       } else {
         toast.error(result.error || "تعذّر الحذف المستخدم");
       }
-    } catch (error: any) {
-      toast.error(error.message || "حدث خطأ غير متوقع");
+    } catch (error: unknown) {
+      toast.error(
+        error instanceof Error ? error.message : "حدث خطأ غير متوقع",
+      );
     } finally {
+      deletingRef.current = false;
       setIsDeleting(false);
     }
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (isDeleting) return;
+        onOpenChange(nextOpen);
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>متأكد؟</AlertDialogTitle>

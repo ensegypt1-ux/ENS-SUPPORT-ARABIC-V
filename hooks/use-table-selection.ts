@@ -66,6 +66,15 @@ export function useTableSelection<T>(items: T[], getId: (item: T) => string) {
 
     const clear = useCallback(() => setRawSelected(new Set()), []);
 
+    const deselect = useCallback((id: string) => {
+        setRawSelected((prev) => {
+            if (!prev.has(id)) return prev;
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+        });
+    }, []);
+
     return {
         selectedIds,
         selectedIdList,
@@ -77,5 +86,6 @@ export function useTableSelection<T>(items: T[], getId: (item: T) => string) {
         toggle,
         toggleAll,
         clear,
+        deselect,
     };
 }

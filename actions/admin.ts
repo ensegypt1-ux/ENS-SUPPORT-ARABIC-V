@@ -25,6 +25,8 @@ import type {
   TicketStatus,
 } from "@/types";
 import {
+  collectUserIdVariants,
+  findUserDocumentByAnyId,
   getUserIdsByRole,
   serializeUserDocument,
   serializeUserDocuments,
@@ -1590,8 +1592,7 @@ export async function updateUser(
 
     const usersCollection = await getCollection("user");
 
-    // Check if user exists
-    const existingUser = await usersCollection.findOne({ id: userId });
+    const existingUser = await findUserDocumentByAnyId(usersCollection, userId);
     if (!existingUser) {
       return {
         success: false,
@@ -1599,11 +1600,14 @@ export async function updateUser(
       };
     }
 
+    const userObjectId = existingUser._id as ObjectId;
+    const linkedUserIds = collectUserIdVariants(existingUser);
+
     // Check if email is being changed and if it's already in use
     if (validatedData.email !== existingUser.email) {
       const emailInUse = await usersCollection.findOne({
         email: validatedData.email,
-        id: { $ne: userId },
+        _id: { $ne: userObjectId },
       });
 
       if (emailInUse) {
@@ -1649,14 +1653,18 @@ export async function updateUser(
       // Update password in account collection
       const accountsCollection = await getCollection("account");
       // Prefer updating whichever account doc has a password field
+      const canonicalUserId =
+        existingUser.id && existingUser.id !== "undefined"
+          ? String(existingUser.id)
+          : userObjectId.toString();
       const credDoc = await accountsCollection.findOne({
-        userId: userId,
+        userId: { $in: linkedUserIds },
         password: { $exists: true },
       });
       const filter = credDoc
         ? { _id: credDoc._id }
         : {
-            userId: userId,
+            userId: { $in: linkedUserIds },
             providerId: { $in: ["credential", "email"] },
           };
       await accountsCollection.updateOne(
@@ -1667,8 +1675,8 @@ export async function updateUser(
             updatedAt: new Date(),
           },
           $setOnInsert: {
-            userId: userId,
-            accountId: userId,
+            userId: canonicalUserId,
+            accountId: canonicalUserId,
             providerId: "credential",
             createdAt: new Date(),
           },
@@ -1677,28 +1685,30 @@ export async function updateUser(
       );
     }
 
-    // Update user
+    // Update user by Mongo _id (reliable for legacy records missing `id`)
     await usersCollection.updateOne(
-      { id: userId },
+      { _id: userObjectId },
       Object.keys(unset).length > 0
         ? { $set: updateData, $unset: unset }
         : { $set: updateData },
     );
 
-    // Get updated user
-    const updatedUser = await usersCollection.findOne({ id: userId });
+    const updatedUser = await usersCollection.findOne({ _id: userObjectId });
     if (!updatedUser) {
       throw new Error("User was updated but could not be fetched back");
     }
 
+    const serialized = serializeUserDocument(updatedUser);
     revalidatePath("/admin/users");
     revalidatePath("/admin/customers");
-    revalidatePath(`/admin/users/${userId}`);
-    revalidatePath(`/admin/customers/${userId}`);
+    for (const pathId of new Set([userId, serialized.id])) {
+      revalidatePath(`/admin/users/${pathId}`);
+      revalidatePath(`/admin/customers/${pathId}`);
+    }
 
     return {
       success: true,
-      data: serializeUserDocument(updatedUser),
+      data: serialized,
       message: "المستخدم تم التحديث",
     };
   } catch (error) {
@@ -1722,18 +1732,9 @@ export async function deleteUser(userId: string): Promise<ApiResponse<void>> {
     });
     const currentUser = session.user as { id: string };
 
-    // Prevent deleting yourself
-    if (currentUser.id === userId) {
-      return {
-        success: false,
-        error: "لا يمكن تمسح حسابك",
-      };
-    }
-
     const usersCollection = await getCollection("user");
 
-    // Check if user exists
-    const userToDelete = await usersCollection.findOne({ id: userId });
+    const userToDelete = await findUserDocumentByAnyId(usersCollection, userId);
     if (!userToDelete) {
       return {
         success: false,
@@ -1741,24 +1742,34 @@ export async function deleteUser(userId: string): Promise<ApiResponse<void>> {
       };
     }
 
-    // Delete user's account entries
-    const accountsCollection = await getCollection("account");
-    await accountsCollection.deleteMany({ userId: userId });
+    const userObjectId = userToDelete._id as ObjectId;
+    const linkedUserIds = collectUserIdVariants(userToDelete);
 
-    // Delete user's sessions
+    // Prevent deleting yourself (match any linked id variant)
+    if (linkedUserIds.includes(currentUser.id)) {
+      return {
+        success: false,
+        error: "لا يمكن تمسح حسابك",
+      };
+    }
+
+    const accountsCollection = await getCollection("account");
+    await accountsCollection.deleteMany({ userId: { $in: linkedUserIds } });
+
     const sessionsCollection = await getCollection("session");
-    await sessionsCollection.deleteMany({ userId: userId });
+    await sessionsCollection.deleteMany({ userId: { $in: linkedUserIds } });
 
     // Note: We're not deleting tickets/comments created by this user
     // to maintain data integrity. You might want to reassign or handle differently.
 
-    // Delete the user
-    await usersCollection.deleteOne({ id: userId });
+    await usersCollection.deleteOne({ _id: userObjectId });
 
     revalidatePath("/admin/users");
     revalidatePath("/admin/customers");
-    revalidatePath(`/admin/users/${userId}`);
-    revalidatePath(`/admin/customers/${userId}`);
+    for (const pathId of new Set([userId, ...linkedUserIds])) {
+      revalidatePath(`/admin/users/${pathId}`);
+      revalidatePath(`/admin/customers/${pathId}`);
+    }
 
     return {
       success: true,
@@ -1786,11 +1797,7 @@ export async function getUserDetails(userId: string) {
     const usersCollection = await getCollection("user");
     const ticketsCollection = await getCollection<Ticket>("tickets");
 
-    // Get user - try by id first, then by _id as fallback
-    let user = await usersCollection.findOne({ id: userId });
-    if (!user && ObjectId.isValid(userId)) {
-      user = await usersCollection.findOne({ _id: new ObjectId(userId) });
-    }
+    const user = await findUserDocumentByAnyId(usersCollection, userId);
 
     if (!user) {
       return {
@@ -2158,15 +2165,33 @@ export async function bulkUpdateUserStatus(
         ? { $set: set, $unset: { statusReason: "" } }
         : { $set: set };
 
+    const objectIds: ObjectId[] = [];
+    const linkedUserIds = new Set<string>();
+
+    for (const targetId of targetIds) {
+      const user = await findUserDocumentByAnyId(usersCollection, targetId);
+      if (!user?._id) continue;
+      objectIds.push(user._id as ObjectId);
+      for (const id of collectUserIdVariants(user)) {
+        linkedUserIds.add(id);
+      }
+    }
+
+    if (objectIds.length === 0) {
+      return { success: false, error: "لا يوجد المستخدم" };
+    }
+
     const result = await usersCollection.updateMany(
-      { id: { $in: targetIds } },
+      { _id: { $in: objectIds } },
       update,
     );
 
     // Immediately revoke sessions for disabled/banned users.
     if (status === "disabled" || status === "banned") {
       const sessionsCollection = await getCollection("session");
-      await sessionsCollection.deleteMany({ userId: { $in: targetIds } });
+      await sessionsCollection.deleteMany({
+        userId: { $in: Array.from(linkedUserIds) },
+      });
     }
 
     revalidatePath("/admin/users");

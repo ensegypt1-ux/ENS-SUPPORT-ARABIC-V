@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useFormatDate } from "@/components/providers/settings-provider";
 import type { User } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -64,11 +64,19 @@ interface ClientsTableProps {
 export function ClientsTable({ clients }: ClientsTableProps) {
   const formatDate = useFormatDate({ includeTime: false });
   const { data: session } = useSession();
+  const [localClients, setLocalClients] = useState(clients);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<ClientUser | null>(
     null,
   );
+
+  useEffect(() => {
+    setLocalClients(clients);
+  }, [clients]);
+
+  const getClientId = useCallback((client: ClientUser) => client.id, []);
+
   const {
     page,
     pageSize,
@@ -79,8 +87,17 @@ export function ClientsTable({ clients }: ClientsTableProps) {
     totalItems,
     goToPage,
     updatePageSize,
-  } = useDataTablePagination(clients);
-  const selection = useTableSelection(clients, (client) => client.id);
+  } = useDataTablePagination(localClients);
+  const selection = useTableSelection(localClients, getClientId);
+
+  const onCustomerDeleted = useCallback(
+    (userId: string) => {
+      setSelectedCustomer(null);
+      setLocalClients((prev) => prev.filter((client) => client.id !== userId));
+      selection.deselect(userId);
+    },
+    [selection],
+  );
   const canManageCustomer =
     (session?.user as { role?: string } | undefined)?.role === "admin";
   const getInitials = (name: string) => {
@@ -102,7 +119,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
     setDeleteDialogOpen(true);
   };
 
-  if (clients.length === 0) {
+  if (localClients.length === 0) {
     return (
       <div className="py-12 text-center text-muted-foreground">
         ملقيناش عملاء
@@ -327,6 +344,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
         onOpenChange={setDeleteDialogOpen}
         user={selectedCustomer}
         entityLabel="عميل"
+        onDeleted={onCustomerDeleted}
       />
     </>
   );
