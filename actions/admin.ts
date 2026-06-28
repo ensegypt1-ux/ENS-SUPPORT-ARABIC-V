@@ -27,7 +27,9 @@ import type {
 import {
   collectUserIdVariants,
   findUserDocumentByAnyId,
+  findUserDocumentByEmail,
   getUserIdsByRole,
+  normalizeUserEmail,
   serializeUserDocument,
   serializeUserDocuments,
 } from "@/lib/user-utils";
@@ -1481,93 +1483,191 @@ async function hashPassword(password: string): Promise<string> {
 export async function createUser(
   data: CreateUserFormData,
 ): Promise<ApiResponse<User>> {
+  const normalizedEmail = normalizeUserEmail(data.email);
+
   try {
     await requirePermissionOrThrow("users.manage", {
       message: "ممنوع: يتطلب صلاحية إدارة المستخدمين",
     });
 
-    // Validate input
-    const validatedData = createUserSchema.parse(data);
-
-    const usersCollection = await getCollection("user");
-
-    // Check if user with email already exists
-    const existingUser = await usersCollection.findOne({
-      email: validatedData.email,
+    const validatedData = createUserSchema.parse({
+      ...data,
+      email: normalizedEmail,
     });
 
+    const usersCollection = await getCollection("user");
+    const accountsCollection = await getCollection("account");
+    const sessionsCollection = await getCollection("session");
+
+    console.info("[createUser] start", {
+      email: normalizedEmail,
+      role: validatedData.role,
+    });
+
+    const existingUser = await findUserDocumentByEmail(
+      usersCollection,
+      normalizedEmail,
+    );
     if (existingUser) {
+      console.info("[createUser] duplicate email blocked", {
+        email: normalizedEmail,
+      });
       return {
         success: false,
         error: "يوجد مستخدم بهذا البريد الإلكتروني بالفعل",
       };
     }
 
-    // IMPORTANT: Delegate account + user creation to Better Auth itself
-    // so that all IDs, account linkage and hashing are 100% correct.
     const { auth } = await import("@/lib/auth");
     const { headers } = await import("next/headers");
 
-    // Create the auth user (does NOT affect current admin session in a Server Action)
-    await auth.api.signUpEmail({
-      body: {
-        email: validatedData.email,
-        password: validatedData.password,
-        name: validatedData.name,
-      },
-      // Passing headers is optional, but useful for ip/user-agent attribution
-      headers: await headers(),
-    });
+    console.info("[createUser] signUpEmail start", { email: normalizedEmail });
 
-    // Fetch the created user and set custom fields (role, country)
-    const created = await usersCollection.findOne({
-      email: validatedData.email,
-    });
-    if (!created) {
-      throw new Error("User was created by auth but could not be fetched back");
-    }
-
-    await usersCollection.updateOne(
-      { _id: created._id },
-      {
-        $set: {
-          id: created.id || created._id.toString(),
-          role: validatedData.role,
-          ...(validatedData.rbacRoleId
-            ? { rbacRoleId: validatedData.rbacRoleId }
-            : {}),
-          country: validatedData.country || "",
-          ...(validatedData.role === "support" &&
-          validatedData.departmentSlugs &&
-          validatedData.departmentSlugs.length > 0
-            ? { departmentSlugs: validatedData.departmentSlugs }
-            : {}),
-          updatedAt: new Date(),
+    let signUpResult: { user?: { id?: string; email?: string }; token?: string | null };
+    try {
+      signUpResult = await auth.api.signUpEmail({
+        body: {
+          email: normalizedEmail,
+          password: validatedData.password,
+          name: validatedData.name,
         },
-        ...(validatedData.rbacRoleId ? {} : { $unset: { rbacRoleId: "" } }),
-      },
-    );
+        headers: await headers(),
+      });
+    } catch (signUpError) {
+      console.error("[createUser] signUpEmail failed", {
+        email: normalizedEmail,
+        error: signUpError,
+      });
+      const message =
+        signUpError instanceof Error
+          ? signUpError.message
+          : "تعذّر إنشاء حساب المصادقة";
+      return { success: false, error: message };
+    }
 
-    const finalUser = await usersCollection.findOne({
-      _id: created._id,
+    console.info("[createUser] signUpEmail response", {
+      email: normalizedEmail,
+      userId: signUpResult?.user?.id ?? null,
+      hasToken: Boolean(signUpResult?.token),
     });
 
-    if (!finalUser) {
-      throw new Error("User was updated but could not be fetched back");
+    let created = signUpResult?.user?.id
+      ? await findUserDocumentByAnyId(usersCollection, signUpResult.user.id)
+      : null;
+
+    if (!created) {
+      created = await findUserDocumentByEmail(
+        usersCollection,
+        normalizedEmail,
+      );
     }
+
+    if (!created?._id) {
+      console.error("[createUser] user document not found after signUpEmail", {
+        email: normalizedEmail,
+        signUpUserId: signUpResult?.user?.id ?? null,
+      });
+      return {
+        success: false,
+        error:
+          "تعذّر العثور على المستخدم بعد إنشاء الحساب. تحقق من البريد الإلكتروني وحاول مرة أخرى.",
+      };
+    }
+
+    const createdObjectId = created._id as ObjectId;
+    const linkedUserIds = collectUserIdVariants(created);
+
+    const rollbackAuthUser = async (reason: string) => {
+      console.warn("[createUser] rolling back auth user", {
+        email: normalizedEmail,
+        reason,
+        userIds: linkedUserIds,
+      });
+      await accountsCollection.deleteMany({ userId: { $in: linkedUserIds } });
+      await sessionsCollection.deleteMany({ userId: { $in: linkedUserIds } });
+      await usersCollection.deleteOne({ _id: createdObjectId });
+    };
+
+    console.info("[createUser] profile update start", {
+      email: normalizedEmail,
+      userId: linkedUserIds,
+    });
+
+    try {
+      const updateResult = await usersCollection.updateOne(
+        { _id: createdObjectId },
+        {
+          $set: {
+            id: created.id || createdObjectId.toString(),
+            email: normalizedEmail,
+            role: validatedData.role,
+            emailVerified: true,
+            ...(validatedData.rbacRoleId
+              ? { rbacRoleId: validatedData.rbacRoleId }
+              : {}),
+            country: validatedData.country || "",
+            ...(validatedData.role === "support" &&
+            validatedData.departmentSlugs &&
+            validatedData.departmentSlugs.length > 0
+              ? { departmentSlugs: validatedData.departmentSlugs }
+              : {}),
+            updatedAt: new Date(),
+          },
+          ...(validatedData.rbacRoleId ? {} : { $unset: { rbacRoleId: "" } }),
+        },
+      );
+
+      if (updateResult.matchedCount === 0) {
+        await rollbackAuthUser("profile update matched no documents");
+        return {
+          success: false,
+          error: "تعذّر تحديث بيانات المستخدم بعد إنشاء الحساب",
+        };
+      }
+    } catch (updateError) {
+      console.error("[createUser] profile update failed", {
+        email: normalizedEmail,
+        error: updateError,
+      });
+      await rollbackAuthUser("profile update threw");
+      throw updateError;
+    }
+
+    const finalUser = await usersCollection.findOne({ _id: createdObjectId });
+    if (!finalUser) {
+      console.error("[createUser] final fetch failed", {
+        email: normalizedEmail,
+        _id: createdObjectId.toString(),
+      });
+      await rollbackAuthUser("final fetch failed");
+      return {
+        success: false,
+        error: "تعذّر تحميل المستخدم بعد إنشاء الحساب",
+      };
+    }
+
+    const serialized = serializeUserDocument(finalUser);
+    console.info("[createUser] success", {
+      email: normalizedEmail,
+      userId: serialized.id,
+      role: validatedData.role,
+    });
 
     revalidatePath("/admin/users");
     revalidatePath("/admin/customers");
 
     return {
       success: true,
-      data: serializeUserDocument(finalUser),
+      data: serialized,
       message: "المستخدم تم الإنشاء",
     };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "تعذّر إنشاء المستخدم";
-    console.error("Create user error:", error);
+    console.error("[createUser] unexpected error", {
+      email: normalizedEmail,
+      error,
+    });
     return {
       success: false,
       error: errorMessage,
@@ -1588,7 +1688,10 @@ export async function updateUser(
     });
 
     // Validate input
-    const validatedData = updateUserSchema.parse(data);
+    const validatedData = updateUserSchema.parse({
+      ...data,
+      email: normalizeUserEmail(data.email),
+    });
 
     const usersCollection = await getCollection("user");
 
@@ -1602,15 +1705,21 @@ export async function updateUser(
 
     const userObjectId = existingUser._id as ObjectId;
     const linkedUserIds = collectUserIdVariants(existingUser);
+    const normalizedEmail = validatedData.email;
+    const existingEmailNormalized = existingUser.email
+      ? normalizeUserEmail(String(existingUser.email))
+      : "";
 
-    // Check if email is being changed and if it's already in use
-    if (validatedData.email !== existingUser.email) {
-      const emailInUse = await usersCollection.findOne({
-        email: validatedData.email,
-        _id: { $ne: userObjectId },
-      });
+    if (normalizedEmail !== existingEmailNormalized) {
+      const emailInUse = await findUserDocumentByEmail(
+        usersCollection,
+        normalizedEmail,
+      );
 
-      if (emailInUse) {
+      if (
+        emailInUse &&
+        !(emailInUse._id as ObjectId).equals(userObjectId)
+      ) {
         return {
           success: false,
           error: "يوجد مستخدم بهذا البريد الإلكتروني بالفعل",
@@ -1621,7 +1730,7 @@ export async function updateUser(
     // Prepare update data
     const updateData: Record<string, unknown> = {
       name: validatedData.name,
-      email: validatedData.email,
+      email: normalizedEmail,
       role: validatedData.role,
       country: validatedData.country || "",
       updatedAt: new Date(),

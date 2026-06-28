@@ -29,6 +29,32 @@ export function collectUserIdVariants(user: UserIdentifiable): string[] {
   return Array.from(ids);
 }
 
+/** Canonical email form — Better Auth always stores lowercase. */
+export function normalizeUserEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Find a user by email (canonical lowercase first, then case-insensitive for
+ * legacy documents that predate normalization).
+ */
+export async function findUserDocumentByEmail(
+  usersCollection: Pick<Collection, "findOne">,
+  email: string,
+): Promise<UserLike | null> {
+  const normalized = normalizeUserEmail(email);
+  const byCanonical = await usersCollection.findOne({ email: normalized });
+  if (byCanonical) return byCanonical as UserLike;
+
+  const pattern = new RegExp(`^${escapeRegex(normalized)}$`, "i");
+  const byCaseInsensitive = await usersCollection.findOne({ email: pattern });
+  return byCaseInsensitive as UserLike | null;
+}
+
 /** Resolve a user by canonical `id` or Mongo `_id` (legacy records). */
 export async function findUserDocumentByAnyId(
   usersCollection: Pick<Collection, "findOne">,
