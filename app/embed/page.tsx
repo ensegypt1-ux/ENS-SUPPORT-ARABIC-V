@@ -13,9 +13,9 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { MessageCircle } from "lucide-react";
 import { WidgetLauncherSkeleton } from "@/components/ui/loading";
 import { ChatWindow } from "@/components/ai-chat/chat-window";
+import { WidgetLauncherButton } from "@/components/ai-chat/widget-launcher-button";
 import { cn } from "@/lib/utils";
 import type { AIChatbotPublicConfig } from "@/types";
 
@@ -82,14 +82,27 @@ export default function EmbedPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/ai/chat/config")
-      .then((r) => r.json())
-      .then((data: AIChatbotPublicConfig) => {
+
+    const loadConfig = async () => {
+      try {
+        const response = await fetch("/api/ai/chat/config", { cache: "no-store" });
+        const data = (await response.json()) as AIChatbotPublicConfig;
         if (!cancelled) setConfig(data);
-      })
-      .catch(() => {});
+      } catch {
+        /* ignore */
+      }
+    };
+
+    void loadConfig();
+
+    const onFocus = () => {
+      void loadConfig();
+    };
+    window.addEventListener("focus", onFocus);
+
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", onFocus);
     };
   }, []);
 
@@ -153,14 +166,14 @@ export default function EmbedPage() {
         </div>
 
         {!open && (
-          <button
-            type="button"
+          <WidgetLauncherButton
+            headerAvatarUrl={config.headerAvatarUrl}
+            primaryColor={config.primaryColor}
             onClick={() => setOpen(true)}
-            aria-label="فتح المحادثة"
-            className="group flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_8px_32px_-8px_rgba(37,99,235,0.55)] ring-4 ring-primary/10 transition-all duration-300 hover:scale-[1.04] hover:shadow-[0_12px_40px_-8px_rgba(37,99,235,0.6)] active:scale-[0.98]"
-          >
-            <MessageCircle className="h-6 w-6 transition-transform duration-300 group-hover:scale-105" />
-          </button>
+            variant="embed"
+            ariaLabel="فتح المحادثة"
+            title="فتح المحادثة"
+          />
         )}
       </div>
     </>

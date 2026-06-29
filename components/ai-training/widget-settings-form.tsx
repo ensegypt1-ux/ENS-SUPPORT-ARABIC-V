@@ -24,6 +24,7 @@ import { PanelCardHeading, PanelFormActions } from "@/components/ui/panel-form";
 import { updateAISettings } from "@/actions/ai-training";
 import { WidgetAvatarUploader } from "@/components/ai-training/widget-avatar-uploader";
 import { WidgetPreview } from "@/components/ai-chat/widget-preview";
+import { WidgetLauncherButton } from "@/components/ai-chat/widget-launcher-button";
 import {
   DEFAULT_WIDGET_ACCENT,
   DEFAULT_WIDGET_HEIGHT,
@@ -35,6 +36,7 @@ import {
   MIN_WIDGET_WIDTH,
 } from "@/lib/ai/widget-theme";
 import type { AISettingsPublic } from "@/types";
+import { cn } from "@/lib/utils";
 
 type WidgetSizeParseResult =
   | { ok: true; width: number; height: number }
@@ -250,7 +252,8 @@ export function WidgetSettingsForm({
                 onChange={setHeaderAvatarUrl}
               />
               <p className="text-xs text-muted-foreground">
-                تُعرض في رأس المحادثة. تُستبدل بأيقونة متلألئة إن تُركت فارغة.
+                تُعرض في رأس المحادثة وزر المحادثة العائم. تُستبدل بأيقونة
+                المحادثة الافتراضية إن تُركت فارغة.
               </p>
             </div>
           </CardContent>
@@ -266,18 +269,32 @@ export function WidgetSettingsForm({
             />
           </CardHeader>
           <CardContent className="flex max-h-[48rem] justify-center overflow-auto rounded-xl bg-muted/30 py-6">
-            <WidgetPreview
-              headerTitle={headerTitle || settings.businessName}
-              welcomeMessage={c.welcomeMessage}
-              placeholder={c.placeholder}
-              footerText={footerText}
-              showPoweredBy={showPoweredBy}
-              primaryColor={primaryColor}
-              accentColor={accentColor}
-              headerAvatarUrl={headerAvatarUrl}
-              widgetWidth={previewDimension(widgetWidth, savedWidgetWidth)}
-              widgetHeight={previewDimension(widgetHeight, savedWidgetHeight)}
-            />
+            <div
+              className={cn(
+                "flex w-full max-w-full flex-col gap-4",
+                position === "bottom-left" ? "items-start" : "items-end"
+              )}
+            >
+              <WidgetLauncherButton
+                headerAvatarUrl={headerAvatarUrl}
+                primaryColor={primaryColor}
+                onClick={() => {}}
+                variant="site"
+                className="pointer-events-none"
+              />
+              <WidgetPreview
+                headerTitle={headerTitle || settings.businessName}
+                welcomeMessage={c.welcomeMessage}
+                placeholder={c.placeholder}
+                footerText={footerText}
+                showPoweredBy={showPoweredBy}
+                primaryColor={primaryColor}
+                accentColor={accentColor}
+                headerAvatarUrl={headerAvatarUrl}
+                widgetWidth={previewDimension(widgetWidth, savedWidgetWidth)}
+                widgetHeight={previewDimension(widgetHeight, savedWidgetHeight)}
+              />
+            </div>
           </CardContent>
         </Card>
       </div>
