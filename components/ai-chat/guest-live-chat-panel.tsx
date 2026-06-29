@@ -16,6 +16,7 @@ import {
   WidgetInlineNotice,
   formatWidgetTime,
 } from "@/components/ai-chat/widget-primitives";
+import { EndLiveChatButton } from "@/components/ai-chat/end-live-chat-button";
 
 interface GuestLiveChatPanelProps {
   messages: Message[];
@@ -38,6 +39,7 @@ interface GuestLiveChatPanelProps {
     guestPhone: string;
   }) => Promise<void>;
   onTyping?: (isTyping: boolean) => void;
+  onEndLiveChat?: () => Promise<{ success: boolean; error?: string }>;
 }
 
 function WaitingForAgentState() {
@@ -241,6 +243,7 @@ export function GuestLiveChatPanel({
   onUpdateProfile,
   onStartLiveChat,
   onTyping,
+  onEndLiveChat,
 }: GuestLiveChatPanelProps) {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -387,6 +390,11 @@ export function GuestLiveChatPanel({
               <WidgetInlineNotice tone="error">{error}</WidgetInlineNotice>
             </div>
           )}
+          {onEndLiveChat ? (
+            <div className="mb-2">
+              <EndLiveChatButton onConfirm={onEndLiveChat} variant="panel" />
+            </div>
+          ) : null}
           {composer}
         </div>
       </div>

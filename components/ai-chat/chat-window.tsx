@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Headset, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { resolveWidgetTheme } from "@/lib/ai/widget-theme";
 import type { AIChatbotPublicConfig } from "@/types";
@@ -15,6 +16,7 @@ import {
   useSupportOnline,
 } from "./support-online-context";
 import { useGuestLiveChat } from "./use-guest-live-chat";
+import { EndLiveChatButton } from "./end-live-chat-button";
 import { WidgetWelcomeActions } from "./widget-welcome";
 import {
   WidgetComposer,
@@ -150,6 +152,7 @@ function ChatWindowBody({
     messages,
     addMessage,
     updateMessage,
+    clear,
     getRecentHistory,
   } = session;
 
@@ -171,6 +174,7 @@ function ChatWindowBody({
     storageNamespace,
     guestLiveChatEnabled: config.guestLiveChatEnabled,
   });
+  const { endLiveChat } = guestLiveChat;
 
   const hasLiveChatSession = Boolean(guestLiveChat.session?.guestPhone?.trim());
   const showLiveChatPanel =
@@ -386,6 +390,19 @@ function ChatWindowBody({
     }
   };
 
+  const handleEndLiveChat = useCallback(async () => {
+    const result = await endLiveChat();
+    if (result.success) {
+      setShowTicketForm(false);
+      setError(null);
+      clear();
+      toast.success("تم إنهاء المحادثة المباشرة");
+    } else if (result.error) {
+      toast.error(result.error);
+    }
+    return result;
+  }, [clear, endLiveChat]);
+
   const headerStatusDot = hasLiveChatSession
     ? guestLiveChat.isConnected
       ? ("online" as const)
@@ -409,6 +426,11 @@ function ChatWindowBody({
           avatarFallback={<Sparkles className="h-4 w-4" />}
           onClose={onClose}
           statusDot={headerStatusDot}
+          headerActions={
+            hasLiveChatSession ? (
+              <EndLiveChatButton onConfirm={handleEndLiveChat} variant="header" />
+            ) : undefined
+          }
         />
 
         <div
@@ -473,6 +495,7 @@ function ChatWindowBody({
                   }
                 }}
                 onTyping={guestLiveChat.setTyping}
+                onEndLiveChat={handleEndLiveChat}
               />
             )}
 

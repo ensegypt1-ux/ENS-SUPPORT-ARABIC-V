@@ -31,6 +31,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CATEGORY_LABELS, FORM_UI, TICKET_UI, UI } from "@/lib/strings";
 import { adminTableHeadClass } from "@/components/ui/arabic-ux";
+import {
+  adminTableShellClass,
+  adminTableShellDir,
+} from "@/components/ui/admin-table-shell";
 
 interface TicketsTableProps {
   tickets: Ticket[];
@@ -62,6 +66,9 @@ export function TicketsTable({
   const enableBulkActions =
     hrefBase.startsWith("/admin") || hrefBase.startsWith("/support-agent");
 
+  const ticketHref = (ticket: Ticket) =>
+    getHref ? getHref(ticket) : `${hrefBase}/${ticket._id.toString()}`;
+
   if (tickets.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -84,12 +91,45 @@ export function TicketsTable({
           />
         </DataTableBulkActions>
       )}
-      <div className="rounded-lg overflow-hidden border border-border bg-card/50 backdrop-blur-sm">
+      <div className={adminTableShellClass()} style={adminTableShellDir}>
         <Table>
           <TableHeader>
             <TableRow className="border-b border-border bg-muted/20 hover:bg-muted/20">
+              <TableHead
+                className={cn(adminTableHeadClass, "w-[100px]")}
+                dir="rtl"
+              >
+                {UI.actions}
+              </TableHead>
+              <TableHead
+                className={cn("hidden md:table-cell", adminTableHeadClass)}
+                dir="rtl"
+              >
+                {TICKET_UI.lastActivity}
+              </TableHead>
+              <TableHead className={adminTableHeadClass} dir="rtl">
+                {UI.status}
+              </TableHead>
+              <TableHead className={adminTableHeadClass} dir="rtl">
+                {UI.priority}
+              </TableHead>
+              <TableHead
+                className={cn("hidden lg:table-cell", adminTableHeadClass)}
+                dir="rtl"
+              >
+                {TICKET_UI.category}
+              </TableHead>
+              <TableHead
+                className={cn("hidden xl:table-cell", adminTableHeadClass)}
+                dir="rtl"
+              >
+                {TICKET_UI.product}
+              </TableHead>
+              <TableHead className={adminTableHeadClass} dir="rtl">
+                {UI.tickets}
+              </TableHead>
               {enableBulkActions && (
-                <TableHead className="h-12 px-4 w-[50px]">
+                <TableHead className="h-12 w-[50px] px-4" dir="rtl">
                   <Checkbox
                     aria-label={UI.selectAll}
                     checked={selection.headerCheckedState}
@@ -98,27 +138,6 @@ export function TicketsTable({
                   />
                 </TableHead>
               )}
-              <TableHead className={adminTableHeadClass}>
-                {UI.tickets}
-              </TableHead>
-              <TableHead className={cn("hidden xl:table-cell", adminTableHeadClass)}>
-                {TICKET_UI.product}
-              </TableHead>
-              <TableHead className={cn("hidden lg:table-cell", adminTableHeadClass)}>
-                {TICKET_UI.category}
-              </TableHead>
-              <TableHead className={adminTableHeadClass}>
-                {UI.priority}
-              </TableHead>
-              <TableHead className={adminTableHeadClass}>
-                {UI.status}
-              </TableHead>
-              <TableHead className={cn("hidden md:table-cell", adminTableHeadClass)}>
-                {TICKET_UI.lastActivity}
-              </TableHead>
-              <TableHead className={cn(adminTableHeadClass, "w-[100px]")}>
-                {UI.actions}
-              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="bg-background/50">
@@ -138,63 +157,8 @@ export function TicketsTable({
                     "bg-primary/5",
                 )}
               >
-                {enableBulkActions && (
-                  <TableCell className="py-3.5 px-4">
-                    <Checkbox
-                      aria-label={`تحديد التذكرة ${ticket.ticketNumber}`}
-                      checked={selection.isSelected(ticket._id.toString())}
-                      onCheckedChange={() =>
-                        selection.toggle(ticket._id.toString())
-                      }
-                      className="border-border/60"
-                    />
-                  </TableCell>
-                )}
-                <TableCell className="py-3.5 px-4">
-                  <Link
-                    href={
-                      getHref
-                        ? getHref(ticket)
-                        : `${hrefBase}/${ticket._id.toString()}`
-                    }
-                    className="block"
-                  >
-                    <div className="min-w-0 max-w-[180px]">
-                      <p className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
-                        {ticket.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground/60 mt-0.5 font-mono">
-                        {ticket.ticketNumber}
-                      </p>
-                    </div>
-                  </Link>
-                </TableCell>
-                <TableCell className="hidden xl:table-cell py-3.5 px-4">
-                  <span className="text-sm text-foreground/90 block truncate max-w-[120px]">
-                    {ticket.productName || "—"}
-                  </span>
-                </TableCell>
-                <TableCell className="hidden lg:table-cell py-3.5 px-4">
-                  <span className="text-sm text-foreground/90">
-                    {CATEGORY_LABELS[ticket.category] || ticket.category}
-                  </span>
-                </TableCell>
-                <TableCell className="py-3.5 px-4">
-                  <PriorityBadge priority={ticket.priority} />
-                </TableCell>
-                <TableCell className="py-3.5 px-4">
-                  <StatusBadge status={ticket.status} />
-                </TableCell>
-                <TableCell className="hidden md:table-cell py-3.5 px-4">
-                  <span className="text-sm text-muted-foreground/70">
-                    {formatDistanceToNow(new Date(ticket.lastActivityAt), {
-                      addSuffix: true,
-                      locale: arSA,
-                    })}
-                  </span>
-                </TableCell>
-                <TableCell className="py-3.5 px-4">
-                  <div className="flex items-center gap-1.5">
+                <TableCell className="px-4 py-3.5" dir="rtl">
+                  <div className="flex items-center justify-start gap-1.5">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -209,11 +173,7 @@ export function TicketsTable({
                       <DropdownMenuContent align="end" className="w-40">
                         <DropdownMenuItem asChild>
                           <Link
-                            href={
-                              getHref
-                                ? getHref(ticket)
-                                : `${hrefBase}/${ticket._id.toString()}`
-                            }
+                            href={ticketHref(ticket)}
                             className="cursor-pointer"
                           >
                             <ExternalLink className="me-2 h-4 w-4" />
@@ -224,6 +184,63 @@ export function TicketsTable({
                     </DropdownMenu>
                   </div>
                 </TableCell>
+                <TableCell
+                  className="hidden md:table-cell px-4 py-3.5"
+                  dir="rtl"
+                >
+                  <span className="text-sm text-muted-foreground/70">
+                    {formatDistanceToNow(new Date(ticket.lastActivityAt), {
+                      addSuffix: true,
+                      locale: arSA,
+                    })}
+                  </span>
+                </TableCell>
+                <TableCell className="px-4 py-3.5" dir="rtl">
+                  <StatusBadge status={ticket.status} />
+                </TableCell>
+                <TableCell className="px-4 py-3.5" dir="rtl">
+                  <PriorityBadge priority={ticket.priority} />
+                </TableCell>
+                <TableCell
+                  className="hidden lg:table-cell px-4 py-3.5"
+                  dir="rtl"
+                >
+                  <span className="text-sm text-foreground/90">
+                    {CATEGORY_LABELS[ticket.category] || ticket.category}
+                  </span>
+                </TableCell>
+                <TableCell
+                  className="hidden xl:table-cell px-4 py-3.5"
+                  dir="rtl"
+                >
+                  <span className="text-sm text-foreground/90 block truncate max-w-[120px]">
+                    {ticket.productName || "—"}
+                  </span>
+                </TableCell>
+                <TableCell className="px-4 py-3.5" dir="rtl">
+                  <Link href={ticketHref(ticket)} className="block">
+                    <div className="min-w-0 max-w-[180px]">
+                      <p className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                        {ticket.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground/60 mt-0.5 font-mono">
+                        {ticket.ticketNumber}
+                      </p>
+                    </div>
+                  </Link>
+                </TableCell>
+                {enableBulkActions && (
+                  <TableCell className="px-4 py-3.5" dir="rtl">
+                    <Checkbox
+                      aria-label={`تحديد التذكرة ${ticket.ticketNumber}`}
+                      checked={selection.isSelected(ticket._id.toString())}
+                      onCheckedChange={() =>
+                        selection.toggle(ticket._id.toString())
+                      }
+                      className="border-border/60"
+                    />
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>

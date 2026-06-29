@@ -50,18 +50,41 @@ export function PageTabsHeader({
   tabsListClassName,
   tabsTriggerClassName,
 }: PageTabsHeaderProps) {
-  const hasRightSection = showSearch || showPriorityFilter || rightActions;
+  const hasToolsSection = showSearch || showPriorityFilter || rightActions;
 
   return (
     <div
       className={cn(
-        "grid gap-3 md:grid-cols-[auto_minmax(0,1fr)] md:items-center",
-        className
+        "flex flex-col gap-3 md:flex-row md:items-center md:justify-between",
+        className,
       )}
-      style={{ direction: "ltr" }}
     >
-      {hasRightSection ? (
-        <div className="flex w-full flex-col gap-2 pb-3 sm:flex-row sm:items-center md:col-start-1 md:row-start-1 md:w-auto md:pb-0">
+      <div className="w-full overflow-x-auto md:min-w-0 md:flex-1">
+        <TabsList
+          className={cn(
+            "h-auto min-w-max flex-nowrap justify-start gap-6 rounded-none border-0 bg-transparent",
+            tabsListClassName,
+          )}
+        >
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className={cn(baseTriggerClasses, tabsTriggerClassName)}
+            >
+              {tab.label}
+              {typeof tab.count === "number" && (
+                <span className="ms-1.5 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground transition-colors group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
+                  {tab.count}
+                </span>
+              )}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
+
+      {hasToolsSection ? (
+        <div className="flex w-full shrink-0 flex-col gap-2 pb-3 sm:flex-row sm:items-center md:w-auto md:pb-0">
           {showSearch && (
             <SearchInput
               placeholder={searchPlaceholder}
@@ -77,33 +100,11 @@ export function PageTabsHeader({
             />
           )}
 
-          {rightActions ? <div className="w-full sm:w-auto">{rightActions}</div> : null}
+          {rightActions ? (
+            <div className="w-full sm:w-auto">{rightActions}</div>
+          ) : null}
         </div>
       ) : null}
-
-      <div className="w-full overflow-x-auto md:col-start-2 md:row-start-1">
-        <TabsList
-          className={cn(
-            "bg-transparent h-auto gap-6 rounded-none justify-start border-0 flex-nowrap min-w-max",
-            tabsListClassName
-          )}
-        >
-          {tabs.map((tab) => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              className={cn(baseTriggerClasses, tabsTriggerClassName)}
-            >
-              {tab.label}
-              {typeof tab.count === "number" && (
-                <span className="ms-1.5 px-2 py-0.5 text-xs rounded-full bg-muted text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary font-semibold transition-colors">
-                  {tab.count}
-                </span>
-              )}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </div>
     </div>
   );
 }

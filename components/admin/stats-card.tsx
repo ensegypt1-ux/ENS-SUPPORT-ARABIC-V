@@ -30,17 +30,17 @@ export function StatsCard({
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-3" dir="rtl">
-        <p className="truncate text-sm font-medium text-muted-foreground">
-          {title}
-        </p>
+      <div className="flex items-start gap-3">
         <Icon
           className="h-5 w-5 shrink-0 text-muted-foreground"
           strokeWidth={1.75}
         />
+        <p className="min-w-0 flex-1 truncate text-sm font-medium text-muted-foreground text-start">
+          {title}
+        </p>
       </div>
 
-      <div>
+      <div className="text-start">
         <h3 className="text-[26px] font-bold leading-none tracking-tight text-foreground">
           {value}
         </h3>

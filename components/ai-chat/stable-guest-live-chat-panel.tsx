@@ -25,6 +25,7 @@ type StableGuestLiveChatPanelProps = {
     guestPhone: string;
   }) => Promise<void>;
   onTyping?: (isTyping: boolean) => void;
+  onEndLiveChat?: () => Promise<{ success: boolean; error?: string }>;
 };
 
 export const StableGuestLiveChatPanel = memo(function StableGuestLiveChatPanel({
@@ -38,6 +39,7 @@ export const StableGuestLiveChatPanel = memo(function StableGuestLiveChatPanel({
   onUpdateProfile,
   onStartLiveChat,
   onTyping,
+  onEndLiveChat,
 }: StableGuestLiveChatPanelProps) {
   return (
     <GuestLiveChatPanel
@@ -53,6 +55,7 @@ export const StableGuestLiveChatPanel = memo(function StableGuestLiveChatPanel({
       onUpdateProfile={onUpdateProfile}
       onStartLiveChat={onStartLiveChat}
       onTyping={onTyping}
+      onEndLiveChat={onEndLiveChat}
     />
   );
 });

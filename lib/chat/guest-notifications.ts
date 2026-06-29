@@ -4,7 +4,11 @@ import {
   emitGuestMessageCreated,
 } from "@/lib/socket/server";
 import { createBulkNotifications } from "@/lib/notifications";
-import { getAvailableStaffUserIds } from "@/lib/chat/availability";
+import {
+  getAvailableStaffUserIds,
+  getStaffMembers,
+} from "@/lib/chat/availability";
+import { getConversationDocument } from "@/lib/chat/server";
 import type { Message } from "@/types/realtime";
 
 export async function notifyStaffOfGuestConversation(
@@ -27,6 +31,66 @@ export async function notifyStaffOfGuestConversation(
         },
       });
     }
+  }
+}
+
+export async function notifyStaffOfGuestConversationEnded(
+  conversationId: string,
+  guestName?: string
+) {
+  await emitConversationSummaryToConnectedStaffInbox(conversationId);
+  emitGuestInboxChanged(conversationId);
+
+  const conversation = await getConversationDocument(conversationId);
+  const staff = await getStaffMembers();
+  const recipientIds = new Set<string>();
+
+  if (conversation?.assignedAgentId) {
+    recipientIds.add(conversation.assignedAgentId);
+  }
+
+  for (const member of staff) {
+    recipientIds.add(member.userId);
+  }
+
+  if (recipientIds.size === 0) return;
+
+  const roleByUserId = new Map(staff.map((member) => [member.userId, member.role]));
+  const adminRecipients: string[] = [];
+  const supportRecipients: string[] = [];
+
+  for (const userId of recipientIds) {
+    if (roleByUserId.get(userId) === "support") {
+      supportRecipients.push(userId);
+    } else {
+      adminRecipients.push(userId);
+    }
+  }
+
+  const body = `${guestName || "زائر"} أنهى المحادثة المباشرة`;
+
+  if (adminRecipients.length > 0) {
+    await createBulkNotifications(adminRecipients, {
+      type: "guest_chat",
+      title: "أنهى الزائر المحادثة",
+      body,
+      data: {
+        conversationId,
+        url: `/admin/messages?conversation=${conversationId}`,
+      },
+    });
+  }
+
+  if (supportRecipients.length > 0) {
+    await createBulkNotifications(supportRecipients, {
+      type: "guest_chat",
+      title: "أنهى الزائر المحادثة",
+      body,
+      data: {
+        conversationId,
+        url: `/support-agent/messages?conversation=${conversationId}`,
+      },
+    });
   }
 }
 

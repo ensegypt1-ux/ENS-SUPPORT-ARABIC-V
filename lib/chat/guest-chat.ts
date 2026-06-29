@@ -318,6 +318,37 @@ export function guestDisplayName(conversation: ConversationDocument): string {
   return conversation.guestName?.trim() || "زائر";
 }
 
+export async function closeGuestConversationByGuest(input: {
+  conversationId: string;
+  guestSessionId: string;
+  guestAccessToken: string;
+}): Promise<{ success: boolean; error?: string; guestName?: string }> {
+  const conversation = await validateGuestAccess(input);
+  if (!conversation) {
+    return { success: false, error: "غير مصرّح" };
+  }
+
+  if (conversation.status === "closed") {
+    return { success: true, guestName: guestDisplayName(conversation) };
+  }
+
+  const conversationsCollection =
+    await getCollection<ConversationDocument>("conversations");
+
+  await conversationsCollection.updateOne(
+    { id: input.conversationId },
+    {
+      $set: {
+        status: "closed" as GuestConversationStatus,
+        closedAt: new Date(),
+        updatedAt: new Date(),
+      },
+    }
+  );
+
+  return { success: true, guestName: guestDisplayName(conversation) };
+}
+
 export async function archiveGuestConversation(
   conversationId: string,
   agentUserId: string,

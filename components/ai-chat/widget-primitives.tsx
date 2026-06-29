@@ -58,6 +58,7 @@ export function WidgetHeader({
   avatarFallback,
   onClose,
   statusDot,
+  headerActions,
 }: {
   theme: WidgetTheme;
   title: string;
@@ -66,6 +67,7 @@ export function WidgetHeader({
   avatarFallback: ReactNode;
   onClose: () => void;
   statusDot?: "online" | "away" | "offline" | "connecting";
+  headerActions?: ReactNode;
 }) {
   return (
     <header
@@ -112,15 +114,18 @@ export function WidgetHeader({
           ) : null}
         </div>
 
-        <button
-          type="button"
-          onClick={onClose}
-          title="إغلاق"
-          aria-label="إغلاق المحادثة"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/12 text-white transition-all duration-200 hover:bg-white/22 active:scale-95"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {headerActions}
+          <button
+            type="button"
+            onClick={onClose}
+            title="تصغير المحادثة"
+            aria-label="تصغير المحادثة — تبقى المحادثة المفتوحة"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/12 text-white transition-all duration-200 hover:bg-white/22 active:scale-95"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </header>
   );

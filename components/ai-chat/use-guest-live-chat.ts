@@ -672,6 +672,44 @@ export function useGuestLiveChat(options: {
     [session, socket]
   );
 
+  const endLiveChat = useCallback(async (): Promise<{
+    success: boolean;
+    error?: string;
+  }> => {
+    const active = sessionRef.current;
+    if (!active) {
+      return { success: false, error: "لا توجد محادثة مباشرة نشطة" };
+    }
+
+    setError(null);
+
+    try {
+      const res = await fetch("/api/guest/chat/session", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationId: active.conversationId,
+          guestSessionId: active.guestSessionId,
+          guestAccessToken: active.guestAccessToken,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        const message = data.error || "تعذّر إنهاء المحادثة";
+        setError(message);
+        return { success: false, error: message };
+      }
+
+      invalidateSession();
+      return { success: true };
+    } catch {
+      const message = "خطأ في الشبكة";
+      setError(message);
+      return { success: false, error: message };
+    }
+  }, [invalidateSession]);
+
   return {
     session,
     pendingLiveChat,
@@ -685,6 +723,7 @@ export function useGuestLiveChat(options: {
     sendMessage,
     updateProfile,
     setTyping,
+    endLiveChat,
     clearPendingLiveChat,
     reloadMessages: () =>
       session ? loadMessages(session) : Promise.resolve(false),
