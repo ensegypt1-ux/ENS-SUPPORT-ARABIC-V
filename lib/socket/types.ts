@@ -41,6 +41,7 @@ export interface ServerToClientEvents {
     count: number;
     availableCount: number;
     connectedCount: number;
+    readyCount?: number;
   }) => void;
   "chat:availability:changed": (payload: {
     userId: string;
@@ -96,4 +97,6 @@ export type InterServerEvents = Record<string, never>;
 export interface SocketData {
   user?: SocketSessionUser;
   guest?: SocketGuestUser;
+  /** Read-only public listener for customer-facing support availability. */
+  publicSupport?: boolean;
 }

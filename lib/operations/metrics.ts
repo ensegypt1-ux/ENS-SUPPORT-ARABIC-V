@@ -1,6 +1,7 @@
 import { startOfDay, subDays } from "date-fns";
 
 import type { ConversationDocument } from "@/lib/chat/server";
+import { isGuestConversationVisibleInStaffInbox } from "@/lib/chat/guest-inbox";
 import { getCollection, getDb } from "@/lib/db";
 import { getSystemSettings } from "@/lib/settings-utils";
 import { isQdrantConfigured, qdrantHealth } from "@/lib/ai/qdrant";
@@ -108,22 +109,21 @@ async function buildServiceHealth(): Promise<ServiceHealthItem[]> {
     });
   }
 
-  const onlineStaff = await getConnectedStaffUserIds();
   const availability = await getSupportAvailabilitySnapshot();
   items.push({
     id: "support_presence",
     name: "المحادثة المباشرة",
     status:
-      availability.count > 0
+      availability.readyCount > 0
         ? "healthy"
         : availability.availableCount > 0
           ? "degraded"
           : "unknown",
     detail:
-      availability.count > 0
-        ? `${availability.count} موظف جاهز للمحادثة المباشرة`
+      availability.readyCount > 0
+        ? `${availability.readyCount} موظف متصل ومتاح لاستقبال المحادثات`
         : availability.availableCount > 0
-          ? `${availability.availableCount} موظف متاح لكن غير متصل`
+          ? `${availability.availableCount} موظف فعّل التوفر لكن غير متصل حاليًا`
           : "لا يوجد موظفون متاحون للمحادثة المباشرة",
     checkedAt,
   });
@@ -305,7 +305,10 @@ async function buildActivityFeed(limit = 20): Promise<ActivityFeedItem[]> {
       .limit(limit)
       .toArray(),
     conversationsCollection
-      .find({ source: "guest_widget" })
+      .find({
+        source: "guest_widget",
+        lastMessageAt: { $ne: null },
+      })
       .sort({ createdAt: -1 })
       .limit(8)
       .toArray(),
@@ -368,7 +371,9 @@ async function buildActivityFeed(limit = 20): Promise<ActivityFeedItem[]> {
     };
   });
 
-  const guestItems: ActivityFeedItem[] = recentGuestChats.map((conversation) => ({
+  const guestItems: ActivityFeedItem[] = recentGuestChats
+    .filter((conversation) => isGuestConversationVisibleInStaffInbox(conversation))
+    .map((conversation) => ({
     id: `guest-${conversation.id}`,
     type: "guest_chat",
     title: "محادثة زائر جديدة",
@@ -545,7 +550,7 @@ export async function buildOperationsCenterSnapshot(): Promise<OperationsCenterS
     }),
     conversationsCollection.countDocuments({
       source: "guest_widget",
-      createdAt: { $gte: startOfToday },
+      lastMessageAt: { $gte: startOfToday },
     }),
     getConnectedStaffUserIds(),
     getAvailableStaffUserIds(),
@@ -592,11 +597,11 @@ export async function buildOperationsCenterSnapshot(): Promise<OperationsCenterS
       resolvedToday,
     },
     agents: {
-      availableForChatCount: supportAvailability.count,
+      availableForChatCount: supportAvailability.readyCount,
       connectedCount: supportAvailability.connectedCount,
       availableOptInCount: supportAvailability.availableCount,
       totalStaff: staffMembers.length,
-      onlineCount: supportAvailability.count,
+      onlineCount: supportAvailability.availableCount,
       rows: agentRows,
     },
     responseTimes,

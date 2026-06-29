@@ -10,6 +10,7 @@ import type {
 type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
 let socketInstance: AppSocket | null = null;
+let publicSupportSocketInstance: AppSocket | null = null;
 
 export function getSocketClient() {
   if (!socketInstance) {
@@ -26,4 +27,23 @@ export function getSocketClient() {
   }
 
   return socketInstance;
+}
+
+/** Anonymous widget listeners — availability updates only, no staff/guest auth. */
+export function getPublicSupportSocket() {
+  if (!publicSupportSocketInstance) {
+    publicSupportSocketInstance = io({
+      path: "/socket.io",
+      autoConnect: false,
+      withCredentials: true,
+      auth: { type: "public" },
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+    });
+  }
+
+  return publicSupportSocketInstance;
 }

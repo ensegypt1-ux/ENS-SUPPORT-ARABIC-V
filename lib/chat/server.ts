@@ -5,6 +5,10 @@ import {
   guestParticipantId,
   isGuestParticipantId,
 } from "@/lib/chat/participant-ids";
+import {
+  guestStaffInboxVisibilityClause,
+  isGuestConversationVisibleInStaffInbox,
+} from "@/lib/chat/guest-inbox";
 import { FALLBACKS } from "@/lib/strings";
 import type { User, UserRole } from "@/types";
 import type {
@@ -43,6 +47,8 @@ export type ConversationDocument = {
   assignedAgentId?: string | null;
   claimedAt?: Date;
   closedAt?: Date;
+  /** True until the guest sends their first message; hidden from staff inbox while true. */
+  awaitingFirstMessage?: boolean;
 };
 
 type MessageDocument = {
@@ -297,6 +303,9 @@ export async function ensureConversationAccess(
   }
 
   if (conversation.source === "guest_widget") {
+    if (!isGuestConversationVisibleInStaffInbox(conversation)) {
+      return null;
+    }
     if (role === "admin") return conversation;
     if (
       role === "support" &&
@@ -342,6 +351,7 @@ function buildConversationQueryForUser(
   return {
     $and: [
       participantQuery,
+      guestStaffInboxVisibilityClause(),
       {
         $or: [
           { source: { $ne: "guest_widget" as const } },

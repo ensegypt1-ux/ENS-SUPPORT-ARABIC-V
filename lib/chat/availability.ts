@@ -13,14 +13,19 @@ export interface LiveChatAvailabilityRecord {
 }
 
 export type SupportAvailabilitySnapshot = {
-  /** True when at least one agent is available AND connected (customer-facing). */
+  /**
+   * Customer-facing live chat availability. True when at least one staff member
+   * has explicitly opted in via the availability toggle (not login/presence).
+   */
   online: boolean;
-  /** Agents ready to take live chat right now. */
+  /** Staff with the availability toggle set to "available". */
   count: number;
-  /** Agents who opted in to live chat (may be disconnected). */
+  /** Same as `count` — staff who opted in to live chat. */
   availableCount: number;
-  /** Staff with an active platform connection. */
+  /** Staff with an active platform socket connection (diagnostics only). */
   connectedCount: number;
+  /** Staff available AND connected — can take a chat right now (ops/internal). */
+  readyCount: number;
 };
 
 const STAFF_ROLES: UserRole[] = ["admin", "support"];
@@ -193,14 +198,15 @@ export async function getSupportAvailabilitySnapshot(): Promise<SupportAvailabil
   ]);
 
   return {
-    online: readyIds.length > 0,
-    count: readyIds.length,
+    online: availableIds.length > 0,
+    count: availableIds.length,
     availableCount: availableIds.length,
     connectedCount: connectedIds.length,
+    readyCount: readyIds.length,
   };
 }
 
-/** Customer-facing gate for new guest live chat sessions. */
+/** Customer-facing gate for new guest live chat sessions (toggle opt-in only). */
 export async function getSupportOnlineStatus(): Promise<{
   online: boolean;
   count: number;

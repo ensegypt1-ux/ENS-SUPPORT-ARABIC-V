@@ -190,10 +190,7 @@ async function finishIndex(
       const ok = await upsertKnowledgeEmbedding({
         sourceType: "web_page",
         sourceId: `${id}:${pageIdx}:${chunkIdx}`,
-        title:
-          chunks.length > 1
-            ? `${page.title} (part ${chunkIdx + 1})`
-            : page.title,
+        title: page.title,
         content: chunks[chunkIdx],
         webSourceId: id,
         url: page.url,

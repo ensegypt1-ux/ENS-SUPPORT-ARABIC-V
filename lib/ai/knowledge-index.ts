@@ -11,6 +11,7 @@ import type {
   Ticket,
 } from "@/types";
 import { getOrCreateAISettings } from "@/lib/ai/settings-store";
+import { kbArticlePublicPath } from "@/lib/ai/citation-utils";
 import {
   generateEmbeddingMeta,
   generateEmbeddingsBatch,
@@ -323,10 +324,7 @@ export async function indexFileChunks(params: {
       _id: new ObjectId(),
       sourceType: "file",
       sourceId: `${params.fileId}:${i + j}`,
-      title:
-        chunks.length > 1
-          ? `${params.title} (part ${i + j + 1})`
-          : params.title,
+      title: params.title,
       content,
       embedding: vectors[j],
       embeddingDim: vectors[j].length,
@@ -911,7 +909,13 @@ async function runReindex(): Promise<ReindexResult> {
   const kbCol = await getCollection<KBArticle>("kb_articles");
   const kbDocs = await kbCol
     .find({ isPublished: true })
-    .project<KBArticle>({ title: 1, content: 1, excerpt: 1 })
+    .project<KBArticle>({
+      title: 1,
+      content: 1,
+      excerpt: 1,
+      categorySlug: 1,
+      slug: 1,
+    })
     .toArray();
 
   for (const art of kbDocs) {
@@ -924,6 +928,7 @@ async function runReindex(): Promise<ReindexResult> {
         sourceId: id,
         title: art.title,
         content: art.excerpt ? `${art.excerpt}\n\n${plain}` : plain,
+        url: kbArticlePublicPath(art.categorySlug, art.slug),
       });
       if (ok) result.kb++;
       else result.failed++;

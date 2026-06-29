@@ -15,6 +15,7 @@ export async function GET() {
       count: 0,
       availableCount: 0,
       connectedCount: 0,
+      readyCount: 0,
     });
   }
 }

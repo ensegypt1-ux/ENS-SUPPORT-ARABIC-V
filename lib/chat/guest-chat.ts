@@ -183,6 +183,7 @@ export async function createOrResumeGuestConversation(
     departmentSlug: input.departmentSlug,
     status: "unclaimed",
     assignedAgentId: null,
+    awaitingFirstMessage: true,
   };
 
   await conversationsCollection.insertOne(document);
@@ -282,7 +283,12 @@ export async function sendGuestMessage(input: {
   guestSessionId: string;
   guestAccessToken: string;
   content: string;
-}): Promise<{ success: boolean; error?: string; message?: Message }> {
+}): Promise<{
+  success: boolean;
+  error?: string;
+  message?: Message;
+  isFirstMessage?: boolean;
+}> {
   const conversation = await validateGuestAccess({
     conversationId: input.conversationId,
     guestSessionId: input.guestSessionId,
@@ -298,6 +304,14 @@ export async function sendGuestMessage(input: {
     return { success: false, error: "الرسالة غير صالحة" };
   }
 
+  const messagesCollection = await getCollection<{ conversationId: string }>(
+    "messages"
+  );
+  const priorCount = await messagesCollection.countDocuments({
+    conversationId: input.conversationId,
+  });
+  const isFirstMessage = priorCount === 0;
+
   const guestPid = guestParticipantId(input.guestSessionId);
   const senderName = conversation.guestName?.trim() || "زائر";
 
@@ -308,9 +322,24 @@ export async function sendGuestMessage(input: {
     content,
   });
 
+  if (isFirstMessage) {
+    const conversationsCollection =
+      await getCollection<ConversationDocument>("conversations");
+    await conversationsCollection.updateOne(
+      { id: input.conversationId },
+      {
+        $set: {
+          awaitingFirstMessage: false,
+          updatedAt: new Date(),
+        },
+      }
+    );
+  }
+
   return {
     success: true,
     message: serializeMessageDocument(messageDoc),
+    isFirstMessage,
   };
 }
 

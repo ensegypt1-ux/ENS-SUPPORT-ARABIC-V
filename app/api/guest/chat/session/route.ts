@@ -8,10 +8,7 @@ import {
   GuestProfileRequiredError,
   updateGuestProfile,
 } from "@/lib/chat/guest-chat";
-import {
-  notifyStaffOfGuestConversation,
-  notifyStaffOfGuestConversationEnded,
-} from "@/lib/chat/guest-notifications";
+import { notifyStaffOfGuestConversationEnded } from "@/lib/chat/guest-notifications";
 import { getSupportOnlineStatus } from "@/lib/chat/availability";
 import { getOrCreateAISettings } from "@/lib/ai/settings-store";
 import { checkRateLimit, extractClientIp } from "@/lib/rate-limit";
@@ -108,11 +105,6 @@ export async function POST(req: Request) {
       }
     }
 
-    const hadIncompleteProfile =
-      existingConversation && !existingConversation.guestPhone?.trim();
-    const profileCompleted =
-      Boolean(parsed.data.guestPhone?.trim()) && hadIncompleteProfile;
-
     const result = await createOrResumeGuestConversation({
       guestSessionId: parsed.data.guestSessionId,
       chatLogId: parsed.data.chatLogId,
@@ -121,12 +113,6 @@ export async function POST(req: Request) {
       guestEmail: parsed.data.guestEmail || undefined,
       guestPhone: parsed.data.guestPhone,
     });
-
-    if (result.isNew || profileCompleted) {
-      await notifyStaffOfGuestConversation(result.conversationId, {
-        isNew: result.isNew,
-      });
-    }
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {

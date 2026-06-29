@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getSocketClient } from "@/lib/socket/client";
+import { getPublicSupportSocket } from "@/lib/socket/client";
 
 type SupportAvailabilitySnapshot = {
   online: boolean;
   count: number;
   availableCount: number;
   connectedCount: number;
+  readyCount?: number;
 };
 
 async function fetchSupportAvailability(): Promise<SupportAvailabilitySnapshot> {
@@ -18,12 +19,13 @@ async function fetchSupportAvailability(): Promise<SupportAvailabilitySnapshot> 
     count: data.count ?? 0,
     availableCount: data.availableCount ?? 0,
     connectedCount: data.connectedCount ?? 0,
+    readyCount: data.readyCount ?? 0,
   };
 }
 
 /**
- * Public support readiness for the widget (available + connected agents).
- * Polls as fallback; listens for realtime socket updates when connected.
+ * Customer-facing support availability (toggle opt-in only).
+ * Uses a dedicated public socket for instant updates; polls only as fallback.
  */
 export function useSupportOnlineStatus(enabled = true) {
   const [online, setOnline] = useState<boolean | null>(null);
@@ -54,21 +56,32 @@ export function useSupportOnlineStatus(enabled = true) {
     };
 
     void poll();
-    const interval = setInterval(() => {
-      void poll();
-    }, 30000);
 
-    const socket = getSocketClient();
+    const socket = getPublicSupportSocket();
     const handleChanged = (snapshot: SupportAvailabilitySnapshot) => {
       apply(Boolean(snapshot.online));
     };
 
+    const handleConnect = () => {
+      void poll();
+    };
+
     socket.on("support:availability:changed", handleChanged);
+    socket.on("connect", handleConnect);
+
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    const interval = setInterval(() => {
+      void poll();
+    }, 120_000);
 
     return () => {
       cancelled = true;
       clearInterval(interval);
       socket.off("support:availability:changed", handleChanged);
+      socket.off("connect", handleConnect);
     };
   }, [enabled]);
 

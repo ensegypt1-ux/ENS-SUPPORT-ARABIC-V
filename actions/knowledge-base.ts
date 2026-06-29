@@ -11,6 +11,7 @@ import {
   upsertKnowledgeEmbedding,
   removeKnowledgeEmbedding,
 } from "@/lib/ai/knowledge-index";
+import { kbArticlePublicPath } from "@/lib/ai/citation-utils";
 import { htmlToText } from "@/lib/ai/html-to-text";
 
 function slugify(value: string) {
@@ -356,6 +357,7 @@ export async function createKBArticle(
         sourceId: result.insertedId.toString(),
         title,
         content: excerpt ? `${excerpt}\n\n${plain}` : plain,
+        url: kbArticlePublicPath(categorySlug, slug),
       });
     }
 
@@ -382,6 +384,10 @@ export async function updateKBArticle(
       return { success: false, error: "معرّف المقال غير صالح" };
 
     const col = await getCollection<KBArticle>("kb_articles");
+    const existing = await col.findOne(
+      { _id: new ObjectId(id) },
+      { projection: { slug: 1 } }
+    );
 
     await col.updateOne(
       { _id: new ObjectId(id) },
@@ -403,6 +409,10 @@ export async function updateKBArticle(
         content: parsed.data.excerpt
           ? `${parsed.data.excerpt}\n\n${plain}`
           : plain,
+        url: kbArticlePublicPath(
+          parsed.data.categorySlug,
+          existing?.slug ?? id
+        ),
       });
     } else {
       void removeKnowledgeEmbedding("kb", id);

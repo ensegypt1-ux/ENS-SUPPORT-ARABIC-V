@@ -5,7 +5,10 @@ import {
   sendGuestMessage,
   validateGuestAccess,
 } from "@/lib/chat/guest-chat";
-import { notifyStaffOfGuestMessage } from "@/lib/chat/guest-notifications";
+import {
+  notifyStaffOfGuestConversation,
+  notifyStaffOfGuestMessage,
+} from "@/lib/chat/guest-notifications";
 import { checkRateLimit, extractClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +72,10 @@ export async function POST(req: Request) {
         { success: false, error: result.error || "تعذّر إرسال الرسالة" },
         { status: 400 }
       );
+    }
+
+    if (result.isFirstMessage) {
+      await notifyStaffOfGuestConversation(parsed.data.conversationId);
     }
 
     await notifyStaffOfGuestMessage(

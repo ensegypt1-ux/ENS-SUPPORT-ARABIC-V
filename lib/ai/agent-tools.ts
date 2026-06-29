@@ -1,7 +1,10 @@
 import type OpenAI from "openai";
+import { ObjectId } from "mongodb";
 import { searchKnowledge } from "@/lib/ai/knowledge-index";
 import { findSimilarPairs } from "@/lib/ai/search";
-import type { AIChatSource, AISettings } from "@/types";
+import { buildCitationFromResult } from "@/lib/ai/citation-utils";
+import { getCollection } from "@/lib/db";
+import type { AIChatSource, AIKnowledgeSearchResult, AISettings, AIWebSource } from "@/types";
 
 export interface AgentToolContext {
   ip: string;
@@ -55,6 +58,25 @@ function fmtResults(
     .join("\n\n---\n\n");
 }
 
+async function loadWebSourceNames(
+  rows: AIKnowledgeSearchResult[]
+): Promise<Map<string, string>> {
+  const ids: ObjectId[] = [];
+  for (const r of rows) {
+    if (r.sourceType !== "web_page") continue;
+    const id = r.sourceId.split(":")[0];
+    if (id && ObjectId.isValid(id)) ids.push(new ObjectId(id));
+  }
+  if (ids.length === 0) return new Map();
+
+  const col = await getCollection<AIWebSource>("ai_web_sources");
+  const docs = await col
+    .find({ _id: { $in: ids } })
+    .project<Pick<AIWebSource, "_id" | "name">>({ name: 1 })
+    .toArray();
+  return new Map(docs.map((d) => [d._id.toString(), d.name]));
+}
+
 export const AGENT_TOOLS: Record<string, ToolDef> = {
   search_knowledge: {
     write: false,
@@ -84,10 +106,10 @@ export const AGENT_TOOLS: Record<string, ToolDef> = {
         Math.min(Number(args.topK) || 5, 8),
         { siteId: ctx.siteId }
       );
-      // Record clickable citations (web pages carry a URL) in retrieval order
-      // so the widget can show "Sources" under the answer.
+      const webNames = await loadWebSourceNames(rows);
       for (const r of rows) {
-        if (r.url) ctx.sources.push({ title: r.title || r.url, url: r.url });
+        const citation = buildCitationFromResult(r, webNames);
+        if (citation) ctx.sources.push(citation);
       }
       return fmtResults(rows);
     },

@@ -87,6 +87,10 @@ function getTypingTimeouts() {
   return socketGlobals.__typingTimeouts;
 }
 
+function roomForPublicSupport() {
+  return "public:support";
+}
+
 function roomForStaffInbox() {
   return "staff:inbox";
 }
@@ -334,6 +338,10 @@ type GuestAuthPayload = {
   conversationId?: string;
 };
 
+function isPublicSupportAuth(authPayload: GuestAuthPayload): boolean {
+  return authPayload.type === "public";
+}
+
 async function getSocketGuestUser(
   authPayload: GuestAuthPayload
 ): Promise<SocketGuestUser | null> {
@@ -382,6 +390,13 @@ export function initializeSocketServer(httpServer: HttpServer) {
   io.use(async (socket, next) => {
     try {
       const authPayload = (socket.handshake.auth || {}) as GuestAuthPayload;
+
+      if (isPublicSupportAuth(authPayload)) {
+        socket.data.publicSupport = true;
+        next();
+        return;
+      }
+
       const user = await getSocketSessionUser(
         socket.request.headers as Record<string, string | string[] | undefined>
       );
@@ -406,6 +421,20 @@ export function initializeSocketServer(httpServer: HttpServer) {
   });
 
   io.on("connection", (socket) => {
+    if (socket.data.publicSupport) {
+      socket.join(roomForPublicSupport());
+      void (async () => {
+        const { getSupportAvailabilitySnapshot } = await import(
+          "@/lib/chat/availability"
+        );
+        socket.emit(
+          "support:availability:changed",
+          await getSupportAvailabilitySnapshot()
+        );
+      })();
+      return;
+    }
+
     const user = socket.data.user;
     const guest = socket.data.guest;
 
@@ -717,6 +746,7 @@ export async function emitSupportAvailabilityChanged() {
   );
   const snapshot = await getSupportAvailabilitySnapshot();
 
+  io.to(roomForPublicSupport()).emit("support:availability:changed", snapshot);
   io.emit("support:availability:changed", snapshot);
   emitOpsCenterChanged();
 }

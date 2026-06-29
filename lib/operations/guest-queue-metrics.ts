@@ -1,4 +1,5 @@
 import type { ConversationDocument } from "@/lib/chat/server";
+import { isGuestConversationVisibleInStaffInbox } from "@/lib/chat/guest-inbox";
 
 export type ServerGuestQueueMetrics = {
   waiting: number;
@@ -37,6 +38,7 @@ export function computeGuestQueueMetricsFromDocuments(
 
   for (const conversation of conversations) {
     if (conversation.source !== "guest_widget") continue;
+    if (!isGuestConversationVisibleInStaffInbox(conversation)) continue;
 
     const status = conversation.status || "unclaimed";
     const createdAt =

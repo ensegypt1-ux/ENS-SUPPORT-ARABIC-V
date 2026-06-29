@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import { Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { resolveWidgetTheme } from "@/lib/ai/widget-theme";
+import { dedupeCitationSources } from "@/lib/ai/citation-utils";
 import { formatWidgetTime } from "@/components/ai-chat/widget-primitives";
 import type { ChatMessage } from "./use-chat-session";
 
@@ -24,6 +25,9 @@ export function ChatMessageBubble({
   const isSystem = message.role === "system";
   const theme = resolveWidgetTheme(primaryColor, accentColor);
   const timeLabel = formatWidgetTime(message.createdAt);
+  const displaySources = !isUser
+    ? dedupeCitationSources(message.sources ?? [])
+    : [];
 
   if (isSystem) {
     return (
@@ -98,12 +102,12 @@ export function ChatMessageBubble({
             </div>
           )}
 
-          {!isUser && message.sources && message.sources.length > 0 && (
+          {!isUser && displaySources.length > 0 && (
             <div className="mt-2 flex flex-col gap-1 border-t border-border/35 pt-2">
               <span className="text-[10px] font-medium text-muted-foreground/75">
                 المصادر
               </span>
-              {message.sources.map((s, i) => (
+              {displaySources.map((s, i) => (
                 <a
                   key={`${s.url}-${i}`}
                   href={s.url}

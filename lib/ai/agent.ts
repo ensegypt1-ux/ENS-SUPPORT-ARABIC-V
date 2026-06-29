@@ -10,6 +10,7 @@ import type {
   AIChatToolCall,
   TicketDepartmentDefinition,
 } from "@/types";
+import { dedupeCitationSources } from "@/lib/ai/citation-utils";
 import { ENS_BRAND } from "@/lib/ens-brand";
 
 /** Max clickable citations shown beneath one answer. */
@@ -256,18 +257,9 @@ export async function runAgent(input: AgentRunInput): Promise<AgentResult> {
     outcome = "answered_general";
   }
 
-  // Only cite sources on a real answer (not a fallback/handoff/no-answer), and
-  // dedupe by URL keeping first-seen (highest-ranked) order.
-  const sources: AIChatSource[] = [];
-  if (outcome.startsWith("answered_")) {
-    const seen = new Set<string>();
-    for (const s of toolCtx.sources) {
-      if (seen.has(s.url)) continue;
-      seen.add(s.url);
-      sources.push(s);
-      if (sources.length >= MAX_SOURCES) break;
-    }
-  }
+  const sources: AIChatSource[] = outcome.startsWith("answered_")
+    ? dedupeCitationSources(toolCtx.sources, MAX_SOURCES)
+    : [];
 
   return {
     answer: answer || FALLBACK_ANSWER,

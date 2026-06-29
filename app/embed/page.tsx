@@ -16,6 +16,10 @@ import { useCallback, useEffect, useState } from "react";
 import { WidgetLauncherSkeleton } from "@/components/ui/loading";
 import { ChatWindow } from "@/components/ai-chat/chat-window";
 import { WidgetLauncherButton } from "@/components/ai-chat/widget-launcher-button";
+import {
+  SupportOnlineProvider,
+  useSupportOnline,
+} from "@/components/ai-chat/support-online-context";
 import { cn } from "@/lib/utils";
 import type { AIChatbotPublicConfig } from "@/types";
 
@@ -132,6 +136,61 @@ export default function EmbedPage() {
   if (!config.enabled) return null;
 
   return (
+    <SupportOnlineProvider enabled={config.guestLiveChatEnabled !== false}>
+      <EmbedWidgetShell
+        config={config}
+        open={open}
+        setOpen={setOpen}
+        handleClose={handleClose}
+        siteKey={siteKey}
+        hostOrigin={hostOrigin}
+        storageNamespace={storageNamespace}
+      />
+    </SupportOnlineProvider>
+  );
+}
+
+function EmbedLauncherButton({
+  config,
+  onOpen,
+}: {
+  config: AIChatbotPublicConfig;
+  onOpen: () => void;
+}) {
+  const supportOnline = useSupportOnline();
+  const liveChatEnabled = config.guestLiveChatEnabled !== false;
+
+  return (
+    <WidgetLauncherButton
+      headerAvatarUrl={config.headerAvatarUrl}
+      primaryColor={config.primaryColor}
+      onClick={onOpen}
+      variant="embed"
+      ariaLabel="فتح المحادثة"
+      title="فتح المحادثة"
+      showOnlineIndicator={liveChatEnabled && supportOnline === true}
+    />
+  );
+}
+
+function EmbedWidgetShell({
+  config,
+  open,
+  setOpen,
+  handleClose,
+  siteKey,
+  hostOrigin,
+  storageNamespace,
+}: {
+  config: AIChatbotPublicConfig;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  handleClose: () => void;
+  siteKey: string;
+  hostOrigin: string;
+  storageNamespace: string;
+}) {
+  return (
     <>
       {/* The host page may have any background; keep the iframe see-through
           so only the bubble/window are visible. */}
@@ -166,14 +225,7 @@ export default function EmbedPage() {
         </div>
 
         {!open && (
-          <WidgetLauncherButton
-            headerAvatarUrl={config.headerAvatarUrl}
-            primaryColor={config.primaryColor}
-            onClick={() => setOpen(true)}
-            variant="embed"
-            ariaLabel="فتح المحادثة"
-            title="فتح المحادثة"
-          />
+          <EmbedLauncherButton config={config} onOpen={() => setOpen(true)} />
         )}
       </div>
     </>

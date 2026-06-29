@@ -9,6 +9,7 @@ import {
   getStaffMembers,
 } from "@/lib/chat/availability";
 import { getConversationDocument } from "@/lib/chat/server";
+import { isGuestConversationVisibleInStaffInbox } from "@/lib/chat/guest-inbox";
 import type { Message } from "@/types/realtime";
 
 export async function notifyStaffOfGuestConversation(
@@ -38,10 +39,16 @@ export async function notifyStaffOfGuestConversationEnded(
   conversationId: string,
   guestName?: string
 ) {
+  const conversation = await getConversationDocument(conversationId);
+  if (
+    conversation &&
+    !isGuestConversationVisibleInStaffInbox(conversation)
+  ) {
+    return;
+  }
+
   await emitConversationSummaryToConnectedStaffInbox(conversationId);
   emitGuestInboxChanged(conversationId);
-
-  const conversation = await getConversationDocument(conversationId);
   const staff = await getStaffMembers();
   const recipientIds = new Set<string>();
 
